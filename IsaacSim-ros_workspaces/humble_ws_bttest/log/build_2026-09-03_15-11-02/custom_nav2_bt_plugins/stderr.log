@@ -1,0 +1,10 @@
+/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/src/custom_nav2_bt_plugins/src/capture_initial_path_action.cpp: In member function ‘virtual BT::NodeStatus custom_nav2_bt_plugins::CaptureInitialPathAction::tick()’:
+/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/src/custom_nav2_bt_plugins/src/capture_initial_path_action.cpp:35:34: error: cannot convert ‘BT::Result’ {aka ‘nonstd::expected_lite::expected<void, std::__cxx11::basic_string<char> >’} to ‘const bool’ in initialization
+   35 |   const bool have_goal = getInput("goal", goal);
+      |                          ~~~~~~~~^~~~~~~~~~~~~~
+      |                                  |
+      |                                  BT::Result {aka nonstd::expected_lite::expected<void, std::__cxx11::basic_string<char> >}
+gmake[2]: *** [CMakeFiles/custom_capture_initial_path_action_bt_node.dir/build.make:76: CMakeFiles/custom_capture_initial_path_action_bt_node.dir/src/capture_initial_path_action.cpp.o] Error 1
+gmake[1]: *** [CMakeFiles/Makefile2:199: CMakeFiles/custom_capture_initial_path_action_bt_node.dir/all] Error 2
+gmake[1]: *** Waiting for unfinished jobs....
+gmake: *** [Makefile:146: all] Error 2

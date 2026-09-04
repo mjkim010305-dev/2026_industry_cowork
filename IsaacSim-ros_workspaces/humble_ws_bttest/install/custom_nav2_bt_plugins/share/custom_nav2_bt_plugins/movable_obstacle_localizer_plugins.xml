@@ -1,0 +1,10 @@
+<library path="custom_movable_obstacle_localizers">
+  <class type="custom_nav2_bt_plugins::DepthCentroidLocalizer"
+         base_class_type="custom_nav2_bt_plugins::MovableObstacleLocalizer">
+    <description>
+      Depth-only localizer. Takes the nearest cluster in a central ROI of the
+      RealSense depth image and deprojects its centroid with the CameraInfo
+      intrinsics to a point in the depth optical frame.
+    </description>
+  </class>
+</library>

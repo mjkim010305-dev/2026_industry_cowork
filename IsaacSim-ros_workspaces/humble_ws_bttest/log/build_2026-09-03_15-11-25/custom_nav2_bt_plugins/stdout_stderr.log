@@ -1,0 +1,52 @@
+Consolidate compiler generated dependencies of target custom_approach_obstacle_normal_action_bt_node
+Consolidate compiler generated dependencies of target custom_capture_initial_path_action_bt_node
+[ 16%] Built target rgbd_obstacle_localizer
+[ 50%] Built target custom_wait_for_obstacle_clearance_action_bt_node
+[ 50%] Built target custom_movable_obstacle_localizers
+[ 66%] Built target custom_is_movable_obstacle_detected_condition_bt_node
+[ 83%] Built target custom_approach_obstacle_normal_action_bt_node
+[ 91%] Building CXX object CMakeFiles/custom_capture_initial_path_action_bt_node.dir/src/capture_initial_path_action.cpp.o
+[100%] Linking CXX shared library libcustom_capture_initial_path_action_bt_node.so
+[100%] Built target custom_capture_initial_path_action_bt_node
+-- Install configuration: "Release"
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/movable_obstacle_localizer_plugins.xml
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/lib/libcustom_is_movable_obstacle_detected_condition_bt_node.so
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/lib/libcustom_wait_for_obstacle_clearance_action_bt_node.so
+-- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/lib/libcustom_capture_initial_path_action_bt_node.so
+-- Set runtime path of "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/lib/libcustom_capture_initial_path_action_bt_node.so" to ""
+-- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/lib/libcustom_approach_obstacle_normal_action_bt_node.so
+-- Set runtime path of "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/lib/libcustom_approach_obstacle_normal_action_bt_node.so" to ""
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/lib/libcustom_movable_obstacle_localizers.so
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/lib/custom_nav2_bt_plugins/rgbd_obstacle_localizer
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/include/
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/include//custom_nav2_bt_plugins
+-- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/include//custom_nav2_bt_plugins/capture_initial_path_action.hpp
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/include//custom_nav2_bt_plugins/wait_for_obstacle_clearance_action.hpp
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/include//custom_nav2_bt_plugins/movable_obstacle_localizer.hpp
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/include//custom_nav2_bt_plugins/is_movable_obstacle_detected_condition.hpp
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/include//custom_nav2_bt_plugins/depth_centroid_localizer.hpp
+-- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/include//custom_nav2_bt_plugins/approach_obstacle_normal_action.hpp
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/launch
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/launch/rgbd_obstacle_localizer.launch.py
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/movable_obstacle_localizer_plugins.xml
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/environment/library_path.sh
+-- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/environment/library_path.dsv
+-- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/ament_index/resource_index/package_run_dependencies/custom_nav2_bt_plugins
+-- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/ament_index/resource_index/parent_prefix_path/custom_nav2_bt_plugins
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/environment/ament_prefix_path.sh
+-- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/environment/ament_prefix_path.dsv
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/environment/path.sh
+-- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/environment/path.dsv
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/local_setup.bash
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/local_setup.sh
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/local_setup.zsh
+-- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/local_setup.dsv
+-- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/package.dsv
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/ament_index/resource_index/packages/custom_nav2_bt_plugins
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/ament_index/resource_index/custom_nav2_bt_plugins__pluginlib__plugin/custom_nav2_bt_plugins
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/cmake/ament_cmake_export_include_directories-extras.cmake
+-- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/cmake/ament_cmake_export_libraries-extras.cmake
+-- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/cmake/ament_cmake_export_dependencies-extras.cmake
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/cmake/custom_nav2_bt_pluginsConfig.cmake
+-- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/cmake/custom_nav2_bt_pluginsConfig-version.cmake
+-- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/package.xml

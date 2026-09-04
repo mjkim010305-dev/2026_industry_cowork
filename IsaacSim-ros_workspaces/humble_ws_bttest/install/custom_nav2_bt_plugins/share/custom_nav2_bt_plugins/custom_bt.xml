@@ -1,0 +1,68 @@
+<!--
+  Navigate-to-pose tree with replanning, recovery, AND movable-obstacle handling.
+
+  Normal operation is identical to the stock Nav2 tree: the global path is
+  replanned at 1 Hz and FollowPath drives the robot along it.
+
+  Movable-obstacle handling (added):
+    * IsMovableObstacleDetected subscribes to /movable_obstacle/pose
+      (geometry_msgs/PoseStamped). The perception stack publishes a pose there
+      only while it classifies the blocking obstacle as movable.
+    * The robot keeps following the global path until it is within
+      `proximity_range` metres of that obstacle. At that point the
+      HandleMovableObstacle branch takes over the ReactiveFallback, FollowPath
+      is halted and the robot holds position.
+    * WaitForObstacleClearance subscribes to /obstacle/present (std_msgs/Bool)
+      and stays RUNNING until the obstacle is reported handled (data == false)
+      or its updates go stale.
+    * While the robot waits, the RateController above keeps replanning, so once
+      the obstacle is gone the local/global path is refreshed and FollowPath
+      resumes straight to the goal.
+-->
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+      <PipelineSequence name="NavigateWithReplanning">
+        <RateController hz="1.0">
+          <RecoveryNode number_of_retries="1" name="ComputePathToPose">
+            <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+            <ClearEntireCostmap name="ClearGlobalCostmap-Context" service_name="global_costmap/clear_entirely_global_costmap"/>
+          </RecoveryNode>
+        </RateController>
+        <RecoveryNode number_of_retries="1" name="FollowPath">
+          <ReactiveFallback name="FollowPathOrHandleMovableObstacle">
+            <ReactiveSequence name="HandleMovableObstacle">
+              <IsMovableObstacleDetected topic="/movable_obstacle/pose"
+                                         proximity_range="0.6"
+                                         message_timeout="2.0"
+                                         global_frame="map"
+                                         robot_base_frame="base_link"
+                                         transform_tolerance="0.1"
+                                         obstacle_pose="{movable_obstacle_pose}"/>
+              <Inverter>
+                <WaitForObstacleClearance topic="/obstacle/present"
+                                          timeout="0.0"
+                                          clear_on_stale="true"
+                                          message_timeout="3.0"/>
+              </Inverter>
+            </ReactiveSequence>
+            <FollowPath path="{path}" controller_id="FollowPath"/>
+          </ReactiveFallback>
+          <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
+        </RecoveryNode>
+      </PipelineSequence>
+      <ReactiveFallback name="RecoveryFallback">
+        <GoalUpdated/>
+        <RoundRobin name="RecoveryActions">
+          <Sequence name="ClearingActions">
+            <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
+            <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
+          </Sequence>
+          <Spin spin_dist="1.57"/>
+          <Wait wait_duration="5"/>
+          <BackUp backup_dist="0.30" backup_speed="0.05"/>
+        </RoundRobin>
+      </ReactiveFallback>
+    </RecoveryNode>
+  </BehaviorTree>
+</root>
