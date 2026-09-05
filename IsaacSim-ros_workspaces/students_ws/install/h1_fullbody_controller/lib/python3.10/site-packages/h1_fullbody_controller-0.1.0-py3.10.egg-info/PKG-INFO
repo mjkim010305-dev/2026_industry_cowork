@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: h1-fullbody-controller
+Version: 0.1.0
+Summary: Fullbody controller for the H1 humanoid robot using a neural network policy
+Home-page: UNKNOWN
+Maintainer: Isaac Sim
+Maintainer-email: isaac-sim-maintainers@nvidia.com
+License: Apache-2.0
+Platform: UNKNOWN
+
+UNKNOWN
+

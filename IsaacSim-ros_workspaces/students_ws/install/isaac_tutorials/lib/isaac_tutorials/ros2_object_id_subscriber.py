@@ -1,0 +1,1 @@
+/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials/scripts/ros2_object_id_subscriber.py

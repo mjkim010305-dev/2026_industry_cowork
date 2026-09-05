@@ -1,0 +1,3 @@
+[console_scripts]
+decoder_node = isaac_compressed_image_decoder.decoder_node:main
+

@@ -1,0 +1,3 @@
+[console_scripts]
+run_isaacsim = isaacsim_bringup.run_isaacsim:main
+

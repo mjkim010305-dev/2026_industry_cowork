@@ -1,0 +1,1 @@
+ament_cmake_symlink_install_targets("TARGET_FILES" "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/rgbd_obstacle_localizer" "TARGETS" "rgbd_obstacle_localizer" "RUNTIME_DESTINATION" "lib/custom_nav2_bt_plugins")

@@ -22,9 +22,13 @@
       (on-path obstacles have priority).
     * The robot follows that approach path to the stop point, then
       WaitForObstacleClearance holds it there (RUNNING) until
-      /obstacle/still_present goes false.
-    * While it waits, the RateController above keeps replanning, so once the
-      obstacle is handled FollowPath resumes on the refreshed full path to goal.
+      /obstacle/still_present goes false (the arm has removed the obstacle).
+    * HandleMovableObstacle is a plain (memory) Sequence, not a ReactiveSequence:
+      the guards above run once on entry, so a brief gap in /obstacle/is_movable
+      or /movable_obstacle/pose no longer ejects the robot from the wait.
+    * Once cleared, the costmaps are wiped of the now-stale obstacle mark and the
+      robot resumes the ORIGINAL captured path ({initial_path}) to the goal - not
+      the detour the RateController planned while it waited.
 -->
 <root main_tree_to_execute="MainTree">
   <BehaviorTree ID="MainTree">
@@ -38,7 +42,7 @@
         </RateController>
         <RecoveryNode number_of_retries="1" name="FollowPath">
           <ReactiveFallback name="FollowPathOrHandleMovableObstacle">
-            <ReactiveSequence name="HandleMovableObstacle">
+            <Sequence name="HandleMovableObstacle">
               <CaptureInitialPath path="{path}" goal="{goal}"
                                   goal_change_threshold="0.5"
                                   initial_path="{initial_path}"/>
@@ -54,16 +58,19 @@
                                       robot_base_frame="base_link"
                                       approach_path="{approach_path}"
                                       approach_goal="{approach_goal}"/>
-              <Sequence name="ApproachThenWait">
+              <Sequence name="ApproachThenResume">
                 <FollowPath path="{approach_path}" controller_id="FollowPath"/>
-                <Inverter>
-                  <WaitForObstacleClearance topic="/obstacle/still_present"
-                                            timeout="0.0"
-                                            clear_on_stale="true"
-                                            message_timeout="3.0"/>
-                </Inverter>
+                <WaitForObstacleClearance topic="/obstacle/still_present"
+                                          timeout="0.0"
+                                          clear_on_stale="true"
+                                          message_timeout="3.0"/>
+                <ClearEntireCostmap name="ClearLocalCostmap-Resume"
+                                    service_name="local_costmap/clear_entirely_local_costmap"/>
+                <ClearEntireCostmap name="ClearGlobalCostmap-Resume"
+                                    service_name="global_costmap/clear_entirely_global_costmap"/>
+                <FollowPath path="{initial_path}" controller_id="FollowPath"/>
               </Sequence>
-            </ReactiveSequence>
+            </Sequence>
             <FollowPath path="{path}" controller_id="FollowPath"/>
           </ReactiveFallback>
           <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>

@@ -1,0 +1,21 @@
+[0.963s] Invoking command in '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/humanoid_locomotion_policy_example/h1_fullbody_controller': PYTHONPATH=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/h1_fullbody_controller/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../build/h1_fullbody_controller build --build-base /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/h1_fullbody_controller/build install --record /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/h1_fullbody_controller/install.log --install-scripts $base/lib/h1_fullbody_controller --single-version-externally-managed install_data
+[1.143s] running egg_info
+[1.144s] writing ../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info/PKG-INFO
+[1.144s] writing dependency_links to ../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info/dependency_links.txt
+[1.144s] writing entry points to ../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info/entry_points.txt
+[1.144s] writing requirements to ../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info/requires.txt
+[1.144s] writing top-level names to ../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info/top_level.txt
+[1.146s] reading manifest file '../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info/SOURCES.txt'
+[1.146s] writing manifest file '../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info/SOURCES.txt'
+[1.146s] running build
+[1.146s] running build_py
+[1.147s] running install
+[1.147s] running install_lib
+[1.148s] running install_data
+[1.148s] running install_egg_info
+[1.150s] removing '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/lib/python3.10/site-packages/h1_fullbody_controller-0.1.0-py3.10.egg-info' (and everything under it)
+[1.153s] Copying ../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info to /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/lib/python3.10/site-packages/h1_fullbody_controller-0.1.0-py3.10.egg-info
+[1.153s] running install_scripts
+[1.163s] Installing h1_fullbody_controller script to /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/lib/h1_fullbody_controller
+[1.163s] writing list of installed files to '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/h1_fullbody_controller/install.log'
+[1.185s] Invoked command in '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/humanoid_locomotion_policy_example/h1_fullbody_controller' returned '0': PYTHONPATH=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/h1_fullbody_controller/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../../build/h1_fullbody_controller build --build-base /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/h1_fullbody_controller/build install --record /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/h1_fullbody_controller/install.log --install-scripts $base/lib/h1_fullbody_controller --single-version-externally-managed install_data

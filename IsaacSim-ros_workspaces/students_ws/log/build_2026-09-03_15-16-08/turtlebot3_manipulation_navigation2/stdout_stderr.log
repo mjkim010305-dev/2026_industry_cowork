@@ -1,0 +1,29 @@
+-- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+-- Override CMake install command with custom implementation using symlinks instead of copying resources
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_navigation2
+-- Install configuration: ""
+-- Execute custom install script
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/launch/navigation2.launch.py
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/launch/navigation2_use_sim_time.launch.py
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/map/turtlebot3_world.pgm
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/map/turtlebot3_world.yaml
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/param/turtlebot3.yaml
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/param/turtlebot3_use_sim_time.yaml
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/rviz/navigation2.rviz
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/ament_index/resource_index/package_run_dependencies/turtlebot3_manipulation_navigation2
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/ament_index/resource_index/parent_prefix_path/turtlebot3_manipulation_navigation2
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/environment/ament_prefix_path.sh
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/environment/ament_prefix_path.dsv
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/environment/path.sh
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/environment/path.dsv
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/local_setup.bash
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/local_setup.sh
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/local_setup.zsh
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/local_setup.dsv
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/package.dsv
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/ament_index/resource_index/packages/turtlebot3_manipulation_navigation2
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/cmake/turtlebot3_manipulation_navigation2Config.cmake
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/cmake/turtlebot3_manipulation_navigation2Config-version.cmake
+-- Symlinking: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_navigation2/share/turtlebot3_manipulation_navigation2/package.xml

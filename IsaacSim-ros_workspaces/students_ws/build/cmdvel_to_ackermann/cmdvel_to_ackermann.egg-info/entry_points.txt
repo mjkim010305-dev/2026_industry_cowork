@@ -1,0 +1,3 @@
+[console_scripts]
+cmdvel_to_ackermann = cmdvel_to_ackermann.cmdvel_to_ackermann:main
+

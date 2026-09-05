@@ -1,0 +1,6 @@
+{
+  "package_name": "custom_message",
+  "non_idl_tuples": [
+    "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message:msg/SampleMsg.msg"
+  ]
+}

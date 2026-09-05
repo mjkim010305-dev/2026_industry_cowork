@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<StudentGuide title="Isaac Sim / ROS2 / Nav2 기초 가이드" audience="장애물 제거 로봇 프로젝트 참여 학생">
+
+  <Section id="1" name="Isaac Sim 기초">
+    <Overview>
+      Isaac Sim은 로봇을 실제 하드웨어 없이 가상 환경에서 시뮬레이션할 수 있는 NVIDIA의 로보틱스 시뮬레이터입니다.
+      본 프로젝트에서는 로봇, 센서, 장애물 등을 배치하고 동작 시나리오를 구성하는 용도로 사용합니다.
+    </Overview>
+
+    <Topic name="Asset">
+      <Description>
+        Asset은 시뮬레이션 안에 배치되는 3D 객체(로봇, 가구, 장애물, 맵 등)를 의미합니다.
+        USD(Universal Scene Description) 포맷으로 관리되며, Nucleus 서버나 로컬 파일에서 불러와 씬(Scene)에 배치할 수 있습니다.
+      </Description>
+      <KeyPoints>
+        <Point>Stage 창에서 씬의 계층 구조(Hierarchy)를 확인하고 편집한다.</Point>
+        <Point>Asset은 위치(Transform), 물리 속성(Physics), 충돌체(Collider) 등을 개별적으로 설정할 수 있다.</Point>
+        <Point>프로젝트에서는 이동 가능한 장애물(예: 상자)과 고정 장애물을 구분하여 배치하는 것이 중요하다.</Point>
+      </KeyPoints>
+    </Topic>
+
+    <Topic name="Action Graph">
+      <Description>
+        Action Graph는 노드 기반 비주얼 스크립팅 도구로, 코드를 직접 작성하지 않아도 이벤트-동작 로직을 구성할 수 있습니다.
+        ROS2 브릿지(퍼블리셔/서브스크라이버 노드 등)를 연결하는 데 자주 사용됩니다.
+      </Description>
+      <KeyPoints>
+        <Point>On Playback Tick과 같은 이벤트 노드에서 시작해, 센서 데이터 발행이나 로봇 제어 로직을 노드로 연결한다.</Point>
+        <Point>ROS2 Publish/Subscribe 관련 OmniGraph 노드를 사용하면 시뮬레이션 데이터를 ROS2 토픽으로 주고받을 수 있다.</Point>
+        <Point>그래프는 시각적으로 디버깅이 쉬우나, 복잡한 로직은 가독성이 떨어질 수 있으므로 모듈화가 필요하다.</Point>
+      </KeyPoints>
+    </Topic>
+
+    <Topic name="Context (Physics/World Context)">
+      <Description>
+        Context는 시뮬레이션이 실행되는 물리적/논리적 환경 설정을 의미합니다(중력, 물리 엔진 설정, 좌표계, 스테이지 단위 등).
+      </Description>
+      <KeyPoints>
+        <Point>Physics Scene 설정에서 중력, 솔버(Solver) 방식 등을 조정할 수 있다.</Point>
+        <Point>월드 좌표계와 로봇 기준 좌표계(base_link 등) 간 변환 관계를 이해하는 것이 Nav2 연동 시 중요하다.</Point>
+        <Point>센서(RGB-D 카메라 등)의 Context 설정에 따라 ROS2로 발행되는 데이터의 프레임(frame_id)이 달라진다.</Point>
+      </KeyPoints>
+    </Topic>
+  </Section>
+
+  <Section id="2" name="ROS2 기초">
+    <Overview>
+      ROS2(Robot Operating System 2)는 로봇 소프트웨어를 구성하는 표준 미들웨어 프레임워크로,
+      여러 프로세스(노드)가 메시지를 주고받으며 협력하는 분산 구조를 제공합니다.
+    </Overview>
+
+    <Topic name="Node">
+      <Description>
+        Node는 특정 기능을 수행하는 독립적인 실행 단위입니다(예: 카메라 드라이버 노드, 경로 계획 노드).
+      </Description>
+      <KeyPoints>
+        <Point>하나의 로봇 시스템은 여러 개의 노드가 협력하여 동작한다.</Point>
+        <Point>각 노드는 독립적으로 실행/종료가 가능해 시스템을 모듈화할 수 있다.</Point>
+      </KeyPoints>
+    </Topic>
+
+    <Topic name="Topic / Publish / Subscribe">
+      <Description>
+        노드 간 데이터 통신은 주로 Topic을 통한 비동기 발행-구독(Pub/Sub) 방식으로 이루어집니다.
+      </Description>
+      <KeyPoints>
+        <Point>Publisher는 특정 토픽에 메시지를 지속적으로 발행(publish)한다.</Point>
+        <Point>Subscriber는 해당 토픽을 구독(subscribe)하여 메시지가 발행될 때마다 콜백으로 처리한다.</Point>
+        <Point>같은 토픽 이름과 메시지 타입을 사용해야 노드 간 통신이 정상적으로 이루어진다.</Point>
+        <Point>프로젝트 예: 카메라 노드가 depth 이미지를 퍼블리시하면, 좌표 변환 노드가 이를 구독해 map 좌표를 계산한다.</Point>
+      </KeyPoints>
+    </Topic>
+  </Section>
+
+  <Section id="3" name="Nav2 기초">
+    <Overview>
+      Nav2(Navigation2)는 ROS2 기반의 자율주행 내비게이션 스택으로, 지도 기반 경로 계획과 장애물 회피를 담당합니다.
+    </Overview>
+
+    <Topic name="Occupancy Map">
+      <Description>
+        Occupancy Map(점유 격자 지도)은 공간을 일정 크기의 셀로 나누어 각 셀이 점유(장애물), 비점유(이동 가능), 미지(unknown) 상태인지를 나타내는 지도입니다.
+      </Description>
+      <KeyPoints>
+        <Point>SLAM을 통해 생성되며, 고정 장애물은 이 지도(Global Costmap)에 반영된다.</Point>
+        <Point>이동하는 장애물(예: 상자)은 Global Map에는 없고, 실시간으로 갱신되는 Local Costmap에서 감지된다.</Point>
+        <Point>경로 계획 시 Global/Local Costmap을 함께 고려해 충돌 없는 경로를 산출한다.</Point>
+      </KeyPoints>
+    </Topic>
+
+    <Topic name="YAML 설정 파일">
+      <Description>
+        Nav2의 각 서버(costmap, planner, controller 등)는 YAML 파일을 통해 파라미터를 설정합니다.
+      </Description>
+      <KeyPoints>
+        <Point>costmap 해상도, 크기, 인플레이션 반경 등 세부 동작을 YAML에서 조정할 수 있다.</Point>
+        <Point>지도 메타데이터(해상도, origin 등)도 YAML 형식으로 관리된다.</Point>
+      </KeyPoints>
+    </Topic>
+
+    <Topic name="XML (Behavior Tree)">
+      <Description>
+        Nav2의 상위 동작 로직은 Behavior Tree(BT) 형태로 구성되며, 이 BT는 XML 파일로 정의됩니다.
+      </Description>
+      <KeyPoints>
+        <Point>BT XML은 경로 추종, 복구 동작(recovery), 재계획 등의 흐름을 노드 트리 구조로 표현한다.</Point>
+        <Point>프로젝트에서 구상한 "장애물 판단 → 치우기 → 원래 경로 복귀 / 새 경로 생성" 로직도 BT 커스텀 노드로 확장 가능하다.</Point>
+      </KeyPoints>
+    </Topic>
+  </Section>
+
+</StudentGuide>

@@ -1,0 +1,40 @@
+running egg_info
+creating ../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info
+writing ../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info/PKG-INFO
+writing dependency_links to ../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info/dependency_links.txt
+writing entry points to ../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info/entry_points.txt
+writing requirements to ../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info/requires.txt
+writing top-level names to ../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info/top_level.txt
+writing manifest file '../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info/SOURCES.txt'
+reading manifest file '../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info/SOURCES.txt'
+writing manifest file '../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/h1_fullbody_controller/build
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/h1_fullbody_controller/build/lib
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/h1_fullbody_controller/build/lib/h1_fullbody_controller
+copying h1_fullbody_controller/h1_fullbody_controller.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/h1_fullbody_controller/build/lib/h1_fullbody_controller
+copying h1_fullbody_controller/__init__.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/h1_fullbody_controller/build/lib/h1_fullbody_controller
+running install
+running install_lib
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/lib/python3.10/site-packages/h1_fullbody_controller
+copying /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/h1_fullbody_controller/build/lib/h1_fullbody_controller/h1_fullbody_controller.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/lib/python3.10/site-packages/h1_fullbody_controller
+copying /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/h1_fullbody_controller/build/lib/h1_fullbody_controller/__init__.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/lib/python3.10/site-packages/h1_fullbody_controller
+byte-compiling /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/lib/python3.10/site-packages/h1_fullbody_controller/h1_fullbody_controller.py to h1_fullbody_controller.cpython-310.pyc
+byte-compiling /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/lib/python3.10/site-packages/h1_fullbody_controller/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/share/ament_index
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/share/ament_index/resource_index
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/share/ament_index/resource_index/packages
+copying resource/h1_fullbody_controller -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/share/ament_index/resource_index/packages
+copying package.xml -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/share/h1_fullbody_controller
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/share/h1_fullbody_controller/launch
+copying launch/h1_fullbody_controller.launch.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/share/h1_fullbody_controller/launch
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/share/h1_fullbody_controller/policy
+copying policy/h1_env.yaml -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/share/h1_fullbody_controller/policy
+copying policy/h1_policy.pt -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/share/h1_fullbody_controller/policy
+running install_egg_info
+Copying ../../../build/h1_fullbody_controller/h1_fullbody_controller.egg-info to /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/lib/python3.10/site-packages/h1_fullbody_controller-0.1.0-py3.10.egg-info
+running install_scripts
+Installing h1_fullbody_controller script to /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller/lib/h1_fullbody_controller
+writing list of installed files to '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/h1_fullbody_controller/install.log'

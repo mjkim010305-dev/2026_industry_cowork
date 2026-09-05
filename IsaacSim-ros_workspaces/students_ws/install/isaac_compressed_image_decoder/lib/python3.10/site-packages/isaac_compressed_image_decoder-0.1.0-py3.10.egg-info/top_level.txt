@@ -1,0 +1,1 @@
+isaac_compressed_image_decoder

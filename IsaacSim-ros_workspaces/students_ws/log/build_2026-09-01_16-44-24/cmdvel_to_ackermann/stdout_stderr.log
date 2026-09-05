@@ -1,0 +1,37 @@
+running egg_info
+creating ../../../build/cmdvel_to_ackermann/cmdvel_to_ackermann.egg-info
+writing ../../../build/cmdvel_to_ackermann/cmdvel_to_ackermann.egg-info/PKG-INFO
+writing dependency_links to ../../../build/cmdvel_to_ackermann/cmdvel_to_ackermann.egg-info/dependency_links.txt
+writing entry points to ../../../build/cmdvel_to_ackermann/cmdvel_to_ackermann.egg-info/entry_points.txt
+writing requirements to ../../../build/cmdvel_to_ackermann/cmdvel_to_ackermann.egg-info/requires.txt
+writing top-level names to ../../../build/cmdvel_to_ackermann/cmdvel_to_ackermann.egg-info/top_level.txt
+writing manifest file '../../../build/cmdvel_to_ackermann/cmdvel_to_ackermann.egg-info/SOURCES.txt'
+reading manifest file '../../../build/cmdvel_to_ackermann/cmdvel_to_ackermann.egg-info/SOURCES.txt'
+writing manifest file '../../../build/cmdvel_to_ackermann/cmdvel_to_ackermann.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/cmdvel_to_ackermann/build
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/cmdvel_to_ackermann/build/lib
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/cmdvel_to_ackermann/build/lib/cmdvel_to_ackermann
+copying cmdvel_to_ackermann/cmdvel_to_ackermann.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/cmdvel_to_ackermann/build/lib/cmdvel_to_ackermann
+copying cmdvel_to_ackermann/__init__.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/cmdvel_to_ackermann/build/lib/cmdvel_to_ackermann
+running install
+running install_lib
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann/lib/python3.10/site-packages/cmdvel_to_ackermann
+copying /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/cmdvel_to_ackermann/build/lib/cmdvel_to_ackermann/cmdvel_to_ackermann.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann/lib/python3.10/site-packages/cmdvel_to_ackermann
+copying /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/cmdvel_to_ackermann/build/lib/cmdvel_to_ackermann/__init__.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann/lib/python3.10/site-packages/cmdvel_to_ackermann
+byte-compiling /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann/lib/python3.10/site-packages/cmdvel_to_ackermann/cmdvel_to_ackermann.py to cmdvel_to_ackermann.cpython-310.pyc
+byte-compiling /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann/lib/python3.10/site-packages/cmdvel_to_ackermann/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann/share/ament_index
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann/share/ament_index/resource_index
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann/share/ament_index/resource_index/packages
+copying resource/cmdvel_to_ackermann -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann/share/ament_index/resource_index/packages
+copying package.xml -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann/share/cmdvel_to_ackermann
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann/share/cmdvel_to_ackermann/launch
+copying launch/cmdvel_to_ackermann.launch.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann/share/cmdvel_to_ackermann/launch
+running install_egg_info
+Copying ../../../build/cmdvel_to_ackermann/cmdvel_to_ackermann.egg-info to /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann/lib/python3.10/site-packages/cmdvel_to_ackermann-0.1.0-py3.10.egg-info
+running install_scripts
+Installing cmdvel_to_ackermann script to /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann/lib/cmdvel_to_ackermann
+writing list of installed files to '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/cmdvel_to_ackermann/install.log'

@@ -1,0 +1,21 @@
+[0.953s] Invoking command in '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaacsim_bringup': PYTHONPATH=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaacsim_bringup/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/isaacsim_bringup build --build-base /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaacsim_bringup/build install --record /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaacsim_bringup/install.log --install-scripts $base/lib/isaacsim_bringup --single-version-externally-managed install_data
+[1.065s] running egg_info
+[1.065s] writing ../../build/isaacsim_bringup/isaacsim_bringup.egg-info/PKG-INFO
+[1.065s] writing dependency_links to ../../build/isaacsim_bringup/isaacsim_bringup.egg-info/dependency_links.txt
+[1.065s] writing entry points to ../../build/isaacsim_bringup/isaacsim_bringup.egg-info/entry_points.txt
+[1.065s] writing requirements to ../../build/isaacsim_bringup/isaacsim_bringup.egg-info/requires.txt
+[1.065s] writing top-level names to ../../build/isaacsim_bringup/isaacsim_bringup.egg-info/top_level.txt
+[1.066s] reading manifest file '../../build/isaacsim_bringup/isaacsim_bringup.egg-info/SOURCES.txt'
+[1.066s] writing manifest file '../../build/isaacsim_bringup/isaacsim_bringup.egg-info/SOURCES.txt'
+[1.066s] running build
+[1.066s] running build_py
+[1.066s] running install
+[1.066s] running install_lib
+[1.067s] running install_data
+[1.067s] running install_egg_info
+[1.067s] removing '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/lib/python3.10/site-packages/isaacsim_bringup-0.2.2-py3.10.egg-info' (and everything under it)
+[1.069s] Copying ../../build/isaacsim_bringup/isaacsim_bringup.egg-info to /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/lib/python3.10/site-packages/isaacsim_bringup-0.2.2-py3.10.egg-info
+[1.070s] running install_scripts
+[1.082s] Installing run_isaacsim script to /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/lib/isaacsim_bringup
+[1.082s] writing list of installed files to '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaacsim_bringup/install.log'
+[1.098s] Invoked command in '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaacsim_bringup' returned '0': PYTHONPATH=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaacsim_bringup/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/isaacsim_bringup build --build-base /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaacsim_bringup/build install --record /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaacsim_bringup/install.log --install-scripts $base/lib/isaacsim_bringup --single-version-externally-managed install_data

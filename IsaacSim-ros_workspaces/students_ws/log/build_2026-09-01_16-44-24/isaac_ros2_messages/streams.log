@@ -1,0 +1,376 @@
+[0.477s] Invoking command in '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_ros2_messages -DCMAKE_INSTALL_PREFIX=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages
+[0.717s] -- The C compiler identification is GNU 11.4.0
+[0.717s] -- The CXX compiler identification is GNU 11.4.0
+[0.717s] -- Detecting C compiler ABI info
+[0.717s] -- Detecting C compiler ABI info - done
+[0.717s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.717s] -- Detecting C compile features
+[0.717s] -- Detecting C compile features - done
+[0.717s] -- Detecting CXX compiler ABI info
+[0.717s] -- Detecting CXX compiler ABI info - done
+[0.717s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.717s] -- Detecting CXX compile features
+[0.717s] -- Detecting CXX compile features - done
+[0.717s] -- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.721s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[0.795s] -- Found ament_lint_auto: 0.12.15 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[0.863s] -- Found builtin_interfaces: 1.2.3 (/opt/ros/humble/share/builtin_interfaces/cmake)
+[0.886s] -- Found rosidl_generator_c: 3.1.9 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[0.889s] -- Found rosidl_adapter: 3.1.9 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.895s] -- Found rosidl_generator_cpp: 3.1.9 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[0.903s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.915s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.924s] -- Found rosidl_default_generators: 1.2.1 (/opt/ros/humble/share/rosidl_default_generators/cmake)
+[0.936s] -- Found std_msgs: 4.9.1 (/opt/ros/humble/share/std_msgs/cmake)
+[0.950s] -- Found geometry_msgs: 4.9.1 (/opt/ros/humble/share/geometry_msgs/cmake)
+[1.116s] -- Found ament_cmake_ros: 0.10.0 (/opt/ros/humble/share/ament_cmake_ros/cmake)
+[1.341s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[1.433s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[1.447s] -- Found PythonInterp: /usr/bin/python3 (found suitable version "3.10.12", minimum required is "3.6") 
+[1.449s] -- Found python_cmake_module: 0.10.0 (/opt/ros/humble/share/python_cmake_module/cmake)
+[1.466s] -- Found PythonLibs: /usr/lib/x86_64-linux-gnu/libpython3.10.so (found suitable version "3.10.12", minimum required is "3.5") 
+[1.466s] -- Using PYTHON_EXECUTABLE: /usr/bin/python3
+[1.466s] -- Using PYTHON_INCLUDE_DIRS: /usr/include/python3.10
+[1.466s] -- Using PYTHON_LIBRARIES: /usr/lib/x86_64-linux-gnu/libpython3.10.so
+[1.481s] -- Found PythonExtra: .so  
+[1.565s] -- Added test 'copyright' to check source files copyright and LICENSE
+[1.566s] -- Added test 'lint_cmake' to check CMake code style
+[1.566s] -- Added test 'xmllint' to check XML markup files
+[1.569s] -- Configuring done
+[1.594s] -- Generating done
+[1.602s] -- Build files have been written to: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages
+[1.610s] Invoked command in '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_ros2_messages -DCMAKE_INSTALL_PREFIX=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages
+[1.610s] Invoking command in '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake --build /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages -- -j24 -l24
+[1.635s] [  1%] [34m[1mGenerating C code for ROS interfaces[0m
+[1.640s] [  3%] [34m[1mGenerating Rust code for ROS interfaces[0m
+[1.642s] [  4%] [34m[1mGenerating C++ code for ROS interfaces[0m
+[1.645s] [  4%] Built target ament_cmake_python_copy_isaac_ros2_messages
+[1.757s] running egg_info
+[1.757s] creating isaac_ros2_messages.egg-info
+[1.757s] writing isaac_ros2_messages.egg-info/PKG-INFO
+[1.757s] writing dependency_links to isaac_ros2_messages.egg-info/dependency_links.txt
+[1.757s] writing top-level names to isaac_ros2_messages.egg-info/top_level.txt
+[1.757s] writing manifest file 'isaac_ros2_messages.egg-info/SOURCES.txt'
+[1.762s] reading manifest file 'isaac_ros2_messages.egg-info/SOURCES.txt'
+[1.762s] writing manifest file 'isaac_ros2_messages.egg-info/SOURCES.txt'
+[1.773s] [  4%] Built target ament_cmake_python_build_isaac_ros2_messages_egg
+[1.845s] [  4%] Built target isaac_ros2_messages__rs
+[1.937s] [  9%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_generator_c.dir/rosidl_generator_c/isaac_ros2_messages/srv/detail/set_prim_attribute__functions.c.o[0m
+[1.937s] [ 10%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_generator_c.dir/rosidl_generator_c/isaac_ros2_messages/srv/detail/get_prim_attributes__functions.c.o[0m
+[1.937s] [ 10%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_generator_c.dir/rosidl_generator_c/isaac_ros2_messages/srv/detail/isaac_pose__functions.c.o[0m
+[1.937s] [ 10%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_generator_c.dir/rosidl_generator_c/isaac_ros2_messages/srv/detail/get_prims__functions.c.o[0m
+[1.937s] [ 12%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_generator_c.dir/rosidl_generator_c/isaac_ros2_messages/srv/detail/get_prim_attribute__functions.c.o[0m
+[1.952s] [ 12%] Built target isaac_ros2_messages__cpp
+[1.958s] [ 15%] [34m[1mGenerating C++ introspection for ROS interfaces[0m
+[1.958s] [ 15%] [34m[1mGenerating C++ type support for eProsima Fast-RTPS[0m
+[1.958s] [ 17%] [34m[1mGenerating C++ type support dispatch for ROS interfaces[0m
+[1.972s] [ 18%] [32m[1mLinking C shared library libisaac_ros2_messages__rosidl_generator_c.so[0m
+[1.995s] [ 18%] Built target isaac_ros2_messages__rosidl_generator_c
+[2.002s] [ 20%] [34m[1mGenerating C introspection for ROS interfaces[0m
+[2.002s] [ 21%] [34m[1mGenerating C type support dispatch for ROS interfaces[0m
+[2.002s] [ 23%] [34m[1mGenerating C type support for eProsima Fast-RTPS[0m
+[2.187s] [ 25%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/isaac_ros2_messages/srv/isaac_pose__type_support.cpp.o[0m
+[2.189s] [ 26%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/isaac_ros2_messages/srv/get_prims__type_support.cpp.o[0m
+[2.189s] [ 28%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/isaac_ros2_messages/srv/get_prim_attributes__type_support.cpp.o[0m
+[2.189s] [ 29%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/isaac_ros2_messages/srv/get_prim_attribute__type_support.cpp.o[0m
+[2.189s] [ 31%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_cpp.dir/rosidl_typesupport_cpp/isaac_ros2_messages/srv/set_prim_attribute__type_support.cpp.o[0m
+[2.222s] [ 32%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/isaac_ros2_messages/srv/detail/get_prims__type_support.cpp.o[0m
+[2.222s] [ 34%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/isaac_ros2_messages/srv/detail/get_prim_attribute__type_support.cpp.o[0m
+[2.222s] [ 35%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/isaac_ros2_messages/srv/detail/isaac_pose__type_support.cpp.o[0m
+[2.222s] [ 37%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/isaac_ros2_messages/srv/detail/get_prim_attributes__type_support.cpp.o[0m
+[2.222s] [ 39%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_introspection_cpp.dir/rosidl_typesupport_introspection_cpp/isaac_ros2_messages/srv/detail/set_prim_attribute__type_support.cpp.o[0m
+[2.232s] [ 45%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_c.dir/rosidl_typesupport_c/isaac_ros2_messages/srv/get_prim_attribute__type_support.cpp.o[0m
+[2.232s] [ 45%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_c.dir/rosidl_typesupport_c/isaac_ros2_messages/srv/isaac_pose__type_support.cpp.o[0m
+[2.232s] [ 45%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_c.dir/rosidl_typesupport_c/isaac_ros2_messages/srv/get_prim_attributes__type_support.cpp.o[0m
+[2.232s] [ 45%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_c.dir/rosidl_typesupport_c/isaac_ros2_messages/srv/set_prim_attribute__type_support.cpp.o[0m
+[2.232s] [ 46%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_c.dir/rosidl_typesupport_c/isaac_ros2_messages/srv/get_prims__type_support.cpp.o[0m
+[2.253s] [ 53%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/isaac_ros2_messages/srv/detail/dds_fastrtps/get_prim_attributes__type_support.cpp.o[0m
+[2.253s] [ 53%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/isaac_ros2_messages/srv/detail/dds_fastrtps/get_prims__type_support.cpp.o[0m
+[2.253s] [ 53%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/isaac_ros2_messages/srv/detail/dds_fastrtps/isaac_pose__type_support.cpp.o[0m
+[2.253s] [ 53%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/isaac_ros2_messages/srv/detail/dds_fastrtps/set_prim_attribute__type_support.cpp.o[0m
+[2.253s] [ 54%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_fastrtps_cpp.dir/rosidl_typesupport_fastrtps_cpp/isaac_ros2_messages/srv/detail/dds_fastrtps/get_prim_attribute__type_support.cpp.o[0m
+[2.259s] [ 56%] [32m[1mLinking CXX shared library libisaac_ros2_messages__rosidl_typesupport_c.so[0m
+[2.291s] [ 56%] Built target isaac_ros2_messages__rosidl_typesupport_c
+[2.293s] [ 57%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/isaac_ros2_messages/srv/detail/get_prim_attributes__type_support.c.o[0m
+[2.293s] [ 59%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/isaac_ros2_messages/srv/detail/get_prims__type_support.c.o[0m
+[2.293s] [ 60%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/isaac_ros2_messages/srv/detail/get_prim_attribute__type_support.c.o[0m
+[2.293s] [ 62%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/isaac_ros2_messages/srv/detail/isaac_pose__type_support.c.o[0m
+[2.297s] [ 64%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_introspection_c.dir/rosidl_typesupport_introspection_c/isaac_ros2_messages/srv/detail/set_prim_attribute__type_support.c.o[0m
+[2.298s] [ 65%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/isaac_ros2_messages/srv/detail/isaac_pose__type_support_c.cpp.o[0m
+[2.304s] [ 67%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/isaac_ros2_messages/srv/detail/get_prims__type_support_c.cpp.o[0m
+[2.312s] [ 68%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/isaac_ros2_messages/srv/detail/get_prim_attributes__type_support_c.cpp.o[0m
+[2.312s] [ 70%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/isaac_ros2_messages/srv/detail/set_prim_attribute__type_support_c.cpp.o[0m
+[2.313s] [ 71%] [32mBuilding CXX object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_fastrtps_c.dir/rosidl_typesupport_fastrtps_c/isaac_ros2_messages/srv/detail/get_prim_attribute__type_support_c.cpp.o[0m
+[2.333s] [ 73%] [32m[1mLinking C shared library libisaac_ros2_messages__rosidl_typesupport_introspection_c.so[0m
+[2.356s] [ 73%] Built target isaac_ros2_messages__rosidl_typesupport_introspection_c
+[2.359s] [ 75%] [32m[1mLinking CXX shared library libisaac_ros2_messages__rosidl_typesupport_cpp.so[0m
+[2.389s] [ 75%] Built target isaac_ros2_messages__rosidl_typesupport_cpp
+[2.510s] [ 76%] [32m[1mLinking CXX shared library libisaac_ros2_messages__rosidl_typesupport_fastrtps_c.so[0m
+[2.512s] [ 78%] [32m[1mLinking CXX shared library libisaac_ros2_messages__rosidl_typesupport_introspection_cpp.so[0m
+[2.530s] [ 79%] [32m[1mLinking CXX shared library libisaac_ros2_messages__rosidl_typesupport_fastrtps_cpp.so[0m
+[2.552s] [ 79%] Built target isaac_ros2_messages__rosidl_typesupport_fastrtps_c
+[2.555s] [ 79%] Built target isaac_ros2_messages__rosidl_typesupport_introspection_cpp
+[2.576s] [ 79%] Built target isaac_ros2_messages__rosidl_typesupport_fastrtps_cpp
+[2.588s] [ 79%] Built target isaac_ros2_messages
+[2.601s] [ 81%] [34m[1mGenerating Python code for ROS interfaces[0m
+[3.108s] [ 81%] Built target isaac_ros2_messages__py
+[3.120s] [ 82%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_generator_py.dir/rosidl_generator_py/isaac_ros2_messages/srv/_get_prims_s.c.o[0m
+[3.120s] [ 84%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_generator_py.dir/rosidl_generator_py/isaac_ros2_messages/srv/_isaac_pose_s.c.o[0m
+[3.121s] [ 85%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_generator_py.dir/rosidl_generator_py/isaac_ros2_messages/srv/_get_prim_attribute_s.c.o[0m
+[3.121s] [ 87%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_generator_py.dir/rosidl_generator_py/isaac_ros2_messages/srv/_set_prim_attribute_s.c.o[0m
+[3.122s] [ 89%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_generator_py.dir/rosidl_generator_py/isaac_ros2_messages/srv/_get_prim_attributes_s.c.o[0m
+[3.181s] [ 90%] [32m[1mLinking C shared library rosidl_generator_py/isaac_ros2_messages/libisaac_ros2_messages__rosidl_generator_py.so[0m
+[3.205s] [ 90%] Built target isaac_ros2_messages__rosidl_generator_py
+[3.217s] [ 93%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_introspection_c__pyext.dir/rosidl_generator_py/isaac_ros2_messages/_isaac_ros2_messages_s.ep.rosidl_typesupport_introspection_c.c.o[0m
+[3.217s] [ 93%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_fastrtps_c__pyext.dir/rosidl_generator_py/isaac_ros2_messages/_isaac_ros2_messages_s.ep.rosidl_typesupport_fastrtps_c.c.o[0m
+[3.217s] [ 95%] [32mBuilding C object CMakeFiles/isaac_ros2_messages__rosidl_typesupport_c__pyext.dir/rosidl_generator_py/isaac_ros2_messages/_isaac_ros2_messages_s.ep.rosidl_typesupport_c.c.o[0m
+[3.275s] [ 96%] [32m[1mLinking C shared library rosidl_generator_py/isaac_ros2_messages/isaac_ros2_messages_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so[0m
+[3.275s] [ 98%] [32m[1mLinking C shared library rosidl_generator_py/isaac_ros2_messages/isaac_ros2_messages_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so[0m
+[3.277s] [100%] [32m[1mLinking C shared library rosidl_generator_py/isaac_ros2_messages/isaac_ros2_messages_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so[0m
+[3.298s] [100%] Built target isaac_ros2_messages__rosidl_typesupport_c__pyext
+[3.298s] [100%] Built target isaac_ros2_messages__rosidl_typesupport_fastrtps_c__pyext
+[3.298s] [100%] Built target isaac_ros2_messages__rosidl_typesupport_introspection_c__pyext
+[3.307s] Invoked command in '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake --build /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages -- -j24 -l24
+[3.308s] Invoking command in '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake --install /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages
+[3.313s] -- Install configuration: ""
+[3.313s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/ament_index/resource_index/rosidl_interfaces/isaac_ros2_messages
+[3.313s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages
+[3.314s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv
+[3.314s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/isaac_pose.h
+[3.314s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/get_prim_attribute.h
+[3.314s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail
+[3.314s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attribute__functions.h
+[3.314s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attributes__functions.h
+[3.314s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/set_prim_attribute__struct.h
+[3.314s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/set_prim_attribute__functions.c
+[3.314s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prims__functions.h
+[3.314s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/set_prim_attribute__type_support.h
+[3.314s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/isaac_pose__functions.c
+[3.314s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/isaac_pose__functions.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attribute__type_support.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attribute__functions.c
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attributes__struct.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attributes__functions.c
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prims__functions.c
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prims__type_support.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/set_prim_attribute__functions.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/isaac_pose__type_support.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/isaac_pose__struct.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attribute__struct.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prims__struct.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attributes__type_support.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/get_prims.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/get_prim_attributes.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/set_prim_attribute.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/msg
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/msg/rosidl_generator_c__visibility_control.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/environment/library_path.sh
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/environment/library_path.dsv
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/lib/libisaac_ros2_messages__rosidl_generator_c.so
+[3.315s] -- Set runtime path of "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/lib/libisaac_ros2_messages__rosidl_generator_c.so" to ""
+[3.315s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages
+[3.315s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv
+[3.315s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attribute__rosidl_typesupport_fastrtps_c.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prims__rosidl_typesupport_fastrtps_c.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/set_prim_attribute__rosidl_typesupport_fastrtps_c.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/isaac_pose__rosidl_typesupport_fastrtps_c.h
+[3.315s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attributes__rosidl_typesupport_fastrtps_c.h
+[3.315s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/msg
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/lib/libisaac_ros2_messages__rosidl_typesupport_fastrtps_c.so
+[3.316s] -- Set runtime path of "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/lib/libisaac_ros2_messages__rosidl_typesupport_fastrtps_c.so" to ""
+[3.316s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages
+[3.316s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/get_prims.hpp
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/isaac_pose.hpp
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/get_prim_attributes.hpp
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/get_prim_attribute.hpp
+[3.316s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prims__traits.hpp
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prims__struct.hpp
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/set_prim_attribute__traits.hpp
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attribute__builder.hpp
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/isaac_pose__type_support.hpp
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attribute__struct.hpp
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/isaac_pose__struct.hpp
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attributes__struct.hpp
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/set_prim_attribute__builder.hpp
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prims__builder.hpp
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/isaac_pose__builder.hpp
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prims__type_support.hpp
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attributes__type_support.hpp
+[3.316s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/set_prim_attribute__type_support.hpp
+[3.317s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/set_prim_attribute__struct.hpp
+[3.317s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attributes__traits.hpp
+[3.317s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attribute__type_support.hpp
+[3.317s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attribute__traits.hpp
+[3.317s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attributes__builder.hpp
+[3.317s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/isaac_pose__traits.hpp
+[3.317s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/set_prim_attribute.hpp
+[3.317s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/msg
+[3.317s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/msg/rosidl_generator_cpp__visibility_control.hpp
+[3.317s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages
+[3.317s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv
+[3.317s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail
+[3.317s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/set_prim_attribute__rosidl_typesupport_fastrtps_cpp.hpp
+[3.317s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prims__rosidl_typesupport_fastrtps_cpp.hpp
+[3.317s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attributes__rosidl_typesupport_fastrtps_cpp.hpp
+[3.317s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attribute__rosidl_typesupport_fastrtps_cpp.hpp
+[3.317s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/dds_fastrtps
+[3.317s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/isaac_pose__rosidl_typesupport_fastrtps_cpp.hpp
+[3.318s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/msg
+[3.318s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+[3.318s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/lib/libisaac_ros2_messages__rosidl_typesupport_fastrtps_cpp.so
+[3.318s] -- Set runtime path of "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/lib/libisaac_ros2_messages__rosidl_typesupport_fastrtps_cpp.so" to ""
+[3.318s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages
+[3.318s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv
+[3.318s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail
+[3.318s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prims__type_support.c
+[3.318s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prims__rosidl_typesupport_introspection_c.h
+[3.318s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/set_prim_attribute__rosidl_typesupport_introspection_c.h
+[3.318s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attributes__rosidl_typesupport_introspection_c.h
+[3.318s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attribute__rosidl_typesupport_introspection_c.h
+[3.318s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attribute__type_support.c
+[3.318s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attributes__type_support.c
+[3.318s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/set_prim_attribute__type_support.c
+[3.318s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/isaac_pose__rosidl_typesupport_introspection_c.h
+[3.318s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/isaac_pose__type_support.c
+[3.318s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/msg
+[3.318s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/msg/rosidl_typesupport_introspection_c__visibility_control.h
+[3.318s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/lib/libisaac_ros2_messages__rosidl_typesupport_introspection_c.so
+[3.319s] -- Set runtime path of "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/lib/libisaac_ros2_messages__rosidl_typesupport_introspection_c.so" to ""
+[3.319s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/lib/libisaac_ros2_messages__rosidl_typesupport_c.so
+[3.319s] -- Set runtime path of "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/lib/libisaac_ros2_messages__rosidl_typesupport_c.so" to ""
+[3.319s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages
+[3.319s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv
+[3.319s] -- Up-to-date: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail
+[3.319s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/isaac_pose__type_support.cpp
+[3.319s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attribute__type_support.cpp
+[3.319s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prims__type_support.cpp
+[3.319s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attribute__rosidl_typesupport_introspection_cpp.hpp
+[3.319s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/set_prim_attribute__type_support.cpp
+[3.319s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attributes__rosidl_typesupport_introspection_cpp.hpp
+[3.319s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/isaac_pose__rosidl_typesupport_introspection_cpp.hpp
+[3.319s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prim_attributes__type_support.cpp
+[3.320s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/set_prim_attribute__rosidl_typesupport_introspection_cpp.hpp
+[3.320s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/include/isaac_ros2_messages/isaac_ros2_messages/srv/detail/get_prims__rosidl_typesupport_introspection_cpp.hpp
+[3.320s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/lib/libisaac_ros2_messages__rosidl_typesupport_introspection_cpp.so
+[3.320s] -- Set runtime path of "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/lib/libisaac_ros2_messages__rosidl_typesupport_introspection_cpp.so" to ""
+[3.320s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/lib/libisaac_ros2_messages__rosidl_typesupport_cpp.so
+[3.320s] -- Set runtime path of "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/lib/libisaac_ros2_messages__rosidl_typesupport_cpp.so" to ""
+[3.320s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/environment/pythonpath.sh
+[3.320s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/environment/pythonpath.dsv
+[3.320s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages-0.2.0-py3.10.egg-info
+[3.320s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages-0.2.0-py3.10.egg-info/dependency_links.txt
+[3.320s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages-0.2.0-py3.10.egg-info/PKG-INFO
+[3.320s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages-0.2.0-py3.10.egg-info/top_level.txt
+[3.320s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages-0.2.0-py3.10.egg-info/SOURCES.txt
+[3.320s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages
+[3.320s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/libisaac_ros2_messages__rosidl_generator_py.so
+[3.320s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv
+[3.320s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv/_get_prim_attribute_s.c
+[3.320s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv/_set_prim_attribute.py
+[3.321s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv/_get_prim_attributes_s.c
+[3.321s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv/_get_prims.py
+[3.321s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv/_isaac_pose_s.c
+[3.321s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv/_set_prim_attribute_s.c
+[3.321s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv/_get_prims_s.c
+[3.321s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv/_isaac_pose.py
+[3.321s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv/__init__.py
+[3.321s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv/_get_prim_attributes.py
+[3.321s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv/_get_prim_attribute.py
+[3.321s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/isaac_ros2_messages_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[3.321s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/isaac_ros2_messages_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[3.321s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/_isaac_ros2_messages_s.ep.rosidl_typesupport_introspection_c.c
+[3.321s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/isaac_ros2_messages_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[3.321s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/_isaac_ros2_messages_s.ep.rosidl_typesupport_fastrtps_c.c
+[3.321s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/__init__.py
+[3.321s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/_isaac_ros2_messages_s.ep.rosidl_typesupport_c.c
+[3.347s] Listing '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages'...
+[3.347s] Compiling '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/__init__.py'...
+[3.347s] Listing '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv'...
+[3.347s] Compiling '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv/__init__.py'...
+[3.347s] Compiling '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv/_get_prim_attribute.py'...
+[3.347s] Compiling '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv/_get_prim_attributes.py'...
+[3.347s] Compiling '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv/_get_prims.py'...
+[3.347s] Compiling '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv/_isaac_pose.py'...
+[3.347s] Compiling '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/srv/_set_prim_attribute.py'...
+[3.349s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/isaac_ros2_messages_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[3.349s] -- Set runtime path of "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/isaac_ros2_messages_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so" to ""
+[3.349s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/isaac_ros2_messages_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[3.349s] -- Set runtime path of "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/isaac_ros2_messages_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so" to ""
+[3.349s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/isaac_ros2_messages_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[3.350s] -- Set runtime path of "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/local/lib/python3.10/dist-packages/isaac_ros2_messages/isaac_ros2_messages_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so" to ""
+[3.350s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/lib/libisaac_ros2_messages__rosidl_generator_py.so
+[3.350s] -- Set runtime path of "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/lib/libisaac_ros2_messages__rosidl_generator_py.so" to ""
+[3.350s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/ament_index/resource_index/rust_packages/isaac_ros2_messages
+[3.350s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/rust
+[3.350s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/rust/build.rs
+[3.350s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/rust/Cargo.toml
+[3.350s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/rust/src
+[3.350s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/rust/src/srv
+[3.350s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/rust/src/srv/rmw.rs
+[3.350s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/rust/src/lib.rs
+[3.350s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/rust/src/srv.rs
+[3.350s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/IsaacPose.idl
+[3.350s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/GetPrims.idl
+[3.350s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/GetPrimAttributes.idl
+[3.350s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/GetPrimAttribute.idl
+[3.350s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/SetPrimAttribute.idl
+[3.350s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/IsaacPose.srv
+[3.350s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/IsaacPose_Request.msg
+[3.351s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/IsaacPose_Response.msg
+[3.351s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/GetPrims.srv
+[3.351s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/GetPrims_Request.msg
+[3.351s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/GetPrims_Response.msg
+[3.351s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/GetPrimAttributes.srv
+[3.351s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/GetPrimAttributes_Request.msg
+[3.351s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/GetPrimAttributes_Response.msg
+[3.351s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/GetPrimAttribute.srv
+[3.351s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/GetPrimAttribute_Request.msg
+[3.351s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/GetPrimAttribute_Response.msg
+[3.351s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/SetPrimAttribute.srv
+[3.351s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/SetPrimAttribute_Request.msg
+[3.351s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/srv/SetPrimAttribute_Response.msg
+[3.351s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/ament_index/resource_index/package_run_dependencies/isaac_ros2_messages
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/ament_index/resource_index/parent_prefix_path/isaac_ros2_messages
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/environment/ament_prefix_path.sh
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/environment/ament_prefix_path.dsv
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/environment/path.sh
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/environment/path.dsv
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/local_setup.bash
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/local_setup.sh
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/local_setup.zsh
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/local_setup.dsv
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/package.dsv
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/ament_index/resource_index/packages/isaac_ros2_messages
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/export_isaac_ros2_messages__rosidl_generator_cExport.cmake
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/export_isaac_ros2_messages__rosidl_generator_cExport-noconfig.cmake
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/export_isaac_ros2_messages__rosidl_typesupport_fastrtps_cExport.cmake
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/export_isaac_ros2_messages__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/export_isaac_ros2_messages__rosidl_generator_cppExport.cmake
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/export_isaac_ros2_messages__rosidl_typesupport_fastrtps_cppExport.cmake
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/export_isaac_ros2_messages__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/isaac_ros2_messages__rosidl_typesupport_introspection_cExport.cmake
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/isaac_ros2_messages__rosidl_typesupport_introspection_cExport-noconfig.cmake
+[3.352s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/isaac_ros2_messages__rosidl_typesupport_cExport.cmake
+[3.353s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/isaac_ros2_messages__rosidl_typesupport_cExport-noconfig.cmake
+[3.353s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/isaac_ros2_messages__rosidl_typesupport_introspection_cppExport.cmake
+[3.353s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/isaac_ros2_messages__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+[3.353s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/isaac_ros2_messages__rosidl_typesupport_cppExport.cmake
+[3.353s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/isaac_ros2_messages__rosidl_typesupport_cppExport-noconfig.cmake
+[3.353s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/export_isaac_ros2_messages__rosidl_generator_pyExport.cmake
+[3.353s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/export_isaac_ros2_messages__rosidl_generator_pyExport-noconfig.cmake
+[3.353s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/rosidl_cmake-extras.cmake
+[3.353s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/ament_cmake_export_dependencies-extras.cmake
+[3.353s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/ament_cmake_export_include_directories-extras.cmake
+[3.353s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/ament_cmake_export_libraries-extras.cmake
+[3.353s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/ament_cmake_export_targets-extras.cmake
+[3.353s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+[3.353s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+[3.353s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/rosidl_cmake_aggregate_target-extras.cmake
+[3.353s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/isaac_ros2_messagesConfig.cmake
+[3.354s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/cmake/isaac_ros2_messagesConfig-version.cmake
+[3.354s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages/share/isaac_ros2_messages/package.xml
+[3.355s] Invoked command in '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake --install /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages

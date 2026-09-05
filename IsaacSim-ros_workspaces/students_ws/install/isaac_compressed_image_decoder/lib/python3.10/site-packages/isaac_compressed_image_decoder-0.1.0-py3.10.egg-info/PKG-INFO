@@ -1,0 +1,12 @@
+Metadata-Version: 2.1
+Name: isaac-compressed-image-decoder
+Version: 0.1.0
+Summary: Decodes H264-compressed images from Isaac Sim and republishes as raw images.
+Home-page: UNKNOWN
+Maintainer: Isaac Sim
+Maintainer-email: isaac-sim-maintainers@nvidia.com
+License: Apache-2.0
+Platform: UNKNOWN
+
+UNKNOWN
+

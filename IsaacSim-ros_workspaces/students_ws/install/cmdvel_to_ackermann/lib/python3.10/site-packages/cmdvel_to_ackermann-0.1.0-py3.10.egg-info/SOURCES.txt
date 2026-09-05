@@ -1,0 +1,14 @@
+package.xml
+setup.cfg
+setup.py
+../../../build/cmdvel_to_ackermann/cmdvel_to_ackermann.egg-info/PKG-INFO
+../../../build/cmdvel_to_ackermann/cmdvel_to_ackermann.egg-info/SOURCES.txt
+../../../build/cmdvel_to_ackermann/cmdvel_to_ackermann.egg-info/dependency_links.txt
+../../../build/cmdvel_to_ackermann/cmdvel_to_ackermann.egg-info/entry_points.txt
+../../../build/cmdvel_to_ackermann/cmdvel_to_ackermann.egg-info/requires.txt
+../../../build/cmdvel_to_ackermann/cmdvel_to_ackermann.egg-info/top_level.txt
+../../../build/cmdvel_to_ackermann/cmdvel_to_ackermann.egg-info/zip-safe
+cmdvel_to_ackermann/__init__.py
+cmdvel_to_ackermann/cmdvel_to_ackermann.py
+launch/cmdvel_to_ackermann.launch.py
+resource/cmdvel_to_ackermann

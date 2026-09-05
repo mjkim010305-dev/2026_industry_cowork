@@ -1,0 +1,35 @@
+running egg_info
+creating ../../build/isaac_compressed_image_decoder/isaac_compressed_image_decoder.egg-info
+writing ../../build/isaac_compressed_image_decoder/isaac_compressed_image_decoder.egg-info/PKG-INFO
+writing dependency_links to ../../build/isaac_compressed_image_decoder/isaac_compressed_image_decoder.egg-info/dependency_links.txt
+writing entry points to ../../build/isaac_compressed_image_decoder/isaac_compressed_image_decoder.egg-info/entry_points.txt
+writing requirements to ../../build/isaac_compressed_image_decoder/isaac_compressed_image_decoder.egg-info/requires.txt
+writing top-level names to ../../build/isaac_compressed_image_decoder/isaac_compressed_image_decoder.egg-info/top_level.txt
+writing manifest file '../../build/isaac_compressed_image_decoder/isaac_compressed_image_decoder.egg-info/SOURCES.txt'
+reading manifest file '../../build/isaac_compressed_image_decoder/isaac_compressed_image_decoder.egg-info/SOURCES.txt'
+writing manifest file '../../build/isaac_compressed_image_decoder/isaac_compressed_image_decoder.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_compressed_image_decoder/build
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_compressed_image_decoder/build/lib
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_compressed_image_decoder/build/lib/isaac_compressed_image_decoder
+copying isaac_compressed_image_decoder/decoder_node.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_compressed_image_decoder/build/lib/isaac_compressed_image_decoder
+copying isaac_compressed_image_decoder/__init__.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_compressed_image_decoder/build/lib/isaac_compressed_image_decoder
+running install
+running install_lib
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder/lib/python3.10/site-packages/isaac_compressed_image_decoder
+copying /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_compressed_image_decoder/build/lib/isaac_compressed_image_decoder/decoder_node.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder/lib/python3.10/site-packages/isaac_compressed_image_decoder
+copying /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_compressed_image_decoder/build/lib/isaac_compressed_image_decoder/__init__.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder/lib/python3.10/site-packages/isaac_compressed_image_decoder
+byte-compiling /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder/lib/python3.10/site-packages/isaac_compressed_image_decoder/decoder_node.py to decoder_node.cpython-310.pyc
+byte-compiling /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder/lib/python3.10/site-packages/isaac_compressed_image_decoder/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder/share/ament_index
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder/share/ament_index/resource_index
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder/share/ament_index/resource_index/packages
+copying resource/isaac_compressed_image_decoder -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder/share/ament_index/resource_index/packages
+copying package.xml -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder/share/isaac_compressed_image_decoder
+running install_egg_info
+Copying ../../build/isaac_compressed_image_decoder/isaac_compressed_image_decoder.egg-info to /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder/lib/python3.10/site-packages/isaac_compressed_image_decoder-0.1.0-py3.10.egg-info
+running install_scripts
+Installing decoder_node script to /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder/lib/isaac_compressed_image_decoder
+writing list of installed files to '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_compressed_image_decoder/install.log'

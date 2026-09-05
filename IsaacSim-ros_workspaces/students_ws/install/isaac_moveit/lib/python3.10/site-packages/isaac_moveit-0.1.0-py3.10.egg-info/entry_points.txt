@@ -1,0 +1,3 @@
+[console_scripts]
+gripper_to_isaac = isaac_moveit.gripper_to_isaac:main
+

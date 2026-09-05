@@ -1,0 +1,1 @@
+control_msgs:launch:launch_ros:moveit:moveit_resources_panda_moveit_config:moveit_simple_controller_manager:rclpy:robot_state_publisher:ros2_control:ros2_controllers:rviz2:sensor_msgs:topic_based_ros2_control:visualization_msgs

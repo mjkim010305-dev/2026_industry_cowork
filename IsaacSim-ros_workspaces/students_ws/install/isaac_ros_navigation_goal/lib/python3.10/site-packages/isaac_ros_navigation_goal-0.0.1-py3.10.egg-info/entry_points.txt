@@ -1,0 +1,3 @@
+[console_scripts]
+SetNavigationGoal = isaac_ros_navigation_goal.set_goal:main
+

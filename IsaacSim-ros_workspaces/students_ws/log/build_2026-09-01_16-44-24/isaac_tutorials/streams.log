@@ -1,0 +1,54 @@
+[0.585s] Invoking command in '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials -DCMAKE_INSTALL_PREFIX=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials
+[0.711s] -- The C compiler identification is GNU 11.4.0
+[0.711s] -- The CXX compiler identification is GNU 11.4.0
+[0.711s] -- Detecting C compiler ABI info
+[0.711s] -- Detecting C compiler ABI info - done
+[0.711s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.711s] -- Detecting C compile features
+[0.711s] -- Detecting C compile features - done
+[0.711s] -- Detecting CXX compiler ABI info
+[0.736s] -- Detecting CXX compiler ABI info - done
+[0.740s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.740s] -- Detecting CXX compile features
+[0.743s] -- Detecting CXX compile features - done
+[0.748s] -- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.859s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[0.945s] -- Found rclpy: 3.3.21 (/opt/ros/humble/share/rclpy/cmake)
+[0.977s] -- Configuring done
+[0.978s] -- Generating done
+[0.979s] -- Build files have been written to: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials
+[0.985s] Invoked command in '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials -DCMAKE_INSTALL_PREFIX=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials
+[0.987s] Invoking command in '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake --build /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials -- -j24 -l24
+[1.012s] Invoked command in '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake --build /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials -- -j24 -l24
+[1.012s] Invoking command in '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake --install /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials
+[1.018s] -- Install configuration: ""
+[1.018s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/rviz2
+[1.018s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/rviz2/camera_manual.rviz
+[1.018s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/rviz2/camera_lidar.rviz
+[1.018s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/rviz2/carter_stereo.rviz
+[1.018s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/rviz2/rtx_radar.rviz
+[1.018s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/rviz2/rtx_lidar.rviz
+[1.018s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/rviz2/turtle_stereo.rviz
+[1.018s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/scripts
+[1.018s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/scripts/ros2_ackermann_publisher.py
+[1.018s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/scripts/ros2_publisher.py
+[1.018s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/scripts/ros2_object_id_subscriber.py
+[1.018s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/lib/isaac_tutorials/ros2_publisher.py
+[1.018s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/lib/isaac_tutorials/ros2_ackermann_publisher.py
+[1.018s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/lib/isaac_tutorials/ros2_object_id_subscriber.py
+[1.018s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/ament_index/resource_index/package_run_dependencies/isaac_tutorials
+[1.018s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/ament_index/resource_index/parent_prefix_path/isaac_tutorials
+[1.019s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/environment/ament_prefix_path.sh
+[1.019s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/environment/ament_prefix_path.dsv
+[1.019s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/environment/path.sh
+[1.019s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/environment/path.dsv
+[1.019s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/local_setup.bash
+[1.019s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/local_setup.sh
+[1.020s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/local_setup.zsh
+[1.020s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/local_setup.dsv
+[1.020s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/package.dsv
+[1.020s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/ament_index/resource_index/packages/isaac_tutorials
+[1.020s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/cmake/isaac_tutorialsConfig.cmake
+[1.020s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/cmake/isaac_tutorialsConfig-version.cmake
+[1.020s] -- Installing: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/share/isaac_tutorials/package.xml
+[1.021s] Invoked command in '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake --install /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials

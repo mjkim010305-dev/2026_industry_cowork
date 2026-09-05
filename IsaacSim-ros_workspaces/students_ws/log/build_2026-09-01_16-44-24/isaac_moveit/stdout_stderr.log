@@ -1,0 +1,41 @@
+running egg_info
+creating ../../../build/isaac_moveit/isaac_moveit.egg-info
+writing ../../../build/isaac_moveit/isaac_moveit.egg-info/PKG-INFO
+writing dependency_links to ../../../build/isaac_moveit/isaac_moveit.egg-info/dependency_links.txt
+writing entry points to ../../../build/isaac_moveit/isaac_moveit.egg-info/entry_points.txt
+writing requirements to ../../../build/isaac_moveit/isaac_moveit.egg-info/requires.txt
+writing top-level names to ../../../build/isaac_moveit/isaac_moveit.egg-info/top_level.txt
+writing manifest file '../../../build/isaac_moveit/isaac_moveit.egg-info/SOURCES.txt'
+reading manifest file '../../../build/isaac_moveit/isaac_moveit.egg-info/SOURCES.txt'
+writing manifest file '../../../build/isaac_moveit/isaac_moveit.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_moveit/build
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_moveit/build/lib
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_moveit/build/lib/isaac_moveit
+copying isaac_moveit/__init__.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_moveit/build/lib/isaac_moveit
+copying isaac_moveit/gripper_to_isaac.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_moveit/build/lib/isaac_moveit
+running install
+running install_lib
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/lib/python3.10/site-packages/isaac_moveit
+copying /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_moveit/build/lib/isaac_moveit/__init__.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/lib/python3.10/site-packages/isaac_moveit
+copying /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_moveit/build/lib/isaac_moveit/gripper_to_isaac.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/lib/python3.10/site-packages/isaac_moveit
+byte-compiling /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/lib/python3.10/site-packages/isaac_moveit/__init__.py to __init__.cpython-310.pyc
+byte-compiling /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/lib/python3.10/site-packages/isaac_moveit/gripper_to_isaac.py to gripper_to_isaac.cpython-310.pyc
+running install_data
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/share/ament_index
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/share/ament_index/resource_index
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/share/ament_index/resource_index/packages
+copying resource/isaac_moveit -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/share/ament_index/resource_index/packages
+copying package.xml -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/share/isaac_moveit
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/share/isaac_moveit/launch
+copying launch/isaac_moveit.launch.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/share/isaac_moveit/launch
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/share/isaac_moveit/rviz2
+copying rviz2/panda_moveit_config.rviz -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/share/isaac_moveit/rviz2
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/share/isaac_moveit/config
+copying config/panda_isaac.urdf.xacro -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/share/isaac_moveit/config
+running install_egg_info
+Copying ../../../build/isaac_moveit/isaac_moveit.egg-info to /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/lib/python3.10/site-packages/isaac_moveit-0.1.0-py3.10.egg-info
+running install_scripts
+Installing gripper_to_isaac script to /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit/lib/isaac_moveit
+writing list of installed files to '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_moveit/install.log'

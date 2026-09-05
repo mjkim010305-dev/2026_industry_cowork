@@ -1,0 +1,10 @@
+{
+  "package_name": "isaac_ros2_messages",
+  "non_idl_tuples": [
+    "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_ros2_messages:srv/IsaacPose.srv",
+    "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_ros2_messages:srv/GetPrims.srv",
+    "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_ros2_messages:srv/GetPrimAttributes.srv",
+    "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_ros2_messages:srv/GetPrimAttribute.srv",
+    "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_ros2_messages:srv/SetPrimAttribute.srv"
+  ]
+}

@@ -1,0 +1,39 @@
+running egg_info
+creating ../../build/isaacsim_bringup/isaacsim_bringup.egg-info
+writing ../../build/isaacsim_bringup/isaacsim_bringup.egg-info/PKG-INFO
+writing dependency_links to ../../build/isaacsim_bringup/isaacsim_bringup.egg-info/dependency_links.txt
+writing entry points to ../../build/isaacsim_bringup/isaacsim_bringup.egg-info/entry_points.txt
+writing requirements to ../../build/isaacsim_bringup/isaacsim_bringup.egg-info/requires.txt
+writing top-level names to ../../build/isaacsim_bringup/isaacsim_bringup.egg-info/top_level.txt
+writing manifest file '../../build/isaacsim_bringup/isaacsim_bringup.egg-info/SOURCES.txt'
+reading manifest file '../../build/isaacsim_bringup/isaacsim_bringup.egg-info/SOURCES.txt'
+writing manifest file '../../build/isaacsim_bringup/isaacsim_bringup.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaacsim_bringup/build
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaacsim_bringup/build/lib
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaacsim_bringup/build/lib/isaacsim_bringup
+copying isaacsim_bringup/run_isaacsim.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaacsim_bringup/build/lib/isaacsim_bringup
+copying isaacsim_bringup/__init__.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaacsim_bringup/build/lib/isaacsim_bringup
+running install
+running install_lib
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/lib/python3.10/site-packages/isaacsim_bringup
+copying /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaacsim_bringup/build/lib/isaacsim_bringup/run_isaacsim.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/lib/python3.10/site-packages/isaacsim_bringup
+copying /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaacsim_bringup/build/lib/isaacsim_bringup/__init__.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/lib/python3.10/site-packages/isaacsim_bringup
+byte-compiling /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/lib/python3.10/site-packages/isaacsim_bringup/run_isaacsim.py to run_isaacsim.cpython-310.pyc
+byte-compiling /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/lib/python3.10/site-packages/isaacsim_bringup/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/share/ament_index
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/share/ament_index/resource_index
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/share/ament_index/resource_index/packages
+copying resource/isaacsim_bringup -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/share/ament_index/resource_index/packages
+copying package.xml -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/share/isaacsim_bringup
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/share/isaacsim_bringup/launch
+copying launch/run_isaacsim.launch.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/share/isaacsim_bringup/launch
+creating /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/share/isaacsim_bringup/scripts
+copying scripts/open_isaacsim_stage.py -> /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/share/isaacsim_bringup/scripts
+running install_egg_info
+Copying ../../build/isaacsim_bringup/isaacsim_bringup.egg-info to /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/lib/python3.10/site-packages/isaacsim_bringup-0.2.2-py3.10.egg-info
+running install_scripts
+Installing run_isaacsim script to /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup/lib/isaacsim_bringup
+writing list of installed files to '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaacsim_bringup/install.log'
