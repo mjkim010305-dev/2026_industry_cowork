@@ -143,6 +143,12 @@ BT::NodeStatus ApproachObstacleNormalAction::tick()
   {
     setOutput("approach_path", cached_approach_);
     setOutput("approach_goal", cached_goal_);
+    RCLCPP_INFO_THROTTLE(
+      node_->get_logger(), *node_->get_clock(), 1000,
+      "ApproachObstacleNormal: waiting/standoff target (%.2f, %.2f) in \"%s\" "
+      "[obstacle @ (%.2f, %.2f), standoff=%.2f m]",
+      cached_goal_.pose.position.x, cached_goal_.pose.position.y,
+      cached_goal_.header.frame_id.c_str(), ox, oy, standoff);
     return BT::NodeStatus::SUCCESS;
   }
 

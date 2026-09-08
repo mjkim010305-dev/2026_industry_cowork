@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message
+CMAKE_SOURCE_DIR = /home/students/workspace/src/custom_message
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message
+CMAKE_BINARY_DIR = /home/students/workspace/build/custom_message
 
 # Include any dependencies generated for this target.
 include CMakeFiles/custom_message__rosidl_generator_py.dir/depend.make
@@ -72,16 +72,16 @@ include CMakeFiles/custom_message__rosidl_generator_py.dir/flags.make
 CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.o: CMakeFiles/custom_message__rosidl_generator_py.dir/flags.make
 CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.o: rosidl_generator_py/custom_message/msg/_sample_msg_s.c
 CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.o: CMakeFiles/custom_message__rosidl_generator_py.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.o"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.o -MF CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.o.d -o CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.o -c /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_generator_py/custom_message/msg/_sample_msg_s.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/students/workspace/build/custom_message/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.o"
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -MD -MT CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.o -MF CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.o.d -o CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.o -c /home/students/workspace/build/custom_message/rosidl_generator_py/custom_message/msg/_sample_msg_s.c
 
 CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.i"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_generator_py/custom_message/msg/_sample_msg_s.c > CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.i
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /home/students/workspace/build/custom_message/rosidl_generator_py/custom_message/msg/_sample_msg_s.c > CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.i
 
 CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.s"
-	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_generator_py/custom_message/msg/_sample_msg_s.c -o CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.s
+	/usr/bin/cc $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /home/students/workspace/build/custom_message/rosidl_generator_py/custom_message/msg/_sample_msg_s.c -o CMakeFiles/custom_message__rosidl_generator_py.dir/rosidl_generator_py/custom_message/msg/_sample_msg_s.c.s
 
 # Object files for target custom_message__rosidl_generator_py
 custom_message__rosidl_generator_py_OBJECTS = \
@@ -105,7 +105,7 @@ rosidl_generator_py/custom_message/libcustom_message__rosidl_generator_py.so: /o
 rosidl_generator_py/custom_message/libcustom_message__rosidl_generator_py.so: /opt/ros/humble/lib/librosidl_runtime_c.so
 rosidl_generator_py/custom_message/libcustom_message__rosidl_generator_py.so: /opt/ros/humble/lib/librcutils.so
 rosidl_generator_py/custom_message/libcustom_message__rosidl_generator_py.so: CMakeFiles/custom_message__rosidl_generator_py.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C shared library rosidl_generator_py/custom_message/libcustom_message__rosidl_generator_py.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/students/workspace/build/custom_message/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C shared library rosidl_generator_py/custom_message/libcustom_message__rosidl_generator_py.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/custom_message__rosidl_generator_py.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -117,6 +117,6 @@ CMakeFiles/custom_message__rosidl_generator_py.dir/clean:
 .PHONY : CMakeFiles/custom_message__rosidl_generator_py.dir/clean
 
 CMakeFiles/custom_message__rosidl_generator_py.dir/depend:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/CMakeFiles/custom_message__rosidl_generator_py.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/students/workspace/build/custom_message && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/students/workspace/src/custom_message /home/students/workspace/src/custom_message /home/students/workspace/build/custom_message /home/students/workspace/build/custom_message /home/students/workspace/build/custom_message/CMakeFiles/custom_message__rosidl_generator_py.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/custom_message__rosidl_generator_py.dir/depend
 

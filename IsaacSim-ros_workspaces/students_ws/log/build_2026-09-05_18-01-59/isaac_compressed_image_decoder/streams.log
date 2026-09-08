@@ -1,0 +1,24 @@
+[1.074s] Invoking command in '/home/students/workspace/build/isaac_compressed_image_decoder': PYTHONPATH=/home/students/workspace/build/isaac_compressed_image_decoder/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/students/workspace/install/isaac_compressed_image_decoder/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/students/workspace/build/isaac_compressed_image_decoder/build --no-deps symlink_data
+[1.218s] running develop
+[1.298s] running egg_info
+[1.298s] creating isaac_compressed_image_decoder.egg-info
+[1.298s] writing isaac_compressed_image_decoder.egg-info/PKG-INFO
+[1.298s] writing dependency_links to isaac_compressed_image_decoder.egg-info/dependency_links.txt
+[1.298s] writing entry points to isaac_compressed_image_decoder.egg-info/entry_points.txt
+[1.298s] writing requirements to isaac_compressed_image_decoder.egg-info/requires.txt
+[1.298s] writing top-level names to isaac_compressed_image_decoder.egg-info/top_level.txt
+[1.299s] writing manifest file 'isaac_compressed_image_decoder.egg-info/SOURCES.txt'
+[1.302s] reading manifest file 'isaac_compressed_image_decoder.egg-info/SOURCES.txt'
+[1.302s] writing manifest file 'isaac_compressed_image_decoder.egg-info/SOURCES.txt'
+[1.303s] running build_ext
+[1.303s] Creating /home/students/workspace/install/isaac_compressed_image_decoder/lib/python3.10/site-packages/isaac-compressed-image-decoder.egg-link (link to .)
+[1.303s] Installing decoder_node script to /home/students/workspace/install/isaac_compressed_image_decoder/lib/isaac_compressed_image_decoder
+[1.303s] 
+[1.303s] Installed /home/students/workspace/build/isaac_compressed_image_decoder
+[1.303s] running symlink_data
+[1.303s] creating /home/students/workspace/install/isaac_compressed_image_decoder/share/ament_index
+[1.303s] creating /home/students/workspace/install/isaac_compressed_image_decoder/share/ament_index/resource_index
+[1.303s] creating /home/students/workspace/install/isaac_compressed_image_decoder/share/ament_index/resource_index/packages
+[1.303s] symbolically linking /home/students/workspace/build/isaac_compressed_image_decoder/resource/isaac_compressed_image_decoder -> /home/students/workspace/install/isaac_compressed_image_decoder/share/ament_index/resource_index/packages
+[1.303s] symbolically linking /home/students/workspace/build/isaac_compressed_image_decoder/package.xml -> /home/students/workspace/install/isaac_compressed_image_decoder/share/isaac_compressed_image_decoder
+[1.337s] Invoked command in '/home/students/workspace/build/isaac_compressed_image_decoder' returned '0': PYTHONPATH=/home/students/workspace/build/isaac_compressed_image_decoder/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/students/workspace/install/isaac_compressed_image_decoder/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/students/workspace/build/isaac_compressed_image_decoder/build --no-deps symlink_data

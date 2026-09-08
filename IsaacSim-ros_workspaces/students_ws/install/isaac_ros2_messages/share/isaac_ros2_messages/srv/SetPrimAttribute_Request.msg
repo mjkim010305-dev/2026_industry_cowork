@@ -1,3 +1,1 @@
-string path             # prim path
-string attribute        # attribute name
-string value            # attribute value (as JSON)
+/home/students/workspace/build/isaac_ros2_messages/rosidl_cmake/srv/SetPrimAttribute_Request.msg

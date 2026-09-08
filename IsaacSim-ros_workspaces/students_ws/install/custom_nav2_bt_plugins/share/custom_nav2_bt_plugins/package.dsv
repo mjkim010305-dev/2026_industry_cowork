@@ -1,1 +1,11 @@
-/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/package.dsv
+source;share/custom_nav2_bt_plugins/hook/cmake_prefix_path.ps1
+source;share/custom_nav2_bt_plugins/hook/cmake_prefix_path.dsv
+source;share/custom_nav2_bt_plugins/hook/cmake_prefix_path.sh
+source;share/custom_nav2_bt_plugins/hook/ld_library_path_lib.ps1
+source;share/custom_nav2_bt_plugins/hook/ld_library_path_lib.dsv
+source;share/custom_nav2_bt_plugins/hook/ld_library_path_lib.sh
+source;share/custom_nav2_bt_plugins/local_setup.bash
+source;share/custom_nav2_bt_plugins/local_setup.dsv
+source;share/custom_nav2_bt_plugins/local_setup.ps1
+source;share/custom_nav2_bt_plugins/local_setup.sh
+source;share/custom_nav2_bt_plugins/local_setup.zsh

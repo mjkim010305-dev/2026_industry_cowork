@@ -1,1 +1,1 @@
-/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_navigation2/launch/navigation2.launch.py
+/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_navigation2/launch/navigation2.launch.py

@@ -1,1 +1,1 @@
-string path             # get prims at path
+/home/students/workspace/build/isaac_ros2_messages/rosidl_cmake/srv/GetPrims_Request.msg

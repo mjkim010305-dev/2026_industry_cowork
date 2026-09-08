@@ -1,5 +1,5 @@
 CMakeFiles/custom_capture_initial_path_action_bt_node.dir/src/capture_initial_path_action.cpp.o: \
- /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins/src/capture_initial_path_action.cpp \
+ /home/students/workspace/src/custom_nav2_bt_plugins/src/capture_initial_path_action.cpp \
  /usr/include/stdc-predef.h /usr/include/c++/11/cmath \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h \
@@ -150,7 +150,7 @@ CMakeFiles/custom_capture_initial_path_action_bt_node.dir/src/capture_initial_pa
  /usr/include/x86_64-linux-gnu/bits/types/error_t.h \
  /usr/include/c++/11/bits/charconv.h \
  /usr/include/c++/11/bits/basic_string.tcc \
- /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins/include/custom_nav2_bt_plugins/capture_initial_path_action.hpp \
+ /home/students/workspace/src/custom_nav2_bt_plugins/include/custom_nav2_bt_plugins/capture_initial_path_action.hpp \
  /opt/ros/humble/include/rclcpp/rclcpp/rclcpp.hpp \
  /usr/include/c++/11/csignal /usr/include/signal.h \
  /usr/include/x86_64-linux-gnu/bits/signum-generic.h \

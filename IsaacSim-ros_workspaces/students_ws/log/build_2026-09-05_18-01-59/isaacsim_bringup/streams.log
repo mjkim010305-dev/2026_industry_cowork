@@ -1,0 +1,28 @@
+[1.044s] Invoking command in '/home/students/workspace/build/isaacsim_bringup': PYTHONPATH=/home/students/workspace/build/isaacsim_bringup/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/students/workspace/install/isaacsim_bringup/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/students/workspace/build/isaacsim_bringup/build --no-deps symlink_data
+[1.159s] running develop
+[1.216s] running egg_info
+[1.216s] creating isaacsim_bringup.egg-info
+[1.216s] writing isaacsim_bringup.egg-info/PKG-INFO
+[1.216s] writing dependency_links to isaacsim_bringup.egg-info/dependency_links.txt
+[1.216s] writing entry points to isaacsim_bringup.egg-info/entry_points.txt
+[1.217s] writing requirements to isaacsim_bringup.egg-info/requires.txt
+[1.217s] writing top-level names to isaacsim_bringup.egg-info/top_level.txt
+[1.217s] writing manifest file 'isaacsim_bringup.egg-info/SOURCES.txt'
+[1.218s] reading manifest file 'isaacsim_bringup.egg-info/SOURCES.txt'
+[1.218s] writing manifest file 'isaacsim_bringup.egg-info/SOURCES.txt'
+[1.218s] running build_ext
+[1.219s] Creating /home/students/workspace/install/isaacsim_bringup/lib/python3.10/site-packages/isaacsim-bringup.egg-link (link to .)
+[1.219s] Installing run_isaacsim script to /home/students/workspace/install/isaacsim_bringup/lib/isaacsim_bringup
+[1.219s] 
+[1.219s] Installed /home/students/workspace/build/isaacsim_bringup
+[1.219s] running symlink_data
+[1.219s] creating /home/students/workspace/install/isaacsim_bringup/share/ament_index
+[1.219s] creating /home/students/workspace/install/isaacsim_bringup/share/ament_index/resource_index
+[1.219s] creating /home/students/workspace/install/isaacsim_bringup/share/ament_index/resource_index/packages
+[1.219s] symbolically linking /home/students/workspace/build/isaacsim_bringup/resource/isaacsim_bringup -> /home/students/workspace/install/isaacsim_bringup/share/ament_index/resource_index/packages
+[1.219s] symbolically linking /home/students/workspace/build/isaacsim_bringup/package.xml -> /home/students/workspace/install/isaacsim_bringup/share/isaacsim_bringup
+[1.219s] creating /home/students/workspace/install/isaacsim_bringup/share/isaacsim_bringup/launch
+[1.219s] symbolically linking /home/students/workspace/build/isaacsim_bringup/launch/run_isaacsim.launch.py -> /home/students/workspace/install/isaacsim_bringup/share/isaacsim_bringup/launch
+[1.219s] creating /home/students/workspace/install/isaacsim_bringup/share/isaacsim_bringup/scripts
+[1.219s] symbolically linking /home/students/workspace/build/isaacsim_bringup/scripts/open_isaacsim_stage.py -> /home/students/workspace/install/isaacsim_bringup/share/isaacsim_bringup/scripts
+[1.238s] Invoked command in '/home/students/workspace/build/isaacsim_bringup' returned '0': PYTHONPATH=/home/students/workspace/build/isaacsim_bringup/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/students/workspace/install/isaacsim_bringup/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/students/workspace/build/isaacsim_bringup/build --no-deps symlink_data

@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_ros2_messages
+CMAKE_SOURCE_DIR = /home/students/workspace/src/isaac_ros2_messages
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages
+CMAKE_BINARY_DIR = /home/students/workspace/build/isaac_ros2_messages
 
 # Utility rule file for isaac_ros2_messages__rs.
 
@@ -158,8 +158,8 @@ rosidl_generator_rs/isaac_ros2_messages/rust/src/lib.rs: /opt/ros/humble/share/g
 rosidl_generator_rs/isaac_ros2_messages/rust/src/lib.rs: /opt/ros/humble/share/geometry_msgs/msg/VelocityStamped.idl
 rosidl_generator_rs/isaac_ros2_messages/rust/src/lib.rs: /opt/ros/humble/share/geometry_msgs/msg/Wrench.idl
 rosidl_generator_rs/isaac_ros2_messages/rust/src/lib.rs: /opt/ros/humble/share/geometry_msgs/msg/WrenchStamped.idl
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Rust code for ROS interfaces"
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/isaac_ros2_messages__rs && /usr/bin/python3 /opt/ros/humble/share/rosidl_generator_rs/cmake/../../../lib/rosidl_generator_rs/rosidl_generator_rs --generator-arguments-file /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/rosidl_generator_rs__arguments.json --typesupport-impls "rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c;rosidl_typesupport_c"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/students/workspace/build/isaac_ros2_messages/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating Rust code for ROS interfaces"
+	cd /home/students/workspace/build/isaac_ros2_messages/isaac_ros2_messages__rs && /usr/bin/python3 /opt/ros/humble/share/rosidl_generator_rs/cmake/../../../lib/rosidl_generator_rs/rosidl_generator_rs --generator-arguments-file /home/students/workspace/build/isaac_ros2_messages/rosidl_generator_rs__arguments.json --typesupport-impls "rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c;rosidl_typesupport_c"
 
 rosidl_generator_rs/isaac_ros2_messages/rust/build.rs: rosidl_generator_rs/isaac_ros2_messages/rust/src/lib.rs
 	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_rs/isaac_ros2_messages/rust/build.rs
@@ -187,10 +187,10 @@ isaac_ros2_messages__rs/CMakeFiles/isaac_ros2_messages__rs.dir/build: isaac_ros2
 .PHONY : isaac_ros2_messages__rs/CMakeFiles/isaac_ros2_messages__rs.dir/build
 
 isaac_ros2_messages__rs/CMakeFiles/isaac_ros2_messages__rs.dir/clean:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/isaac_ros2_messages__rs && $(CMAKE_COMMAND) -P CMakeFiles/isaac_ros2_messages__rs.dir/cmake_clean.cmake
+	cd /home/students/workspace/build/isaac_ros2_messages/isaac_ros2_messages__rs && $(CMAKE_COMMAND) -P CMakeFiles/isaac_ros2_messages__rs.dir/cmake_clean.cmake
 .PHONY : isaac_ros2_messages__rs/CMakeFiles/isaac_ros2_messages__rs.dir/clean
 
 isaac_ros2_messages__rs/CMakeFiles/isaac_ros2_messages__rs.dir/depend:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_ros2_messages /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/isaac_ros2_messages__rs /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/isaac_ros2_messages__rs /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/isaac_ros2_messages__rs/CMakeFiles/isaac_ros2_messages__rs.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/students/workspace/build/isaac_ros2_messages && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/students/workspace/src/isaac_ros2_messages /home/students/workspace/build/isaac_ros2_messages/isaac_ros2_messages__rs /home/students/workspace/build/isaac_ros2_messages /home/students/workspace/build/isaac_ros2_messages/isaac_ros2_messages__rs /home/students/workspace/build/isaac_ros2_messages/isaac_ros2_messages__rs/CMakeFiles/isaac_ros2_messages__rs.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : isaac_ros2_messages__rs/CMakeFiles/isaac_ros2_messages__rs.dir/depend
 

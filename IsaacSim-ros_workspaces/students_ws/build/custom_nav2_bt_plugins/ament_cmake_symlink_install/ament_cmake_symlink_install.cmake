@@ -23,7 +23,7 @@ function(ament_cmake_symlink_install_directory cmake_current_source_dir)
 
   # make destination absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/custom_nav2_bt_plugins/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/students/workspace/install/custom_nav2_bt_plugins/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -128,7 +128,7 @@ function(ament_cmake_symlink_install_files cmake_current_source_dir)
 
   # make destination an absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/custom_nav2_bt_plugins/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/students/workspace/install/custom_nav2_bt_plugins/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -186,7 +186,7 @@ function(ament_cmake_symlink_install_programs cmake_current_source_dir)
 
   # make destination an absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/custom_nav2_bt_plugins/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/students/workspace/install/custom_nav2_bt_plugins/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -256,7 +256,7 @@ function(ament_cmake_symlink_install_targets)
 
     # make destination an absolute path and ensure that it exists
     if(NOT IS_ABSOLUTE "${destination}")
-      set(destination "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/custom_nav2_bt_plugins/${destination}")
+      set(destination "/home/students/workspace/install/custom_nav2_bt_plugins/${destination}")
     endif()
     if(NOT EXISTS "${destination}")
       file(MAKE_DIRECTORY "${destination}")
@@ -316,79 +316,79 @@ message(STATUS "Execute custom install script")
 # begin of custom install code
 
 # install(FILES "movable_obstacle_localizer_plugins.xml" "DESTINATION" "share/custom_nav2_bt_plugins/")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "movable_obstacle_localizer_plugins.xml" "DESTINATION" "share/custom_nav2_bt_plugins/")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "movable_obstacle_localizer_plugins.xml" "DESTINATION" "share/custom_nav2_bt_plugins/")
 
 # install("TARGETS" "custom_is_movable_obstacle_detected_condition_bt_node" "custom_wait_for_obstacle_clearance_action_bt_node" "custom_capture_initial_path_action_bt_node" "custom_approach_obstacle_normal_action_bt_node" "custom_movable_obstacle_localizers" "ARCHIVE_DESTINATION" "lib" "LIBRARY_DESTINATION" "lib" "RUNTIME_DESTINATION" "bin")
-include("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_symlink_install_targets_0_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
+include("/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_symlink_install_targets_0_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
 
 # install("TARGETS" "rgbd_obstacle_localizer" "RUNTIME_DESTINATION" "lib/custom_nav2_bt_plugins")
-include("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_symlink_install_targets_1_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
+include("/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_symlink_install_targets_1_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
 
 # install(DIRECTORY "include/" "DESTINATION" "include/")
-ament_cmake_symlink_install_directory("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" DIRECTORY "include/" "DESTINATION" "include/")
+ament_cmake_symlink_install_directory("/home/students/workspace/src/custom_nav2_bt_plugins" DIRECTORY "include/" "DESTINATION" "include/")
 
 # install(DIRECTORY "launch" "DESTINATION" "share/custom_nav2_bt_plugins")
-ament_cmake_symlink_install_directory("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" DIRECTORY "launch" "DESTINATION" "share/custom_nav2_bt_plugins")
+ament_cmake_symlink_install_directory("/home/students/workspace/src/custom_nav2_bt_plugins" DIRECTORY "launch" "DESTINATION" "share/custom_nav2_bt_plugins")
 
 # install(FILES "movable_obstacle_localizer_plugins.xml" "DESTINATION" "share/custom_nav2_bt_plugins")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "movable_obstacle_localizer_plugins.xml" "DESTINATION" "share/custom_nav2_bt_plugins")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "movable_obstacle_localizer_plugins.xml" "DESTINATION" "share/custom_nav2_bt_plugins")
 
 # install(FILES "/opt/ros/humble/lib/python3.10/site-packages/ament_package/template/environment_hook/library_path.sh" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/opt/ros/humble/lib/python3.10/site-packages/ament_package/template/environment_hook/library_path.sh" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/opt/ros/humble/lib/python3.10/site-packages/ament_package/template/environment_hook/library_path.sh" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/library_path.dsv" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/library_path.dsv" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
+# install(FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/library_path.dsv" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/library_path.dsv" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/custom_nav2_bt_plugins" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/custom_nav2_bt_plugins" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
+# install(FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/custom_nav2_bt_plugins" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/custom_nav2_bt_plugins" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/custom_nav2_bt_plugins" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/custom_nav2_bt_plugins" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
+# install(FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/custom_nav2_bt_plugins" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/custom_nav2_bt_plugins" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
 
 # install(FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
+# install(FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
 
 # install(FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
+# install(FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/custom_nav2_bt_plugins/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/custom_nav2_bt_plugins")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/custom_nav2_bt_plugins")
+# install(FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/custom_nav2_bt_plugins")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/custom_nav2_bt_plugins")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/custom_nav2_bt_plugins")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/custom_nav2_bt_plugins")
+# install(FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/custom_nav2_bt_plugins")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/custom_nav2_bt_plugins")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/custom_nav2_bt_plugins")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/custom_nav2_bt_plugins")
+# install(FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/custom_nav2_bt_plugins")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/custom_nav2_bt_plugins")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/custom_nav2_bt_plugins")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/custom_nav2_bt_plugins")
+# install(FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/custom_nav2_bt_plugins")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/custom_nav2_bt_plugins")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/custom_nav2_bt_plugins")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/custom_nav2_bt_plugins")
+# install(FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/custom_nav2_bt_plugins")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/custom_nav2_bt_plugins")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_index/share/ament_index/resource_index/packages/custom_nav2_bt_plugins" "DESTINATION" "share/ament_index/resource_index/packages")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_index/share/ament_index/resource_index/packages/custom_nav2_bt_plugins" "DESTINATION" "share/ament_index/resource_index/packages")
+# install(FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_index/share/ament_index/resource_index/packages/custom_nav2_bt_plugins" "DESTINATION" "share/ament_index/resource_index/packages")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_index/share/ament_index/resource_index/packages/custom_nav2_bt_plugins" "DESTINATION" "share/ament_index/resource_index/packages")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_index/share/ament_index/resource_index/custom_nav2_bt_plugins__pluginlib__plugin/custom_nav2_bt_plugins" "DESTINATION" "share/ament_index/resource_index/custom_nav2_bt_plugins__pluginlib__plugin")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_index/share/ament_index/resource_index/custom_nav2_bt_plugins__pluginlib__plugin/custom_nav2_bt_plugins" "DESTINATION" "share/ament_index/resource_index/custom_nav2_bt_plugins__pluginlib__plugin")
+# install(FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_index/share/ament_index/resource_index/custom_nav2_bt_plugins__pluginlib__plugin/custom_nav2_bt_plugins" "DESTINATION" "share/ament_index/resource_index/custom_nav2_bt_plugins__pluginlib__plugin")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_index/share/ament_index/resource_index/custom_nav2_bt_plugins__pluginlib__plugin/custom_nav2_bt_plugins" "DESTINATION" "share/ament_index/resource_index/custom_nav2_bt_plugins__pluginlib__plugin")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_export_include_directories/ament_cmake_export_include_directories-extras.cmake" "DESTINATION" "share/custom_nav2_bt_plugins/cmake")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_export_include_directories/ament_cmake_export_include_directories-extras.cmake" "DESTINATION" "share/custom_nav2_bt_plugins/cmake")
+# install(FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_export_include_directories/ament_cmake_export_include_directories-extras.cmake" "DESTINATION" "share/custom_nav2_bt_plugins/cmake")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_export_include_directories/ament_cmake_export_include_directories-extras.cmake" "DESTINATION" "share/custom_nav2_bt_plugins/cmake")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_export_libraries/ament_cmake_export_libraries-extras.cmake" "DESTINATION" "share/custom_nav2_bt_plugins/cmake")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_export_libraries/ament_cmake_export_libraries-extras.cmake" "DESTINATION" "share/custom_nav2_bt_plugins/cmake")
+# install(FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_export_libraries/ament_cmake_export_libraries-extras.cmake" "DESTINATION" "share/custom_nav2_bt_plugins/cmake")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_export_libraries/ament_cmake_export_libraries-extras.cmake" "DESTINATION" "share/custom_nav2_bt_plugins/cmake")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_export_dependencies/ament_cmake_export_dependencies-extras.cmake" "DESTINATION" "share/custom_nav2_bt_plugins/cmake")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_export_dependencies/ament_cmake_export_dependencies-extras.cmake" "DESTINATION" "share/custom_nav2_bt_plugins/cmake")
+# install(FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_export_dependencies/ament_cmake_export_dependencies-extras.cmake" "DESTINATION" "share/custom_nav2_bt_plugins/cmake")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_export_dependencies/ament_cmake_export_dependencies-extras.cmake" "DESTINATION" "share/custom_nav2_bt_plugins/cmake")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_core/custom_nav2_bt_pluginsConfig.cmake" "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_core/custom_nav2_bt_pluginsConfig-version.cmake" "DESTINATION" "share/custom_nav2_bt_plugins/cmake")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_core/custom_nav2_bt_pluginsConfig.cmake" "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_core/custom_nav2_bt_pluginsConfig-version.cmake" "DESTINATION" "share/custom_nav2_bt_plugins/cmake")
+# install(FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_core/custom_nav2_bt_pluginsConfig.cmake" "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_core/custom_nav2_bt_pluginsConfig-version.cmake" "DESTINATION" "share/custom_nav2_bt_plugins/cmake")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_core/custom_nav2_bt_pluginsConfig.cmake" "/home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_core/custom_nav2_bt_pluginsConfig-version.cmake" "DESTINATION" "share/custom_nav2_bt_plugins/cmake")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins/package.xml" "DESTINATION" "share/custom_nav2_bt_plugins")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins/package.xml" "DESTINATION" "share/custom_nav2_bt_plugins")
+# install(FILES "/home/students/workspace/src/custom_nav2_bt_plugins/package.xml" "DESTINATION" "share/custom_nav2_bt_plugins")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_nav2_bt_plugins" FILES "/home/students/workspace/src/custom_nav2_bt_plugins/package.xml" "DESTINATION" "share/custom_nav2_bt_plugins")

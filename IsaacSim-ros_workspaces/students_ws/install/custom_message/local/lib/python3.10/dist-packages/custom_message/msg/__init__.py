@@ -1,1 +1,1 @@
-from custom_message.msg._sample_msg import SampleMsg  # noqa: F401
+/home/students/workspace/build/custom_message/rosidl_generator_py/custom_message/msg/__init__.py

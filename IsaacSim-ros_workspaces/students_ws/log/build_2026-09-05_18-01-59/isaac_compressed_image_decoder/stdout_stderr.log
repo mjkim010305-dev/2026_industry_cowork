@@ -1,0 +1,22 @@
+running develop
+running egg_info
+creating isaac_compressed_image_decoder.egg-info
+writing isaac_compressed_image_decoder.egg-info/PKG-INFO
+writing dependency_links to isaac_compressed_image_decoder.egg-info/dependency_links.txt
+writing entry points to isaac_compressed_image_decoder.egg-info/entry_points.txt
+writing requirements to isaac_compressed_image_decoder.egg-info/requires.txt
+writing top-level names to isaac_compressed_image_decoder.egg-info/top_level.txt
+writing manifest file 'isaac_compressed_image_decoder.egg-info/SOURCES.txt'
+reading manifest file 'isaac_compressed_image_decoder.egg-info/SOURCES.txt'
+writing manifest file 'isaac_compressed_image_decoder.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/students/workspace/install/isaac_compressed_image_decoder/lib/python3.10/site-packages/isaac-compressed-image-decoder.egg-link (link to .)
+Installing decoder_node script to /home/students/workspace/install/isaac_compressed_image_decoder/lib/isaac_compressed_image_decoder
+
+Installed /home/students/workspace/build/isaac_compressed_image_decoder
+running symlink_data
+creating /home/students/workspace/install/isaac_compressed_image_decoder/share/ament_index
+creating /home/students/workspace/install/isaac_compressed_image_decoder/share/ament_index/resource_index
+creating /home/students/workspace/install/isaac_compressed_image_decoder/share/ament_index/resource_index/packages
+symbolically linking /home/students/workspace/build/isaac_compressed_image_decoder/resource/isaac_compressed_image_decoder -> /home/students/workspace/install/isaac_compressed_image_decoder/share/ament_index/resource_index/packages
+symbolically linking /home/students/workspace/build/isaac_compressed_image_decoder/package.xml -> /home/students/workspace/install/isaac_compressed_image_decoder/share/isaac_compressed_image_decoder

@@ -1,2 +1,1 @@
-string path             # prim path
-string attribute        # attribute name
+/home/students/workspace/build/isaac_ros2_messages/rosidl_cmake/srv/GetPrimAttribute_Request.msg

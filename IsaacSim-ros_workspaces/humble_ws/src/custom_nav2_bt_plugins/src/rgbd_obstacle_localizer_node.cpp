@@ -182,6 +182,12 @@ private:
     out.pose.position = p_map.point;
     out.pose.orientation.w = 1.0;   // heading is derived by the BT from the path
     pose_pub_->publish(out);
+
+    RCLCPP_INFO_THROTTLE(
+      get_logger(), *get_clock(), 1000,
+      "obstacle @ %s: (%.2f, %.2f, %.2f)  range=%.2f m  -> '%s'",
+      target_frame_.c_str(), out.pose.position.x, out.pose.position.y,
+      out.pose.position.z, r.distance, obstacle_pose_topic_.c_str());
   }
 
   pluginlib::ClassLoader<MovableObstacleLocalizer> loader_;

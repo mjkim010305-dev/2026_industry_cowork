@@ -23,7 +23,7 @@ function(ament_cmake_symlink_install_directory cmake_current_source_dir)
 
   # make destination absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/iw_hub_navigation/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/students/workspace/install/iw_hub_navigation/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -128,7 +128,7 @@ function(ament_cmake_symlink_install_files cmake_current_source_dir)
 
   # make destination an absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/iw_hub_navigation/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/students/workspace/install/iw_hub_navigation/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -186,7 +186,7 @@ function(ament_cmake_symlink_install_programs cmake_current_source_dir)
 
   # make destination an absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/iw_hub_navigation/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/students/workspace/install/iw_hub_navigation/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -256,7 +256,7 @@ function(ament_cmake_symlink_install_targets)
 
     # make destination an absolute path and ensure that it exists
     if(NOT IS_ABSOLUTE "${destination}")
-      set(destination "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/iw_hub_navigation/${destination}")
+      set(destination "/home/students/workspace/install/iw_hub_navigation/${destination}")
     endif()
     if(NOT EXISTS "${destination}")
       file(MAKE_DIRECTORY "${destination}")
@@ -316,46 +316,46 @@ message(STATUS "Execute custom install script")
 # begin of custom install code
 
 # install(DIRECTORY "launch" "params" "maps" "rviz2" "DESTINATION" "share/iw_hub_navigation")
-ament_cmake_symlink_install_directory("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation" DIRECTORY "launch" "params" "maps" "rviz2" "DESTINATION" "share/iw_hub_navigation")
+ament_cmake_symlink_install_directory("/home/students/workspace/src/navigation/iw_hub_navigation" DIRECTORY "launch" "params" "maps" "rviz2" "DESTINATION" "share/iw_hub_navigation")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/iw_hub_navigation" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/iw_hub_navigation" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
+# install(FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/iw_hub_navigation" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
+ament_cmake_symlink_install_files("/home/students/workspace/src/navigation/iw_hub_navigation" FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/iw_hub_navigation" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/iw_hub_navigation" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/iw_hub_navigation" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
+# install(FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/iw_hub_navigation" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
+ament_cmake_symlink_install_files("/home/students/workspace/src/navigation/iw_hub_navigation" FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/iw_hub_navigation" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
 
 # install(FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/iw_hub_navigation/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/iw_hub_navigation/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/navigation/iw_hub_navigation" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/iw_hub_navigation/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/iw_hub_navigation/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/iw_hub_navigation/environment")
+# install(FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/iw_hub_navigation/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/navigation/iw_hub_navigation" FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/iw_hub_navigation/environment")
 
 # install(FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/iw_hub_navigation/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/iw_hub_navigation/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/navigation/iw_hub_navigation" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/iw_hub_navigation/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/iw_hub_navigation/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/iw_hub_navigation/environment")
+# install(FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/iw_hub_navigation/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/navigation/iw_hub_navigation" FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/iw_hub_navigation/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/iw_hub_navigation")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/iw_hub_navigation")
+# install(FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/iw_hub_navigation")
+ament_cmake_symlink_install_files("/home/students/workspace/src/navigation/iw_hub_navigation" FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/iw_hub_navigation")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/iw_hub_navigation")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/iw_hub_navigation")
+# install(FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/iw_hub_navigation")
+ament_cmake_symlink_install_files("/home/students/workspace/src/navigation/iw_hub_navigation" FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/iw_hub_navigation")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/iw_hub_navigation")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/iw_hub_navigation")
+# install(FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/iw_hub_navigation")
+ament_cmake_symlink_install_files("/home/students/workspace/src/navigation/iw_hub_navigation" FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/iw_hub_navigation")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/iw_hub_navigation")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/iw_hub_navigation")
+# install(FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/iw_hub_navigation")
+ament_cmake_symlink_install_files("/home/students/workspace/src/navigation/iw_hub_navigation" FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/iw_hub_navigation")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/iw_hub_navigation")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/iw_hub_navigation")
+# install(FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/iw_hub_navigation")
+ament_cmake_symlink_install_files("/home/students/workspace/src/navigation/iw_hub_navigation" FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/iw_hub_navigation")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_index/share/ament_index/resource_index/packages/iw_hub_navigation" "DESTINATION" "share/ament_index/resource_index/packages")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_index/share/ament_index/resource_index/packages/iw_hub_navigation" "DESTINATION" "share/ament_index/resource_index/packages")
+# install(FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_index/share/ament_index/resource_index/packages/iw_hub_navigation" "DESTINATION" "share/ament_index/resource_index/packages")
+ament_cmake_symlink_install_files("/home/students/workspace/src/navigation/iw_hub_navigation" FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_index/share/ament_index/resource_index/packages/iw_hub_navigation" "DESTINATION" "share/ament_index/resource_index/packages")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_core/iw_hub_navigationConfig.cmake" "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_core/iw_hub_navigationConfig-version.cmake" "DESTINATION" "share/iw_hub_navigation/cmake")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_core/iw_hub_navigationConfig.cmake" "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_core/iw_hub_navigationConfig-version.cmake" "DESTINATION" "share/iw_hub_navigation/cmake")
+# install(FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_core/iw_hub_navigationConfig.cmake" "/home/students/workspace/build/iw_hub_navigation/ament_cmake_core/iw_hub_navigationConfig-version.cmake" "DESTINATION" "share/iw_hub_navigation/cmake")
+ament_cmake_symlink_install_files("/home/students/workspace/src/navigation/iw_hub_navigation" FILES "/home/students/workspace/build/iw_hub_navigation/ament_cmake_core/iw_hub_navigationConfig.cmake" "/home/students/workspace/build/iw_hub_navigation/ament_cmake_core/iw_hub_navigationConfig-version.cmake" "DESTINATION" "share/iw_hub_navigation/cmake")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation/package.xml" "DESTINATION" "share/iw_hub_navigation")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation/package.xml" "DESTINATION" "share/iw_hub_navigation")
+# install(FILES "/home/students/workspace/src/navigation/iw_hub_navigation/package.xml" "DESTINATION" "share/iw_hub_navigation")
+ament_cmake_symlink_install_files("/home/students/workspace/src/navigation/iw_hub_navigation" FILES "/home/students/workspace/src/navigation/iw_hub_navigation/package.xml" "DESTINATION" "share/iw_hub_navigation")

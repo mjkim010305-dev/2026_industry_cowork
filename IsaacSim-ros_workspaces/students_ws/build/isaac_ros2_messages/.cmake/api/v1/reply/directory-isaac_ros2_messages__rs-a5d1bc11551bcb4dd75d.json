@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "isaac_ros2_messages__rs",
+		"source" : "/home/students/workspace/build/isaac_ros2_messages/isaac_ros2_messages__rs"
+	}
+}

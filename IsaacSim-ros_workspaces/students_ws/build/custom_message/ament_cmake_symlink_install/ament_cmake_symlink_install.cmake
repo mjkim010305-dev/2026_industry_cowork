@@ -23,7 +23,7 @@ function(ament_cmake_symlink_install_directory cmake_current_source_dir)
 
   # make destination absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/custom_message/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/students/workspace/install/custom_message/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -128,7 +128,7 @@ function(ament_cmake_symlink_install_files cmake_current_source_dir)
 
   # make destination an absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/custom_message/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/students/workspace/install/custom_message/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -186,7 +186,7 @@ function(ament_cmake_symlink_install_programs cmake_current_source_dir)
 
   # make destination an absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/custom_message/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/students/workspace/install/custom_message/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -256,7 +256,7 @@ function(ament_cmake_symlink_install_targets)
 
     # make destination an absolute path and ensure that it exists
     if(NOT IS_ABSOLUTE "${destination}")
-      set(destination "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/custom_message/${destination}")
+      set(destination "/home/students/workspace/install/custom_message/${destination}")
     endif()
     if(NOT EXISTS "${destination}")
       file(MAKE_DIRECTORY "${destination}")
@@ -315,128 +315,128 @@ message(STATUS "Execute custom install script")
 
 # begin of custom install code
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_index/share/ament_index/resource_index/rosidl_interfaces/custom_message" "DESTINATION" "share/ament_index/resource_index/rosidl_interfaces")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_index/share/ament_index/resource_index/rosidl_interfaces/custom_message" "DESTINATION" "share/ament_index/resource_index/rosidl_interfaces")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_index/share/ament_index/resource_index/rosidl_interfaces/custom_message" "DESTINATION" "share/ament_index/resource_index/rosidl_interfaces")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_index/share/ament_index/resource_index/rosidl_interfaces/custom_message" "DESTINATION" "share/ament_index/resource_index/rosidl_interfaces")
 
-# install(DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_generator_c/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN" "*.h")
-ament_cmake_symlink_install_directory("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_generator_c/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN" "*.h")
+# install(DIRECTORY "/home/students/workspace/build/custom_message/rosidl_generator_c/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN" "*.h")
+ament_cmake_symlink_install_directory("/home/students/workspace/src/custom_message" DIRECTORY "/home/students/workspace/build/custom_message/rosidl_generator_c/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN" "*.h")
 
 # install(FILES "/opt/ros/humble/lib/python3.10/site-packages/ament_package/template/environment_hook/library_path.sh" "DESTINATION" "share/custom_message/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/opt/ros/humble/lib/python3.10/site-packages/ament_package/template/environment_hook/library_path.sh" "DESTINATION" "share/custom_message/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/opt/ros/humble/lib/python3.10/site-packages/ament_package/template/environment_hook/library_path.sh" "DESTINATION" "share/custom_message/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/library_path.dsv" "DESTINATION" "share/custom_message/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/library_path.dsv" "DESTINATION" "share/custom_message/environment")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/library_path.dsv" "DESTINATION" "share/custom_message/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/library_path.dsv" "DESTINATION" "share/custom_message/environment")
 
-# install(DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_typesupport_fastrtps_c/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN_EXCLUDE" "*.cpp")
-ament_cmake_symlink_install_directory("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_typesupport_fastrtps_c/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN_EXCLUDE" "*.cpp")
+# install(DIRECTORY "/home/students/workspace/build/custom_message/rosidl_typesupport_fastrtps_c/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN_EXCLUDE" "*.cpp")
+ament_cmake_symlink_install_directory("/home/students/workspace/src/custom_message" DIRECTORY "/home/students/workspace/build/custom_message/rosidl_typesupport_fastrtps_c/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN_EXCLUDE" "*.cpp")
 
-# install(DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_generator_cpp/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN" "*.hpp")
-ament_cmake_symlink_install_directory("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_generator_cpp/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN" "*.hpp")
+# install(DIRECTORY "/home/students/workspace/build/custom_message/rosidl_generator_cpp/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN" "*.hpp")
+ament_cmake_symlink_install_directory("/home/students/workspace/src/custom_message" DIRECTORY "/home/students/workspace/build/custom_message/rosidl_generator_cpp/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN" "*.hpp")
 
-# install(DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_typesupport_fastrtps_cpp/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN_EXCLUDE" "*.cpp")
-ament_cmake_symlink_install_directory("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_typesupport_fastrtps_cpp/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN_EXCLUDE" "*.cpp")
+# install(DIRECTORY "/home/students/workspace/build/custom_message/rosidl_typesupport_fastrtps_cpp/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN_EXCLUDE" "*.cpp")
+ament_cmake_symlink_install_directory("/home/students/workspace/src/custom_message" DIRECTORY "/home/students/workspace/build/custom_message/rosidl_typesupport_fastrtps_cpp/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN_EXCLUDE" "*.cpp")
 
-# install(DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_typesupport_introspection_c/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN" "*.h")
-ament_cmake_symlink_install_directory("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_typesupport_introspection_c/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN" "*.h")
+# install(DIRECTORY "/home/students/workspace/build/custom_message/rosidl_typesupport_introspection_c/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN" "*.h")
+ament_cmake_symlink_install_directory("/home/students/workspace/src/custom_message" DIRECTORY "/home/students/workspace/build/custom_message/rosidl_typesupport_introspection_c/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN" "*.h")
 
-# install(DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_typesupport_introspection_cpp/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN" "*.hpp")
-ament_cmake_symlink_install_directory("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_typesupport_introspection_cpp/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN" "*.hpp")
+# install(DIRECTORY "/home/students/workspace/build/custom_message/rosidl_typesupport_introspection_cpp/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN" "*.hpp")
+ament_cmake_symlink_install_directory("/home/students/workspace/src/custom_message" DIRECTORY "/home/students/workspace/build/custom_message/rosidl_typesupport_introspection_cpp/custom_message/" "DESTINATION" "include/custom_message/custom_message" "PATTERN" "*.hpp")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/pythonpath.sh" "DESTINATION" "share/custom_message/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/pythonpath.sh" "DESTINATION" "share/custom_message/environment")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/pythonpath.sh" "DESTINATION" "share/custom_message/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/pythonpath.sh" "DESTINATION" "share/custom_message/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/pythonpath.dsv" "DESTINATION" "share/custom_message/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/pythonpath.dsv" "DESTINATION" "share/custom_message/environment")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/pythonpath.dsv" "DESTINATION" "share/custom_message/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/pythonpath.dsv" "DESTINATION" "share/custom_message/environment")
 
-# install(DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_python/custom_message/custom_message.egg-info/" "DESTINATION" "local/lib/python3.10/dist-packages/custom_message-0.0.0-py3.10.egg-info")
-ament_cmake_symlink_install_directory("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_python/custom_message/custom_message.egg-info/" "DESTINATION" "local/lib/python3.10/dist-packages/custom_message-0.0.0-py3.10.egg-info")
+# install(DIRECTORY "/home/students/workspace/build/custom_message/ament_cmake_python/custom_message/custom_message.egg-info/" "DESTINATION" "local/lib/python3.10/dist-packages/custom_message-0.0.0-py3.10.egg-info")
+ament_cmake_symlink_install_directory("/home/students/workspace/src/custom_message" DIRECTORY "/home/students/workspace/build/custom_message/ament_cmake_python/custom_message/custom_message.egg-info/" "DESTINATION" "local/lib/python3.10/dist-packages/custom_message-0.0.0-py3.10.egg-info")
 
-# install(DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_generator_py/custom_message/" "DESTINATION" "local/lib/python3.10/dist-packages/custom_message" "PATTERN_EXCLUDE" "*.pyc" "PATTERN_EXCLUDE" "__pycache__")
-ament_cmake_symlink_install_directory("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_generator_py/custom_message/" "DESTINATION" "local/lib/python3.10/dist-packages/custom_message" "PATTERN_EXCLUDE" "*.pyc" "PATTERN_EXCLUDE" "__pycache__")
+# install(DIRECTORY "/home/students/workspace/build/custom_message/rosidl_generator_py/custom_message/" "DESTINATION" "local/lib/python3.10/dist-packages/custom_message" "PATTERN_EXCLUDE" "*.pyc" "PATTERN_EXCLUDE" "__pycache__")
+ament_cmake_symlink_install_directory("/home/students/workspace/src/custom_message" DIRECTORY "/home/students/workspace/build/custom_message/rosidl_generator_py/custom_message/" "DESTINATION" "local/lib/python3.10/dist-packages/custom_message" "PATTERN_EXCLUDE" "*.pyc" "PATTERN_EXCLUDE" "__pycache__")
 
 # install("TARGETS" "custom_message__rosidl_typesupport_fastrtps_c__pyext" "DESTINATION" "local/lib/python3.10/dist-packages/custom_message")
-include("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_symlink_install_targets_0_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
+include("/home/students/workspace/build/custom_message/ament_cmake_symlink_install_targets_0_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
 
 # install("TARGETS" "custom_message__rosidl_typesupport_introspection_c__pyext" "DESTINATION" "local/lib/python3.10/dist-packages/custom_message")
-include("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_symlink_install_targets_1_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
+include("/home/students/workspace/build/custom_message/ament_cmake_symlink_install_targets_1_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
 
 # install("TARGETS" "custom_message__rosidl_typesupport_c__pyext" "DESTINATION" "local/lib/python3.10/dist-packages/custom_message")
-include("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_symlink_install_targets_2_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
+include("/home/students/workspace/build/custom_message/ament_cmake_symlink_install_targets_2_${CMAKE_INSTALL_CONFIG_NAME}.cmake")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_index/share/ament_index/resource_index/rust_packages/custom_message" "DESTINATION" "share/ament_index/resource_index/rust_packages")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_index/share/ament_index/resource_index/rust_packages/custom_message" "DESTINATION" "share/ament_index/resource_index/rust_packages")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_index/share/ament_index/resource_index/rust_packages/custom_message" "DESTINATION" "share/ament_index/resource_index/rust_packages")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_index/share/ament_index/resource_index/rust_packages/custom_message" "DESTINATION" "share/ament_index/resource_index/rust_packages")
 
-# install(DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_generator_rs/custom_message/rust" "DESTINATION" "share/custom_message")
-ament_cmake_symlink_install_directory("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" DIRECTORY "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_generator_rs/custom_message/rust" "DESTINATION" "share/custom_message")
+# install(DIRECTORY "/home/students/workspace/build/custom_message/rosidl_generator_rs/custom_message/rust" "DESTINATION" "share/custom_message")
+ament_cmake_symlink_install_directory("/home/students/workspace/src/custom_message" DIRECTORY "/home/students/workspace/build/custom_message/rosidl_generator_rs/custom_message/rust" "DESTINATION" "share/custom_message")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_adapter/custom_message/msg/SampleMsg.idl" "DESTINATION" "share/custom_message/msg")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_adapter/custom_message/msg/SampleMsg.idl" "DESTINATION" "share/custom_message/msg")
+# install(FILES "/home/students/workspace/build/custom_message/rosidl_adapter/custom_message/msg/SampleMsg.idl" "DESTINATION" "share/custom_message/msg")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/rosidl_adapter/custom_message/msg/SampleMsg.idl" "DESTINATION" "share/custom_message/msg")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message/msg/SampleMsg.msg" "DESTINATION" "share/custom_message/msg")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message/msg/SampleMsg.msg" "DESTINATION" "share/custom_message/msg")
+# install(FILES "/home/students/workspace/src/custom_message/msg/SampleMsg.msg" "DESTINATION" "share/custom_message/msg")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/src/custom_message/msg/SampleMsg.msg" "DESTINATION" "share/custom_message/msg")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/custom_message" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/custom_message" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/custom_message" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/custom_message" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/custom_message" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/custom_message" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/custom_message" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/custom_message" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
 
 # install(FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/custom_message/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/custom_message/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/custom_message/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/custom_message/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/custom_message/environment")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/custom_message/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/custom_message/environment")
 
 # install(FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/custom_message/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/custom_message/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/custom_message/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/custom_message/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/custom_message/environment")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/custom_message/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/custom_message/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/custom_message")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/custom_message")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/custom_message")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/custom_message")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/custom_message")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/custom_message")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/custom_message")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/custom_message")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/custom_message")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/custom_message")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/custom_message")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/custom_message")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/custom_message")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/custom_message")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/custom_message")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/custom_message")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/custom_message")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/custom_message")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/custom_message")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/custom_message")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_index/share/ament_index/resource_index/packages/custom_message" "DESTINATION" "share/ament_index/resource_index/packages")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_index/share/ament_index/resource_index/packages/custom_message" "DESTINATION" "share/ament_index/resource_index/packages")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_index/share/ament_index/resource_index/packages/custom_message" "DESTINATION" "share/ament_index/resource_index/packages")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_index/share/ament_index/resource_index/packages/custom_message" "DESTINATION" "share/ament_index/resource_index/packages")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_cmake/rosidl_cmake-extras.cmake" "DESTINATION" "share/custom_message/cmake")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_cmake/rosidl_cmake-extras.cmake" "DESTINATION" "share/custom_message/cmake")
+# install(FILES "/home/students/workspace/build/custom_message/rosidl_cmake/rosidl_cmake-extras.cmake" "DESTINATION" "share/custom_message/cmake")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/rosidl_cmake/rosidl_cmake-extras.cmake" "DESTINATION" "share/custom_message/cmake")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_export_dependencies/ament_cmake_export_dependencies-extras.cmake" "DESTINATION" "share/custom_message/cmake")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_export_dependencies/ament_cmake_export_dependencies-extras.cmake" "DESTINATION" "share/custom_message/cmake")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_export_dependencies/ament_cmake_export_dependencies-extras.cmake" "DESTINATION" "share/custom_message/cmake")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_export_dependencies/ament_cmake_export_dependencies-extras.cmake" "DESTINATION" "share/custom_message/cmake")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_export_include_directories/ament_cmake_export_include_directories-extras.cmake" "DESTINATION" "share/custom_message/cmake")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_export_include_directories/ament_cmake_export_include_directories-extras.cmake" "DESTINATION" "share/custom_message/cmake")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_export_include_directories/ament_cmake_export_include_directories-extras.cmake" "DESTINATION" "share/custom_message/cmake")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_export_include_directories/ament_cmake_export_include_directories-extras.cmake" "DESTINATION" "share/custom_message/cmake")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_export_libraries/ament_cmake_export_libraries-extras.cmake" "DESTINATION" "share/custom_message/cmake")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_export_libraries/ament_cmake_export_libraries-extras.cmake" "DESTINATION" "share/custom_message/cmake")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_export_libraries/ament_cmake_export_libraries-extras.cmake" "DESTINATION" "share/custom_message/cmake")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_export_libraries/ament_cmake_export_libraries-extras.cmake" "DESTINATION" "share/custom_message/cmake")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_export_targets/ament_cmake_export_targets-extras.cmake" "DESTINATION" "share/custom_message/cmake")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_export_targets/ament_cmake_export_targets-extras.cmake" "DESTINATION" "share/custom_message/cmake")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_export_targets/ament_cmake_export_targets-extras.cmake" "DESTINATION" "share/custom_message/cmake")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_export_targets/ament_cmake_export_targets-extras.cmake" "DESTINATION" "share/custom_message/cmake")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_cmake/rosidl_cmake_export_typesupport_targets-extras.cmake" "DESTINATION" "share/custom_message/cmake")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_cmake/rosidl_cmake_export_typesupport_targets-extras.cmake" "DESTINATION" "share/custom_message/cmake")
+# install(FILES "/home/students/workspace/build/custom_message/rosidl_cmake/rosidl_cmake_export_typesupport_targets-extras.cmake" "DESTINATION" "share/custom_message/cmake")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/rosidl_cmake/rosidl_cmake_export_typesupport_targets-extras.cmake" "DESTINATION" "share/custom_message/cmake")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake" "DESTINATION" "share/custom_message/cmake")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake" "DESTINATION" "share/custom_message/cmake")
+# install(FILES "/home/students/workspace/build/custom_message/rosidl_cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake" "DESTINATION" "share/custom_message/cmake")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/rosidl_cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake" "DESTINATION" "share/custom_message/cmake")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_cmake/rosidl_cmake_aggregate_target-extras.cmake" "DESTINATION" "share/custom_message/cmake")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_cmake/rosidl_cmake_aggregate_target-extras.cmake" "DESTINATION" "share/custom_message/cmake")
+# install(FILES "/home/students/workspace/build/custom_message/rosidl_cmake/rosidl_cmake_aggregate_target-extras.cmake" "DESTINATION" "share/custom_message/cmake")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/rosidl_cmake/rosidl_cmake_aggregate_target-extras.cmake" "DESTINATION" "share/custom_message/cmake")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_core/custom_messageConfig.cmake" "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_core/custom_messageConfig-version.cmake" "DESTINATION" "share/custom_message/cmake")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_core/custom_messageConfig.cmake" "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_core/custom_messageConfig-version.cmake" "DESTINATION" "share/custom_message/cmake")
+# install(FILES "/home/students/workspace/build/custom_message/ament_cmake_core/custom_messageConfig.cmake" "/home/students/workspace/build/custom_message/ament_cmake_core/custom_messageConfig-version.cmake" "DESTINATION" "share/custom_message/cmake")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/build/custom_message/ament_cmake_core/custom_messageConfig.cmake" "/home/students/workspace/build/custom_message/ament_cmake_core/custom_messageConfig-version.cmake" "DESTINATION" "share/custom_message/cmake")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message/package.xml" "DESTINATION" "share/custom_message")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message/package.xml" "DESTINATION" "share/custom_message")
+# install(FILES "/home/students/workspace/src/custom_message/package.xml" "DESTINATION" "share/custom_message")
+ament_cmake_symlink_install_files("/home/students/workspace/src/custom_message" FILES "/home/students/workspace/src/custom_message/package.xml" "DESTINATION" "share/custom_message")

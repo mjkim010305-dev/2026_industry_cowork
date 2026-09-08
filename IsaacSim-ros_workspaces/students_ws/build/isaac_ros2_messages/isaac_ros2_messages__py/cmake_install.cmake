@@ -1,8 +1,8 @@
-# Install script for directory: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/isaac_ros2_messages__py
+# Install script for directory: /home/students/workspace/build/isaac_ros2_messages/isaac_ros2_messages__py
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros2_messages")
+  set(CMAKE_INSTALL_PREFIX "/home/students/workspace/install/isaac_ros2_messages")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 

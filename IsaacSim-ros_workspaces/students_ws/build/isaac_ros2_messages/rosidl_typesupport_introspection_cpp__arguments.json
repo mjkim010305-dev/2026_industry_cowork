@@ -1,13 +1,13 @@
 {
   "package_name": "isaac_ros2_messages",
-  "output_dir": "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/rosidl_typesupport_introspection_cpp/isaac_ros2_messages",
+  "output_dir": "/home/students/workspace/build/isaac_ros2_messages/rosidl_typesupport_introspection_cpp/isaac_ros2_messages",
   "template_dir": "/opt/ros/humble/share/rosidl_typesupport_introspection_cpp/resource",
   "idl_tuples": [
-    "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages:srv/IsaacPose.idl",
-    "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages:srv/GetPrims.idl",
-    "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages:srv/GetPrimAttributes.idl",
-    "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages:srv/GetPrimAttribute.idl",
-    "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages:srv/SetPrimAttribute.idl"
+    "/home/students/workspace/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages:srv/IsaacPose.idl",
+    "/home/students/workspace/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages:srv/GetPrims.idl",
+    "/home/students/workspace/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages:srv/GetPrimAttributes.idl",
+    "/home/students/workspace/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages:srv/GetPrimAttribute.idl",
+    "/home/students/workspace/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages:srv/SetPrimAttribute.idl"
   ],
   "ros_interface_dependencies": [
     "builtin_interfaces:/opt/ros/humble/share/builtin_interfaces/msg/Duration.idl",
@@ -84,11 +84,11 @@
     "/opt/ros/humble/share/rosidl_typesupport_introspection_cpp/resource/msg__type_support.cpp.em",
     "/opt/ros/humble/share/rosidl_typesupport_introspection_cpp/resource/srv__rosidl_typesupport_introspection_cpp.hpp.em",
     "/opt/ros/humble/share/rosidl_typesupport_introspection_cpp/resource/srv__type_support.cpp.em",
-    "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages/srv/IsaacPose.idl",
-    "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages/srv/GetPrims.idl",
-    "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages/srv/GetPrimAttributes.idl",
-    "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages/srv/GetPrimAttribute.idl",
-    "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages/srv/SetPrimAttribute.idl",
+    "/home/students/workspace/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages/srv/IsaacPose.idl",
+    "/home/students/workspace/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages/srv/GetPrims.idl",
+    "/home/students/workspace/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages/srv/GetPrimAttributes.idl",
+    "/home/students/workspace/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages/srv/GetPrimAttribute.idl",
+    "/home/students/workspace/build/isaac_ros2_messages/rosidl_adapter/isaac_ros2_messages/srv/SetPrimAttribute.idl",
     "/opt/ros/humble/share/builtin_interfaces/msg/Duration.idl",
     "/opt/ros/humble/share/builtin_interfaces/msg/Time.idl",
     "/opt/ros/humble/share/std_msgs/msg/Bool.idl",

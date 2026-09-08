@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins
+CMAKE_SOURCE_DIR = /home/students/workspace/src/custom_nav2_bt_plugins
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins
+CMAKE_BINARY_DIR = /home/students/workspace/build/custom_nav2_bt_plugins
 
 # Utility rule file for custom_nav2_bt_plugins_uninstall.
 
@@ -67,7 +67,7 @@ include CMakeFiles/custom_nav2_bt_plugins_uninstall.dir/compiler_depend.make
 include CMakeFiles/custom_nav2_bt_plugins_uninstall.dir/progress.make
 
 CMakeFiles/custom_nav2_bt_plugins_uninstall:
-	/usr/bin/cmake -P /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
+	/usr/bin/cmake -P /home/students/workspace/build/custom_nav2_bt_plugins/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
 
 custom_nav2_bt_plugins_uninstall: CMakeFiles/custom_nav2_bt_plugins_uninstall
 custom_nav2_bt_plugins_uninstall: CMakeFiles/custom_nav2_bt_plugins_uninstall.dir/build.make
@@ -82,6 +82,6 @@ CMakeFiles/custom_nav2_bt_plugins_uninstall.dir/clean:
 .PHONY : CMakeFiles/custom_nav2_bt_plugins_uninstall.dir/clean
 
 CMakeFiles/custom_nav2_bt_plugins_uninstall.dir/depend:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_nav2_bt_plugins/CMakeFiles/custom_nav2_bt_plugins_uninstall.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/students/workspace/build/custom_nav2_bt_plugins && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/students/workspace/src/custom_nav2_bt_plugins /home/students/workspace/src/custom_nav2_bt_plugins /home/students/workspace/build/custom_nav2_bt_plugins /home/students/workspace/build/custom_nav2_bt_plugins /home/students/workspace/build/custom_nav2_bt_plugins/CMakeFiles/custom_nav2_bt_plugins_uninstall.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/custom_nav2_bt_plugins_uninstall.dir/depend
 

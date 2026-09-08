@@ -1,4 +1,1 @@
-source;share/isaac_ros2_messages/environment/ament_prefix_path.sh
-source;share/isaac_ros2_messages/environment/library_path.sh
-source;share/isaac_ros2_messages/environment/path.sh
-source;share/isaac_ros2_messages/environment/pythonpath.sh
+/home/students/workspace/build/isaac_ros2_messages/ament_cmake_environment_hooks/local_setup.dsv

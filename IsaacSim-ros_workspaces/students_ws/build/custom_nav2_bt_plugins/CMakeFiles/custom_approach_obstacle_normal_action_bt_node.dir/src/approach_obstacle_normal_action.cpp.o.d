@@ -1,5 +1,5 @@
 CMakeFiles/custom_approach_obstacle_normal_action_bt_node.dir/src/approach_obstacle_normal_action.cpp.o: \
- /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins/src/approach_obstacle_normal_action.cpp \
+ /home/students/workspace/src/custom_nav2_bt_plugins/src/approach_obstacle_normal_action.cpp \
  /usr/include/stdc-predef.h /usr/include/c++/11/algorithm \
  /usr/include/c++/11/utility \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
@@ -185,7 +185,7 @@ CMakeFiles/custom_approach_obstacle_normal_action_bt_node.dir/src/approach_obsta
  /usr/include/x86_64-linux-gnu/bits/types/error_t.h \
  /usr/include/c++/11/bits/charconv.h \
  /usr/include/c++/11/bits/basic_string.tcc \
- /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_bt_plugins/include/custom_nav2_bt_plugins/approach_obstacle_normal_action.hpp \
+ /home/students/workspace/src/custom_nav2_bt_plugins/include/custom_nav2_bt_plugins/approach_obstacle_normal_action.hpp \
  /usr/include/c++/11/mutex /usr/include/c++/11/chrono \
  /usr/include/c++/11/ratio /usr/include/c++/11/ctime \
  /usr/include/c++/11/bits/parse_numbers.h \

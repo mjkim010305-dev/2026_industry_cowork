@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware
+CMAKE_SOURCE_DIR = /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_hardware
+CMAKE_BINARY_DIR = /home/students/workspace/build/turtlebot3_manipulation_hardware
 
 # Include any dependencies generated for this target.
 include CMakeFiles/turtlebot3_manipulation_hardware.dir/depend.make
@@ -70,46 +70,46 @@ include CMakeFiles/turtlebot3_manipulation_hardware.dir/progress.make
 include CMakeFiles/turtlebot3_manipulation_hardware.dir/flags.make
 
 CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.o: CMakeFiles/turtlebot3_manipulation_hardware.dir/flags.make
-CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.o: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/dynamixel_sdk_wrapper.cpp
+CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.o: /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/dynamixel_sdk_wrapper.cpp
 CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.o: CMakeFiles/turtlebot3_manipulation_hardware.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_hardware/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.o -MF CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.o.d -o CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.o -c /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/dynamixel_sdk_wrapper.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/students/workspace/build/turtlebot3_manipulation_hardware/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.o -MF CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.o.d -o CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.o -c /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/dynamixel_sdk_wrapper.cpp
 
 CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/dynamixel_sdk_wrapper.cpp > CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/dynamixel_sdk_wrapper.cpp > CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.i
 
 CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/dynamixel_sdk_wrapper.cpp -o CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/dynamixel_sdk_wrapper.cpp -o CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.s
 
 CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.o: CMakeFiles/turtlebot3_manipulation_hardware.dir/flags.make
-CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.o: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/opencr.cpp
+CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.o: /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/opencr.cpp
 CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.o: CMakeFiles/turtlebot3_manipulation_hardware.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_hardware/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.o -MF CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.o.d -o CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.o -c /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/opencr.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/students/workspace/build/turtlebot3_manipulation_hardware/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.o -MF CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.o.d -o CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.o -c /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/opencr.cpp
 
 CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/opencr.cpp > CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/opencr.cpp > CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.i
 
 CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/opencr.cpp -o CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/opencr.cpp -o CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.s
 
 CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.o: CMakeFiles/turtlebot3_manipulation_hardware.dir/flags.make
-CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.o: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/turtlebot3_manipulation_system.cpp
+CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.o: /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/turtlebot3_manipulation_system.cpp
 CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.o: CMakeFiles/turtlebot3_manipulation_hardware.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_hardware/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.o -MF CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.o.d -o CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.o -c /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/turtlebot3_manipulation_system.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/students/workspace/build/turtlebot3_manipulation_hardware/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.o -MF CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.o.d -o CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.o -c /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/turtlebot3_manipulation_system.cpp
 
 CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/turtlebot3_manipulation_system.cpp > CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/turtlebot3_manipulation_system.cpp > CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.i
 
 CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/turtlebot3_manipulation_system.cpp -o CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/turtlebot3_manipulation_system.cpp -o CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.s
 
 # Object files for target turtlebot3_manipulation_hardware
 turtlebot3_manipulation_hardware_OBJECTS = \
@@ -124,7 +124,7 @@ libturtlebot3_manipulation_hardware.so: CMakeFiles/turtlebot3_manipulation_hardw
 libturtlebot3_manipulation_hardware.so: CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.o
 libturtlebot3_manipulation_hardware.so: CMakeFiles/turtlebot3_manipulation_hardware.dir/src/turtlebot3_manipulation_system.cpp.o
 libturtlebot3_manipulation_hardware.so: CMakeFiles/turtlebot3_manipulation_hardware.dir/build.make
-libturtlebot3_manipulation_hardware.so: /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/lib/libdynamixel_sdk.so
+libturtlebot3_manipulation_hardware.so: /opt/ros/humble/lib/libdynamixel_sdk.so
 libturtlebot3_manipulation_hardware.so: /opt/ros/humble/lib/libfake_components.so
 libturtlebot3_manipulation_hardware.so: /opt/ros/humble/lib/libmock_components.so
 libturtlebot3_manipulation_hardware.so: /opt/ros/humble/lib/libhardware_interface.so
@@ -253,7 +253,7 @@ libturtlebot3_manipulation_hardware.so: /opt/ros/humble/lib/librosidl_runtime_c.
 libturtlebot3_manipulation_hardware.so: /opt/ros/humble/lib/librcutils.so
 libturtlebot3_manipulation_hardware.so: /usr/lib/x86_64-linux-gnu/libpython3.10.so
 libturtlebot3_manipulation_hardware.so: CMakeFiles/turtlebot3_manipulation_hardware.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_hardware/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX shared library libturtlebot3_manipulation_hardware.so"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/students/workspace/build/turtlebot3_manipulation_hardware/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Linking CXX shared library libturtlebot3_manipulation_hardware.so"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/turtlebot3_manipulation_hardware.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -265,6 +265,6 @@ CMakeFiles/turtlebot3_manipulation_hardware.dir/clean:
 .PHONY : CMakeFiles/turtlebot3_manipulation_hardware.dir/clean
 
 CMakeFiles/turtlebot3_manipulation_hardware.dir/depend:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_hardware && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_hardware /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_hardware /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_hardware/CMakeFiles/turtlebot3_manipulation_hardware.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/students/workspace/build/turtlebot3_manipulation_hardware && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware /home/students/workspace/build/turtlebot3_manipulation_hardware /home/students/workspace/build/turtlebot3_manipulation_hardware /home/students/workspace/build/turtlebot3_manipulation_hardware/CMakeFiles/turtlebot3_manipulation_hardware.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/turtlebot3_manipulation_hardware.dir/depend
 

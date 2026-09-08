@@ -1,0 +1,30 @@
+[1.040s] Invoking command in '/home/students/workspace/build/isaac_ros_navigation_goal': PYTHONPATH=/home/students/workspace/build/isaac_ros_navigation_goal/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/students/workspace/install/isaac_ros_navigation_goal/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/students/workspace/build/isaac_ros_navigation_goal/build --no-deps symlink_data
+[1.146s] running develop
+[1.203s] running egg_info
+[1.203s] creating isaac_ros_navigation_goal.egg-info
+[1.203s] writing isaac_ros_navigation_goal.egg-info/PKG-INFO
+[1.203s] writing dependency_links to isaac_ros_navigation_goal.egg-info/dependency_links.txt
+[1.203s] writing entry points to isaac_ros_navigation_goal.egg-info/entry_points.txt
+[1.203s] writing requirements to isaac_ros_navigation_goal.egg-info/requires.txt
+[1.203s] writing top-level names to isaac_ros_navigation_goal.egg-info/top_level.txt
+[1.204s] writing manifest file 'isaac_ros_navigation_goal.egg-info/SOURCES.txt'
+[1.204s] reading manifest file 'isaac_ros_navigation_goal.egg-info/SOURCES.txt'
+[1.205s] writing manifest file 'isaac_ros_navigation_goal.egg-info/SOURCES.txt'
+[1.205s] running build_ext
+[1.205s] Creating /home/students/workspace/install/isaac_ros_navigation_goal/lib/python3.10/site-packages/isaac-ros-navigation-goal.egg-link (link to .)
+[1.209s] Installing SetNavigationGoal script to /home/students/workspace/install/isaac_ros_navigation_goal/lib/isaac_ros_navigation_goal
+[1.209s] 
+[1.209s] Installed /home/students/workspace/build/isaac_ros_navigation_goal
+[1.209s] running symlink_data
+[1.209s] creating /home/students/workspace/install/isaac_ros_navigation_goal/share/ament_index
+[1.209s] creating /home/students/workspace/install/isaac_ros_navigation_goal/share/ament_index/resource_index
+[1.209s] creating /home/students/workspace/install/isaac_ros_navigation_goal/share/ament_index/resource_index/packages
+[1.209s] symbolically linking /home/students/workspace/build/isaac_ros_navigation_goal/resource/isaac_ros_navigation_goal -> /home/students/workspace/install/isaac_ros_navigation_goal/share/ament_index/resource_index/packages
+[1.209s] symbolically linking /home/students/workspace/build/isaac_ros_navigation_goal/package.xml -> /home/students/workspace/install/isaac_ros_navigation_goal/share/isaac_ros_navigation_goal
+[1.209s] creating /home/students/workspace/install/isaac_ros_navigation_goal/share/isaac_ros_navigation_goal/launch
+[1.209s] symbolically linking /home/students/workspace/build/isaac_ros_navigation_goal/launch/isaac_ros_navigation_goal.launch.py -> /home/students/workspace/install/isaac_ros_navigation_goal/share/isaac_ros_navigation_goal/launch
+[1.209s] creating /home/students/workspace/install/isaac_ros_navigation_goal/share/isaac_ros_navigation_goal/assets
+[1.209s] symbolically linking /home/students/workspace/build/isaac_ros_navigation_goal/assets/carter_warehouse_navigation.png -> /home/students/workspace/install/isaac_ros_navigation_goal/share/isaac_ros_navigation_goal/assets
+[1.209s] symbolically linking /home/students/workspace/build/isaac_ros_navigation_goal/assets/goals.txt -> /home/students/workspace/install/isaac_ros_navigation_goal/share/isaac_ros_navigation_goal/assets
+[1.209s] symbolically linking /home/students/workspace/build/isaac_ros_navigation_goal/assets/carter_warehouse_navigation.yaml -> /home/students/workspace/install/isaac_ros_navigation_goal/share/isaac_ros_navigation_goal/assets
+[1.230s] Invoked command in '/home/students/workspace/build/isaac_ros_navigation_goal' returned '0': PYTHONPATH=/home/students/workspace/build/isaac_ros_navigation_goal/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/students/workspace/install/isaac_ros_navigation_goal/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/students/workspace/build/isaac_ros_navigation_goal/build --no-deps symlink_data

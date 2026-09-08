@@ -1,10 +1,10 @@
 #!/usr/bin/python3
-# EASY-INSTALL-ENTRY-SCRIPT: 'isaacsim-bringup==0.2.2','console_scripts','run_isaacsim'
+# EASY-INSTALL-ENTRY-SCRIPT: 'isaacsim-bringup','console_scripts','run_isaacsim'
 import re
 import sys
 
 # for compatibility with easy_install; see #2198
-__requires__ = 'isaacsim-bringup==0.2.2'
+__requires__ = 'isaacsim-bringup'
 
 try:
     from importlib.metadata import distribution
@@ -30,4 +30,4 @@ globals().setdefault('load_entry_point', importlib_load_entry_point)
 
 if __name__ == '__main__':
     sys.argv[0] = re.sub(r'(-script\.pyw?|\.exe)?$', '', sys.argv[0])
-    sys.exit(load_entry_point('isaacsim-bringup==0.2.2', 'console_scripts', 'run_isaacsim')())
+    sys.exit(load_entry_point('isaacsim-bringup', 'console_scripts', 'run_isaacsim')())

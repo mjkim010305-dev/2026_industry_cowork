@@ -1,1 +1,1 @@
-prepend-non-duplicate;LD_LIBRARY_PATH;lib
+/home/students/workspace/build/isaac_ros2_messages/ament_cmake_environment_hooks/library_path.dsv

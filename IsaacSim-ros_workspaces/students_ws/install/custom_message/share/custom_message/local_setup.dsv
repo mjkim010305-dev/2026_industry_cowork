@@ -1,4 +1,1 @@
-source;share/custom_message/environment/ament_prefix_path.sh
-source;share/custom_message/environment/library_path.sh
-source;share/custom_message/environment/path.sh
-source;share/custom_message/environment/pythonpath.sh
+/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/local_setup.dsv

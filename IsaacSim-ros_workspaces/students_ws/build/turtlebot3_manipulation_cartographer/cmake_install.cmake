@@ -1,8 +1,8 @@
-# Install script for directory: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer
+# Install script for directory: /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
-  set(CMAKE_INSTALL_PREFIX "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_cartographer")
+  set(CMAKE_INSTALL_PREFIX "/home/students/workspace/install/turtlebot3_manipulation_cartographer")
 endif()
 string(REGEX REPLACE "/$" "" CMAKE_INSTALL_PREFIX "${CMAKE_INSTALL_PREFIX}")
 
@@ -43,7 +43,7 @@ if(NOT DEFINED CMAKE_OBJDUMP)
 endif()
 
 if("x${CMAKE_INSTALL_COMPONENT}x" STREQUAL "xUnspecifiedx" OR NOT CMAKE_INSTALL_COMPONENT)
-  include("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_symlink_install/ament_cmake_symlink_install.cmake")
+  include("/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_symlink_install/ament_cmake_symlink_install.cmake")
 endif()
 
 if(CMAKE_INSTALL_COMPONENT)
@@ -54,5 +54,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/home/students/workspace/build/turtlebot3_manipulation_cartographer/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

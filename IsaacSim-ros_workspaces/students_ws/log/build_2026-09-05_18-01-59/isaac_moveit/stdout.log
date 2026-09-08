@@ -1,0 +1,28 @@
+running develop
+running egg_info
+creating isaac_moveit.egg-info
+writing isaac_moveit.egg-info/PKG-INFO
+writing dependency_links to isaac_moveit.egg-info/dependency_links.txt
+writing entry points to isaac_moveit.egg-info/entry_points.txt
+writing requirements to isaac_moveit.egg-info/requires.txt
+writing top-level names to isaac_moveit.egg-info/top_level.txt
+writing manifest file 'isaac_moveit.egg-info/SOURCES.txt'
+reading manifest file 'isaac_moveit.egg-info/SOURCES.txt'
+writing manifest file 'isaac_moveit.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/students/workspace/install/isaac_moveit/lib/python3.10/site-packages/isaac-moveit.egg-link (link to .)
+Installing gripper_to_isaac script to /home/students/workspace/install/isaac_moveit/lib/isaac_moveit
+
+Installed /home/students/workspace/build/isaac_moveit
+running symlink_data
+creating /home/students/workspace/install/isaac_moveit/share/ament_index
+creating /home/students/workspace/install/isaac_moveit/share/ament_index/resource_index
+creating /home/students/workspace/install/isaac_moveit/share/ament_index/resource_index/packages
+symbolically linking /home/students/workspace/build/isaac_moveit/resource/isaac_moveit -> /home/students/workspace/install/isaac_moveit/share/ament_index/resource_index/packages
+symbolically linking /home/students/workspace/build/isaac_moveit/package.xml -> /home/students/workspace/install/isaac_moveit/share/isaac_moveit
+creating /home/students/workspace/install/isaac_moveit/share/isaac_moveit/launch
+symbolically linking /home/students/workspace/build/isaac_moveit/launch/isaac_moveit.launch.py -> /home/students/workspace/install/isaac_moveit/share/isaac_moveit/launch
+creating /home/students/workspace/install/isaac_moveit/share/isaac_moveit/rviz2
+symbolically linking /home/students/workspace/build/isaac_moveit/rviz2/panda_moveit_config.rviz -> /home/students/workspace/install/isaac_moveit/share/isaac_moveit/rviz2
+creating /home/students/workspace/install/isaac_moveit/share/isaac_moveit/config
+symbolically linking /home/students/workspace/build/isaac_moveit/config/panda_isaac.urdf.xacro -> /home/students/workspace/install/isaac_moveit/share/isaac_moveit/config

@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message
+CMAKE_SOURCE_DIR = /home/students/workspace/src/custom_message
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message
+CMAKE_BINARY_DIR = /home/students/workspace/build/custom_message
 
 # Utility rule file for custom_message_uninstall.
 
@@ -67,7 +67,7 @@ include CMakeFiles/custom_message_uninstall.dir/compiler_depend.make
 include CMakeFiles/custom_message_uninstall.dir/progress.make
 
 CMakeFiles/custom_message_uninstall:
-	/usr/bin/cmake -P /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
+	/usr/bin/cmake -P /home/students/workspace/build/custom_message/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
 
 custom_message_uninstall: CMakeFiles/custom_message_uninstall
 custom_message_uninstall: CMakeFiles/custom_message_uninstall.dir/build.make
@@ -82,6 +82,6 @@ CMakeFiles/custom_message_uninstall.dir/clean:
 .PHONY : CMakeFiles/custom_message_uninstall.dir/clean
 
 CMakeFiles/custom_message_uninstall.dir/depend:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/CMakeFiles/custom_message_uninstall.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/students/workspace/build/custom_message && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/students/workspace/src/custom_message /home/students/workspace/src/custom_message /home/students/workspace/build/custom_message /home/students/workspace/build/custom_message /home/students/workspace/build/custom_message/CMakeFiles/custom_message_uninstall.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/custom_message_uninstall.dir/depend
 

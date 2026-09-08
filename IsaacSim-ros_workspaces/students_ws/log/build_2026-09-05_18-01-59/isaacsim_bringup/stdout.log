@@ -1,0 +1,26 @@
+running develop
+running egg_info
+creating isaacsim_bringup.egg-info
+writing isaacsim_bringup.egg-info/PKG-INFO
+writing dependency_links to isaacsim_bringup.egg-info/dependency_links.txt
+writing entry points to isaacsim_bringup.egg-info/entry_points.txt
+writing requirements to isaacsim_bringup.egg-info/requires.txt
+writing top-level names to isaacsim_bringup.egg-info/top_level.txt
+writing manifest file 'isaacsim_bringup.egg-info/SOURCES.txt'
+reading manifest file 'isaacsim_bringup.egg-info/SOURCES.txt'
+writing manifest file 'isaacsim_bringup.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/students/workspace/install/isaacsim_bringup/lib/python3.10/site-packages/isaacsim-bringup.egg-link (link to .)
+Installing run_isaacsim script to /home/students/workspace/install/isaacsim_bringup/lib/isaacsim_bringup
+
+Installed /home/students/workspace/build/isaacsim_bringup
+running symlink_data
+creating /home/students/workspace/install/isaacsim_bringup/share/ament_index
+creating /home/students/workspace/install/isaacsim_bringup/share/ament_index/resource_index
+creating /home/students/workspace/install/isaacsim_bringup/share/ament_index/resource_index/packages
+symbolically linking /home/students/workspace/build/isaacsim_bringup/resource/isaacsim_bringup -> /home/students/workspace/install/isaacsim_bringup/share/ament_index/resource_index/packages
+symbolically linking /home/students/workspace/build/isaacsim_bringup/package.xml -> /home/students/workspace/install/isaacsim_bringup/share/isaacsim_bringup
+creating /home/students/workspace/install/isaacsim_bringup/share/isaacsim_bringup/launch
+symbolically linking /home/students/workspace/build/isaacsim_bringup/launch/run_isaacsim.launch.py -> /home/students/workspace/install/isaacsim_bringup/share/isaacsim_bringup/launch
+creating /home/students/workspace/install/isaacsim_bringup/share/isaacsim_bringup/scripts
+symbolically linking /home/students/workspace/build/isaacsim_bringup/scripts/open_isaacsim_stage.py -> /home/students/workspace/install/isaacsim_bringup/share/isaacsim_bringup/scripts

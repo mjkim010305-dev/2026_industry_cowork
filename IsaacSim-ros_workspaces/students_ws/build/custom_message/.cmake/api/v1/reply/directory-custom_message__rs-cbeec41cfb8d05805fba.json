@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "custom_message__rs",
+		"source" : "/home/students/workspace/build/custom_message/custom_message__rs"
+	}
+}

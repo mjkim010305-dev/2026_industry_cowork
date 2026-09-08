@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message
+CMAKE_SOURCE_DIR = /home/students/workspace/src/custom_message
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message
+CMAKE_BINARY_DIR = /home/students/workspace/build/custom_message
 
 # Utility rule file for custom_message__cpp.
 
@@ -121,8 +121,8 @@ rosidl_generator_cpp/custom_message/msg/sample_msg.hpp: /opt/ros/humble/share/st
 rosidl_generator_cpp/custom_message/msg/sample_msg.hpp: /opt/ros/humble/share/std_msgs/msg/UInt8MultiArray.idl
 rosidl_generator_cpp/custom_message/msg/sample_msg.hpp: /opt/ros/humble/share/builtin_interfaces/msg/Duration.idl
 rosidl_generator_cpp/custom_message/msg/sample_msg.hpp: /opt/ros/humble/share/builtin_interfaces/msg/Time.idl
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating C++ code for ROS interfaces"
-	/usr/bin/python3 /opt/ros/humble/share/rosidl_generator_cpp/cmake/../../../lib/rosidl_generator_cpp/rosidl_generator_cpp --generator-arguments-file /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/rosidl_generator_cpp__arguments.json
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --blue --bold --progress-dir=/home/students/workspace/build/custom_message/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Generating C++ code for ROS interfaces"
+	/usr/bin/python3 /opt/ros/humble/share/rosidl_generator_cpp/cmake/../../../lib/rosidl_generator_cpp/rosidl_generator_cpp --generator-arguments-file /home/students/workspace/build/custom_message/rosidl_generator_cpp__arguments.json
 
 rosidl_generator_cpp/custom_message/msg/detail/sample_msg__builder.hpp: rosidl_generator_cpp/custom_message/msg/sample_msg.hpp
 	@$(CMAKE_COMMAND) -E touch_nocreate rosidl_generator_cpp/custom_message/msg/detail/sample_msg__builder.hpp
@@ -154,6 +154,6 @@ CMakeFiles/custom_message__cpp.dir/clean:
 .PHONY : CMakeFiles/custom_message__cpp.dir/clean
 
 CMakeFiles/custom_message__cpp.dir/depend:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/CMakeFiles/custom_message__cpp.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/students/workspace/build/custom_message && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/students/workspace/src/custom_message /home/students/workspace/src/custom_message /home/students/workspace/build/custom_message /home/students/workspace/build/custom_message /home/students/workspace/build/custom_message/CMakeFiles/custom_message__cpp.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/custom_message__cpp.dir/depend
 

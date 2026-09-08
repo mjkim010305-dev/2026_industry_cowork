@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation
+CMAKE_SOURCE_DIR = /home/students/workspace/src/navigation/iw_hub_navigation
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation
+CMAKE_BINARY_DIR = /home/students/workspace/build/iw_hub_navigation
 
 # Utility rule file for iw_hub_navigation_uninstall.
 
@@ -67,7 +67,7 @@ include CMakeFiles/iw_hub_navigation_uninstall.dir/compiler_depend.make
 include CMakeFiles/iw_hub_navigation_uninstall.dir/progress.make
 
 CMakeFiles/iw_hub_navigation_uninstall:
-	/usr/bin/cmake -P /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
+	/usr/bin/cmake -P /home/students/workspace/build/iw_hub_navigation/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
 
 iw_hub_navigation_uninstall: CMakeFiles/iw_hub_navigation_uninstall
 iw_hub_navigation_uninstall: CMakeFiles/iw_hub_navigation_uninstall.dir/build.make
@@ -82,6 +82,6 @@ CMakeFiles/iw_hub_navigation_uninstall.dir/clean:
 .PHONY : CMakeFiles/iw_hub_navigation_uninstall.dir/clean
 
 CMakeFiles/iw_hub_navigation_uninstall.dir/depend:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/CMakeFiles/iw_hub_navigation_uninstall.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/students/workspace/build/iw_hub_navigation && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/students/workspace/src/navigation/iw_hub_navigation /home/students/workspace/src/navigation/iw_hub_navigation /home/students/workspace/build/iw_hub_navigation /home/students/workspace/build/iw_hub_navigation /home/students/workspace/build/iw_hub_navigation/CMakeFiles/iw_hub_navigation_uninstall.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/iw_hub_navigation_uninstall.dir/depend
 

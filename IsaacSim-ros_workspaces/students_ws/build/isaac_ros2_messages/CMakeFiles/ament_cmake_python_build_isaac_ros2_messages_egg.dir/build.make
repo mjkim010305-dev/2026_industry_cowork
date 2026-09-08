@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_ros2_messages
+CMAKE_SOURCE_DIR = /home/students/workspace/src/isaac_ros2_messages
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages
+CMAKE_BINARY_DIR = /home/students/workspace/build/isaac_ros2_messages
 
 # Utility rule file for ament_cmake_python_build_isaac_ros2_messages_egg.
 
@@ -67,7 +67,7 @@ include CMakeFiles/ament_cmake_python_build_isaac_ros2_messages_egg.dir/compiler
 include CMakeFiles/ament_cmake_python_build_isaac_ros2_messages_egg.dir/progress.make
 
 CMakeFiles/ament_cmake_python_build_isaac_ros2_messages_egg:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/ament_cmake_python/isaac_ros2_messages && /usr/bin/python3 setup.py egg_info
+	cd /home/students/workspace/build/isaac_ros2_messages/ament_cmake_python/isaac_ros2_messages && /usr/bin/python3 setup.py egg_info
 
 ament_cmake_python_build_isaac_ros2_messages_egg: CMakeFiles/ament_cmake_python_build_isaac_ros2_messages_egg
 ament_cmake_python_build_isaac_ros2_messages_egg: CMakeFiles/ament_cmake_python_build_isaac_ros2_messages_egg.dir/build.make
@@ -82,6 +82,6 @@ CMakeFiles/ament_cmake_python_build_isaac_ros2_messages_egg.dir/clean:
 .PHONY : CMakeFiles/ament_cmake_python_build_isaac_ros2_messages_egg.dir/clean
 
 CMakeFiles/ament_cmake_python_build_isaac_ros2_messages_egg.dir/depend:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_ros2_messages /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_ros2_messages /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/CMakeFiles/ament_cmake_python_build_isaac_ros2_messages_egg.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/students/workspace/build/isaac_ros2_messages && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/students/workspace/src/isaac_ros2_messages /home/students/workspace/src/isaac_ros2_messages /home/students/workspace/build/isaac_ros2_messages /home/students/workspace/build/isaac_ros2_messages /home/students/workspace/build/isaac_ros2_messages/CMakeFiles/ament_cmake_python_build_isaac_ros2_messages_egg.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/ament_cmake_python_build_isaac_ros2_messages_egg.dir/depend
 

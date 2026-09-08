@@ -1,7 +1,7 @@
 CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.o: \
- /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/opencr.cpp \
+ /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/opencr.cpp \
  /usr/include/stdc-predef.h \
- /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/include/turtlebot3_manipulation_hardware/opencr.hpp \
+ /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/include/turtlebot3_manipulation_hardware/opencr.hpp \
  /usr/include/c++/11/stdlib.h /usr/include/c++/11/cstdlib \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h \
@@ -160,24 +160,24 @@ CMakeFiles/turtlebot3_manipulation_hardware.dir/src/opencr.cpp.o: \
  /usr/include/c++/11/bits/stl_vector.h \
  /usr/include/c++/11/bits/stl_bvector.h \
  /usr/include/c++/11/bits/vector.tcc \
- /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/include/turtlebot3_manipulation_hardware/dynamixel_sdk_wrapper.hpp \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/dynamixel_sdk.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/group_bulk_read.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/port_handler.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/packet_handler.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/group_handler.h \
+ /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/include/turtlebot3_manipulation_hardware/dynamixel_sdk_wrapper.hpp \
+ /opt/ros/humble/include/dynamixel_sdk/dynamixel_sdk.h \
+ /opt/ros/humble/include/dynamixel_sdk/group_bulk_read.h \
+ /opt/ros/humble/include/dynamixel_sdk/port_handler.h \
+ /opt/ros/humble/include/dynamixel_sdk/packet_handler.h \
+ /opt/ros/humble/include/dynamixel_sdk/group_handler.h \
  /usr/include/c++/11/map /usr/include/c++/11/bits/stl_tree.h \
  /usr/include/c++/11/bits/node_handle.h \
  /usr/include/c++/11/bits/stl_map.h \
  /usr/include/c++/11/bits/stl_multimap.h \
  /usr/include/c++/11/bits/erase_if.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/group_bulk_write.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/group_sync_read.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/group_sync_write.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/group_fast_sync_read.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/group_fast_bulk_read.h \
- /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/include/turtlebot3_manipulation_hardware/opencr_control_table.hpp \
- /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/include/turtlebot3_manipulation_hardware/opencr_definitions.hpp \
+ /opt/ros/humble/include/dynamixel_sdk/group_bulk_write.h \
+ /opt/ros/humble/include/dynamixel_sdk/group_sync_read.h \
+ /opt/ros/humble/include/dynamixel_sdk/group_sync_write.h \
+ /opt/ros/humble/include/dynamixel_sdk/group_fast_sync_read.h \
+ /opt/ros/humble/include/dynamixel_sdk/group_fast_bulk_read.h \
+ /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/include/turtlebot3_manipulation_hardware/opencr_control_table.hpp \
+ /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/include/turtlebot3_manipulation_hardware/opencr_definitions.hpp \
  /usr/include/c++/11/cmath /usr/include/math.h \
  /usr/include/x86_64-linux-gnu/bits/math-vector.h \
  /usr/include/x86_64-linux-gnu/bits/libm-simd-decl-stubs.h \

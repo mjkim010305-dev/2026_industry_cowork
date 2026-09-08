@@ -1,8 +1,0 @@
-[35m[1mConsolidate compiler generated dependencies of target custom_capture_initial_path_action_bt_node[0m
-[35m[1mConsolidate compiler generated dependencies of target custom_approach_obstacle_normal_action_bt_node[0m
-[ 16%] Built target custom_movable_obstacle_localizers
-[ 33%] Built target custom_wait_for_obstacle_clearance_action_bt_node
-[ 50%] Built target custom_is_movable_obstacle_detected_condition_bt_node
-[ 66%] Built target custom_capture_initial_path_action_bt_node
-[ 83%] Built target rgbd_obstacle_localizer
-[100%] Built target custom_approach_obstacle_normal_action_bt_node

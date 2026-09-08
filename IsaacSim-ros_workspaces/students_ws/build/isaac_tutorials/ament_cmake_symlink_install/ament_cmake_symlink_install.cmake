@@ -23,7 +23,7 @@ function(ament_cmake_symlink_install_directory cmake_current_source_dir)
 
   # make destination absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/students/workspace/install/isaac_tutorials/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -128,7 +128,7 @@ function(ament_cmake_symlink_install_files cmake_current_source_dir)
 
   # make destination an absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/students/workspace/install/isaac_tutorials/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -186,7 +186,7 @@ function(ament_cmake_symlink_install_programs cmake_current_source_dir)
 
   # make destination an absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/students/workspace/install/isaac_tutorials/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -256,7 +256,7 @@ function(ament_cmake_symlink_install_targets)
 
     # make destination an absolute path and ensure that it exists
     if(NOT IS_ABSOLUTE "${destination}")
-      set(destination "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_tutorials/${destination}")
+      set(destination "/home/students/workspace/install/isaac_tutorials/${destination}")
     endif()
     if(NOT EXISTS "${destination}")
       file(MAKE_DIRECTORY "${destination}")
@@ -316,49 +316,49 @@ message(STATUS "Execute custom install script")
 # begin of custom install code
 
 # install(DIRECTORY "rviz2" "scripts" "DESTINATION" "share/isaac_tutorials")
-ament_cmake_symlink_install_directory("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials" DIRECTORY "rviz2" "scripts" "DESTINATION" "share/isaac_tutorials")
+ament_cmake_symlink_install_directory("/home/students/workspace/src/isaac_tutorials" DIRECTORY "rviz2" "scripts" "DESTINATION" "share/isaac_tutorials")
 
 # install(PROGRAMS "scripts/ros2_publisher.py" "scripts/ros2_ackermann_publisher.py" "scripts/ros2_object_id_subscriber.py" "DESTINATION" "lib/isaac_tutorials")
-ament_cmake_symlink_install_programs("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials" PROGRAMS "scripts/ros2_publisher.py" "scripts/ros2_ackermann_publisher.py" "scripts/ros2_object_id_subscriber.py" "DESTINATION" "lib/isaac_tutorials")
+ament_cmake_symlink_install_programs("/home/students/workspace/src/isaac_tutorials" PROGRAMS "scripts/ros2_publisher.py" "scripts/ros2_ackermann_publisher.py" "scripts/ros2_object_id_subscriber.py" "DESTINATION" "lib/isaac_tutorials")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/isaac_tutorials" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/isaac_tutorials" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
+# install(FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/isaac_tutorials" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
+ament_cmake_symlink_install_files("/home/students/workspace/src/isaac_tutorials" FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/isaac_tutorials" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/isaac_tutorials" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/isaac_tutorials" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
+# install(FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/isaac_tutorials" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
+ament_cmake_symlink_install_files("/home/students/workspace/src/isaac_tutorials" FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/isaac_tutorials" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
 
 # install(FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/isaac_tutorials/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/isaac_tutorials/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/isaac_tutorials" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/isaac_tutorials/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/isaac_tutorials/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/isaac_tutorials/environment")
+# install(FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/isaac_tutorials/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/isaac_tutorials" FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/isaac_tutorials/environment")
 
 # install(FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/isaac_tutorials/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/isaac_tutorials/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/isaac_tutorials" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/isaac_tutorials/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/isaac_tutorials/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/isaac_tutorials/environment")
+# install(FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/isaac_tutorials/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/isaac_tutorials" FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/isaac_tutorials/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/isaac_tutorials")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/isaac_tutorials")
+# install(FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/isaac_tutorials")
+ament_cmake_symlink_install_files("/home/students/workspace/src/isaac_tutorials" FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/isaac_tutorials")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/isaac_tutorials")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/isaac_tutorials")
+# install(FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/isaac_tutorials")
+ament_cmake_symlink_install_files("/home/students/workspace/src/isaac_tutorials" FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/isaac_tutorials")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/isaac_tutorials")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/isaac_tutorials")
+# install(FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/isaac_tutorials")
+ament_cmake_symlink_install_files("/home/students/workspace/src/isaac_tutorials" FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/isaac_tutorials")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/isaac_tutorials")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/isaac_tutorials")
+# install(FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/isaac_tutorials")
+ament_cmake_symlink_install_files("/home/students/workspace/src/isaac_tutorials" FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/isaac_tutorials")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/isaac_tutorials")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/isaac_tutorials")
+# install(FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/isaac_tutorials")
+ament_cmake_symlink_install_files("/home/students/workspace/src/isaac_tutorials" FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/isaac_tutorials")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_index/share/ament_index/resource_index/packages/isaac_tutorials" "DESTINATION" "share/ament_index/resource_index/packages")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_index/share/ament_index/resource_index/packages/isaac_tutorials" "DESTINATION" "share/ament_index/resource_index/packages")
+# install(FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_index/share/ament_index/resource_index/packages/isaac_tutorials" "DESTINATION" "share/ament_index/resource_index/packages")
+ament_cmake_symlink_install_files("/home/students/workspace/src/isaac_tutorials" FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_index/share/ament_index/resource_index/packages/isaac_tutorials" "DESTINATION" "share/ament_index/resource_index/packages")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_core/isaac_tutorialsConfig.cmake" "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_core/isaac_tutorialsConfig-version.cmake" "DESTINATION" "share/isaac_tutorials/cmake")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_core/isaac_tutorialsConfig.cmake" "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_core/isaac_tutorialsConfig-version.cmake" "DESTINATION" "share/isaac_tutorials/cmake")
+# install(FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_core/isaac_tutorialsConfig.cmake" "/home/students/workspace/build/isaac_tutorials/ament_cmake_core/isaac_tutorialsConfig-version.cmake" "DESTINATION" "share/isaac_tutorials/cmake")
+ament_cmake_symlink_install_files("/home/students/workspace/src/isaac_tutorials" FILES "/home/students/workspace/build/isaac_tutorials/ament_cmake_core/isaac_tutorialsConfig.cmake" "/home/students/workspace/build/isaac_tutorials/ament_cmake_core/isaac_tutorialsConfig-version.cmake" "DESTINATION" "share/isaac_tutorials/cmake")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials/package.xml" "DESTINATION" "share/isaac_tutorials")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials/package.xml" "DESTINATION" "share/isaac_tutorials")
+# install(FILES "/home/students/workspace/src/isaac_tutorials/package.xml" "DESTINATION" "share/isaac_tutorials")
+ament_cmake_symlink_install_files("/home/students/workspace/src/isaac_tutorials" FILES "/home/students/workspace/src/isaac_tutorials/package.xml" "DESTINATION" "share/isaac_tutorials")

@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message
+CMAKE_SOURCE_DIR = /home/students/workspace/src/custom_message
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message
+CMAKE_BINARY_DIR = /home/students/workspace/build/custom_message
 
 # Utility rule file for ament_cmake_python_build_custom_message_egg.
 
@@ -67,7 +67,7 @@ include CMakeFiles/ament_cmake_python_build_custom_message_egg.dir/compiler_depe
 include CMakeFiles/ament_cmake_python_build_custom_message_egg.dir/progress.make
 
 CMakeFiles/ament_cmake_python_build_custom_message_egg:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/ament_cmake_python/custom_message && /usr/bin/python3 setup.py egg_info
+	cd /home/students/workspace/build/custom_message/ament_cmake_python/custom_message && /usr/bin/python3 setup.py egg_info
 
 ament_cmake_python_build_custom_message_egg: CMakeFiles/ament_cmake_python_build_custom_message_egg
 ament_cmake_python_build_custom_message_egg: CMakeFiles/ament_cmake_python_build_custom_message_egg.dir/build.make
@@ -82,6 +82,6 @@ CMakeFiles/ament_cmake_python_build_custom_message_egg.dir/clean:
 .PHONY : CMakeFiles/ament_cmake_python_build_custom_message_egg.dir/clean
 
 CMakeFiles/ament_cmake_python_build_custom_message_egg.dir/depend:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/CMakeFiles/ament_cmake_python_build_custom_message_egg.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/students/workspace/build/custom_message && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/students/workspace/src/custom_message /home/students/workspace/src/custom_message /home/students/workspace/build/custom_message /home/students/workspace/build/custom_message /home/students/workspace/build/custom_message/CMakeFiles/ament_cmake_python_build_custom_message_egg.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/ament_cmake_python_build_custom_message_egg.dir/depend
 

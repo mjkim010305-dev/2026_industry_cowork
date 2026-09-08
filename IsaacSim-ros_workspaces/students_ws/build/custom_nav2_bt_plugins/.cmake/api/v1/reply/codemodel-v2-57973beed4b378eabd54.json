@@ -1,0 +1,124 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-431a27a4e16b26bbeb7f.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "custom_nav2_bt_plugins",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_approach_obstacle_normal_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_approach_obstacle_normal_action_bt_node-ac2f833c30a507688a1a.json",
+					"name" : "custom_approach_obstacle_normal_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_capture_initial_path_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_capture_initial_path_action_bt_node-78ba6ebbdc4e9c1e96e0.json",
+					"name" : "custom_capture_initial_path_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_is_movable_obstacle_detected_condition_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_is_movable_obstacle_detected_condition_bt_node-cfc27e8a23195887a9a6.json",
+					"name" : "custom_is_movable_obstacle_detected_condition_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_movable_obstacle_localizers::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_movable_obstacle_localizers-1d57aaabb60b48d90ccc.json",
+					"name" : "custom_movable_obstacle_localizers",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_nav2_bt_plugins_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_nav2_bt_plugins_uninstall-6f7a0ed754e1d37397f6.json",
+					"name" : "custom_nav2_bt_plugins_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_wait_for_obstacle_clearance_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_wait_for_obstacle_clearance_action_bt_node-70b557cafeb8a380054e.json",
+					"name" : "custom_wait_for_obstacle_clearance_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "rgbd_obstacle_localizer::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-rgbd_obstacle_localizer-f75a1cd8d769ac244be2.json",
+					"name" : "rgbd_obstacle_localizer",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-5038b361f7d7503ef912.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/students/workspace/build/custom_nav2_bt_plugins",
+		"source" : "/home/students/workspace/src/custom_nav2_bt_plugins"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

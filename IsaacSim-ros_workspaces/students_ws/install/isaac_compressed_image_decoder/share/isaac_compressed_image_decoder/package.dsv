@@ -4,3 +4,6 @@ source;share/isaac_compressed_image_decoder/hook/pythonpath.sh
 source;share/isaac_compressed_image_decoder/hook/ament_prefix_path.ps1
 source;share/isaac_compressed_image_decoder/hook/ament_prefix_path.dsv
 source;share/isaac_compressed_image_decoder/hook/ament_prefix_path.sh
+source;../../build/isaac_compressed_image_decoder/share/isaac_compressed_image_decoder/hook/pythonpath_develop.ps1
+source;../../build/isaac_compressed_image_decoder/share/isaac_compressed_image_decoder/hook/pythonpath_develop.dsv
+source;../../build/isaac_compressed_image_decoder/share/isaac_compressed_image_decoder/hook/pythonpath_develop.sh

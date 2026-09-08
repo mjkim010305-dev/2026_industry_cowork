@@ -1,0 +1,30 @@
+[1.067s] Invoking command in '/home/students/workspace/build/isaac_moveit': PYTHONPATH=/home/students/workspace/build/isaac_moveit/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/students/workspace/install/isaac_moveit/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/students/workspace/build/isaac_moveit/build --no-deps symlink_data
+[1.216s] running develop
+[1.278s] running egg_info
+[1.278s] creating isaac_moveit.egg-info
+[1.278s] writing isaac_moveit.egg-info/PKG-INFO
+[1.278s] writing dependency_links to isaac_moveit.egg-info/dependency_links.txt
+[1.278s] writing entry points to isaac_moveit.egg-info/entry_points.txt
+[1.278s] writing requirements to isaac_moveit.egg-info/requires.txt
+[1.278s] writing top-level names to isaac_moveit.egg-info/top_level.txt
+[1.278s] writing manifest file 'isaac_moveit.egg-info/SOURCES.txt'
+[1.279s] reading manifest file 'isaac_moveit.egg-info/SOURCES.txt'
+[1.279s] writing manifest file 'isaac_moveit.egg-info/SOURCES.txt'
+[1.280s] running build_ext
+[1.280s] Creating /home/students/workspace/install/isaac_moveit/lib/python3.10/site-packages/isaac-moveit.egg-link (link to .)
+[1.280s] Installing gripper_to_isaac script to /home/students/workspace/install/isaac_moveit/lib/isaac_moveit
+[1.280s] 
+[1.280s] Installed /home/students/workspace/build/isaac_moveit
+[1.280s] running symlink_data
+[1.280s] creating /home/students/workspace/install/isaac_moveit/share/ament_index
+[1.280s] creating /home/students/workspace/install/isaac_moveit/share/ament_index/resource_index
+[1.280s] creating /home/students/workspace/install/isaac_moveit/share/ament_index/resource_index/packages
+[1.280s] symbolically linking /home/students/workspace/build/isaac_moveit/resource/isaac_moveit -> /home/students/workspace/install/isaac_moveit/share/ament_index/resource_index/packages
+[1.280s] symbolically linking /home/students/workspace/build/isaac_moveit/package.xml -> /home/students/workspace/install/isaac_moveit/share/isaac_moveit
+[1.280s] creating /home/students/workspace/install/isaac_moveit/share/isaac_moveit/launch
+[1.280s] symbolically linking /home/students/workspace/build/isaac_moveit/launch/isaac_moveit.launch.py -> /home/students/workspace/install/isaac_moveit/share/isaac_moveit/launch
+[1.280s] creating /home/students/workspace/install/isaac_moveit/share/isaac_moveit/rviz2
+[1.280s] symbolically linking /home/students/workspace/build/isaac_moveit/rviz2/panda_moveit_config.rviz -> /home/students/workspace/install/isaac_moveit/share/isaac_moveit/rviz2
+[1.280s] creating /home/students/workspace/install/isaac_moveit/share/isaac_moveit/config
+[1.280s] symbolically linking /home/students/workspace/build/isaac_moveit/config/panda_isaac.urdf.xacro -> /home/students/workspace/install/isaac_moveit/share/isaac_moveit/config
+[1.300s] Invoked command in '/home/students/workspace/build/isaac_moveit' returned '0': PYTHONPATH=/home/students/workspace/build/isaac_moveit/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/students/workspace/install/isaac_moveit/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/students/workspace/build/isaac_moveit/build --no-deps symlink_data

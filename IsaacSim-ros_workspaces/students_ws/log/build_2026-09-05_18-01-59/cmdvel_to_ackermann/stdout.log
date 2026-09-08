@@ -1,0 +1,24 @@
+running develop
+running egg_info
+creating cmdvel_to_ackermann.egg-info
+writing cmdvel_to_ackermann.egg-info/PKG-INFO
+writing dependency_links to cmdvel_to_ackermann.egg-info/dependency_links.txt
+writing entry points to cmdvel_to_ackermann.egg-info/entry_points.txt
+writing requirements to cmdvel_to_ackermann.egg-info/requires.txt
+writing top-level names to cmdvel_to_ackermann.egg-info/top_level.txt
+writing manifest file 'cmdvel_to_ackermann.egg-info/SOURCES.txt'
+reading manifest file 'cmdvel_to_ackermann.egg-info/SOURCES.txt'
+writing manifest file 'cmdvel_to_ackermann.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/students/workspace/install/cmdvel_to_ackermann/lib/python3.10/site-packages/cmdvel-to-ackermann.egg-link (link to .)
+Installing cmdvel_to_ackermann script to /home/students/workspace/install/cmdvel_to_ackermann/lib/cmdvel_to_ackermann
+
+Installed /home/students/workspace/build/cmdvel_to_ackermann
+running symlink_data
+creating /home/students/workspace/install/cmdvel_to_ackermann/share/ament_index
+creating /home/students/workspace/install/cmdvel_to_ackermann/share/ament_index/resource_index
+creating /home/students/workspace/install/cmdvel_to_ackermann/share/ament_index/resource_index/packages
+symbolically linking /home/students/workspace/build/cmdvel_to_ackermann/resource/cmdvel_to_ackermann -> /home/students/workspace/install/cmdvel_to_ackermann/share/ament_index/resource_index/packages
+symbolically linking /home/students/workspace/build/cmdvel_to_ackermann/package.xml -> /home/students/workspace/install/cmdvel_to_ackermann/share/cmdvel_to_ackermann
+creating /home/students/workspace/install/cmdvel_to_ackermann/share/cmdvel_to_ackermann/launch
+symbolically linking /home/students/workspace/build/cmdvel_to_ackermann/launch/cmdvel_to_ackermann.launch.py -> /home/students/workspace/install/cmdvel_to_ackermann/share/cmdvel_to_ackermann/launch

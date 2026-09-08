@@ -1,0 +1,1 @@
+/home/students/workspace/src/isaacsim_bringup/scripts/open_isaacsim_stage.py

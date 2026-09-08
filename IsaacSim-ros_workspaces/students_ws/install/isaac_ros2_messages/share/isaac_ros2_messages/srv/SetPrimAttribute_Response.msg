@@ -1,3 +1,1 @@
-
-bool success            # indicate a successful execution of the service
-string message          # informational, e.g. for error messages
+/home/students/workspace/build/isaac_ros2_messages/rosidl_cmake/srv/SetPrimAttribute_Response.msg

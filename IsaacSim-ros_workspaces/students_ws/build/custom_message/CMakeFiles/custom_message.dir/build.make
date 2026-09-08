@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message
+CMAKE_SOURCE_DIR = /home/students/workspace/src/custom_message
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message
+CMAKE_BINARY_DIR = /home/students/workspace/build/custom_message
 
 # Utility rule file for custom_message.
 
@@ -66,7 +66,7 @@ include CMakeFiles/custom_message.dir/compiler_depend.make
 # Include the progress variables for this target.
 include CMakeFiles/custom_message.dir/progress.make
 
-CMakeFiles/custom_message: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message/msg/SampleMsg.msg
+CMakeFiles/custom_message: /home/students/workspace/src/custom_message/msg/SampleMsg.msg
 CMakeFiles/custom_message: /opt/ros/humble/share/std_msgs/msg/Bool.idl
 CMakeFiles/custom_message: /opt/ros/humble/share/std_msgs/msg/Byte.idl
 CMakeFiles/custom_message: /opt/ros/humble/share/std_msgs/msg/ByteMultiArray.idl
@@ -111,6 +111,6 @@ CMakeFiles/custom_message.dir/clean:
 .PHONY : CMakeFiles/custom_message.dir/clean
 
 CMakeFiles/custom_message.dir/depend:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/custom_message/CMakeFiles/custom_message.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/students/workspace/build/custom_message && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/students/workspace/src/custom_message /home/students/workspace/src/custom_message /home/students/workspace/build/custom_message /home/students/workspace/build/custom_message /home/students/workspace/build/custom_message/CMakeFiles/custom_message.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/custom_message.dir/depend
 

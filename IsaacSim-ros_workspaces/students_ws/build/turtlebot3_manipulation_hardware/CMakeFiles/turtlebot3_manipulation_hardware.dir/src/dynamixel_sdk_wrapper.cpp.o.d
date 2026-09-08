@@ -1,7 +1,7 @@
 CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.o: \
- /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/dynamixel_sdk_wrapper.cpp \
+ /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/src/dynamixel_sdk_wrapper.cpp \
  /usr/include/stdc-predef.h \
- /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/include/turtlebot3_manipulation_hardware/dynamixel_sdk_wrapper.hpp \
+ /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_hardware/include/turtlebot3_manipulation_hardware/dynamixel_sdk_wrapper.hpp \
  /usr/include/c++/11/stdlib.h /usr/include/c++/11/cstdlib \
  /usr/include/x86_64-linux-gnu/c++/11/bits/c++config.h \
  /usr/include/x86_64-linux-gnu/c++/11/bits/os_defines.h \
@@ -141,26 +141,26 @@ CMakeFiles/turtlebot3_manipulation_hardware.dir/src/dynamixel_sdk_wrapper.cpp.o:
  /usr/include/c++/11/bits/basic_string.tcc \
  /usr/include/c++/11/bits/std_mutex.h \
  /usr/include/c++/11/bits/unique_lock.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/dynamixel_sdk.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/group_bulk_read.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/port_handler.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/packet_handler.h \
+ /opt/ros/humble/include/dynamixel_sdk/dynamixel_sdk.h \
+ /opt/ros/humble/include/dynamixel_sdk/group_bulk_read.h \
+ /opt/ros/humble/include/dynamixel_sdk/port_handler.h \
+ /opt/ros/humble/include/dynamixel_sdk/packet_handler.h \
  /usr/include/c++/11/vector /usr/include/c++/11/bits/stl_uninitialized.h \
  /usr/include/c++/11/bits/stl_vector.h \
  /usr/include/c++/11/bits/stl_bvector.h \
  /usr/include/c++/11/bits/vector.tcc \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/group_handler.h \
+ /opt/ros/humble/include/dynamixel_sdk/group_handler.h \
  /usr/include/c++/11/map /usr/include/c++/11/bits/stl_tree.h \
  /usr/include/c++/11/ext/aligned_buffer.h \
  /usr/include/c++/11/bits/node_handle.h \
  /usr/include/c++/11/bits/stl_map.h \
  /usr/include/c++/11/bits/stl_multimap.h \
  /usr/include/c++/11/bits/erase_if.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/group_bulk_write.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/group_sync_read.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/group_sync_write.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/group_fast_sync_read.h \
- /home/ciderlab-server3/turtlebot3_ws/install/dynamixel_sdk/include/dynamixel_sdk/group_fast_bulk_read.h \
+ /opt/ros/humble/include/dynamixel_sdk/group_bulk_write.h \
+ /opt/ros/humble/include/dynamixel_sdk/group_sync_read.h \
+ /opt/ros/humble/include/dynamixel_sdk/group_sync_write.h \
+ /opt/ros/humble/include/dynamixel_sdk/group_fast_sync_read.h \
+ /opt/ros/humble/include/dynamixel_sdk/group_fast_bulk_read.h \
  /usr/include/c++/11/iostream /usr/include/c++/11/ostream \
  /usr/include/c++/11/ios /usr/include/c++/11/bits/ios_base.h \
  /usr/include/c++/11/bits/locale_classes.h \

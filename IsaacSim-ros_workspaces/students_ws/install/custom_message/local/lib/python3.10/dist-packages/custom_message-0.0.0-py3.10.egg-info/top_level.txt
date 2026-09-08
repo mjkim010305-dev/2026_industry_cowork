@@ -1,1 +1,1 @@
-custom_message
+/home/students/workspace/build/custom_message/ament_cmake_python/custom_message/custom_message.egg-info/top_level.txt

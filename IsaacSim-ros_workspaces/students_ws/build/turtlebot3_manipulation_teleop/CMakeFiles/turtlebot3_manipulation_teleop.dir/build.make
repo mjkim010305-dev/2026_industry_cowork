@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_teleop
+CMAKE_SOURCE_DIR = /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_teleop
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_teleop
+CMAKE_BINARY_DIR = /home/students/workspace/build/turtlebot3_manipulation_teleop
 
 # Include any dependencies generated for this target.
 include CMakeFiles/turtlebot3_manipulation_teleop.dir/depend.make
@@ -70,18 +70,18 @@ include CMakeFiles/turtlebot3_manipulation_teleop.dir/progress.make
 include CMakeFiles/turtlebot3_manipulation_teleop.dir/flags.make
 
 CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.o: CMakeFiles/turtlebot3_manipulation_teleop.dir/flags.make
-CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.o: /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_teleop/src/turtlebot3_manipulation_teleop.cpp
+CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.o: /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_teleop/src/turtlebot3_manipulation_teleop.cpp
 CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.o: CMakeFiles/turtlebot3_manipulation_teleop.dir/compiler_depend.ts
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_teleop/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.o -MF CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.o.d -o CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.o -c /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_teleop/src/turtlebot3_manipulation_teleop.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/home/students/workspace/build/turtlebot3_manipulation_teleop/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -MD -MT CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.o -MF CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.o.d -o CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.o -c /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_teleop/src/turtlebot3_manipulation_teleop.cpp
 
 CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_teleop/src/turtlebot3_manipulation_teleop.cpp > CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.i
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_teleop/src/turtlebot3_manipulation_teleop.cpp > CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.i
 
 CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_teleop/src/turtlebot3_manipulation_teleop.cpp -o CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.s
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_teleop/src/turtlebot3_manipulation_teleop.cpp -o CMakeFiles/turtlebot3_manipulation_teleop.dir/src/turtlebot3_manipulation_teleop.cpp.s
 
 # Object files for target turtlebot3_manipulation_teleop
 turtlebot3_manipulation_teleop_OBJECTS = \
@@ -221,7 +221,7 @@ turtlebot3_manipulation_teleop: /opt/ros/humble/lib/librcpputils.so
 turtlebot3_manipulation_teleop: /opt/ros/humble/lib/librosidl_runtime_c.so
 turtlebot3_manipulation_teleop: /opt/ros/humble/lib/librcutils.so
 turtlebot3_manipulation_teleop: CMakeFiles/turtlebot3_manipulation_teleop.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_teleop/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable turtlebot3_manipulation_teleop"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/home/students/workspace/build/turtlebot3_manipulation_teleop/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking CXX executable turtlebot3_manipulation_teleop"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/turtlebot3_manipulation_teleop.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
@@ -233,6 +233,6 @@ CMakeFiles/turtlebot3_manipulation_teleop.dir/clean:
 .PHONY : CMakeFiles/turtlebot3_manipulation_teleop.dir/clean
 
 CMakeFiles/turtlebot3_manipulation_teleop.dir/depend:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_teleop && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_teleop /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_teleop /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_teleop /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_teleop /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_teleop/CMakeFiles/turtlebot3_manipulation_teleop.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/students/workspace/build/turtlebot3_manipulation_teleop && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_teleop /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_teleop /home/students/workspace/build/turtlebot3_manipulation_teleop /home/students/workspace/build/turtlebot3_manipulation_teleop /home/students/workspace/build/turtlebot3_manipulation_teleop/CMakeFiles/turtlebot3_manipulation_teleop.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/turtlebot3_manipulation_teleop.dir/depend
 

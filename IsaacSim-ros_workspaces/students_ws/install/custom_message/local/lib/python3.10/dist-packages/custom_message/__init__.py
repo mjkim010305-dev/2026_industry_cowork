@@ -1,0 +1,1 @@
+/home/students/workspace/build/custom_message/rosidl_generator_py/custom_message/__init__.py

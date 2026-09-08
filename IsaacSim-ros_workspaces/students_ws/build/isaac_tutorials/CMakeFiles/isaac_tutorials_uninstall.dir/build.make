@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials
+CMAKE_SOURCE_DIR = /home/students/workspace/src/isaac_tutorials
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials
+CMAKE_BINARY_DIR = /home/students/workspace/build/isaac_tutorials
 
 # Utility rule file for isaac_tutorials_uninstall.
 
@@ -67,7 +67,7 @@ include CMakeFiles/isaac_tutorials_uninstall.dir/compiler_depend.make
 include CMakeFiles/isaac_tutorials_uninstall.dir/progress.make
 
 CMakeFiles/isaac_tutorials_uninstall:
-	/usr/bin/cmake -P /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
+	/usr/bin/cmake -P /home/students/workspace/build/isaac_tutorials/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
 
 isaac_tutorials_uninstall: CMakeFiles/isaac_tutorials_uninstall
 isaac_tutorials_uninstall: CMakeFiles/isaac_tutorials_uninstall.dir/build.make
@@ -82,6 +82,6 @@ CMakeFiles/isaac_tutorials_uninstall.dir/clean:
 .PHONY : CMakeFiles/isaac_tutorials_uninstall.dir/clean
 
 CMakeFiles/isaac_tutorials_uninstall.dir/depend:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/isaac_tutorials /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_tutorials/CMakeFiles/isaac_tutorials_uninstall.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/students/workspace/build/isaac_tutorials && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/students/workspace/src/isaac_tutorials /home/students/workspace/src/isaac_tutorials /home/students/workspace/build/isaac_tutorials /home/students/workspace/build/isaac_tutorials /home/students/workspace/build/isaac_tutorials/CMakeFiles/isaac_tutorials_uninstall.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/isaac_tutorials_uninstall.dir/depend
 

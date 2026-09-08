@@ -1,0 +1,27 @@
+running develop
+running egg_info
+creating h1_fullbody_controller.egg-info
+writing h1_fullbody_controller.egg-info/PKG-INFO
+writing dependency_links to h1_fullbody_controller.egg-info/dependency_links.txt
+writing entry points to h1_fullbody_controller.egg-info/entry_points.txt
+writing requirements to h1_fullbody_controller.egg-info/requires.txt
+writing top-level names to h1_fullbody_controller.egg-info/top_level.txt
+writing manifest file 'h1_fullbody_controller.egg-info/SOURCES.txt'
+reading manifest file 'h1_fullbody_controller.egg-info/SOURCES.txt'
+writing manifest file 'h1_fullbody_controller.egg-info/SOURCES.txt'
+running build_ext
+Creating /home/students/workspace/install/h1_fullbody_controller/lib/python3.10/site-packages/h1-fullbody-controller.egg-link (link to .)
+Installing h1_fullbody_controller script to /home/students/workspace/install/h1_fullbody_controller/lib/h1_fullbody_controller
+
+Installed /home/students/workspace/build/h1_fullbody_controller
+running symlink_data
+creating /home/students/workspace/install/h1_fullbody_controller/share/ament_index
+creating /home/students/workspace/install/h1_fullbody_controller/share/ament_index/resource_index
+creating /home/students/workspace/install/h1_fullbody_controller/share/ament_index/resource_index/packages
+symbolically linking /home/students/workspace/build/h1_fullbody_controller/resource/h1_fullbody_controller -> /home/students/workspace/install/h1_fullbody_controller/share/ament_index/resource_index/packages
+symbolically linking /home/students/workspace/build/h1_fullbody_controller/package.xml -> /home/students/workspace/install/h1_fullbody_controller/share/h1_fullbody_controller
+creating /home/students/workspace/install/h1_fullbody_controller/share/h1_fullbody_controller/launch
+symbolically linking /home/students/workspace/build/h1_fullbody_controller/launch/h1_fullbody_controller.launch.py -> /home/students/workspace/install/h1_fullbody_controller/share/h1_fullbody_controller/launch
+creating /home/students/workspace/install/h1_fullbody_controller/share/h1_fullbody_controller/policy
+symbolically linking /home/students/workspace/build/h1_fullbody_controller/policy/h1_env.yaml -> /home/students/workspace/install/h1_fullbody_controller/share/h1_fullbody_controller/policy
+symbolically linking /home/students/workspace/build/h1_fullbody_controller/policy/h1_policy.pt -> /home/students/workspace/install/h1_fullbody_controller/share/h1_fullbody_controller/policy

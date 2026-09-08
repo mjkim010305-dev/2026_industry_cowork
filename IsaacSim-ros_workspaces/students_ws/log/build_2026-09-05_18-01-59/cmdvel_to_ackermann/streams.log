@@ -1,0 +1,26 @@
+[1.068s] Invoking command in '/home/students/workspace/build/cmdvel_to_ackermann': PYTHONPATH=/home/students/workspace/build/cmdvel_to_ackermann/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/students/workspace/install/cmdvel_to_ackermann/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/students/workspace/build/cmdvel_to_ackermann/build --no-deps symlink_data
+[1.173s] running develop
+[1.228s] running egg_info
+[1.228s] creating cmdvel_to_ackermann.egg-info
+[1.228s] writing cmdvel_to_ackermann.egg-info/PKG-INFO
+[1.229s] writing dependency_links to cmdvel_to_ackermann.egg-info/dependency_links.txt
+[1.229s] writing entry points to cmdvel_to_ackermann.egg-info/entry_points.txt
+[1.229s] writing requirements to cmdvel_to_ackermann.egg-info/requires.txt
+[1.229s] writing top-level names to cmdvel_to_ackermann.egg-info/top_level.txt
+[1.229s] writing manifest file 'cmdvel_to_ackermann.egg-info/SOURCES.txt'
+[1.231s] reading manifest file 'cmdvel_to_ackermann.egg-info/SOURCES.txt'
+[1.231s] writing manifest file 'cmdvel_to_ackermann.egg-info/SOURCES.txt'
+[1.231s] running build_ext
+[1.231s] Creating /home/students/workspace/install/cmdvel_to_ackermann/lib/python3.10/site-packages/cmdvel-to-ackermann.egg-link (link to .)
+[1.231s] Installing cmdvel_to_ackermann script to /home/students/workspace/install/cmdvel_to_ackermann/lib/cmdvel_to_ackermann
+[1.231s] 
+[1.231s] Installed /home/students/workspace/build/cmdvel_to_ackermann
+[1.231s] running symlink_data
+[1.234s] creating /home/students/workspace/install/cmdvel_to_ackermann/share/ament_index
+[1.234s] creating /home/students/workspace/install/cmdvel_to_ackermann/share/ament_index/resource_index
+[1.234s] creating /home/students/workspace/install/cmdvel_to_ackermann/share/ament_index/resource_index/packages
+[1.234s] symbolically linking /home/students/workspace/build/cmdvel_to_ackermann/resource/cmdvel_to_ackermann -> /home/students/workspace/install/cmdvel_to_ackermann/share/ament_index/resource_index/packages
+[1.234s] symbolically linking /home/students/workspace/build/cmdvel_to_ackermann/package.xml -> /home/students/workspace/install/cmdvel_to_ackermann/share/cmdvel_to_ackermann
+[1.234s] creating /home/students/workspace/install/cmdvel_to_ackermann/share/cmdvel_to_ackermann/launch
+[1.234s] symbolically linking /home/students/workspace/build/cmdvel_to_ackermann/launch/cmdvel_to_ackermann.launch.py -> /home/students/workspace/install/cmdvel_to_ackermann/share/cmdvel_to_ackermann/launch
+[1.252s] Invoked command in '/home/students/workspace/build/cmdvel_to_ackermann' returned '0': PYTHONPATH=/home/students/workspace/build/cmdvel_to_ackermann/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/students/workspace/install/cmdvel_to_ackermann/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py develop --editable --build-directory /home/students/workspace/build/cmdvel_to_ackermann/build --no-deps symlink_data

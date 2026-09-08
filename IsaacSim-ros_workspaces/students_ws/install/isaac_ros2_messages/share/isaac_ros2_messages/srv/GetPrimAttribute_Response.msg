@@ -1,5 +1,1 @@
-
-string value            # attribute value (as JSON)
-string type             # attribute type
-bool success            # indicate a successful execution of the service
-string message          # informational, e.g. for error messages
+/home/students/workspace/build/isaac_ros2_messages/rosidl_cmake/srv/GetPrimAttribute_Response.msg

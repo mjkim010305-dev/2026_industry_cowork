@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation
+CMAKE_SOURCE_DIR = /home/students/workspace/src/navigation/iw_hub_navigation
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation
+CMAKE_BINARY_DIR = /home/students/workspace/build/iw_hub_navigation
 
 # Utility rule file for uninstall.
 
@@ -78,6 +78,6 @@ CMakeFiles/uninstall.dir/clean:
 .PHONY : CMakeFiles/uninstall.dir/clean
 
 CMakeFiles/uninstall.dir/depend:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/iw_hub_navigation /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/iw_hub_navigation/CMakeFiles/uninstall.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/students/workspace/build/iw_hub_navigation && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/students/workspace/src/navigation/iw_hub_navigation /home/students/workspace/src/navigation/iw_hub_navigation /home/students/workspace/build/iw_hub_navigation /home/students/workspace/build/iw_hub_navigation /home/students/workspace/build/iw_hub_navigation/CMakeFiles/uninstall.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/uninstall.dir/depend
 

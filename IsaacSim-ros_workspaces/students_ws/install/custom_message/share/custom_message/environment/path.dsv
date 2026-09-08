@@ -1,1 +1,1 @@
-prepend-non-duplicate-if-exists;PATH;bin
+/home/students/workspace/build/custom_message/ament_cmake_environment_hooks/path.dsv

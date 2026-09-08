@@ -1,1 +1,1 @@
-/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaacsim_clearpath_nav2/ament_cmake_environment_hooks/local_setup.zsh
+/home/students/workspace/build/isaacsim_clearpath_nav2/ament_cmake_environment_hooks/local_setup.zsh

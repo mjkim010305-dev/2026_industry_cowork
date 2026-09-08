@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer
+CMAKE_SOURCE_DIR = /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer
+CMAKE_BINARY_DIR = /home/students/workspace/build/turtlebot3_manipulation_cartographer
 
 # Utility rule file for uninstall.
 
@@ -78,6 +78,6 @@ CMakeFiles/uninstall.dir/clean:
 .PHONY : CMakeFiles/uninstall.dir/clean
 
 CMakeFiles/uninstall.dir/depend:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/CMakeFiles/uninstall.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/students/workspace/build/turtlebot3_manipulation_cartographer && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer /home/students/workspace/build/turtlebot3_manipulation_cartographer /home/students/workspace/build/turtlebot3_manipulation_cartographer /home/students/workspace/build/turtlebot3_manipulation_cartographer/CMakeFiles/uninstall.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/uninstall.dir/depend
 

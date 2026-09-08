@@ -1,0 +1,111 @@
+[0.136s] Invoking command in '/home/students/workspace/build/custom_nav2_bt_plugins': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/students/workspace/install/isaacsim_bringup:/home/students/workspace/install/isaac_ros_navigation_goal:/home/students/workspace/install/isaac_moveit:/home/students/workspace/install/isaac_compressed_image_decoder:/home/students/workspace/install/h1_fullbody_controller:/home/students/workspace/install/cmdvel_to_ackermann:/opt/ros/humble /usr/bin/cmake /home/students/workspace/src/custom_nav2_bt_plugins -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/students/workspace/install/custom_nav2_bt_plugins
+[0.668s] -- The C compiler identification is GNU 11.4.0
+[0.668s] -- The CXX compiler identification is GNU 11.4.0
+[0.668s] -- Detecting C compiler ABI info
+[0.668s] -- Detecting C compiler ABI info - done
+[0.668s] -- Check for working C compiler: /usr/bin/cc - skipped
+[0.668s] -- Detecting C compile features
+[0.668s] -- Detecting C compile features - done
+[0.668s] -- Detecting CXX compiler ABI info
+[0.668s] -- Detecting CXX compiler ABI info - done
+[0.668s] -- Check for working CXX compiler: /usr/bin/c++ - skipped
+[0.668s] -- Detecting CXX compile features
+[0.668s] -- Detecting CXX compile features - done
+[0.668s] -- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+[0.668s] -- Found Python3: /usr/bin/python3 (found version "3.10.12") found components: Interpreter 
+[0.668s] -- Override CMake install command with custom implementation using symlinks instead of copying resources
+[0.668s] -- Found rclcpp: 16.0.19 (/opt/ros/humble/share/rclcpp/cmake)
+[0.670s] -- Found rosidl_generator_c: 3.1.9 (/opt/ros/humble/share/rosidl_generator_c/cmake)
+[0.670s] -- Found rosidl_adapter: 3.1.9 (/opt/ros/humble/share/rosidl_adapter/cmake)
+[0.670s] -- Found rosidl_generator_cpp: 3.1.9 (/opt/ros/humble/share/rosidl_generator_cpp/cmake)
+[0.670s] -- Using all available rosidl_typesupport_c: rosidl_typesupport_fastrtps_c;rosidl_typesupport_introspection_c
+[0.671s] -- Using all available rosidl_typesupport_cpp: rosidl_typesupport_fastrtps_cpp;rosidl_typesupport_introspection_cpp
+[0.671s] -- Found rmw_implementation_cmake: 6.1.2 (/opt/ros/humble/share/rmw_implementation_cmake/cmake)
+[0.671s] -- Found rmw_fastrtps_cpp: 6.2.10 (/opt/ros/humble/share/rmw_fastrtps_cpp/cmake)
+[0.671s] -- Found OpenSSL: /usr/lib/x86_64-linux-gnu/libcrypto.so (found version "3.0.2")  
+[0.671s] -- Found FastRTPS: /opt/ros/humble/include  
+[0.671s] -- Using RMW implementation 'rmw_fastrtps_cpp' as default
+[0.671s] -- Looking for pthread.h
+[0.671s] -- Looking for pthread.h - found
+[0.671s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+[0.672s] -- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+[0.672s] -- Found Threads: TRUE  
+[0.711s] -- Found nav2_behavior_tree: 1.1.20 (/opt/ros/humble/share/nav2_behavior_tree/cmake)
+[0.860s] -- Found eigen3_cmake_module: 0.1.1 (/opt/ros/humble/share/eigen3_cmake_module/cmake)
+[0.862s] -- Found Eigen3: TRUE (found version "3.4.0") 
+[0.862s] -- Ensuring Eigen3 include directory is part of orocos-kdl CMake target
+[0.906s] -- Found pluginlib: 5.1.4 (/opt/ros/humble/share/pluginlib/cmake)
+[0.999s] -- Found ament_lint_auto: 0.12.15 (/opt/ros/humble/share/ament_lint_auto/cmake)
+[1.055s] -- Added test 'cppcheck' to perform static code analysis on C / C++ code
+[1.056s] -- Configured cppcheck include dirs: /home/students/workspace/src/custom_nav2_bt_plugins/include
+[1.056s] -- Configured cppcheck exclude dirs and/or files: 
+[1.056s] -- Added test 'flake8' to check Python code syntax and style conventions
+[1.057s] -- Added test 'lint_cmake' to check CMake code style
+[1.057s] -- Added test 'pep257' to check Python code against some of the docstring style conventions in PEP 257
+[1.058s] -- Added test 'uncrustify' to check C / C++ code style
+[1.058s] -- Configured uncrustify additional arguments: 
+[1.058s] -- Added test 'xmllint' to check XML markup files
+[1.061s] -- Configuring done
+[1.188s] -- Generating done
+[1.199s] -- Build files have been written to: /home/students/workspace/build/custom_nav2_bt_plugins
+[1.211s] Invoked command in '/home/students/workspace/build/custom_nav2_bt_plugins' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/students/workspace/install/isaacsim_bringup:/home/students/workspace/install/isaac_ros_navigation_goal:/home/students/workspace/install/isaac_moveit:/home/students/workspace/install/isaac_compressed_image_decoder:/home/students/workspace/install/h1_fullbody_controller:/home/students/workspace/install/cmdvel_to_ackermann:/opt/ros/humble /usr/bin/cmake /home/students/workspace/src/custom_nav2_bt_plugins -DAMENT_CMAKE_SYMLINK_INSTALL=1 -DCMAKE_INSTALL_PREFIX=/home/students/workspace/install/custom_nav2_bt_plugins
+[1.212s] Invoking command in '/home/students/workspace/build/custom_nav2_bt_plugins': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/students/workspace/install/isaacsim_bringup:/home/students/workspace/install/isaac_ros_navigation_goal:/home/students/workspace/install/isaac_moveit:/home/students/workspace/install/isaac_compressed_image_decoder:/home/students/workspace/install/h1_fullbody_controller:/home/students/workspace/install/cmdvel_to_ackermann:/opt/ros/humble /usr/bin/cmake --build /home/students/workspace/build/custom_nav2_bt_plugins -- -j24 -l24
+[1.244s] [  8%] [32mBuilding CXX object CMakeFiles/custom_approach_obstacle_normal_action_bt_node.dir/src/approach_obstacle_normal_action.cpp.o[0m
+[1.245s] [ 16%] [32mBuilding CXX object CMakeFiles/custom_capture_initial_path_action_bt_node.dir/src/capture_initial_path_action.cpp.o[0m
+[1.245s] [ 25%] [32mBuilding CXX object CMakeFiles/custom_movable_obstacle_localizers.dir/src/localizers/depth_centroid_localizer.cpp.o[0m
+[1.246s] [ 33%] [32mBuilding CXX object CMakeFiles/rgbd_obstacle_localizer.dir/src/rgbd_obstacle_localizer_node.cpp.o[0m
+[1.247s] [ 41%] [32mBuilding CXX object CMakeFiles/custom_wait_for_obstacle_clearance_action_bt_node.dir/src/wait_for_obstacle_clearance_action.cpp.o[0m
+[1.249s] [ 50%] [32mBuilding CXX object CMakeFiles/custom_is_movable_obstacle_detected_condition_bt_node.dir/src/is_movable_obstacle_detected_condition.cpp.o[0m
+[2.739s] [ 58%] [32m[1mLinking CXX shared library libcustom_movable_obstacle_localizers.so[0m
+[2.813s] [ 58%] Built target custom_movable_obstacle_localizers
+[3.039s] [ 66%] [32m[1mLinking CXX shared library libcustom_capture_initial_path_action_bt_node.so[0m
+[3.156s] [ 66%] Built target custom_capture_initial_path_action_bt_node
+[5.380s] [ 75%] [32m[1mLinking CXX shared library libcustom_wait_for_obstacle_clearance_action_bt_node.so[0m
+[5.422s] [ 83%] [32m[1mLinking CXX shared library libcustom_is_movable_obstacle_detected_condition_bt_node.so[0m
+[5.665s] [ 91%] [32m[1mLinking CXX shared library libcustom_approach_obstacle_normal_action_bt_node.so[0m
+[5.697s] [ 91%] Built target custom_wait_for_obstacle_clearance_action_bt_node
+[5.718s] [ 91%] Built target custom_is_movable_obstacle_detected_condition_bt_node
+[5.994s] [ 91%] Built target custom_approach_obstacle_normal_action_bt_node
+[8.645s] [100%] [32m[1mLinking CXX executable rgbd_obstacle_localizer[0m
+[9.009s] [100%] Built target rgbd_obstacle_localizer
+[9.021s] Invoked command in '/home/students/workspace/build/custom_nav2_bt_plugins' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/students/workspace/install/isaacsim_bringup:/home/students/workspace/install/isaac_ros_navigation_goal:/home/students/workspace/install/isaac_moveit:/home/students/workspace/install/isaac_compressed_image_decoder:/home/students/workspace/install/h1_fullbody_controller:/home/students/workspace/install/cmdvel_to_ackermann:/opt/ros/humble /usr/bin/cmake --build /home/students/workspace/build/custom_nav2_bt_plugins -- -j24 -l24
+[9.023s] Invoking command in '/home/students/workspace/build/custom_nav2_bt_plugins': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/students/workspace/install/isaacsim_bringup:/home/students/workspace/install/isaac_ros_navigation_goal:/home/students/workspace/install/isaac_moveit:/home/students/workspace/install/isaac_compressed_image_decoder:/home/students/workspace/install/h1_fullbody_controller:/home/students/workspace/install/cmdvel_to_ackermann:/opt/ros/humble /usr/bin/cmake --install /home/students/workspace/build/custom_nav2_bt_plugins
+[9.026s] -- Install configuration: ""
+[9.026s] -- Execute custom install script
+[9.026s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins//movable_obstacle_localizer_plugins.xml
+[9.029s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/lib/libcustom_is_movable_obstacle_detected_condition_bt_node.so
+[9.033s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/lib/libcustom_wait_for_obstacle_clearance_action_bt_node.so
+[9.036s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/lib/libcustom_capture_initial_path_action_bt_node.so
+[9.040s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/lib/libcustom_approach_obstacle_normal_action_bt_node.so
+[9.043s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/lib/libcustom_movable_obstacle_localizers.so
+[9.046s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/lib/custom_nav2_bt_plugins/rgbd_obstacle_localizer
+[9.054s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/include//custom_nav2_bt_plugins/approach_obstacle_normal_action.hpp
+[9.058s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/include//custom_nav2_bt_plugins/capture_initial_path_action.hpp
+[9.061s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/include//custom_nav2_bt_plugins/depth_centroid_localizer.hpp
+[9.064s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/include//custom_nav2_bt_plugins/is_movable_obstacle_detected_condition.hpp
+[9.067s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/include//custom_nav2_bt_plugins/movable_obstacle_localizer.hpp
+[9.070s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/include//custom_nav2_bt_plugins/wait_for_obstacle_clearance_action.hpp
+[9.074s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/launch/rgbd_obstacle_localizer.launch.py
+[9.077s] -- Up-to-date symlink: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/movable_obstacle_localizer_plugins.xml
+[9.077s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/environment/library_path.sh
+[9.080s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/environment/library_path.dsv
+[9.083s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/ament_index/resource_index/package_run_dependencies/custom_nav2_bt_plugins
+[9.087s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/ament_index/resource_index/parent_prefix_path/custom_nav2_bt_plugins
+[9.090s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/environment/ament_prefix_path.sh
+[9.095s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/environment/ament_prefix_path.dsv
+[9.098s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/environment/path.sh
+[9.102s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/environment/path.dsv
+[9.106s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/local_setup.bash
+[9.109s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/local_setup.sh
+[9.112s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/local_setup.zsh
+[9.116s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/local_setup.dsv
+[9.119s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/package.dsv
+[9.123s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/ament_index/resource_index/packages/custom_nav2_bt_plugins
+[9.126s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/ament_index/resource_index/custom_nav2_bt_plugins__pluginlib__plugin/custom_nav2_bt_plugins
+[9.130s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/cmake/ament_cmake_export_include_directories-extras.cmake
+[9.134s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/cmake/ament_cmake_export_libraries-extras.cmake
+[9.138s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/cmake/ament_cmake_export_dependencies-extras.cmake
+[9.143s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/cmake/custom_nav2_bt_pluginsConfig.cmake
+[9.146s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/cmake/custom_nav2_bt_pluginsConfig-version.cmake
+[9.150s] -- Symlinking: /home/students/workspace/install/custom_nav2_bt_plugins/share/custom_nav2_bt_plugins/package.xml
+[9.155s] Invoked command in '/home/students/workspace/build/custom_nav2_bt_plugins' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/students/workspace/install/isaacsim_bringup:/home/students/workspace/install/isaac_ros_navigation_goal:/home/students/workspace/install/isaac_moveit:/home/students/workspace/install/isaac_compressed_image_decoder:/home/students/workspace/install/h1_fullbody_controller:/home/students/workspace/install/cmdvel_to_ackermann:/opt/ros/humble /usr/bin/cmake --install /home/students/workspace/build/custom_nav2_bt_plugins

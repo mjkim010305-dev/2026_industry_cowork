@@ -53,10 +53,10 @@ RM = /usr/bin/cmake -E rm -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation
+CMAKE_SOURCE_DIR = /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation
+CMAKE_BINARY_DIR = /home/students/workspace/build/turtlebot3_manipulation
 
 # Utility rule file for turtlebot3_manipulation_uninstall.
 
@@ -67,7 +67,7 @@ include CMakeFiles/turtlebot3_manipulation_uninstall.dir/compiler_depend.make
 include CMakeFiles/turtlebot3_manipulation_uninstall.dir/progress.make
 
 CMakeFiles/turtlebot3_manipulation_uninstall:
-	/usr/bin/cmake -P /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
+	/usr/bin/cmake -P /home/students/workspace/build/turtlebot3_manipulation/ament_cmake_uninstall_target/ament_cmake_uninstall_target.cmake
 
 turtlebot3_manipulation_uninstall: CMakeFiles/turtlebot3_manipulation_uninstall
 turtlebot3_manipulation_uninstall: CMakeFiles/turtlebot3_manipulation_uninstall.dir/build.make
@@ -82,6 +82,6 @@ CMakeFiles/turtlebot3_manipulation_uninstall.dir/clean:
 .PHONY : CMakeFiles/turtlebot3_manipulation_uninstall.dir/clean
 
 CMakeFiles/turtlebot3_manipulation_uninstall.dir/depend:
-	cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation/CMakeFiles/turtlebot3_manipulation_uninstall.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/students/workspace/build/turtlebot3_manipulation && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation /home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation /home/students/workspace/build/turtlebot3_manipulation /home/students/workspace/build/turtlebot3_manipulation /home/students/workspace/build/turtlebot3_manipulation/CMakeFiles/turtlebot3_manipulation_uninstall.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/turtlebot3_manipulation_uninstall.dir/depend
 

@@ -1,1 +1,1 @@
-/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/navigation/carter_navigation/launch/multiple_robot_carter_navigation_office.launch.py
+/home/students/workspace/src/navigation/carter_navigation/launch/multiple_robot_carter_navigation_office.launch.py

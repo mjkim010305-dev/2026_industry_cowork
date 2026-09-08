@@ -4,7 +4,7 @@
 # compile C with /usr/bin/cc
 C_DEFINES = -DRCUTILS_ENABLE_FAULT_INJECTION -DROS_PACKAGE_NAME=\"isaac_ros2_messages\" -Disaac_ros2_messages__rosidl_generator_py_EXPORTS
 
-C_INCLUDES = -I/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/rosidl_generator_c -I/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/isaac_ros2_messages/rosidl_generator_py -I/usr/include/python3.10 -isystem /opt/ros/humble/include/builtin_interfaces -isystem /opt/ros/humble/include/rosidl_runtime_c -isystem /opt/ros/humble/include/rcutils -isystem /opt/ros/humble/include/rosidl_typesupport_interface -isystem /opt/ros/humble/include/std_msgs -isystem /opt/ros/humble/include/geometry_msgs
+C_INCLUDES = -I/home/students/workspace/build/isaac_ros2_messages/rosidl_generator_c -I/home/students/workspace/build/isaac_ros2_messages/rosidl_generator_py -I/usr/include/python3.10 -isystem /opt/ros/humble/include/builtin_interfaces -isystem /opt/ros/humble/include/rosidl_runtime_c -isystem /opt/ros/humble/include/rcutils -isystem /opt/ros/humble/include/rosidl_typesupport_interface -isystem /opt/ros/humble/include/std_msgs -isystem /opt/ros/humble/include/geometry_msgs
 
 C_FLAGS = -fPIC -Wall -Wextra -std=gnu99
 

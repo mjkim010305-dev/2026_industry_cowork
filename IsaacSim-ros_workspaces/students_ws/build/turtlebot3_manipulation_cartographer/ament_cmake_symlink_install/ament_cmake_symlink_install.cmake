@@ -23,7 +23,7 @@ function(ament_cmake_symlink_install_directory cmake_current_source_dir)
 
   # make destination absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_cartographer/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/students/workspace/install/turtlebot3_manipulation_cartographer/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -128,7 +128,7 @@ function(ament_cmake_symlink_install_files cmake_current_source_dir)
 
   # make destination an absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_cartographer/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/students/workspace/install/turtlebot3_manipulation_cartographer/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -186,7 +186,7 @@ function(ament_cmake_symlink_install_programs cmake_current_source_dir)
 
   # make destination an absolute path and ensure that it exists
   if(NOT IS_ABSOLUTE "${ARG_DESTINATION}")
-    set(ARG_DESTINATION "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_cartographer/${ARG_DESTINATION}")
+    set(ARG_DESTINATION "/home/students/workspace/install/turtlebot3_manipulation_cartographer/${ARG_DESTINATION}")
   endif()
   if(NOT EXISTS "${ARG_DESTINATION}")
     file(MAKE_DIRECTORY "${ARG_DESTINATION}")
@@ -256,7 +256,7 @@ function(ament_cmake_symlink_install_targets)
 
     # make destination an absolute path and ensure that it exists
     if(NOT IS_ABSOLUTE "${destination}")
-      set(destination "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/turtlebot3_manipulation_cartographer/${destination}")
+      set(destination "/home/students/workspace/install/turtlebot3_manipulation_cartographer/${destination}")
     endif()
     if(NOT EXISTS "${destination}")
       file(MAKE_DIRECTORY "${destination}")
@@ -316,46 +316,46 @@ message(STATUS "Execute custom install script")
 # begin of custom install code
 
 # install(DIRECTORY "config" "launch" "rviz" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
-ament_cmake_symlink_install_directory("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" DIRECTORY "config" "launch" "rviz" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
+ament_cmake_symlink_install_directory("/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" DIRECTORY "config" "launch" "rviz" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/turtlebot3_manipulation_cartographer" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/turtlebot3_manipulation_cartographer" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
+# install(FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/turtlebot3_manipulation_cartographer" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
+ament_cmake_symlink_install_files("/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_index/share/ament_index/resource_index/package_run_dependencies/turtlebot3_manipulation_cartographer" "DESTINATION" "share/ament_index/resource_index/package_run_dependencies")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/turtlebot3_manipulation_cartographer" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/turtlebot3_manipulation_cartographer" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
+# install(FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/turtlebot3_manipulation_cartographer" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
+ament_cmake_symlink_install_files("/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_index/share/ament_index/resource_index/parent_prefix_path/turtlebot3_manipulation_cartographer" "DESTINATION" "share/ament_index/resource_index/parent_prefix_path")
 
 # install(FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/turtlebot3_manipulation_cartographer/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/turtlebot3_manipulation_cartographer/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/ament_prefix_path.sh" "DESTINATION" "share/turtlebot3_manipulation_cartographer/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/turtlebot3_manipulation_cartographer/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/turtlebot3_manipulation_cartographer/environment")
+# install(FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/turtlebot3_manipulation_cartographer/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/ament_prefix_path.dsv" "DESTINATION" "share/turtlebot3_manipulation_cartographer/environment")
 
 # install(FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/turtlebot3_manipulation_cartographer/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/turtlebot3_manipulation_cartographer/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/opt/ros/humble/share/ament_cmake_core/cmake/environment_hooks/environment/path.sh" "DESTINATION" "share/turtlebot3_manipulation_cartographer/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/turtlebot3_manipulation_cartographer/environment")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/turtlebot3_manipulation_cartographer/environment")
+# install(FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/turtlebot3_manipulation_cartographer/environment")
+ament_cmake_symlink_install_files("/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/path.dsv" "DESTINATION" "share/turtlebot3_manipulation_cartographer/environment")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
+# install(FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
+ament_cmake_symlink_install_files("/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/local_setup.bash" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
+# install(FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
+ament_cmake_symlink_install_files("/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/local_setup.sh" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
+# install(FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
+ament_cmake_symlink_install_files("/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/local_setup.zsh" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
+# install(FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
+ament_cmake_symlink_install_files("/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/local_setup.dsv" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
+# install(FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
+ament_cmake_symlink_install_files("/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_environment_hooks/package.dsv" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_index/share/ament_index/resource_index/packages/turtlebot3_manipulation_cartographer" "DESTINATION" "share/ament_index/resource_index/packages")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_index/share/ament_index/resource_index/packages/turtlebot3_manipulation_cartographer" "DESTINATION" "share/ament_index/resource_index/packages")
+# install(FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_index/share/ament_index/resource_index/packages/turtlebot3_manipulation_cartographer" "DESTINATION" "share/ament_index/resource_index/packages")
+ament_cmake_symlink_install_files("/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_index/share/ament_index/resource_index/packages/turtlebot3_manipulation_cartographer" "DESTINATION" "share/ament_index/resource_index/packages")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_core/turtlebot3_manipulation_cartographerConfig.cmake" "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_core/turtlebot3_manipulation_cartographerConfig-version.cmake" "DESTINATION" "share/turtlebot3_manipulation_cartographer/cmake")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_core/turtlebot3_manipulation_cartographerConfig.cmake" "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/build/turtlebot3_manipulation_cartographer/ament_cmake_core/turtlebot3_manipulation_cartographerConfig-version.cmake" "DESTINATION" "share/turtlebot3_manipulation_cartographer/cmake")
+# install(FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_core/turtlebot3_manipulation_cartographerConfig.cmake" "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_core/turtlebot3_manipulation_cartographerConfig-version.cmake" "DESTINATION" "share/turtlebot3_manipulation_cartographer/cmake")
+ament_cmake_symlink_install_files("/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_core/turtlebot3_manipulation_cartographerConfig.cmake" "/home/students/workspace/build/turtlebot3_manipulation_cartographer/ament_cmake_core/turtlebot3_manipulation_cartographerConfig-version.cmake" "DESTINATION" "share/turtlebot3_manipulation_cartographer/cmake")
 
-# install(FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer/package.xml" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
-ament_cmake_symlink_install_files("/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer/package.xml" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
+# install(FILES "/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer/package.xml" "DESTINATION" "share/turtlebot3_manipulation_cartographer")
+ament_cmake_symlink_install_files("/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer" FILES "/home/students/workspace/src/turtlebot3_manipulation/turtlebot3_manipulation_cartographer/package.xml" "DESTINATION" "share/turtlebot3_manipulation_cartographer")

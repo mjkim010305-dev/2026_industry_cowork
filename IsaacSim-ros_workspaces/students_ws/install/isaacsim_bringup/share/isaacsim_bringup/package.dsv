@@ -4,3 +4,6 @@ source;share/isaacsim_bringup/hook/pythonpath.sh
 source;share/isaacsim_bringup/hook/ament_prefix_path.ps1
 source;share/isaacsim_bringup/hook/ament_prefix_path.dsv
 source;share/isaacsim_bringup/hook/ament_prefix_path.sh
+source;../../build/isaacsim_bringup/share/isaacsim_bringup/hook/pythonpath_develop.ps1
+source;../../build/isaacsim_bringup/share/isaacsim_bringup/hook/pythonpath_develop.dsv
+source;../../build/isaacsim_bringup/share/isaacsim_bringup/hook/pythonpath_develop.sh
