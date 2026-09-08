@@ -19,6 +19,9 @@ find_package(nav2_util REQUIRED)
 find_package(tf2 REQUIRED)
 find_package(tf2_ros REQUIRED)
 find_package(tf2_geometry_msgs REQUIRED)
+find_package(rclcpp_action REQUIRED)
+find_package(control_msgs REQUIRED)
+find_package(trajectory_msgs REQUIRED)
 
 include_directories(include)
 
@@ -62,11 +65,23 @@ ament_target_dependencies(custom_approach_obstacle_normal_action_bt_node
 target_compile_definitions(custom_approach_obstacle_normal_action_bt_node
   PRIVATE BT_PLUGIN_EXPORT)
 
+# ---------------------------------------------------------------------------
+# BT plugin: FixedPickObject (stateful action) - one-shot fixed pick sequence
+# ---------------------------------------------------------------------------
+add_library(custom_fixed_pick_object_action_bt_node SHARED
+  src/fixed_pick_object_action.cpp)
+ament_target_dependencies(custom_fixed_pick_object_action_bt_node
+  rclcpp rclcpp_action behaviortree_cpp_v3 nav2_behavior_tree
+  control_msgs trajectory_msgs)
+target_compile_definitions(custom_fixed_pick_object_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
 set(bt_plugin_libs
   custom_is_movable_obstacle_detected_condition_bt_node
   custom_wait_for_obstacle_clearance_action_bt_node
   custom_capture_initial_path_action_bt_node
   custom_approach_obstacle_normal_action_bt_node
+  custom_fixed_pick_object_action_bt_node
 )
 
 # ---------------------------------------------------------------------------
@@ -122,7 +137,8 @@ endif()
 ament_export_include_directories(include)
 ament_export_libraries(${bt_plugin_libs} custom_movable_obstacle_localizers)
 ament_export_dependencies(
-  rclcpp behaviortree_cpp_v3 nav2_behavior_tree nav2_util pluginlib
-  std_msgs sensor_msgs geometry_msgs nav_msgs tf2 tf2_ros tf2_geometry_msgs)
+  rclcpp rclcpp_action behaviortree_cpp_v3 nav2_behavior_tree nav2_util pluginlib
+  std_msgs sensor_msgs geometry_msgs nav_msgs tf2 tf2_ros tf2_geometry_msgs
+  control_msgs trajectory_msgs)
 
 ament_package()

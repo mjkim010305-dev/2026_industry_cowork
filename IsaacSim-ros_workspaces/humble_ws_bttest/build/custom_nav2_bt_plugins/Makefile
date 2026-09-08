@@ -250,6 +250,19 @@ custom_approach_obstacle_normal_action_bt_node/fast:
 .PHONY : custom_approach_obstacle_normal_action_bt_node/fast
 
 #=============================================================================
+# Target rules for targets named custom_fixed_pick_object_action_bt_node
+
+# Build rule for target.
+custom_fixed_pick_object_action_bt_node: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_fixed_pick_object_action_bt_node
+.PHONY : custom_fixed_pick_object_action_bt_node
+
+# fast build rule for target.
+custom_fixed_pick_object_action_bt_node/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_fixed_pick_object_action_bt_node.dir/build.make CMakeFiles/custom_fixed_pick_object_action_bt_node.dir/build
+.PHONY : custom_fixed_pick_object_action_bt_node/fast
+
+#=============================================================================
 # Target rules for targets named custom_movable_obstacle_localizers
 
 # Build rule for target.
@@ -322,6 +335,30 @@ src/capture_initial_path_action.s: src/capture_initial_path_action.cpp.s
 src/capture_initial_path_action.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_capture_initial_path_action_bt_node.dir/build.make CMakeFiles/custom_capture_initial_path_action_bt_node.dir/src/capture_initial_path_action.cpp.s
 .PHONY : src/capture_initial_path_action.cpp.s
+
+src/fixed_pick_object_action.o: src/fixed_pick_object_action.cpp.o
+.PHONY : src/fixed_pick_object_action.o
+
+# target to build an object file
+src/fixed_pick_object_action.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_fixed_pick_object_action_bt_node.dir/build.make CMakeFiles/custom_fixed_pick_object_action_bt_node.dir/src/fixed_pick_object_action.cpp.o
+.PHONY : src/fixed_pick_object_action.cpp.o
+
+src/fixed_pick_object_action.i: src/fixed_pick_object_action.cpp.i
+.PHONY : src/fixed_pick_object_action.i
+
+# target to preprocess a source file
+src/fixed_pick_object_action.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_fixed_pick_object_action_bt_node.dir/build.make CMakeFiles/custom_fixed_pick_object_action_bt_node.dir/src/fixed_pick_object_action.cpp.i
+.PHONY : src/fixed_pick_object_action.cpp.i
+
+src/fixed_pick_object_action.s: src/fixed_pick_object_action.cpp.s
+.PHONY : src/fixed_pick_object_action.s
+
+# target to generate assembly for a file
+src/fixed_pick_object_action.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_fixed_pick_object_action_bt_node.dir/build.make CMakeFiles/custom_fixed_pick_object_action_bt_node.dir/src/fixed_pick_object_action.cpp.s
+.PHONY : src/fixed_pick_object_action.cpp.s
 
 src/is_movable_obstacle_detected_condition.o: src/is_movable_obstacle_detected_condition.cpp.o
 .PHONY : src/is_movable_obstacle_detected_condition.o
@@ -436,6 +473,7 @@ help:
 	@echo "... uninstall"
 	@echo "... custom_approach_obstacle_normal_action_bt_node"
 	@echo "... custom_capture_initial_path_action_bt_node"
+	@echo "... custom_fixed_pick_object_action_bt_node"
 	@echo "... custom_is_movable_obstacle_detected_condition_bt_node"
 	@echo "... custom_movable_obstacle_localizers"
 	@echo "... custom_wait_for_obstacle_clearance_action_bt_node"
@@ -446,6 +484,9 @@ help:
 	@echo "... src/capture_initial_path_action.o"
 	@echo "... src/capture_initial_path_action.i"
 	@echo "... src/capture_initial_path_action.s"
+	@echo "... src/fixed_pick_object_action.o"
+	@echo "... src/fixed_pick_object_action.i"
+	@echo "... src/fixed_pick_object_action.s"
 	@echo "... src/is_movable_obstacle_detected_condition.o"
 	@echo "... src/is_movable_obstacle_detected_condition.i"
 	@echo "... src/is_movable_obstacle_detected_condition.s"

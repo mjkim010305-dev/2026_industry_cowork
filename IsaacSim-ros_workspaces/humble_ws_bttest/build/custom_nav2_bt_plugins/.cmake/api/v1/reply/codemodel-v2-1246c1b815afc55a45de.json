@@ -1,0 +1,133 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-Release-9feb6d433ef95e0094df.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					]
+				}
+			],
+			"name" : "Release",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "custom_nav2_bt_plugins",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_approach_obstacle_normal_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_approach_obstacle_normal_action_bt_node-Release-322c06b974bf7ac087d5.json",
+					"name" : "custom_approach_obstacle_normal_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_capture_initial_path_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_capture_initial_path_action_bt_node-Release-6fb88a9b3afe46b59d2e.json",
+					"name" : "custom_capture_initial_path_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_fixed_pick_object_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_fixed_pick_object_action_bt_node-Release-0e9abb8eb25be24ac910.json",
+					"name" : "custom_fixed_pick_object_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_is_movable_obstacle_detected_condition_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_is_movable_obstacle_detected_condition_bt_node-Release-fbdb9d6653f0e90b8da4.json",
+					"name" : "custom_is_movable_obstacle_detected_condition_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_movable_obstacle_localizers::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_movable_obstacle_localizers-Release-8184ab9fc8bae3daae9e.json",
+					"name" : "custom_movable_obstacle_localizers",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_nav2_bt_plugins_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_nav2_bt_plugins_uninstall-Release-16c5bdd5fdac52592983.json",
+					"name" : "custom_nav2_bt_plugins_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_wait_for_obstacle_clearance_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_wait_for_obstacle_clearance_action_bt_node-Release-f2352130d24bdf0a3d2b.json",
+					"name" : "custom_wait_for_obstacle_clearance_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "rgbd_obstacle_localizer::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-rgbd_obstacle_localizer-Release-1f34efdfc5c04ae9b976.json",
+					"name" : "rgbd_obstacle_localizer",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-Release-5038b361f7d7503ef912.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/build/custom_nav2_bt_plugins",
+		"source" : "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/src/custom_nav2_bt_plugins"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

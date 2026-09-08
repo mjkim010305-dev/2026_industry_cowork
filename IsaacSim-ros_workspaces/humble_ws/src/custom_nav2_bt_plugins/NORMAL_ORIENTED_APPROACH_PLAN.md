@@ -9,6 +9,7 @@
 - `rgbd_obstacle_localizer_node` 는 그 점만 map 으로 TF 변환, `PoseStamped.orientation.w=1`(단위 회전) 로 발행.
 - `ApproachObstacleNormal` 은 물체의 방향을 안 보고, **`{initial_path}` 의 2D 탄젠트**를 접근 방향(정면)으로 가정.
 - 즉 지금은 "물체가 실제로 얼마나 돌아가 있는지" 를 아무 데서도 계산 안 함 — 경로 방향과 물체 실제 면이 어긋나면 접근이 삐딱해짐.
+- 실제로 사용하는 camera info 값은 depth_camera_info 값이어야함.
 
 ## 1. 목적
 

@@ -1,0 +1,102 @@
+<!--
+  Pick-first navigate-to-pose tree.
+
+  PickThenNavigate (memory Sequence):
+    1. FixedPickObject - runs ONCE at the very start, before ComputePathToPose.
+       Ported from fixed_pick_place.py::run_pick: drives the 4-DOF arm
+       (FollowJointTrajectory) and gripper (GripperCommand) through a fixed
+       joint-space sequence to pick up the object directly in front of the
+       robot and hold it in a carry pose. Non-blocking (StatefulActionNode),
+       so bt_navigator keeps ticking while the arm moves.
+       If the pick FAILS, the whole navigate goal fails - wrap the node in
+       <ForceSuccess> if you would rather drive on regardless.
+    2. NavigateRecovery - the existing navigate-to-pose tree with replanning,
+       recovery, and movable-obstacle handling (unchanged).
+
+  Movable-obstacle handling (unchanged from custom_bt (copy).xml):
+    * A VLM (outside this package) publishes two std_msgs/Bool topics:
+        /obstacle/is_movable     - the blocker is a movable obstacle
+        /obstacle/still_present  - that obstacle is still there
+    * `rgbd_obstacle_localizer` publishes the obstacle position in the map
+      frame on /movable_obstacle/pose (only while is_movable is true).
+    * CaptureInitialPath latches the FIRST global path for the goal.
+    * ApproachObstacleNormal drives a short straight path to `standoff_distance`
+      in front of the on-path obstacle, squared up to it.
+    * WaitForObstacleClearance holds there until /obstacle/still_present is
+      false, then the costmaps are wiped and the robot resumes {initial_path}.
+-->
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <Sequence name="PickThenNavigate">
+
+      <FixedPickObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                       gripper_action_name="/gripper_controller/gripper_cmd"
+                       arm_joint_names="joint1;joint2;joint3;joint4"
+                       arm_move_time="3.0"
+                       open_position="0.02501155674647538"
+                       grasp_position="0.002"
+                       max_effort="0.0"
+                       server_timeout="5.0"
+                       step_timeout="15.0"/>
+
+      <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+        <PipelineSequence name="NavigateWithReplanning">
+          <RateController hz="1.0">
+            <RecoveryNode number_of_retries="1" name="ComputePathToPose">
+              <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+              <ClearEntireCostmap name="ClearGlobalCostmap-Context" service_name="global_costmap/clear_entirely_global_costmap"/>
+            </RecoveryNode>
+          </RateController>
+          <RecoveryNode number_of_retries="1" name="FollowPath">
+            <ReactiveFallback name="FollowPathOrHandleMovableObstacle">
+              <Sequence name="HandleMovableObstacle">
+                <CaptureInitialPath path="{path}" goal="{goal}"
+                                    goal_change_threshold="0.5"
+                                    initial_path="{initial_path}"/>
+                <IsMovableObstacleDetected topic="/obstacle/is_movable"
+                                           message_timeout="2.0"/>
+                <ApproachObstacleNormal path="{initial_path}"
+                                        pose_topic="/movable_obstacle/pose"
+                                        standoff_distance="0.4"
+                                        on_path_tolerance="0.35"
+                                        pose_timeout="2.0"
+                                        recompute_threshold="0.2"
+                                        global_frame="map"
+                                        robot_base_frame="base_link"
+                                        approach_path="{approach_path}"
+                                        approach_goal="{approach_goal}"/>
+                <Sequence name="ApproachThenResume">
+                  <FollowPath path="{approach_path}" controller_id="FollowPath"/>
+                  <WaitForObstacleClearance topic="/obstacle/still_present"
+                                            timeout="0.0"
+                                            clear_on_stale="true"
+                                            message_timeout="3.0"/>
+                  <ClearEntireCostmap name="ClearLocalCostmap-Resume"
+                                      service_name="local_costmap/clear_entirely_local_costmap"/>
+                  <ClearEntireCostmap name="ClearGlobalCostmap-Resume"
+                                      service_name="global_costmap/clear_entirely_global_costmap"/>
+                  <FollowPath path="{initial_path}" controller_id="FollowPath"/>
+                </Sequence>
+              </Sequence>
+              <FollowPath path="{path}" controller_id="FollowPath"/>
+            </ReactiveFallback>
+            <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
+          </RecoveryNode>
+        </PipelineSequence>
+        <ReactiveFallback name="RecoveryFallback">
+          <GoalUpdated/>
+          <RoundRobin name="RecoveryActions">
+            <Sequence name="ClearingActions">
+              <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
+              <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
+            </Sequence>
+            <Spin spin_dist="1.57"/>
+            <Wait wait_duration="5"/>
+            <BackUp backup_dist="0.30" backup_speed="0.05"/>
+          </RoundRobin>
+        </ReactiveFallback>
+      </RecoveryNode>
+
+    </Sequence>
+  </BehaviorTree>
+</root>

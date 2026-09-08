@@ -106,6 +106,8 @@ bt_navigator:
       - custom_wait_for_obstacle_clearance_action_bt_node
       - custom_capture_initial_path_action_bt_node
       - custom_approach_obstacle_normal_action_bt_node
+      # custom_nav2_bt_plugins: fixed pick-before-navigate (custom_bt_manipulator.xml)
+      - custom_fixed_pick_object_action_bt_node
 
 bt_navigator_navigate_through_poses_rclcpp_node:
   ros__parameters:
