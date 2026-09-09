@@ -43,7 +43,7 @@
 			{
 				"command" : 1,
 				"file" : 1,
-				"line" : 94,
+				"line" : 116,
 				"parent" : 0
 			},
 			{
@@ -55,37 +55,37 @@
 			{
 				"command" : 0,
 				"file" : 1,
-				"line" : 108,
+				"line" : 130,
 				"parent" : 0
 			},
 			{
 				"command" : 0,
 				"file" : 1,
-				"line" : 114,
+				"line" : 136,
 				"parent" : 0
 			},
 			{
 				"command" : 0,
 				"file" : 1,
-				"line" : 118,
+				"line" : 140,
 				"parent" : 0
 			},
 			{
 				"command" : 0,
 				"file" : 1,
-				"line" : 122,
+				"line" : 144,
 				"parent" : 0
 			},
 			{
 				"command" : 0,
 				"file" : 1,
-				"line" : 126,
+				"line" : 148,
 				"parent" : 0
 			},
 			{
 				"command" : 4,
 				"file" : 1,
-				"line" : 138,
+				"line" : 160,
 				"parent" : 0
 			},
 			{
@@ -115,7 +115,7 @@
 			{
 				"command" : 9,
 				"file" : 1,
-				"line" : 144,
+				"line" : 166,
 				"parent" : 0
 			},
 			{
@@ -367,7 +367,7 @@
 				"libcustom_wait_for_obstacle_clearance_action_bt_node.so"
 			],
 			"targetId" : "custom_wait_for_obstacle_clearance_action_bt_node::@6890427a1f51a3e7e1df",
-			"targetIndex" : 6,
+			"targetIndex" : 8,
 			"type" : "target"
 		},
 		{
@@ -412,10 +412,34 @@
 			"destination" : "lib",
 			"paths" : 
 			[
+				"libcustom_is_obstacle_tracking_condition_bt_node.so"
+			],
+			"targetId" : "custom_is_obstacle_tracking_condition_bt_node::@6890427a1f51a3e7e1df",
+			"targetIndex" : 4,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
+				"libcustom_lock_approach_pose_action_bt_node.so"
+			],
+			"targetId" : "custom_lock_approach_pose_action_bt_node::@6890427a1f51a3e7e1df",
+			"targetIndex" : 5,
+			"type" : "target"
+		},
+		{
+			"backtrace" : 3,
+			"component" : "Unspecified",
+			"destination" : "lib",
+			"paths" : 
+			[
 				"libcustom_movable_obstacle_localizers.so"
 			],
 			"targetId" : "custom_movable_obstacle_localizers::@6890427a1f51a3e7e1df",
-			"targetIndex" : 4,
+			"targetIndex" : 6,
 			"type" : "target"
 		},
 		{
@@ -427,7 +451,7 @@
 				"rgbd_obstacle_localizer"
 			],
 			"targetId" : "rgbd_obstacle_localizer::@6890427a1f51a3e7e1df",
-			"targetIndex" : 7,
+			"targetIndex" : 9,
 			"type" : "target"
 		},
 		{

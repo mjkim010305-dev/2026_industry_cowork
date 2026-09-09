@@ -73,6 +73,10 @@ public:
       BT::InputPort<std::string>(
         "pose_topic", std::string("/movable_obstacle/pose"),
         "geometry_msgs/PoseStamped topic with the obstacle position (map frame)"),
+      BT::InputPort<geometry_msgs::msg::PoseStamped>(
+        "obstacle_pose",
+        "Frozen obstacle pose (e.g. from LockApproachPose). When set it is used "
+        "instead of the pose_topic subscription and the staleness gate is skipped"),
       BT::InputPort<double>("standoff_distance", 0.4, "Stop this far [m] in front of the obstacle"),
       BT::InputPort<bool>(
         "use_surface_normal", true,

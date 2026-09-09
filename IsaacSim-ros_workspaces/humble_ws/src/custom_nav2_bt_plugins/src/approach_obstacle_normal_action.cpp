@@ -123,7 +123,14 @@ BT::NodeStatus ApproachObstacleNormalAction::tick()
   getInput("transform_tolerance", transform_tolerance);
 
   geometry_msgs::msg::PoseStamped obstacle;
-  {
+  geometry_msgs::msg::PoseStamped ext_pose;
+  const bool have_ext = static_cast<bool>(getInput("obstacle_pose", ext_pose)) &&
+    !ext_pose.header.frame_id.empty();
+  if (have_ext) {
+    // Frozen pose from LockApproachPose: intentionally not subject to the
+    // live-subscription staleness gate.
+    obstacle = ext_pose;
+  } else {
     std::lock_guard<std::mutex> lock(mutex_);
     if (!pose_received_ || (node_->now() - last_pose_time_).seconds() > pose_timeout_) {
       have_cache_ = false;

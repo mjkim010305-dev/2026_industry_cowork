@@ -76,12 +76,34 @@ ament_target_dependencies(custom_fixed_pick_object_action_bt_node
 target_compile_definitions(custom_fixed_pick_object_action_bt_node
   PRIVATE BT_PLUGIN_EXPORT)
 
+# ---------------------------------------------------------------------------
+# BT plugin: IsObstacleTracking (condition) - stabilised /perception_state gate
+# ---------------------------------------------------------------------------
+add_library(custom_is_obstacle_tracking_condition_bt_node SHARED
+  src/is_obstacle_tracking_condition.cpp)
+ament_target_dependencies(custom_is_obstacle_tracking_condition_bt_node
+  rclcpp behaviortree_cpp_v3 nav2_behavior_tree std_msgs)
+target_compile_definitions(custom_is_obstacle_tracking_condition_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
+# ---------------------------------------------------------------------------
+# BT plugin: LockApproachPose (stateful action) - freeze the obstacle pose once
+# ---------------------------------------------------------------------------
+add_library(custom_lock_approach_pose_action_bt_node SHARED
+  src/lock_approach_pose_action.cpp)
+ament_target_dependencies(custom_lock_approach_pose_action_bt_node
+  rclcpp behaviortree_cpp_v3 nav2_behavior_tree geometry_msgs)
+target_compile_definitions(custom_lock_approach_pose_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
 set(bt_plugin_libs
   custom_is_movable_obstacle_detected_condition_bt_node
   custom_wait_for_obstacle_clearance_action_bt_node
   custom_capture_initial_path_action_bt_node
   custom_approach_obstacle_normal_action_bt_node
   custom_fixed_pick_object_action_bt_node
+  custom_is_obstacle_tracking_condition_bt_node
+  custom_lock_approach_pose_action_bt_node
 )
 
 # ---------------------------------------------------------------------------

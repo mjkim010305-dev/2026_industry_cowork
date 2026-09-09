@@ -7,7 +7,7 @@
 				{
 					"build" : ".",
 					"hasInstallRule" : true,
-					"jsonFile" : "directory-.-Release-9feb6d433ef95e0094df.json",
+					"jsonFile" : "directory-.-Release-31c73baab2aa465650e0.json",
 					"minimumCMakeVersion" : 
 					{
 						"string" : "3.12"
@@ -24,7 +24,9 @@
 						5,
 						6,
 						7,
-						8
+						8,
+						9,
+						10
 					]
 				}
 			],
@@ -47,7 +49,9 @@
 						5,
 						6,
 						7,
-						8
+						8,
+						9,
+						10
 					]
 				}
 			],
@@ -56,35 +60,49 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "custom_approach_obstacle_normal_action_bt_node::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-custom_approach_obstacle_normal_action_bt_node-Release-322c06b974bf7ac087d5.json",
+					"jsonFile" : "target-custom_approach_obstacle_normal_action_bt_node-Release-b25c6550dc37ba86d7e9.json",
 					"name" : "custom_approach_obstacle_normal_action_bt_node",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "custom_capture_initial_path_action_bt_node::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-custom_capture_initial_path_action_bt_node-Release-6fb88a9b3afe46b59d2e.json",
+					"jsonFile" : "target-custom_capture_initial_path_action_bt_node-Release-4394628cce2ccd85a699.json",
 					"name" : "custom_capture_initial_path_action_bt_node",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "custom_fixed_pick_object_action_bt_node::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-custom_fixed_pick_object_action_bt_node-Release-0e9abb8eb25be24ac910.json",
+					"jsonFile" : "target-custom_fixed_pick_object_action_bt_node-Release-242a513c26e180660423.json",
 					"name" : "custom_fixed_pick_object_action_bt_node",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "custom_is_movable_obstacle_detected_condition_bt_node::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-custom_is_movable_obstacle_detected_condition_bt_node-Release-fbdb9d6653f0e90b8da4.json",
+					"jsonFile" : "target-custom_is_movable_obstacle_detected_condition_bt_node-Release-6634eaa545193df6ddf1.json",
 					"name" : "custom_is_movable_obstacle_detected_condition_bt_node",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
+					"id" : "custom_is_obstacle_tracking_condition_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_is_obstacle_tracking_condition_bt_node-Release-1b260e02a94eb375c964.json",
+					"name" : "custom_is_obstacle_tracking_condition_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_lock_approach_pose_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_lock_approach_pose_action_bt_node-Release-97db1d110682710b57b6.json",
+					"name" : "custom_lock_approach_pose_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
 					"id" : "custom_movable_obstacle_localizers::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-custom_movable_obstacle_localizers-Release-8184ab9fc8bae3daae9e.json",
+					"jsonFile" : "target-custom_movable_obstacle_localizers-Release-2ac12192f97fc4926c0c.json",
 					"name" : "custom_movable_obstacle_localizers",
 					"projectIndex" : 0
 				},
@@ -98,14 +116,14 @@
 				{
 					"directoryIndex" : 0,
 					"id" : "custom_wait_for_obstacle_clearance_action_bt_node::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-custom_wait_for_obstacle_clearance_action_bt_node-Release-f2352130d24bdf0a3d2b.json",
+					"jsonFile" : "target-custom_wait_for_obstacle_clearance_action_bt_node-Release-be4c6200a964aa339bbe.json",
 					"name" : "custom_wait_for_obstacle_clearance_action_bt_node",
 					"projectIndex" : 0
 				},
 				{
 					"directoryIndex" : 0,
 					"id" : "rgbd_obstacle_localizer::@6890427a1f51a3e7e1df",
-					"jsonFile" : "target-rgbd_obstacle_localizer-Release-1f34efdfc5c04ae9b976.json",
+					"jsonFile" : "target-rgbd_obstacle_localizer-Release-eb4911e82559a94e4503.json",
 					"name" : "rgbd_obstacle_localizer",
 					"projectIndex" : 0
 				},

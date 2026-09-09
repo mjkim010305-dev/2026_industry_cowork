@@ -108,6 +108,9 @@ bt_navigator:
       - custom_approach_obstacle_normal_action_bt_node
       # custom_nav2_bt_plugins: fixed pick-before-navigate (custom_bt_manipulator.xml)
       - custom_fixed_pick_object_action_bt_node
+      # custom_nav2_bt_plugins: perception-decoupled gate + pose lock (task 2)
+      - custom_is_obstacle_tracking_condition_bt_node
+      - custom_lock_approach_pose_action_bt_node
 
 bt_navigator_navigate_through_poses_rclcpp_node:
   ros__parameters:

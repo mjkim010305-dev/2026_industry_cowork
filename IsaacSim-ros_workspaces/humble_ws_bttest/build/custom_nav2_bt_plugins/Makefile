@@ -263,6 +263,32 @@ custom_fixed_pick_object_action_bt_node/fast:
 .PHONY : custom_fixed_pick_object_action_bt_node/fast
 
 #=============================================================================
+# Target rules for targets named custom_is_obstacle_tracking_condition_bt_node
+
+# Build rule for target.
+custom_is_obstacle_tracking_condition_bt_node: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_is_obstacle_tracking_condition_bt_node
+.PHONY : custom_is_obstacle_tracking_condition_bt_node
+
+# fast build rule for target.
+custom_is_obstacle_tracking_condition_bt_node/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_is_obstacle_tracking_condition_bt_node.dir/build.make CMakeFiles/custom_is_obstacle_tracking_condition_bt_node.dir/build
+.PHONY : custom_is_obstacle_tracking_condition_bt_node/fast
+
+#=============================================================================
+# Target rules for targets named custom_lock_approach_pose_action_bt_node
+
+# Build rule for target.
+custom_lock_approach_pose_action_bt_node: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_lock_approach_pose_action_bt_node
+.PHONY : custom_lock_approach_pose_action_bt_node
+
+# fast build rule for target.
+custom_lock_approach_pose_action_bt_node/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_lock_approach_pose_action_bt_node.dir/build.make CMakeFiles/custom_lock_approach_pose_action_bt_node.dir/build
+.PHONY : custom_lock_approach_pose_action_bt_node/fast
+
+#=============================================================================
 # Target rules for targets named custom_movable_obstacle_localizers
 
 # Build rule for target.
@@ -384,6 +410,30 @@ src/is_movable_obstacle_detected_condition.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_is_movable_obstacle_detected_condition_bt_node.dir/build.make CMakeFiles/custom_is_movable_obstacle_detected_condition_bt_node.dir/src/is_movable_obstacle_detected_condition.cpp.s
 .PHONY : src/is_movable_obstacle_detected_condition.cpp.s
 
+src/is_obstacle_tracking_condition.o: src/is_obstacle_tracking_condition.cpp.o
+.PHONY : src/is_obstacle_tracking_condition.o
+
+# target to build an object file
+src/is_obstacle_tracking_condition.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_is_obstacle_tracking_condition_bt_node.dir/build.make CMakeFiles/custom_is_obstacle_tracking_condition_bt_node.dir/src/is_obstacle_tracking_condition.cpp.o
+.PHONY : src/is_obstacle_tracking_condition.cpp.o
+
+src/is_obstacle_tracking_condition.i: src/is_obstacle_tracking_condition.cpp.i
+.PHONY : src/is_obstacle_tracking_condition.i
+
+# target to preprocess a source file
+src/is_obstacle_tracking_condition.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_is_obstacle_tracking_condition_bt_node.dir/build.make CMakeFiles/custom_is_obstacle_tracking_condition_bt_node.dir/src/is_obstacle_tracking_condition.cpp.i
+.PHONY : src/is_obstacle_tracking_condition.cpp.i
+
+src/is_obstacle_tracking_condition.s: src/is_obstacle_tracking_condition.cpp.s
+.PHONY : src/is_obstacle_tracking_condition.s
+
+# target to generate assembly for a file
+src/is_obstacle_tracking_condition.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_is_obstacle_tracking_condition_bt_node.dir/build.make CMakeFiles/custom_is_obstacle_tracking_condition_bt_node.dir/src/is_obstacle_tracking_condition.cpp.s
+.PHONY : src/is_obstacle_tracking_condition.cpp.s
+
 src/localizers/depth_centroid_localizer.o: src/localizers/depth_centroid_localizer.cpp.o
 .PHONY : src/localizers/depth_centroid_localizer.o
 
@@ -407,6 +457,30 @@ src/localizers/depth_centroid_localizer.s: src/localizers/depth_centroid_localiz
 src/localizers/depth_centroid_localizer.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_movable_obstacle_localizers.dir/build.make CMakeFiles/custom_movable_obstacle_localizers.dir/src/localizers/depth_centroid_localizer.cpp.s
 .PHONY : src/localizers/depth_centroid_localizer.cpp.s
+
+src/lock_approach_pose_action.o: src/lock_approach_pose_action.cpp.o
+.PHONY : src/lock_approach_pose_action.o
+
+# target to build an object file
+src/lock_approach_pose_action.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_lock_approach_pose_action_bt_node.dir/build.make CMakeFiles/custom_lock_approach_pose_action_bt_node.dir/src/lock_approach_pose_action.cpp.o
+.PHONY : src/lock_approach_pose_action.cpp.o
+
+src/lock_approach_pose_action.i: src/lock_approach_pose_action.cpp.i
+.PHONY : src/lock_approach_pose_action.i
+
+# target to preprocess a source file
+src/lock_approach_pose_action.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_lock_approach_pose_action_bt_node.dir/build.make CMakeFiles/custom_lock_approach_pose_action_bt_node.dir/src/lock_approach_pose_action.cpp.i
+.PHONY : src/lock_approach_pose_action.cpp.i
+
+src/lock_approach_pose_action.s: src/lock_approach_pose_action.cpp.s
+.PHONY : src/lock_approach_pose_action.s
+
+# target to generate assembly for a file
+src/lock_approach_pose_action.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_lock_approach_pose_action_bt_node.dir/build.make CMakeFiles/custom_lock_approach_pose_action_bt_node.dir/src/lock_approach_pose_action.cpp.s
+.PHONY : src/lock_approach_pose_action.cpp.s
 
 src/rgbd_obstacle_localizer_node.o: src/rgbd_obstacle_localizer_node.cpp.o
 .PHONY : src/rgbd_obstacle_localizer_node.o
@@ -475,6 +549,8 @@ help:
 	@echo "... custom_capture_initial_path_action_bt_node"
 	@echo "... custom_fixed_pick_object_action_bt_node"
 	@echo "... custom_is_movable_obstacle_detected_condition_bt_node"
+	@echo "... custom_is_obstacle_tracking_condition_bt_node"
+	@echo "... custom_lock_approach_pose_action_bt_node"
 	@echo "... custom_movable_obstacle_localizers"
 	@echo "... custom_wait_for_obstacle_clearance_action_bt_node"
 	@echo "... rgbd_obstacle_localizer"
@@ -490,9 +566,15 @@ help:
 	@echo "... src/is_movable_obstacle_detected_condition.o"
 	@echo "... src/is_movable_obstacle_detected_condition.i"
 	@echo "... src/is_movable_obstacle_detected_condition.s"
+	@echo "... src/is_obstacle_tracking_condition.o"
+	@echo "... src/is_obstacle_tracking_condition.i"
+	@echo "... src/is_obstacle_tracking_condition.s"
 	@echo "... src/localizers/depth_centroid_localizer.o"
 	@echo "... src/localizers/depth_centroid_localizer.i"
 	@echo "... src/localizers/depth_centroid_localizer.s"
+	@echo "... src/lock_approach_pose_action.o"
+	@echo "... src/lock_approach_pose_action.i"
+	@echo "... src/lock_approach_pose_action.s"
 	@echo "... src/rgbd_obstacle_localizer_node.o"
 	@echo "... src/rgbd_obstacle_localizer_node.i"
 	@echo "... src/rgbd_obstacle_localizer_node.s"

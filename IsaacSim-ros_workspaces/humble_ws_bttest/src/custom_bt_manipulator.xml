@@ -30,10 +30,17 @@
     * WaitForObstacleClearance holds there until /obstacle/still_present is
       false, then the costmaps are wiped and the robot resumes {initial_path}.
 
-  Task 1 (this file): geometry only. The branch is still entered on a single
-  /obstacle/is_movable signal (message_timeout raised to 3 s so a brief VLM
-  dropout after detection does not drop the branch). A hysteresis-backed
-  IsObstacleTracking gate + an explicit LockApproachPose come in tasks 2/3.
+  Task 2 (this file): decouple the branch from the raw per-frame flag.
+    * IsObstacleTracking replaces IsMovableObstacleDetected. It reads the
+      stabilised /perception_state (std_msgs/String IDLE/CANDIDATE/TRACKING)
+      published by the Perception Stabilizer node, and transparently falls back
+      to the legacy /obstacle/is_movable Bool until that node exists (task 3).
+    * LockApproachPose freezes ONE obstacle pose the moment the branch commits
+      and re-emits it every tick; ApproachObstacleNormal now consumes that
+      frozen pose ({locked_obstacle_pose}) instead of the live topic, so the
+      approach goal cannot drift with perception noise.
+  Task 3 will add the Stabilizer node itself + point pose_topic at
+  /obstacle_pose_stable.
 -->
 <root main_tree_to_execute="MainTree">
   <BehaviorTree ID="MainTree">
@@ -63,9 +70,18 @@
                 <CaptureInitialPath path="{path}" goal="{goal}"
                                     goal_change_threshold="0.5"
                                     initial_path="{initial_path}"/>
-                <IsMovableObstacleDetected topic="/obstacle/is_movable"
-                                           message_timeout="3.0"/>
+                <IsObstacleTracking state_topic="/perception_state"
+                                    tracking_value="TRACKING"
+                                    state_timeout="1.0"
+                                    fallback_topic="/obstacle/is_movable"
+                                    fallback_timeout="3.0"/>
+                <LockApproachPose pose_topic="/movable_obstacle/pose"
+                                  pose_timeout="2.0"
+                                  acquire_timeout="5.0"
+                                  require_orientation="false"
+                                  locked_pose="{locked_obstacle_pose}"/>
                 <ApproachObstacleNormal path="{initial_path}"
+                                        obstacle_pose="{locked_obstacle_pose}"
                                         pose_topic="/movable_obstacle/pose"
                                         standoff_distance="0.2"
                                         use_surface_normal="true"
