@@ -5,7 +5,7 @@ set(custom_nav2_bt_plugins_BUILD_DEPENDS "rclcpp" "rclcpp_action" "behaviortree_
 set(custom_nav2_bt_plugins_BUILDTOOL_DEPENDS "ament_cmake")
 set(custom_nav2_bt_plugins_BUILD_EXPORT_DEPENDS "rclcpp" "rclcpp_action" "behaviortree_cpp_v3" "nav2_behavior_tree" "nav2_util" "pluginlib" "control_msgs" "trajectory_msgs" "std_msgs" "sensor_msgs" "geometry_msgs" "nav_msgs" "tf2" "tf2_ros" "tf2_geometry_msgs")
 set(custom_nav2_bt_plugins_BUILDTOOL_EXPORT_DEPENDS )
-set(custom_nav2_bt_plugins_EXEC_DEPENDS "rclcpp" "rclcpp_action" "behaviortree_cpp_v3" "nav2_behavior_tree" "nav2_util" "pluginlib" "control_msgs" "trajectory_msgs" "std_msgs" "sensor_msgs" "geometry_msgs" "nav_msgs" "tf2" "tf2_ros" "tf2_geometry_msgs")
+set(custom_nav2_bt_plugins_EXEC_DEPENDS "rclpy" "python3-numpy" "rclcpp" "rclcpp_action" "behaviortree_cpp_v3" "nav2_behavior_tree" "nav2_util" "pluginlib" "control_msgs" "trajectory_msgs" "std_msgs" "sensor_msgs" "geometry_msgs" "nav_msgs" "tf2" "tf2_ros" "tf2_geometry_msgs")
 set(custom_nav2_bt_plugins_TEST_DEPENDS "ament_lint_auto" "ament_lint_common")
 set(custom_nav2_bt_plugins_GROUP_DEPENDS )
 set(custom_nav2_bt_plugins_MEMBER_OF_GROUPS )

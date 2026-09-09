@@ -137,6 +137,12 @@ install(TARGETS rgbd_obstacle_localizer
   RUNTIME DESTINATION lib/${PROJECT_NAME}
 )
 
+# Python node: Perception Stabilizer (VLM detect + depth -> stabilised estimate)
+install(PROGRAMS
+  scripts/perception_stabilizer.py
+  DESTINATION lib/${PROJECT_NAME}
+)
+
 install(DIRECTORY include/
   DESTINATION include/
 )

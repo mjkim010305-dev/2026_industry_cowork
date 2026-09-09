@@ -30,17 +30,21 @@
     * WaitForObstacleClearance holds there until /obstacle/still_present is
       false, then the costmaps are wiped and the robot resumes {initial_path}.
 
-  Task 2 (this file): decouple the branch from the raw per-frame flag.
-    * IsObstacleTracking replaces IsMovableObstacleDetected. It reads the
-      stabilised /perception_state (std_msgs/String IDLE/CANDIDATE/TRACKING)
-      published by the Perception Stabilizer node, and transparently falls back
-      to the legacy /obstacle/is_movable Bool until that node exists (task 3).
-    * LockApproachPose freezes ONE obstacle pose the moment the branch commits
-      and re-emits it every tick; ApproachObstacleNormal now consumes that
-      frozen pose ({locked_obstacle_pose}) instead of the live topic, so the
-      approach goal cannot drift with perception noise.
-  Task 3 will add the Stabilizer node itself + point pose_topic at
-  /obstacle_pose_stable.
+  Perception is decoupled from the tick loop (design doc
+  bt_perception_stabilizer_design.md):
+    * The perception_stabilizer node (custom_nav2_bt_plugins) runs on its own,
+      accumulating depth points, running PCA for the surface normal, and driving
+      an IDLE/CANDIDATE/TRACKING state machine with time-window hysteresis. It
+      publishes /perception_state (String), /obstacle_pose_stable (PoseStamped
+      with the normal yaw) and /obstacle_pose_confidence (Float32).
+    * IsObstacleTracking gates the branch on /perception_state == TRACKING, and
+      transparently falls back to the legacy /obstacle/is_movable Bool when the
+      stabilizer is not running.
+    * LockApproachPose freezes ONE /obstacle_pose_stable sample the moment the
+      branch commits (require_orientation=true -> waits for a converged normal)
+      and re-emits it every tick; ApproachObstacleNormal consumes that frozen
+      pose ({locked_obstacle_pose}), so the approach goal never drifts with
+      perception noise and a dropout mid-approach cannot abort the branch.
 -->
 <root main_tree_to_execute="MainTree">
   <BehaviorTree ID="MainTree">
@@ -75,10 +79,10 @@
                                     state_timeout="1.0"
                                     fallback_topic="/obstacle/is_movable"
                                     fallback_timeout="3.0"/>
-                <LockApproachPose pose_topic="/movable_obstacle/pose"
+                <LockApproachPose pose_topic="/obstacle_pose_stable"
                                   pose_timeout="2.0"
-                                  acquire_timeout="5.0"
-                                  require_orientation="false"
+                                  acquire_timeout="8.0"
+                                  require_orientation="true"
                                   locked_pose="{locked_obstacle_pose}"/>
                 <ApproachObstacleNormal path="{initial_path}"
                                         obstacle_pose="{locked_obstacle_pose}"
