@@ -17,13 +17,23 @@
     * A VLM (outside this package) publishes two std_msgs/Bool topics:
         /obstacle/is_movable     - the blocker is a movable obstacle
         /obstacle/still_present  - that obstacle is still there
-    * `rgbd_obstacle_localizer` publishes the obstacle position in the map
-      frame on /movable_obstacle/pose (only while is_movable is true).
+    * `rgbd_obstacle_localizer` publishes the obstacle pose in the map frame on
+      /movable_obstacle/pose (only while is_movable is true). Its orientation is
+      the estimated surface normal once perception fills it in; until then it is
+      an identity quaternion.
     * CaptureInitialPath latches the FIRST global path for the goal.
     * ApproachObstacleNormal drives a short straight path to `standoff_distance`
-      in front of the on-path obstacle, squared up to it.
+      in front of the on-path obstacle. When /movable_obstacle/pose carries a
+      real orientation it stops 0.2 m out along the surface normal and faces the
+      obstacle; otherwise it falls back to the initial-path tangent (unchanged
+      legacy behaviour).
     * WaitForObstacleClearance holds there until /obstacle/still_present is
       false, then the costmaps are wiped and the robot resumes {initial_path}.
+
+  Task 1 (this file): geometry only. The branch is still entered on a single
+  /obstacle/is_movable signal (message_timeout raised to 3 s so a brief VLM
+  dropout after detection does not drop the branch). A hysteresis-backed
+  IsObstacleTracking gate + an explicit LockApproachPose come in tasks 2/3.
 -->
 <root main_tree_to_execute="MainTree">
   <BehaviorTree ID="MainTree">
@@ -54,10 +64,12 @@
                                     goal_change_threshold="0.5"
                                     initial_path="{initial_path}"/>
                 <IsMovableObstacleDetected topic="/obstacle/is_movable"
-                                           message_timeout="2.0"/>
+                                           message_timeout="3.0"/>
                 <ApproachObstacleNormal path="{initial_path}"
                                         pose_topic="/movable_obstacle/pose"
-                                        standoff_distance="0.4"
+                                        standoff_distance="0.2"
+                                        use_surface_normal="true"
+                                        face_obstacle="true"
                                         on_path_tolerance="0.35"
                                         pose_timeout="2.0"
                                         recompute_threshold="0.2"

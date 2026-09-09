@@ -34,6 +34,26 @@ geometry_msgs::msg::Quaternion yawToQuaternion(double yaw)
   q.w = std::cos(yaw * 0.5);
   return q;
 }
+
+// Yaw (rotation about +z) of a quaternion. Returns false when the quaternion is
+// unusable: near-zero norm, or an identity rotation - which is what the
+// perception node publishes when it has no orientation estimate yet.
+bool quaternionYaw(const geometry_msgs::msg::Quaternion & q, double & yaw)
+{
+  const double n2 = q.x * q.x + q.y * q.y + q.z * q.z + q.w * q.w;
+  if (n2 < 1e-6) {
+    return false;
+  }
+  if (std::abs(q.w) >= 0.99995 &&
+    std::abs(q.x) + std::abs(q.y) + std::abs(q.z) < 1e-3)
+  {
+    return false;
+  }
+  yaw = std::atan2(
+    2.0 * (q.w * q.z + q.x * q.y),
+    1.0 - 2.0 * (q.y * q.y + q.z * q.z));
+  return true;
+}
 }  // namespace
 
 ApproachObstacleNormalAction::ApproachObstacleNormalAction(
@@ -88,12 +108,16 @@ BT::NodeStatus ApproachObstacleNormalAction::tick()
   double recompute_thr = 0.2;
   double interp = 0.1;
   double transform_tolerance = 0.1;
+  bool use_surface_normal = true;
+  bool face_obstacle = true;
   std::string global_frame = "map";
   std::string robot_base_frame = "base_link";
   getInput("standoff_distance", standoff);
   getInput("on_path_tolerance", on_path_tol);
   getInput("recompute_threshold", recompute_thr);
   getInput("interp_spacing", interp);
+  getInput("use_surface_normal", use_surface_normal);
+  getInput("face_obstacle", face_obstacle);
   getInput("global_frame", global_frame);
   getInput("robot_base_frame", robot_base_frame);
   getInput("transform_tolerance", transform_tolerance);
@@ -137,8 +161,31 @@ BT::NodeStatus ApproachObstacleNormalAction::tick()
     return BT::NodeStatus::FAILURE;   // not the on-path blocker
   }
 
-  // Latch: reuse the cached approach path unless the obstacle has moved.
-  if (have_cache_ &&
+  // Pick the approach geometry. Surface-normal mode when the obstacle pose
+  // carries a usable orientation; initial-path tangent otherwise (legacy).
+  double normal_yaw = 0.0;
+  const bool have_normal =
+    use_surface_normal && quaternionYaw(obstacle.pose.orientation, normal_yaw);
+
+  double goal_dir_yaw;   // obstacle -> standoff goal
+  double face_yaw;       // heading stamped on every approach pose
+  const char * mode;
+  if (have_normal) {
+    goal_dir_yaw = normal_yaw;                                  // free-space side
+    face_yaw = face_obstacle ? (normal_yaw + M_PI) : normal_yaw;
+    mode = "surface-normal";
+  } else {
+    goal_dir_yaw = tangent_yaw + M_PI;   // stop back along -tangent (== ox - tx*standoff)
+    face_yaw = tangent_yaw;              // face along the tangent, toward the obstacle
+    mode = "path-tangent";
+  }
+
+  const double gx = ox + std::cos(goal_dir_yaw) * standoff;
+  const double gy = oy + std::sin(goal_dir_yaw) * standoff;
+
+  // Latch: reuse the cached approach path unless the obstacle moved or the
+  // geometry mode flipped.
+  if (have_cache_ && cached_have_normal_ == have_normal &&
     std::hypot(ox - cached_obs_x_, oy - cached_obs_y_) < recompute_thr)
   {
     setOutput("approach_path", cached_approach_);
@@ -162,11 +209,6 @@ BT::NodeStatus ApproachObstacleNormalAction::tick()
     return BT::NodeStatus::FAILURE;
   }
 
-  const double tx = std::cos(tangent_yaw);
-  const double ty = std::sin(tangent_yaw);
-  const double gx = ox - tx * standoff;   // stop standoff before the obstacle, along the tangent
-  const double gy = oy - ty * standoff;
-
   const double rx = robot_pose.pose.position.x;
   const double ry = robot_pose.pose.position.y;
 
@@ -175,18 +217,28 @@ BT::NodeStatus ApproachObstacleNormalAction::tick()
   approach.header.stamp = node_->now();
 
   const double span = std::hypot(gx - rx, gy - ry);
-  const double forward = (gx - rx) * tx + (gy - ry) * ty;   // progress toward the obstacle
 
   auto make_pose = [&](double x, double y) {
       geometry_msgs::msg::PoseStamped p;
       p.header = approach.header;
       p.pose.position.x = x;
       p.pose.position.y = y;
-      p.pose.orientation = yawToQuaternion(tangent_yaw);
+      p.pose.orientation = yawToQuaternion(face_yaw);
       return p;
     };
 
-  if (forward <= 0.05 || span < 1e-3) {
+  bool hold;
+  if (have_normal) {
+    hold = (span < std::max(0.05, 0.5 * interp));
+  } else {
+    // Legacy check: do not drive backwards past the stop point along the tangent.
+    const double tx = std::cos(tangent_yaw);
+    const double ty = std::sin(tangent_yaw);
+    const double forward = (gx - rx) * tx + (gy - ry) * ty;
+    hold = (forward <= 0.05 || span < 1e-3);
+  }
+
+  if (hold) {
     // Already at / past the stop point: just hold, squared up to the obstacle.
     approach.poses.push_back(make_pose(rx, ry));
   } else {
@@ -201,6 +253,7 @@ BT::NodeStatus ApproachObstacleNormalAction::tick()
   cached_goal_ = approach.poses.back();
   cached_obs_x_ = ox;
   cached_obs_y_ = oy;
+  cached_have_normal_ = have_normal;
   have_cache_ = true;
 
   setOutput("approach_path", approach);
@@ -208,9 +261,9 @@ BT::NodeStatus ApproachObstacleNormalAction::tick()
 
   RCLCPP_INFO(
     node_->get_logger(),
-    "ApproachObstacleNormal: obstacle on initial path (lateral=%.2f m), "
-    "approach to (%.2f, %.2f) yaw=%.2f, %zu poses",
-    best_lateral, gx, gy, tangent_yaw, approach.poses.size());
+    "ApproachObstacleNormal[%s]: obstacle on initial path (lateral=%.2f m), "
+    "standoff goal (%.2f, %.2f) heading=%.2f, %zu poses",
+    mode, best_lateral, gx, gy, face_yaw, approach.poses.size());
   return BT::NodeStatus::SUCCESS;
 }
 
