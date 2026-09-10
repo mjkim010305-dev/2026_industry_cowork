@@ -59,6 +59,15 @@
                        max_effort="0.0"
                        server_timeout="5.0"
                        step_timeout="15.0"/>
+      <!-- <FixedPickObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                       gripper_action_name="/gripper_controller/gripper_cmd"
+                       arm_joint_names="joint1,joint2,joint3,joint4"
+                       arm_move_time="3.0"
+                       open_position="0.02501155674647538"
+                       grasp_position="0.002"
+                       max_effort="0.0"
+                       server_timeout="5.0"
+                       step_timeout="15.0"/> -->
 
       <RecoveryNode number_of_retries="6" name="NavigateRecovery">
         <PipelineSequence name="NavigateWithReplanning">

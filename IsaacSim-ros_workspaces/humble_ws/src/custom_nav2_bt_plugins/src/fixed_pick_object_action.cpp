@@ -78,7 +78,12 @@ BT::NodeStatus FixedPickObjectAction::onStart()
   getInput("gripper_action_name", gripper_action_name_);
   std::string joint_names_str;
   getInput("arm_joint_names", joint_names_str);
-  arm_joint_names_ = BT::convertFromString<std::vector<std::string>>(joint_names_str);
+  // arm_joint_names_ = BT::convertFromString<std::vector<std::string>>(joint_names_str);
+  const auto parts = BT::splitString(joint_names_str, ';');
+  arm_joint_names_.clear();
+  for (const auto & p : parts) {
+    arm_joint_names_.push_back(std::string(p));
+  }
   getInput("arm_move_time", arm_move_time_);
   getInput("open_position", open_position_);
   getInput("grasp_position", grasp_position_);
