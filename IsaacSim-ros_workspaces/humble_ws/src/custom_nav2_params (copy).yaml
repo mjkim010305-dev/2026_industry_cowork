@@ -111,6 +111,9 @@ bt_navigator:
       # custom_nav2_bt_plugins: perception-decoupled gate + pose lock (task 2)
       - custom_is_obstacle_tracking_condition_bt_node
       - custom_lock_approach_pose_action_bt_node
+      # custom_nav2_bt_plugins: fixed-coordinate goal + on-demand place (place_object_example.xml)
+      - custom_set_fixed_goal_action_bt_node
+      - custom_place_object_action_bt_node
 
 bt_navigator_navigate_through_poses_rclcpp_node:
   ros__parameters:

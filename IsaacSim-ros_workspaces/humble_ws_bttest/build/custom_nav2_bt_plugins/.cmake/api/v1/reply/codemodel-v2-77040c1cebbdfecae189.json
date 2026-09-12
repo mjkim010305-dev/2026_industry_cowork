@@ -1,0 +1,169 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-d52648b2039e53c8e067.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "custom_nav2_bt_plugins",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_approach_obstacle_normal_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_approach_obstacle_normal_action_bt_node-f2c09a5740717065194f.json",
+					"name" : "custom_approach_obstacle_normal_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_capture_initial_path_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_capture_initial_path_action_bt_node-e1dbd164dbe5e0368077.json",
+					"name" : "custom_capture_initial_path_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_fixed_pick_object_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_fixed_pick_object_action_bt_node-e10b1e8e730eee1d378c.json",
+					"name" : "custom_fixed_pick_object_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_is_movable_obstacle_detected_condition_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_is_movable_obstacle_detected_condition_bt_node-5e721d2a2bd0df15dcd9.json",
+					"name" : "custom_is_movable_obstacle_detected_condition_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_is_obstacle_tracking_condition_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_is_obstacle_tracking_condition_bt_node-016eca314326b79c1988.json",
+					"name" : "custom_is_obstacle_tracking_condition_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_lock_approach_pose_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_lock_approach_pose_action_bt_node-ef9b781d7f32d1cf40fe.json",
+					"name" : "custom_lock_approach_pose_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_movable_obstacle_localizers::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_movable_obstacle_localizers-30c08df3260010c86aa7.json",
+					"name" : "custom_movable_obstacle_localizers",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_nav2_bt_plugins_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_nav2_bt_plugins_uninstall-16c5bdd5fdac52592983.json",
+					"name" : "custom_nav2_bt_plugins_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_place_object_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_place_object_action_bt_node-962485391957f2ab7c88.json",
+					"name" : "custom_place_object_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_set_fixed_goal_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_set_fixed_goal_action_bt_node-e03188c30793b7c73beb.json",
+					"name" : "custom_set_fixed_goal_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_wait_for_obstacle_clearance_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_wait_for_obstacle_clearance_action_bt_node-0f5323c675bd826f6450.json",
+					"name" : "custom_wait_for_obstacle_clearance_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "rgbd_obstacle_localizer::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-rgbd_obstacle_localizer-39f473194d6c4a7f94b2.json",
+					"name" : "rgbd_obstacle_localizer",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-5038b361f7d7503ef912.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/build/custom_nav2_bt_plugins",
+		"source" : "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/src/custom_nav2_bt_plugins"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

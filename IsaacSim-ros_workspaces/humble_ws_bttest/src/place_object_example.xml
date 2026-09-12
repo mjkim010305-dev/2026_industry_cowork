@@ -1,0 +1,60 @@
+<!--
+  Standalone "go to a fixed map coordinate, then place the carried object" tree.
+
+  This is NOT loaded automatically - it is a separate BT XML file, kept out of
+  custom_bt_manipulator.xml's MainTree on purpose so it never runs unless you
+  ask for it. Trigger it whenever you want by pointing a single NavigateToPose
+  goal's `behavior_tree` field at this file's absolute path: Nav2 loads that
+  file's main tree for just this one goal instead of bt_navigator's
+  default_nav_to_pose_bt_xml.
+
+    ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
+      "{pose: {header: {frame_id: map}, \
+               pose: {position: {x: 0.0, y: 0.0}, orientation: {w: 1.0}}}, \
+        behavior_tree: '/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/place_object_example.xml'}"
+
+  The `pose` in that goal is NOT used for navigation here (SetFixedGoal below
+  overrides the actual target) - the action still requires one, so any valid
+  pose works. Edit the x/y/yaw on <SetFixedGoal> to the real drop-off
+  coordinate before using this.
+
+  Requires plugin_lib_names (see custom_nav2_params (copy).yaml) to include:
+    custom_set_fixed_goal_action_bt_node
+    custom_place_object_action_bt_node
+  plus the core nav2 planner/controller/costmap-clear BT nodes already used by
+  custom_bt_manipulator.xml.
+
+  Uses {place_goal}/{place_path} blackboard keys (not {goal}/{path}) so it
+  never collides with the outer NavigateToPose request's own goal, in case
+  this subtree is ever pasted into a larger tree instead of run standalone.
+-->
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <Sequence name="GoToCoordinateThenPlace">
+
+      <SetFixedGoal x="2.0" y="1.0" yaw="0.0" frame="map" goal="{place_goal}"/>
+
+      <RecoveryNode number_of_retries="1" name="ComputePathToPlace">
+        <ComputePathToPose goal="{place_goal}" path="{place_path}" planner_id="GridBased"/>
+        <ClearEntireCostmap name="ClearGlobalCostmap-Place"
+                            service_name="global_costmap/clear_entirely_global_costmap"/>
+      </RecoveryNode>
+
+      <FollowPath path="{place_path}" controller_id="FollowPath"/>
+
+      <ClearEntireCostmap name="ClearLocalCostmap-Place"
+                          service_name="local_costmap/clear_entirely_local_costmap"/>
+
+      <PlaceObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                   gripper_action_name="/gripper_controller/gripper_cmd"
+                   arm_joint_names="joint1;joint2;joint3;joint4"
+                   arm_move_time="3.0"
+                   open_position="0.02501155674647538"
+                   max_effort="0.0"
+                   server_timeout="5.0"
+                   step_timeout="15.0"
+                   post_open_delay="1.0"/>
+
+    </Sequence>
+  </BehaviorTree>
+</root>

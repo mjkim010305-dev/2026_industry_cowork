@@ -96,6 +96,27 @@ ament_target_dependencies(custom_lock_approach_pose_action_bt_node
 target_compile_definitions(custom_lock_approach_pose_action_bt_node
   PRIVATE BT_PLUGIN_EXPORT)
 
+# ---------------------------------------------------------------------------
+# BT plugin: SetFixedGoal (sync action) - XML-literal map coordinate -> goal
+# ---------------------------------------------------------------------------
+add_library(custom_set_fixed_goal_action_bt_node SHARED
+  src/set_fixed_goal_action.cpp)
+ament_target_dependencies(custom_set_fixed_goal_action_bt_node
+  rclcpp behaviortree_cpp_v3 nav2_behavior_tree geometry_msgs)
+target_compile_definitions(custom_set_fixed_goal_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
+# ---------------------------------------------------------------------------
+# BT plugin: PlaceObject (stateful action) - one-shot fixed place sequence
+# ---------------------------------------------------------------------------
+add_library(custom_place_object_action_bt_node SHARED
+  src/place_object_action.cpp)
+ament_target_dependencies(custom_place_object_action_bt_node
+  rclcpp rclcpp_action behaviortree_cpp_v3 nav2_behavior_tree
+  control_msgs trajectory_msgs)
+target_compile_definitions(custom_place_object_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
 set(bt_plugin_libs
   custom_is_movable_obstacle_detected_condition_bt_node
   custom_wait_for_obstacle_clearance_action_bt_node
@@ -104,6 +125,8 @@ set(bt_plugin_libs
   custom_fixed_pick_object_action_bt_node
   custom_is_obstacle_tracking_condition_bt_node
   custom_lock_approach_pose_action_bt_node
+  custom_set_fixed_goal_action_bt_node
+  custom_place_object_action_bt_node
 )
 
 # ---------------------------------------------------------------------------

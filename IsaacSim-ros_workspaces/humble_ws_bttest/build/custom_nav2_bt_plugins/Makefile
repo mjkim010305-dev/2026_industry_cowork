@@ -289,6 +289,32 @@ custom_lock_approach_pose_action_bt_node/fast:
 .PHONY : custom_lock_approach_pose_action_bt_node/fast
 
 #=============================================================================
+# Target rules for targets named custom_set_fixed_goal_action_bt_node
+
+# Build rule for target.
+custom_set_fixed_goal_action_bt_node: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_set_fixed_goal_action_bt_node
+.PHONY : custom_set_fixed_goal_action_bt_node
+
+# fast build rule for target.
+custom_set_fixed_goal_action_bt_node/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_set_fixed_goal_action_bt_node.dir/build.make CMakeFiles/custom_set_fixed_goal_action_bt_node.dir/build
+.PHONY : custom_set_fixed_goal_action_bt_node/fast
+
+#=============================================================================
+# Target rules for targets named custom_place_object_action_bt_node
+
+# Build rule for target.
+custom_place_object_action_bt_node: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_place_object_action_bt_node
+.PHONY : custom_place_object_action_bt_node
+
+# fast build rule for target.
+custom_place_object_action_bt_node/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_place_object_action_bt_node.dir/build.make CMakeFiles/custom_place_object_action_bt_node.dir/build
+.PHONY : custom_place_object_action_bt_node/fast
+
+#=============================================================================
 # Target rules for targets named custom_movable_obstacle_localizers
 
 # Build rule for target.
@@ -482,6 +508,30 @@ src/lock_approach_pose_action.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_lock_approach_pose_action_bt_node.dir/build.make CMakeFiles/custom_lock_approach_pose_action_bt_node.dir/src/lock_approach_pose_action.cpp.s
 .PHONY : src/lock_approach_pose_action.cpp.s
 
+src/place_object_action.o: src/place_object_action.cpp.o
+.PHONY : src/place_object_action.o
+
+# target to build an object file
+src/place_object_action.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_place_object_action_bt_node.dir/build.make CMakeFiles/custom_place_object_action_bt_node.dir/src/place_object_action.cpp.o
+.PHONY : src/place_object_action.cpp.o
+
+src/place_object_action.i: src/place_object_action.cpp.i
+.PHONY : src/place_object_action.i
+
+# target to preprocess a source file
+src/place_object_action.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_place_object_action_bt_node.dir/build.make CMakeFiles/custom_place_object_action_bt_node.dir/src/place_object_action.cpp.i
+.PHONY : src/place_object_action.cpp.i
+
+src/place_object_action.s: src/place_object_action.cpp.s
+.PHONY : src/place_object_action.s
+
+# target to generate assembly for a file
+src/place_object_action.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_place_object_action_bt_node.dir/build.make CMakeFiles/custom_place_object_action_bt_node.dir/src/place_object_action.cpp.s
+.PHONY : src/place_object_action.cpp.s
+
 src/rgbd_obstacle_localizer_node.o: src/rgbd_obstacle_localizer_node.cpp.o
 .PHONY : src/rgbd_obstacle_localizer_node.o
 
@@ -505,6 +555,30 @@ src/rgbd_obstacle_localizer_node.s: src/rgbd_obstacle_localizer_node.cpp.s
 src/rgbd_obstacle_localizer_node.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rgbd_obstacle_localizer.dir/build.make CMakeFiles/rgbd_obstacle_localizer.dir/src/rgbd_obstacle_localizer_node.cpp.s
 .PHONY : src/rgbd_obstacle_localizer_node.cpp.s
+
+src/set_fixed_goal_action.o: src/set_fixed_goal_action.cpp.o
+.PHONY : src/set_fixed_goal_action.o
+
+# target to build an object file
+src/set_fixed_goal_action.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_set_fixed_goal_action_bt_node.dir/build.make CMakeFiles/custom_set_fixed_goal_action_bt_node.dir/src/set_fixed_goal_action.cpp.o
+.PHONY : src/set_fixed_goal_action.cpp.o
+
+src/set_fixed_goal_action.i: src/set_fixed_goal_action.cpp.i
+.PHONY : src/set_fixed_goal_action.i
+
+# target to preprocess a source file
+src/set_fixed_goal_action.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_set_fixed_goal_action_bt_node.dir/build.make CMakeFiles/custom_set_fixed_goal_action_bt_node.dir/src/set_fixed_goal_action.cpp.i
+.PHONY : src/set_fixed_goal_action.cpp.i
+
+src/set_fixed_goal_action.s: src/set_fixed_goal_action.cpp.s
+.PHONY : src/set_fixed_goal_action.s
+
+# target to generate assembly for a file
+src/set_fixed_goal_action.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_set_fixed_goal_action_bt_node.dir/build.make CMakeFiles/custom_set_fixed_goal_action_bt_node.dir/src/set_fixed_goal_action.cpp.s
+.PHONY : src/set_fixed_goal_action.cpp.s
 
 src/wait_for_obstacle_clearance_action.o: src/wait_for_obstacle_clearance_action.cpp.o
 .PHONY : src/wait_for_obstacle_clearance_action.o
@@ -552,6 +626,8 @@ help:
 	@echo "... custom_is_obstacle_tracking_condition_bt_node"
 	@echo "... custom_lock_approach_pose_action_bt_node"
 	@echo "... custom_movable_obstacle_localizers"
+	@echo "... custom_place_object_action_bt_node"
+	@echo "... custom_set_fixed_goal_action_bt_node"
 	@echo "... custom_wait_for_obstacle_clearance_action_bt_node"
 	@echo "... rgbd_obstacle_localizer"
 	@echo "... src/approach_obstacle_normal_action.o"
@@ -575,9 +651,15 @@ help:
 	@echo "... src/lock_approach_pose_action.o"
 	@echo "... src/lock_approach_pose_action.i"
 	@echo "... src/lock_approach_pose_action.s"
+	@echo "... src/place_object_action.o"
+	@echo "... src/place_object_action.i"
+	@echo "... src/place_object_action.s"
 	@echo "... src/rgbd_obstacle_localizer_node.o"
 	@echo "... src/rgbd_obstacle_localizer_node.i"
 	@echo "... src/rgbd_obstacle_localizer_node.s"
+	@echo "... src/set_fixed_goal_action.o"
+	@echo "... src/set_fixed_goal_action.i"
+	@echo "... src/set_fixed_goal_action.s"
 	@echo "... src/wait_for_obstacle_clearance_action.o"
 	@echo "... src/wait_for_obstacle_clearance_action.i"
 	@echo "... src/wait_for_obstacle_clearance_action.s"
