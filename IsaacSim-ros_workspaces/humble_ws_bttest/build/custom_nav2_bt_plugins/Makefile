@@ -315,6 +315,19 @@ custom_place_object_action_bt_node/fast:
 .PHONY : custom_place_object_action_bt_node/fast
 
 #=============================================================================
+# Target rules for targets named custom_topic_trigger_condition_bt_node
+
+# Build rule for target.
+custom_topic_trigger_condition_bt_node: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_topic_trigger_condition_bt_node
+.PHONY : custom_topic_trigger_condition_bt_node
+
+# fast build rule for target.
+custom_topic_trigger_condition_bt_node/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_topic_trigger_condition_bt_node.dir/build.make CMakeFiles/custom_topic_trigger_condition_bt_node.dir/build
+.PHONY : custom_topic_trigger_condition_bt_node/fast
+
+#=============================================================================
 # Target rules for targets named custom_movable_obstacle_localizers
 
 # Build rule for target.
@@ -580,6 +593,30 @@ src/set_fixed_goal_action.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_set_fixed_goal_action_bt_node.dir/build.make CMakeFiles/custom_set_fixed_goal_action_bt_node.dir/src/set_fixed_goal_action.cpp.s
 .PHONY : src/set_fixed_goal_action.cpp.s
 
+src/topic_trigger_condition.o: src/topic_trigger_condition.cpp.o
+.PHONY : src/topic_trigger_condition.o
+
+# target to build an object file
+src/topic_trigger_condition.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_topic_trigger_condition_bt_node.dir/build.make CMakeFiles/custom_topic_trigger_condition_bt_node.dir/src/topic_trigger_condition.cpp.o
+.PHONY : src/topic_trigger_condition.cpp.o
+
+src/topic_trigger_condition.i: src/topic_trigger_condition.cpp.i
+.PHONY : src/topic_trigger_condition.i
+
+# target to preprocess a source file
+src/topic_trigger_condition.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_topic_trigger_condition_bt_node.dir/build.make CMakeFiles/custom_topic_trigger_condition_bt_node.dir/src/topic_trigger_condition.cpp.i
+.PHONY : src/topic_trigger_condition.cpp.i
+
+src/topic_trigger_condition.s: src/topic_trigger_condition.cpp.s
+.PHONY : src/topic_trigger_condition.s
+
+# target to generate assembly for a file
+src/topic_trigger_condition.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_topic_trigger_condition_bt_node.dir/build.make CMakeFiles/custom_topic_trigger_condition_bt_node.dir/src/topic_trigger_condition.cpp.s
+.PHONY : src/topic_trigger_condition.cpp.s
+
 src/wait_for_obstacle_clearance_action.o: src/wait_for_obstacle_clearance_action.cpp.o
 .PHONY : src/wait_for_obstacle_clearance_action.o
 
@@ -628,6 +665,7 @@ help:
 	@echo "... custom_movable_obstacle_localizers"
 	@echo "... custom_place_object_action_bt_node"
 	@echo "... custom_set_fixed_goal_action_bt_node"
+	@echo "... custom_topic_trigger_condition_bt_node"
 	@echo "... custom_wait_for_obstacle_clearance_action_bt_node"
 	@echo "... rgbd_obstacle_localizer"
 	@echo "... src/approach_obstacle_normal_action.o"
@@ -660,6 +698,9 @@ help:
 	@echo "... src/set_fixed_goal_action.o"
 	@echo "... src/set_fixed_goal_action.i"
 	@echo "... src/set_fixed_goal_action.s"
+	@echo "... src/topic_trigger_condition.o"
+	@echo "... src/topic_trigger_condition.i"
+	@echo "... src/topic_trigger_condition.s"
 	@echo "... src/wait_for_obstacle_clearance_action.o"
 	@echo "... src/wait_for_obstacle_clearance_action.i"
 	@echo "... src/wait_for_obstacle_clearance_action.s"

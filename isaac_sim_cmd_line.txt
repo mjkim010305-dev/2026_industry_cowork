@@ -8,16 +8,21 @@ ros2 launch turtlebot3_manipulation_moveit_config move_group.launch.py
 Moveit Rviz launcher
 ros2 launch turtlebot3_manipulation_moveit_config moveit_rviz.launch.py
 
+bridge
+python3 moveit_to_isaac_bridge.py --ros-args \
+  -p use_sim_time:=true \
+  -p relay_joint_states:=false \
+  -p isaac_state_topic:=/joint_states \
+  -p isaac_command_topic:=/joint_commands
+
 Nav2 launcher
 ros2 launch nav2_bringup bringup_launch.py   use_sim_time:=true   map:=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/2_obs.yaml   params_file:="/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_params (copy).yaml"
 
 Nav2 Rviz launcher
 ros2 launch nav2_bringup rviz_launch.py
 
-moveit_to_isaac_bridge node
-python3 moveit_to_isaac_bridge.py --ros-args   -p use_sim_time:=true   -p isaac_command_topic:=/joint_commands   -p isaac_state_topic:=/joint_states   -p relay_joint_states:=false
 
-depth frame subscriber node test
+subscriber node test
 ros2 launch custom_nav2_bt_plugins rgbd_obstacle_localizer.launch.py depth_topic:=/depth_camera camera_info_topic:=/front_camera_info
 
 publish 1 for test
@@ -28,3 +33,16 @@ ros2 topic pub -r 2 /obstacle/still_present std_msgs/msg/Bool '{data: true}'
 
 teleop
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
+
+
+hard coding용, 초기 물체와 tb3의 좌표 기록 (추가로 지게차 이름은 froklift)
+물체 : 0.2924, -0.00558, -0.06624
+tb3 : 0.0, 0.0, 0.1383 → -2.83124, -21.27733, -0.1383
+
+demo hard coding
+30.52300, -3.26110 (물체 놔둘 곳)
+30.52300, -3.26110 (장애물 집을 곳)
+26.8, -2.44 (장애물 놔둘 곳)
+
+demo용 topic 발생기
+ros2 topic pub -r 10 -t 10 /place_request std_msgs/msg/Bool “{data: trie}”

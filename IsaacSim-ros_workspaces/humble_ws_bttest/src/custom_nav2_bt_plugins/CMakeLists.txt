@@ -117,6 +117,16 @@ ament_target_dependencies(custom_place_object_action_bt_node
 target_compile_definitions(custom_place_object_action_bt_node
   PRIVATE BT_PLUGIN_EXPORT)
 
+# ---------------------------------------------------------------------------
+# BT plugin: TopicTrigger (condition) - generic "fire once on command" gate
+# ---------------------------------------------------------------------------
+add_library(custom_topic_trigger_condition_bt_node SHARED
+  src/topic_trigger_condition.cpp)
+ament_target_dependencies(custom_topic_trigger_condition_bt_node
+  rclcpp behaviortree_cpp_v3 nav2_behavior_tree std_msgs)
+target_compile_definitions(custom_topic_trigger_condition_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
 set(bt_plugin_libs
   custom_is_movable_obstacle_detected_condition_bt_node
   custom_wait_for_obstacle_clearance_action_bt_node
@@ -127,6 +137,7 @@ set(bt_plugin_libs
   custom_lock_approach_pose_action_bt_node
   custom_set_fixed_goal_action_bt_node
   custom_place_object_action_bt_node
+  custom_topic_trigger_condition_bt_node
 )
 
 # ---------------------------------------------------------------------------

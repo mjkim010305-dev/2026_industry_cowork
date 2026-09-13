@@ -1,11 +1,17 @@
 amcl:
   ros__parameters:
     use_sim_time: True
-    alpha1: 0.2
-    alpha2: 0.2
-    alpha3: 0.2
-    alpha4: 0.2
-    alpha5: 0.2
+    # was 0.2 / 0.2 / 0.2 / 0.2 -> lowered to 0.1: AMCL covariance was observed growing
+    # (not shrinking) across samples; 0.2 overestimates odom motion noise given the sim
+    # bridge's odom is fairly accurate, so particles were spreading faster than the
+    # (already weak, see max_beams below) laser correction could pull them back in.
+    alpha1: 0.1
+    alpha2: 0.1
+    alpha3: 0.1
+    alpha4: 0.1
+    # was 0.2 -> lowered to 0.05: same reasoning as alpha1-4, applied to the
+    # rotation-induced translation noise term specifically.
+    alpha5: 0.05
     base_frame_id: "base_footprint"
     beam_skip_distance: 0.5
     beam_skip_error_threshold: 0.9
@@ -17,22 +23,35 @@ amcl:
     laser_max_range: 100.0
     laser_min_range: -1.0
     laser_model_type: "likelihood_field"
-    max_beams: 60
+    # was 60 -> raised to 200: /scan has a ~155 degree (~45% of 1066 beams) contiguous
+    # invalid/blind arc (range -1.0, roughly behind the robot). AMCL subsamples
+    # max_beams evenly across the full scan, so most of the 60 picked beams were
+    # landing in the blind arc and contributing no real correction information.
+    # Raising the count compensates so enough beams still land in the valid ~205 degrees.
+    max_beams: 200
     max_particles: 2000
     min_particles: 500
     odom_frame_id: "odom"
     pf_err: 0.05
     pf_z: 0.99
-    recovery_alpha_fast: 0.0
-    recovery_alpha_slow: 0.0
+    # was 0.0 / 0.0 -> enabled Augmented MCL recovery (fast 0.1, slow 0.001): with both
+    # at 0.0, AMCL has no mechanism to inject random particles when average likelihood
+    # drops, so once the filter starts diverging (as observed: covariance climbing
+    # across two consecutive /amcl_pose samples) it has no way to recover on its own.
+    recovery_alpha_fast: 0.1
+    recovery_alpha_slow: 0.001
     resample_interval: 1
     robot_model_type: "nav2_amcl::DifferentialMotionModel"
     save_pose_rate: 0.5
     sigma_hit: 0.2
     tf_broadcast: true
     transform_tolerance: 1.0
-    update_min_a: 0.2
-    update_min_d: 0.25
+    # was 0.2 rad (~11.5 deg) / 0.25 m -> lowered to 0.1 / 0.1: with alpha1-5 causing
+    # particle spread between updates, correcting more frequently (smaller motion
+    # thresholds before AMCL re-runs the laser update) limits how far particles can
+    # drift apart before being pulled back in.
+    update_min_a: 0.1
+    update_min_d: 0.1
     z_hit: 0.5
     z_max: 0.05
     z_rand: 0.5
@@ -114,6 +133,8 @@ bt_navigator:
       # custom_nav2_bt_plugins: fixed-coordinate goal + on-demand place (place_object_example.xml)
       - custom_set_fixed_goal_action_bt_node
       - custom_place_object_action_bt_node
+      # custom_nav2_bt_plugins: topic-triggered on-demand branch (demo.xml PlaceOnCommand)
+      - custom_topic_trigger_condition_bt_node
 
 bt_navigator_navigate_through_poses_rclcpp_node:
   ros__parameters:
@@ -139,7 +160,14 @@ controller_server:
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
       required_movement_radius: 0.5
-      movement_time_allowance: 10.0
+      # was 10.0 -> raised to 25.0: SimpleProgressChecker only counts translational
+      # movement, but the FollowPath "RotateToGoal" critic intentionally zeroes linear
+      # velocity to rotate in place once the robot is within xy_goal_tolerance of a
+      # goal. Sim log showed a spot-goal FollowPath failing with "Failed to make
+      # progress" after 33s (not immediately at 10s), consistent with the robot
+      # actually reaching the goal area then stalling during the rotate-in-place
+      # alignment phase and getting killed by this timer before it could finish.
+      movement_time_allowance: 25.0
     # Goal checker parameters
     #precise_goal_checker:
     #  plugin: "nav2_controller::SimpleGoalChecker"

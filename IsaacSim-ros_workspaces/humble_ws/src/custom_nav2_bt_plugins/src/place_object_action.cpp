@@ -54,11 +54,11 @@ void PlaceObjectAction::buildSequence()
   // geometry as picking it up. Only the base pose (handled upstream, e.g.
   // SetFixedGoal + ComputePathToPose/FollowPath) differs between the pick and
   // place locations.
-  const std::array<double, 4> P_PRE_PLACE {{-0.019941750242513337, 0.8375535101855601,
+  const std::array<double, 4> P_PRE_PLACE {{-0.019941750242513337 - 1.5707963268, 0.8375535101855601,
       -0.12578642460662257, -0.8436894333371027}};
-  const std::array<double, 4> P_PLACE     {{-0.02454369260617026, 1.2885438618239387,
+  const std::array<double, 4> P_PLACE     {{-0.02454369260617026 - 1.5707963268, 1.2885438618239387,
       -0.7731263170943632, -0.4816699673960913}};
-  const std::array<double, 4> P_HOME      {{-0.0015339807878856412, -1.0461748973380072,
+  const std::array<double, 4> P_HOME      {{-0.0015339807878856412 - 1.5707963268, -1.0461748973380072,
       1.0753205323078345, 0.009203884727313847}};
 
   const std::array<double, 4> none {{0.0, 0.0, 0.0, 0.0}};

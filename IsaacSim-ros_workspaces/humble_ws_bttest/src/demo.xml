@@ -1,0 +1,289 @@
+<!--
+  Pick-first navigate-to-pose tree, plus an on-demand "go to a fixed spot and
+  place" branch triggered by a topic.
+
+  MainTree = ReactiveFallback[ PlaceOnCommand, PickThenNavigate ]:
+    * Every tick, PlaceOnCommand is checked FIRST (ReactiveFallback re-ticks
+      from the top every time, unlike a plain Sequence/Fallback). While its
+      TopicTrigger hasn't fired, it fails immediately (cheap) and the
+      fallback falls through to PickThenNavigate as usual - the initial pick
+      and normal navigation proceed untouched.
+    * The moment /place_request goes false->true (while driving toward the
+      original goal, carrying the object picked up at the very start),
+      TopicTrigger fires once and PlaceOnCommand takes over. Because it now
+      out-ranks PickThenNavigate in the ReactiveFallback, it PREEMPTS
+      whatever PickThenNavigate was doing (its RUNNING nodes - e.g. the
+      in-flight FollowPath - are halted/canceled) and runs a 5-leg detour:
+        Leg 1: go to spot A, PlaceObject   (put the carried object down)
+        Leg 2: go to spot B, FixedPickObject (pick up the obstacle there)
+        Leg 3: go to spot C, PlaceObject   (drop the obstacle out of the way
+                                             - this is what actually clears
+                                             the original path)
+        Leg 4: go BACK to spot A, FixedPickObject (pick the first object
+                                                    back up - gripper is
+                                                    free again after leg 3)
+        Leg 5: FollowPath {initial_path}   (resume the very first path,
+                                             latched by CaptureInitialPath
+                                             at the start of navigation -
+                                             same resume pattern as
+                                             ApproachThenResume below, no
+                                             fresh planning)
+      If PlaceOnCommand SUCCEEDS (leg 5 finishes), the ReactiveFallback - and
+      therefore the whole NavigateToPose action - succeeds right there; it
+      never falls back to PickThenNavigate again for this goal.
+    * CAVEAT: if any leg FAILS (e.g. ComputePathToPose to spot B/C can't find
+      a path), PlaceOnCommand fails, and the fallback drops back to
+      PickThenNavigate - which, since it was halted mid-flight, restarts
+      from FixedPickObject rather than resuming where it left off. Acceptable
+      as a "give up on the detour, just keep doing the original mission"
+      fallback, but be aware a failed detour costs you a redundant pick.
+    * EDIT before using: spot A's coordinate (used by both Leg 1 and Leg 4 -
+      keep them identical) is already set; spot B (the obstacle) and spot C
+      (the obstacle's drop-off point) are placeholders below and MUST be
+      edited to real map coordinates.
+    * Fire it with (the -1 flag sends exactly one message, then exits):
+        ros2 topic pub -1 /place_request std_msgs/msg/Bool "{data: true}"
+
+  PickThenNavigate (memory Sequence):
+    1. FixedPickObject - runs ONCE at the very start, before ComputePathToPose.
+       Ported from fixed_pick_place.py::run_pick: drives the 4-DOF arm
+       (FollowJointTrajectory) and gripper (GripperCommand) through a fixed
+       joint-space sequence to pick up the object directly in front of the
+       robot and hold it in a carry pose. Non-blocking (StatefulActionNode),
+       so bt_navigator keeps ticking while the arm moves.
+       If the pick FAILS, the whole navigate goal fails - wrap the node in
+       <ForceSuccess> if you would rather drive on regardless.
+    2. NavigateRecovery - the existing navigate-to-pose tree with replanning,
+       recovery, and movable-obstacle handling (unchanged).
+
+  Movable-obstacle handling (unchanged from custom_bt (copy).xml):
+    * A VLM (outside this package) publishes two std_msgs/Bool topics:
+        /obstacle/is_movable     - the blocker is a movable obstacle
+        /obstacle/still_present  - that obstacle is still there
+    * `rgbd_obstacle_localizer` publishes the obstacle pose in the map frame on
+      /movable_obstacle/pose (only while is_movable is true). Its orientation is
+      the estimated surface normal once perception fills it in; until then it is
+      an identity quaternion.
+    * CaptureInitialPath latches the FIRST global path for the goal.
+    * ApproachObstacleNormal drives a short straight path to `standoff_distance`
+      in front of the on-path obstacle. When /movable_obstacle/pose carries a
+      real orientation it stops 0.2 m out along the surface normal and faces the
+      obstacle; otherwise it falls back to the initial-path tangent (unchanged
+      legacy behaviour).
+    * WaitForObstacleClearance holds there until /obstacle/still_present is
+      false, then the costmaps are wiped and the robot resumes {initial_path}.
+
+  Perception is decoupled from the tick loop (design doc
+  bt_perception_stabilizer_design.md):
+    * The perception_stabilizer node (custom_nav2_bt_plugins) runs on its own,
+      accumulating depth points, running PCA for the surface normal, and driving
+      an IDLE/CANDIDATE/TRACKING state machine with time-window hysteresis. It
+      publishes /perception_state (String), /obstacle_pose_stable (PoseStamped
+      with the normal yaw) and /obstacle_pose_confidence (Float32).
+    * IsObstacleTracking gates the branch on /perception_state == TRACKING, and
+      transparently falls back to the legacy /obstacle/is_movable Bool when the
+      stabilizer is not running.
+    * LockApproachPose freezes ONE /obstacle_pose_stable sample the moment the
+      branch commits (require_orientation=true -> waits for a converged normal)
+      and re-emits it every tick; ApproachObstacleNormal consumes that frozen
+      pose ({locked_obstacle_pose}), so the approach goal never drifts with
+      perception noise and a dropout mid-approach cannot abort the branch.
+-->
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <ReactiveFallback name="PlaceOnCommandOrPickThenNavigate">
+
+      <Sequence name="PlaceOnCommand">
+        <TopicTrigger topic="/place_request"/>
+
+        <!-- ============================================================
+             Leg 1: go to spot A, put down the object we are carrying.
+             ============================================================ -->
+        <SetFixedGoal x="29.7" y="-3.54" yaw="0.00143" frame="map" goal="{spot_a_goal}"/>
+        <RecoveryNode number_of_retries="1" name="ComputePathToSpotA-Drop">
+          <ComputePathToPose goal="{spot_a_goal}" path="{spot_a_path}" planner_id="GridBased"/>
+          <ClearEntireCostmap name="ClearGlobalCostmap-SpotA-Drop"
+                              service_name="global_costmap/clear_entirely_global_costmap"/>
+        </RecoveryNode>
+        <FollowPath path="{spot_a_path}" controller_id="FollowPath"/>
+        <ClearEntireCostmap name="ClearLocalCostmap-SpotA-Drop"
+                            service_name="local_costmap/clear_entirely_local_costmap"/>
+        <PlaceObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                     gripper_action_name="/gripper_controller/gripper_cmd"
+                     arm_joint_names="joint1;joint2;joint3;joint4"
+                     arm_move_time="3.0"
+                     open_position="0.02501155674647538"
+                     max_effort="0.0"
+                     server_timeout="5.0"
+                     step_timeout="15.0"
+                     post_open_delay="1.0"/>
+
+        <!-- ============================================================
+             Leg 2: go to spot B (the obstacle), pick it up.
+             EDIT x/y to the obstacle's real map coordinate.
+             ============================================================ -->
+        <SetFixedGoal x="10.0" y="10.0" yaw="0.0" frame="map" goal="{spot_b_goal}"/>
+        <RecoveryNode number_of_retries="1" name="ComputePathToSpotB">
+          <ComputePathToPose goal="{spot_b_goal}" path="{spot_b_path}" planner_id="GridBased"/>
+          <ClearEntireCostmap name="ClearGlobalCostmap-SpotB"
+                              service_name="global_costmap/clear_entirely_global_costmap"/>
+        </RecoveryNode>
+        <FollowPath path="{spot_b_path}" controller_id="FollowPath"/>
+        <ClearEntireCostmap name="ClearLocalCostmap-SpotB"
+                            service_name="local_costmap/clear_entirely_local_costmap"/>
+        <FixedPickObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                         gripper_action_name="/gripper_controller/gripper_cmd"
+                         arm_joint_names="joint1;joint2;joint3;joint4"
+                         arm_move_time="3.0"
+                         open_position="0.02501155674647538"
+                         grasp_position="0.002"
+                         max_effort="0.0002"
+                         server_timeout="5.0"
+                         step_timeout="15.0"/>
+
+        <!-- ============================================================
+             Leg 3: go to spot C (out of the way), put the obstacle down
+             there - this is what actually clears the original path.
+             EDIT x/y to a real, clear drop location.
+             ============================================================ -->
+        <SetFixedGoal x="15.0" y="15.0" yaw="0.0" frame="map" goal="{spot_c_goal}"/>
+        <RecoveryNode number_of_retries="1" name="ComputePathToSpotC">
+          <ComputePathToPose goal="{spot_c_goal}" path="{spot_c_path}" planner_id="GridBased"/>
+          <ClearEntireCostmap name="ClearGlobalCostmap-SpotC"
+                              service_name="global_costmap/clear_entirely_global_costmap"/>
+        </RecoveryNode>
+        <FollowPath path="{spot_c_path}" controller_id="FollowPath"/>
+        <ClearEntireCostmap name="ClearLocalCostmap-SpotC"
+                            service_name="local_costmap/clear_entirely_local_costmap"/>
+        <PlaceObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                     gripper_action_name="/gripper_controller/gripper_cmd"
+                     arm_joint_names="joint1;joint2;joint3;joint4"
+                     arm_move_time="3.0"
+                     open_position="0.02501155674647538"
+                     max_effort="0.0"
+                     server_timeout="5.0"
+                     step_timeout="15.0"
+                     post_open_delay="1.0"/>
+
+        <!-- ============================================================
+             Leg 4: go back to spot A, pick the first object back up.
+             Same coordinate as Leg 1 - keep them in sync if you edit one.
+             ============================================================ -->
+        <SetFixedGoal x="29.7" y="-3.54" yaw="0.00143" frame="map" goal="{spot_a_goal}"/>
+        <RecoveryNode number_of_retries="1" name="ComputePathToSpotA-Repick">
+          <ComputePathToPose goal="{spot_a_goal}" path="{spot_a_path}" planner_id="GridBased"/>
+          <ClearEntireCostmap name="ClearGlobalCostmap-SpotA-Repick"
+                              service_name="global_costmap/clear_entirely_global_costmap"/>
+        </RecoveryNode>
+        <FollowPath path="{spot_a_path}" controller_id="FollowPath"/>
+        <ClearEntireCostmap name="ClearLocalCostmap-SpotA-Repick"
+                            service_name="local_costmap/clear_entirely_local_costmap"/>
+        <FixedPickObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                         gripper_action_name="/gripper_controller/gripper_cmd"
+                         arm_joint_names="joint1;joint2;joint3;joint4"
+                         arm_move_time="3.0"
+                         open_position="0.02501155674647538"
+                         grasp_position="0.002"
+                         max_effort="0.0002"
+                         server_timeout="5.0"
+                         step_timeout="15.0"/>
+
+        <!-- ============================================================
+             Leg 5: resume the VERY FIRST path ({initial_path}, latched by
+             CaptureInitialPath the moment the original nav goal started) -
+             no fresh planning, same resume pattern as ApproachThenResume
+             below.
+             ============================================================ -->
+        <ClearEntireCostmap name="ClearLocalCostmap-ResumeInitial"
+                            service_name="local_costmap/clear_entirely_local_costmap"/>
+        <ClearEntireCostmap name="ClearGlobalCostmap-ResumeInitial"
+                            service_name="global_costmap/clear_entirely_global_costmap"/>
+        <FollowPath path="{initial_path}" controller_id="FollowPath"/>
+      </Sequence>
+
+      <Sequence name="PickThenNavigate">
+
+      <FixedPickObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                       gripper_action_name="/gripper_controller/gripper_cmd"
+                       arm_joint_names="joint1;joint2;joint3;joint4"
+                       arm_move_time="3.0"
+                       open_position="0.02501155674647538"
+                       grasp_position="0.002"
+                       max_effort="0.0002"
+                       server_timeout="5.0"
+                       step_timeout="15.0"/>
+
+      <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+        <PipelineSequence name="NavigateWithReplanning">
+          <RateController hz="1.0">
+            <RecoveryNode number_of_retries="1" name="ComputePathToPose">
+              <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+              <ClearEntireCostmap name="ClearGlobalCostmap-Context" service_name="global_costmap/clear_entirely_global_costmap"/>
+            </RecoveryNode>
+          </RateController>
+          <RecoveryNode number_of_retries="1" name="FollowPath">
+            <ReactiveFallback name="FollowPathOrHandleMovableObstacle">
+              <Sequence name="HandleMovableObstacle">
+                <CaptureInitialPath path="{path}" goal="{goal}"
+                                    goal_change_threshold="0.5"
+                                    initial_path="{initial_path}"/>
+                <IsObstacleTracking state_topic="/perception_state"
+                                    tracking_value="TRACKING"
+                                    state_timeout="1.0"
+                                    fallback_topic="/obstacle/is_movable"
+                                    fallback_timeout="3.0"/>
+                <LockApproachPose pose_topic="/obstacle_pose_stable"
+                                  pose_timeout="2.0"
+                                  acquire_timeout="8.0"
+                                  require_orientation="true"
+                                  locked_pose="{locked_obstacle_pose}"/>
+                <ApproachObstacleNormal path="{initial_path}"
+                                        obstacle_pose="{locked_obstacle_pose}"
+                                        pose_topic="/movable_obstacle/pose"
+                                        standoff_distance="0.2"
+                                        use_surface_normal="true"
+                                        face_obstacle="true"
+                                        on_path_tolerance="0.35"
+                                        pose_timeout="2.0"
+                                        recompute_threshold="0.2"
+                                        global_frame="map"
+                                        robot_base_frame="base_link"
+                                        approach_path="{approach_path}"
+                                        approach_goal="{approach_goal}"/>
+                <Sequence name="ApproachThenResume">
+                  <FollowPath path="{approach_path}" controller_id="FollowPath"/>
+                  <WaitForObstacleClearance topic="/obstacle/still_present"
+                                            timeout="0.0"
+                                            clear_on_stale="true"
+                                            message_timeout="3.0"/>
+                  <ClearEntireCostmap name="ClearLocalCostmap-Resume"
+                                      service_name="local_costmap/clear_entirely_local_costmap"/>
+                  <ClearEntireCostmap name="ClearGlobalCostmap-Resume"
+                                      service_name="global_costmap/clear_entirely_global_costmap"/>
+                  <FollowPath path="{initial_path}" controller_id="FollowPath"/>
+                </Sequence>
+              </Sequence>
+              <FollowPath path="{path}" controller_id="FollowPath"/>
+            </ReactiveFallback>
+            <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
+          </RecoveryNode>
+        </PipelineSequence>
+        <ReactiveFallback name="RecoveryFallback">
+          <GoalUpdated/>
+          <RoundRobin name="RecoveryActions">
+            <Sequence name="ClearingActions">
+              <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
+              <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
+            </Sequence>
+            <Spin spin_dist="1.57"/>
+            <Wait wait_duration="5"/>
+            <BackUp backup_dist="0.30" backup_speed="0.05"/>
+          </RoundRobin>
+        </ReactiveFallback>
+      </RecoveryNode>
+
+      </Sequence>
+
+    </ReactiveFallback>
+  </BehaviorTree>
+</root>
