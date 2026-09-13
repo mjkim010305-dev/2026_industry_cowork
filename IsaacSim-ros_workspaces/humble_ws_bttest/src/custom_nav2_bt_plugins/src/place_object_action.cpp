@@ -54,11 +54,17 @@ void PlaceObjectAction::buildSequence()
   // geometry as picking it up. Only the base pose (handled upstream, e.g.
   // SetFixedGoal + ComputePathToPose/FollowPath) differs between the pick and
   // place locations.
-  const std::array<double, 4> P_PRE_PLACE {{-0.019941750242513337, 0.8375535101855601,
+  const std::array<double, 4> P_PRE_PLACE {{-0.019941750242513337 - 1.5707963268, 0.8375535101855601,
       -0.12578642460662257, -0.8436894333371027}};
-  const std::array<double, 4> P_PLACE     {{-0.02454369260617026, 1.2885438618239387,
+  const std::array<double, 4> P_PLACE     {{-0.02454369260617026 - 1.5707963268, 1.2885438618239387,
       -0.7731263170943632, -0.4816699673960913}};
-  const std::array<double, 4> P_HOME      {{-0.0015339807878856412, -1.0461748973380072,
+  // Same as FixedPickObjectAction's P_LIFT: a straight-up retreat from
+  // P_PICK/P_PLACE (same joint1). Without this, going straight from
+  // gripper_open back to P_PRE_PLACE swept the open gripper back through the
+  // space the just-released object now occupies, knocking it over.
+  const std::array<double, 4> P_LIFT      {{-0.02454369260617026 - 1.5707963268, 0.518485063053467,
+      0.04908738521234052, -0.6181942575179133}};
+  const std::array<double, 4> P_HOME      {{-0.0015339807878856412 - 1.5707963268, -1.0461748973380072,
       1.0753205323078345, 0.009203884727313847}};
 
   const std::array<double, 4> none {{0.0, 0.0, 0.0, 0.0}};
@@ -68,6 +74,7 @@ void PlaceObjectAction::buildSequence()
   steps_.push_back({Kind::ARM,     P_PLACE,     0.0,            0.0, "place"});
   steps_.push_back(
     {Kind::GRIPPER, none, open_position_, post_open_delay_, "gripper_open"});
+  steps_.push_back({Kind::ARM,     P_LIFT,      0.0,            0.0, "lift"});
   steps_.push_back({Kind::ARM,     P_PRE_PLACE, 0.0,            0.0, "back_to_pre_place"});
   steps_.push_back({Kind::ARM,     P_HOME,      0.0,            0.0, "home"});
 }

@@ -127,6 +127,83 @@ ament_target_dependencies(custom_topic_trigger_condition_bt_node
 target_compile_definitions(custom_topic_trigger_condition_bt_node
   PRIVATE BT_PLUGIN_EXPORT)
 
+# ---------------------------------------------------------------------------
+# BT plugin: PushObstacle (stateful action) - extend arm to push pose & hold
+# ---------------------------------------------------------------------------
+add_library(custom_push_obstacle_action_bt_node SHARED
+  src/push_obstacle_action.cpp)
+ament_target_dependencies(custom_push_obstacle_action_bt_node
+  rclcpp rclcpp_action behaviortree_cpp_v3 nav2_behavior_tree
+  control_msgs trajectory_msgs)
+target_compile_definitions(custom_push_obstacle_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
+# ---------------------------------------------------------------------------
+# BT plugin: RetractArm (stateful action) - retract from push pose to home
+# ---------------------------------------------------------------------------
+add_library(custom_retract_arm_action_bt_node SHARED
+  src/retract_arm_action.cpp)
+ament_target_dependencies(custom_retract_arm_action_bt_node
+  rclcpp rclcpp_action behaviortree_cpp_v3 nav2_behavior_tree
+  control_msgs trajectory_msgs)
+target_compile_definitions(custom_retract_arm_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
+# ---------------------------------------------------------------------------
+# BT plugin: OpenLoopDrive (stateful action) - blind, time-based /cmd_vel
+# drive with NO collision checking (used to intentionally push an obstacle)
+# ---------------------------------------------------------------------------
+add_library(custom_open_loop_drive_action_bt_node SHARED
+  src/open_loop_drive_action.cpp)
+ament_target_dependencies(custom_open_loop_drive_action_bt_node
+  rclcpp behaviortree_cpp_v3 nav2_behavior_tree geometry_msgs)
+target_compile_definitions(custom_open_loop_drive_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
+# ---------------------------------------------------------------------------
+# BT plugin: RecordOdomPose (stateful action) - snapshot current /odom pose
+# ---------------------------------------------------------------------------
+add_library(custom_record_odom_pose_action_bt_node SHARED
+  src/record_odom_pose_action.cpp)
+ament_target_dependencies(custom_record_odom_pose_action_bt_node
+  rclcpp behaviortree_cpp_v3 nav2_behavior_tree nav_msgs geometry_msgs)
+target_compile_definitions(custom_record_odom_pose_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
+# ---------------------------------------------------------------------------
+# BT plugin: OdomLimitedDrive (stateful action) - blind push, but stops at
+# the actual odom-measured distance instead of a fixed time
+# ---------------------------------------------------------------------------
+add_library(custom_odom_limited_drive_action_bt_node SHARED
+  src/odom_limited_drive_action.cpp)
+ament_target_dependencies(custom_odom_limited_drive_action_bt_node
+  rclcpp behaviortree_cpp_v3 nav2_behavior_tree nav_msgs geometry_msgs)
+target_compile_definitions(custom_odom_limited_drive_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
+# ---------------------------------------------------------------------------
+# BT plugin: DriveToRecordedPose (stateful action) - odom-feedback return to
+# a RecordOdomPose snapshot, no costmap involved
+# ---------------------------------------------------------------------------
+add_library(custom_drive_to_recorded_pose_action_bt_node SHARED
+  src/drive_to_recorded_pose_action.cpp)
+ament_target_dependencies(custom_drive_to_recorded_pose_action_bt_node
+  rclcpp behaviortree_cpp_v3 nav2_behavior_tree nav_msgs geometry_msgs)
+target_compile_definitions(custom_drive_to_recorded_pose_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
+# ---------------------------------------------------------------------------
+# BT plugin: OrientPathToYaw (sync action) - pre-align the path's final
+# stretch to a fixed yaw so PathAlign/GoalAlign do the work instead of the
+# slow terminal RotateToGoal-only phase
+# ---------------------------------------------------------------------------
+add_library(custom_orient_path_to_yaw_action_bt_node SHARED
+  src/orient_path_to_yaw_action.cpp)
+ament_target_dependencies(custom_orient_path_to_yaw_action_bt_node
+  rclcpp behaviortree_cpp_v3 nav2_behavior_tree nav_msgs geometry_msgs)
+target_compile_definitions(custom_orient_path_to_yaw_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
 set(bt_plugin_libs
   custom_is_movable_obstacle_detected_condition_bt_node
   custom_wait_for_obstacle_clearance_action_bt_node
@@ -138,6 +215,13 @@ set(bt_plugin_libs
   custom_set_fixed_goal_action_bt_node
   custom_place_object_action_bt_node
   custom_topic_trigger_condition_bt_node
+  custom_push_obstacle_action_bt_node
+  custom_retract_arm_action_bt_node
+  custom_orient_path_to_yaw_action_bt_node
+  custom_open_loop_drive_action_bt_node
+  custom_record_odom_pose_action_bt_node
+  custom_odom_limited_drive_action_bt_node
+  custom_drive_to_recorded_pose_action_bt_node
 )
 
 # ---------------------------------------------------------------------------

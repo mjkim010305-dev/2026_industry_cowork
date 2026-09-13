@@ -135,6 +135,22 @@ bt_navigator:
       - custom_place_object_action_bt_node
       # custom_nav2_bt_plugins: topic-triggered on-demand branch (demo.xml PlaceOnCommand)
       - custom_topic_trigger_condition_bt_node
+      # custom_nav2_bt_plugins: in-place push-obstacle-aside action (demo.xml PlaceOnCommand Leg 2)
+      - custom_push_obstacle_action_bt_node
+      - custom_retract_arm_action_bt_node
+      # custom_nav2_bt_plugins: pre-orient the path's final stretch instead of
+      # relying on DWB's slow terminal RotateToGoal-only phase (demo.xml Leg 1)
+      - custom_orient_path_to_yaw_action_bt_node
+      # custom_nav2_bt_plugins: blind /cmd_vel drive, no collision lookahead
+      # (demo.xml PlaceOnCommand Leg 2, the intentional push into the obstacle)
+      - custom_open_loop_drive_action_bt_node
+      # custom_nav2_bt_plugins: odom-feedback push/return (demo.xml Leg 2) -
+      # actual distance covered instead of blind timing, and precise return
+      # via odom dead-reckoning instead of costmap-based nav (which refuses
+      # to approach the object PlaceObject just set down at spot A)
+      - custom_record_odom_pose_action_bt_node
+      - custom_odom_limited_drive_action_bt_node
+      - custom_drive_to_recorded_pose_action_bt_node
 
 bt_navigator_navigate_through_poses_rclcpp_node:
   ros__parameters:
@@ -177,8 +193,19 @@ controller_server:
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.25
-      yaw_goal_tolerance: 0.25
+      # was 0.25 -> loosened to 0.35: spot-goal legs (e.g. Leg 1) kept hitting
+      # "Failed to make progress" within centimeters of the goal (observed:
+      # robot sat 0.257m away, just outside the old 0.25 tolerance) - the
+      # final approach near a tight/obstacle-adjacent spot couldn't quite
+      # close that last gap before the progress checker gave up.
+      xy_goal_tolerance: 0.35
+      # was 0.25 (nav2 default; still what the commented-out precise_goal_checker
+      # above uses) -> tightened to 0.05: with xy loosened above, the robot
+      # was satisfying "close enough" and stopping well before its final yaw
+      # matched the commanded one. xy_goal_tolerance was the actual cause of
+      # the old stalls (translation-only progress checker vs RotateToGoal),
+      # not yaw, so tightening yaw alone shouldn't reintroduce that failure.
+      yaw_goal_tolerance: 0.05
     # DWB parameters
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
@@ -219,7 +246,13 @@ controller_server:
       PathDist.scale: 32.0
       GoalDist.scale: 24.0
       RotateToGoal.scale: 32.0
-      RotateToGoal.slowing_factor: 5.0
+      # was 5.0 -> lowered to 1.5: robot kept getting VERY close to the goal
+      # yaw (within a few cm / single-digit-to-teens degrees) but never
+      # closing the last bit before "Failed to make progress" - consistent
+      # with a high slowing_factor decelerating angular velocity so
+      # aggressively near the target that the final approach asymptotes
+      # instead of completing within the time window.
+      RotateToGoal.slowing_factor: 1.5
       RotateToGoal.lookahead_time: -1.0
 
 local_costmap:

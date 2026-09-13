@@ -13,34 +13,74 @@
       TopicTrigger fires once and PlaceOnCommand takes over. Because it now
       out-ranks PickThenNavigate in the ReactiveFallback, it PREEMPTS
       whatever PickThenNavigate was doing (its RUNNING nodes - e.g. the
-      in-flight FollowPath - are halted/canceled) and runs a 5-leg detour:
-        Leg 1: go to spot A, PlaceObject   (put the carried object down)
-        Leg 2: go to spot B, FixedPickObject (pick up the obstacle there)
-        Leg 3: go to spot C, PlaceObject   (drop the obstacle out of the way
-                                             - this is what actually clears
-                                             the original path)
-        Leg 4: go BACK to spot A, FixedPickObject (pick the first object
-                                                    back up - gripper is
-                                                    free again after leg 3)
-        Leg 5: FollowPath {initial_path}   (resume the very first path,
-                                             latched by CaptureInitialPath
-                                             at the start of navigation -
-                                             same resume pattern as
-                                             ApproachThenResume below, no
-                                             fresh planning)
-      If PlaceOnCommand SUCCEEDS (leg 5 finishes), the ReactiveFallback - and
+      in-flight FollowPath - are halted/canceled) and runs a 3-leg detour:
+        Leg 1: ComputePathToPose(spot A) -> OrientPathToYaw (pre-align the
+               last 3m of the path to spot A's yaw) -> FollowPath, PlaceObject
+        Leg 2: RecordOdomPose (snapshot current pose) -> PushObstacle (arm
+               extends to the push pose and HOLDS, gripper OPEN) ->
+               OdomLimitedDrive (the BASE drives forward into the obstacle,
+               using the held-out arm as a plow - this is what actually
+               pushes it; stops once /odom shows `distance` ACTUALLY
+               covered, not after a fixed time - see CAVEAT 1) ->
+               RetractArm (folds the arm back to home) ->
+               DriveToRecordedPose (odom-feedback reverse + yaw correction
+               back to the snapshot above, regardless of how far the push
+               really went - see CAVEAT 1) -> FixedPickObject
+               (re-pick object #1, still sitting where PlaceObject left it)
+        Leg 3: ComputePathToPose({goal}) + FollowPath   (plan fresh from
+                                             wherever the robot is now to
+                                             the original goal - NOT a
+                                             resume of {initial_path},
+                                             which was found to end up
+                                             empty here; see CAVEAT 3)
+      If PlaceOnCommand SUCCEEDS (leg 3 finishes), the ReactiveFallback - and
       therefore the whole NavigateToPose action - succeeds right there; it
       never falls back to PickThenNavigate again for this goal.
-    * CAVEAT: if any leg FAILS (e.g. ComputePathToPose to spot B/C can't find
-      a path), PlaceOnCommand fails, and the fallback drops back to
-      PickThenNavigate - which, since it was halted mid-flight, restarts
-      from FixedPickObject rather than resuming where it left off. Acceptable
-      as a "give up on the detour, just keep doing the original mission"
-      fallback, but be aware a failed detour costs you a redundant pick.
-    * EDIT before using: spot A's coordinate (used by both Leg 1 and Leg 4 -
-      keep them identical) is already set; spot B (the obstacle) and spot C
-      (the obstacle's drop-off point) are placeholders below and MUST be
-      edited to real map coordinates.
+      (Earlier versions of Leg 2: (1) drove to a separate spot B/spot C to
+      pick-and-relocate the obstacle - used the arm 3x and extra navigation
+      legs in a tight space, kept failing "Failed to make progress" when a
+      leg landed on/near a point the robot had just placed an object on;
+      (2) pushed by sweeping the ARM through the pick pose in place with the
+      base stationary - mechanically ran fine but used the identical joint
+      pose PlaceObject had just used, so it risked shoving the just-placed
+      object instead of the separate obstacle. See git history for both.)
+    * CAVEAT 1 (fixed, kept for context): DriveOnHeading's lookahead
+      collision check (behavior_server's simulate_ahead_time, shared by
+      EVERY DriveOnHeading/BackUp instance on the server, not per-plugin)
+      reliably aborted the push with "Collision Ahead - Exiting
+      DriveOnHeading" - correctly so, since driving into the obstacle on
+      purpose is exactly what it exists to prevent. BackUp for the return
+      leg hit the identical problem (backing toward the object just placed
+      at spot A). Fixed in two steps: (1) blind /cmd_vel driving with no
+      collision check at all (first OpenLoopDrive, a fixed-time push/
+      fixed-distance-mirrored reverse); (2) that still wasn't reliable -
+      pushing against the obstacle's resistance meant the ACTUAL distance
+      covered fell well short of the commanded one, so mirroring the same
+      nominal distance on the way back overshot the real start position/
+      yaw, and FixedPickObject's fixed-joint pick needs to be positioned
+      precisely. Now: RecordOdomPose snapshots the pose before the push,
+      OdomLimitedDrive pushes until /odom shows `distance` truly covered,
+      and DriveToRecordedPose returns via odom feedback (position, then a
+      yaw correction) to that exact snapshot - all three are pure odometry
+      dead-reckoning, no map/costmap/goal-checker involved anywhere, so
+      none of them can hit the "won't approach the just-placed object"
+      collision-check problem that map-frame navigation or DriveOnHeading/
+      BackUp's lookahead kept hitting here.
+    * CAVEAT 2: if any leg FAILS, PlaceOnCommand fails, and the fallback
+      drops back to PickThenNavigate - which, since it was halted mid-flight,
+      restarts from FixedPickObject rather than resuming where it left off.
+      Acceptable as a "give up on the detour, just keep doing the original
+      mission" fallback, but be aware a failed detour costs you a redundant
+      pick.
+    * CAVEAT 3 (fixed, kept for context): Leg 3 used to resume {initial_path}
+      (latched once by CaptureInitialPath, inside PickThenNavigate, before
+      the detour ever starts). Twice in testing it came back empty (0 poses)
+      by the time Leg 3 ran, tripping CAVEAT 2 above for a redundant pick
+      every time. Leg 3 now plans fresh from {goal} instead - see its own
+      comment below for why that's safe here.
+    * EDIT before using: spot A's coordinate (Leg 1) is set below; Leg 2's
+      dist_to_travel/speed/backup_dist/backup_speed are placeholders (0.3 m,
+      0.1 m/s) - tune to how far the obstacle actually needs to move.
     * Fire it with (the -1 flag sends exactly one message, then exits):
         ros2 topic pub -1 /place_request std_msgs/msg/Bool "{data: true}"
 
@@ -97,16 +137,42 @@
         <TopicTrigger topic="/place_request"/>
 
         <!-- ============================================================
-             Leg 1: go to spot A, put down the object we are carrying.
+             Leg 1: go straight to spot A, but pre-orient the final 3m of
+             the PLANNED PATH itself to face spot A's yaw (0.0), instead of
+             relying on DWB's terminal RotateToGoal-only phase to fix
+             orientation after arriving. Two earlier approaches both failed:
+             (1) tight yaw_goal_tolerance at spot A directly - RotateToGoal
+             took 100+ seconds to close the last few degrees and kept
+             getting killed by the (translation-only) progress checker
+             before finishing, even after confirming it WAS genuinely
+             converging (one run got to 0.2 deg residual, still timed out);
+             (2) a standoff point + DriveOnHeading - same stall, just moved
+             to wherever the standoff was, since the standoff goal itself
+             still needed RotateToGoal to nail its own yaw.
+             This replaces both: OrientPathToYaw drops the last
+             align_distance meters of {spot_a_path_raw} and rebuilds that
+             stretch as a fresh straight line of new waypoints (not just
+             relabeling the orientation of NavFn's original points, whose
+             positions can wobble slightly from grid discretization), all
+             facing yaw=0.0, ending exactly at spot A.
+             PathAlign/GoalAlign (scale 32/24, already high) then pull the
+             robot to match that heading as part of NORMAL forward-driving
+             scoring the whole final stretch, not a separate slow rotate-
+             in-place mode - so by the time the robot is close enough to
+             trigger RotateToGoal, the residual angle should already be
+             small and finish quickly instead of needing to close a large
+             angle from a standing start.
+             장애물 좌표 (30.52300,-3.76110)에다가 base_link와 chassis의 offset(0.080[전방 오프셋])을 뺌
              ============================================================ -->
-        <SetFixedGoal x="29.7" y="-3.54" yaw="0.00143" frame="map" goal="{spot_a_goal}"/>
-        <RecoveryNode number_of_retries="1" name="ComputePathToSpotA-Drop">
-          <ComputePathToPose goal="{spot_a_goal}" path="{spot_a_path}" planner_id="GridBased"/>
-          <ClearEntireCostmap name="ClearGlobalCostmap-SpotA-Drop"
+        <SetFixedGoal x="29.443" y="-3.59661" yaw="0.0" frame="map" goal="{spot_a_goal}"/>
+        <RecoveryNode number_of_retries="1" name="ComputePathToSpotA">
+          <ComputePathToPose goal="{spot_a_goal}" path="{spot_a_path_raw}" planner_id="GridBased"/>
+          <ClearEntireCostmap name="ClearGlobalCostmap-SpotA"
                               service_name="global_costmap/clear_entirely_global_costmap"/>
         </RecoveryNode>
+        <OrientPathToYaw path="{spot_a_path_raw}" yaw="0.0" align_distance="3.0" oriented_path="{spot_a_path}"/>
         <FollowPath path="{spot_a_path}" controller_id="FollowPath"/>
-        <ClearEntireCostmap name="ClearLocalCostmap-SpotA-Drop"
+        <ClearEntireCostmap name="ClearLocalCostmap-SpotA"
                             service_name="local_costmap/clear_entirely_local_costmap"/>
         <PlaceObject arm_action_name="/arm_controller/follow_joint_trajectory"
                      gripper_action_name="/gripper_controller/gripper_cmd"
@@ -119,18 +185,82 @@
                      post_open_delay="1.0"/>
 
         <!-- ============================================================
-             Leg 2: go to spot B (the obstacle), pick it up.
-             EDIT x/y to the obstacle's real map coordinate.
+             Leg 2 (simplified): push the obstacle aside IN PLACE - no
+             navigation at all, the robot is already sitting at spot A.
+
+             The original design here was a 3-leg detour (go to spot B and
+             pick the obstacle up, go to spot C and place it, go BACK to
+             spot A and re-pick object #1) using SetFixedGoal + Spin +
+             ComputePathToPose/FollowPath, same as Leg 1/3 below. It used
+             the arm 3x, spent a lot of time on planning/replanning in a
+             tight space, and every navigation leg that landed on/near a
+             point the robot itself had just placed an object on kept
+             failing with "Failed to make progress" (DWB's RotateToGoal
+             stalling against the very obstacle it needed to reach). See
+             git history for that version if you want it back.
+
+             Replaced with (4th revision): PushObstacle extends the arm to
+             the push pose and HOLDS it there (gripper open, no grasp) -
+             the actual push is the ROBOT BASE driving forward into the
+             obstacle while the arm stays rigid, using the extended gripper
+             as a plow. RetractArm then folds the arm back to home, and the
+             robot returns to spot A via odom feedback (no map/costmap
+             involved anywhere in this leg, top to bottom - see CAVEAT 1
+             above for the full history of why). FixedPickObject then
+             re-picks object #1, which should still be sitting where
+             PlaceObject left it since the base is back at spot A.
+
+             EDIT: `distance` on OdomLimitedDrive is a PLACEHOLDER
+             (currently 3.0m, same convention as the 0.30/0.05 used in
+             RecoveryActions further down) - tune to how far the obstacle
+             actually needs to move to clear the original path.
+             DriveToRecordedPose doesn't need its own distance - it just
+             drives back to the recorded pose regardless of how far the
+             push actually went.
              ============================================================ -->
-        <SetFixedGoal x="10.0" y="10.0" yaw="0.0" frame="map" goal="{spot_b_goal}"/>
-        <RecoveryNode number_of_retries="1" name="ComputePathToSpotB">
-          <ComputePathToPose goal="{spot_b_goal}" path="{spot_b_path}" planner_id="GridBased"/>
-          <ClearEntireCostmap name="ClearGlobalCostmap-SpotB"
-                              service_name="global_costmap/clear_entirely_global_costmap"/>
-        </RecoveryNode>
-        <FollowPath path="{spot_b_path}" controller_id="FollowPath"/>
-        <ClearEntireCostmap name="ClearLocalCostmap-SpotB"
-                            service_name="local_costmap/clear_entirely_local_costmap"/>
+        <!-- Snapshot the current position via /odom (no map/costmap - immune
+             to the "goal coincides with the just-placed object" collision
+             problem) BEFORE the push, so we can return to exactly this
+             spot afterward no matter how far the push actually traveled. -->
+        <RecordOdomPose odom_topic="/odom" timeout="3.0" pose="{spot_a_odom_pose}"/>
+        <PushObstacle arm_action_name="/arm_controller/follow_joint_trajectory"
+                      gripper_action_name="/gripper_controller/gripper_cmd"
+                      arm_joint_names="joint1;joint2;joint3;joint4"
+                      arm_move_time="3.0"
+                      open_position="0.02501155674647538"
+                      max_effort="0.0"
+                      push_hold_time="1.0"
+                      server_timeout="5.0"
+                      step_timeout="15.0"/>
+        <!-- OdomLimitedDrive (not OpenLoopDrive): stops once /odom shows the
+             robot has ACTUALLY covered `distance`, not after a fixed time -
+             pushing against the obstacle's resistance meant the real
+             distance covered was well short of what blind timing assumed. -->
+        <OdomLimitedDrive cmd_vel_topic="/cmd_vel" odom_topic="/odom"
+                          distance="3.0" speed="1.0" time_allowance="30.0"/>
+        <RetractArm arm_action_name="/arm_controller/follow_joint_trajectory"
+                    arm_joint_names="joint1;joint2;joint3;joint4"
+                    arm_move_time="3.0"
+                    server_timeout="5.0"
+                    step_timeout="15.0"/>
+        <!-- BackUp (nav2's built-in, collision-checked reverse) reliably
+             failed here: backing up toward spot A means backing up toward
+             the object PlaceObject just set down there, which its normal
+             collision check correctly refuses to do - same reason the push
+             leg above needed OdomLimitedDrive instead of DriveOnHeading.
+             A blind fixed-distance reverse (OpenLoopDrive) isn't reliable
+             either: since the actual push distance can fall short of the
+             configured one, mirroring that same nominal distance backward
+             overshoots the real starting point, landing the robot at the
+             wrong position/yaw for FixedPickObject's fixed-joint pick to
+             work. DriveToRecordedPose uses odom feedback (no costmap) to
+             return to the exact pose recorded above, then corrects yaw -
+             correct regardless of how far the push actually went. -->
+        <DriveToRecordedPose cmd_vel_topic="/cmd_vel" odom_topic="/odom"
+                             target_pose="{spot_a_odom_pose}"
+                             speed="1.0" angular_speed="0.4"
+                             xy_tolerance="0.05" yaw_tolerance="0.05"
+                             time_allowance="30.0"/>
         <FixedPickObject arm_action_name="/arm_controller/follow_joint_trajectory"
                          gripper_action_name="/gripper_controller/gripper_cmd"
                          arm_joint_names="joint1;joint2;joint3;joint4"
@@ -142,63 +272,31 @@
                          step_timeout="15.0"/>
 
         <!-- ============================================================
-             Leg 3: go to spot C (out of the way), put the obstacle down
-             there - this is what actually clears the original path.
-             EDIT x/y to a real, clear drop location.
-             ============================================================ -->
-        <SetFixedGoal x="15.0" y="15.0" yaw="0.0" frame="map" goal="{spot_c_goal}"/>
-        <RecoveryNode number_of_retries="1" name="ComputePathToSpotC">
-          <ComputePathToPose goal="{spot_c_goal}" path="{spot_c_path}" planner_id="GridBased"/>
-          <ClearEntireCostmap name="ClearGlobalCostmap-SpotC"
-                              service_name="global_costmap/clear_entirely_global_costmap"/>
-        </RecoveryNode>
-        <FollowPath path="{spot_c_path}" controller_id="FollowPath"/>
-        <ClearEntireCostmap name="ClearLocalCostmap-SpotC"
-                            service_name="local_costmap/clear_entirely_local_costmap"/>
-        <PlaceObject arm_action_name="/arm_controller/follow_joint_trajectory"
-                     gripper_action_name="/gripper_controller/gripper_cmd"
-                     arm_joint_names="joint1;joint2;joint3;joint4"
-                     arm_move_time="3.0"
-                     open_position="0.02501155674647538"
-                     max_effort="0.0"
-                     server_timeout="5.0"
-                     step_timeout="15.0"
-                     post_open_delay="1.0"/>
+             Leg 3: plan a FRESH path from wherever the robot is right now
+             to the original goal ({goal} - set by nav2 when the
+             NavigateToPose action was accepted, untouched by any of our
+             custom legs, so it is always valid) and follow it.
 
-        <!-- ============================================================
-             Leg 4: go back to spot A, pick the first object back up.
-             Same coordinate as Leg 1 - keep them in sync if you edit one.
-             ============================================================ -->
-        <SetFixedGoal x="29.7" y="-3.54" yaw="0.00143" frame="map" goal="{spot_a_goal}"/>
-        <RecoveryNode number_of_retries="1" name="ComputePathToSpotA-Repick">
-          <ComputePathToPose goal="{spot_a_goal}" path="{spot_a_path}" planner_id="GridBased"/>
-          <ClearEntireCostmap name="ClearGlobalCostmap-SpotA-Repick"
-                              service_name="global_costmap/clear_entirely_global_costmap"/>
-        </RecoveryNode>
-        <FollowPath path="{spot_a_path}" controller_id="FollowPath"/>
-        <ClearEntireCostmap name="ClearLocalCostmap-SpotA-Repick"
-                            service_name="local_costmap/clear_entirely_local_costmap"/>
-        <FixedPickObject arm_action_name="/arm_controller/follow_joint_trajectory"
-                         gripper_action_name="/gripper_controller/gripper_cmd"
-                         arm_joint_names="joint1;joint2;joint3;joint4"
-                         arm_move_time="3.0"
-                         open_position="0.02501155674647538"
-                         grasp_position="0.002"
-                         max_effort="0.0002"
-                         server_timeout="5.0"
-                         step_timeout="15.0"/>
-
-        <!-- ============================================================
-             Leg 5: resume the VERY FIRST path ({initial_path}, latched by
-             CaptureInitialPath the moment the original nav goal started) -
-             no fresh planning, same resume pattern as ApproachThenResume
-             below.
+             Originally this resumed {initial_path} (the pre-detour path
+             latched by CaptureInitialPath at the very start of navigation),
+             but that node lives inside PickThenNavigate/NavigateRecovery,
+             which gets halted the instant PlaceOnCommand takes over and
+             was never ticked again - twice now this produced an EMPTY
+             {initial_path} (0 poses) here, aborting FollowPath immediately
+             and triggering CAVEAT 2 (a redundant extra pick). Root cause
+             not fully nailed down, but planning fresh from {goal} sidesteps
+             it entirely and is simpler besides.
              ============================================================ -->
         <ClearEntireCostmap name="ClearLocalCostmap-ResumeInitial"
                             service_name="local_costmap/clear_entirely_local_costmap"/>
         <ClearEntireCostmap name="ClearGlobalCostmap-ResumeInitial"
                             service_name="global_costmap/clear_entirely_global_costmap"/>
-        <FollowPath path="{initial_path}" controller_id="FollowPath"/>
+        <RecoveryNode number_of_retries="1" name="ComputePathToGoal-Resume">
+          <ComputePathToPose goal="{goal}" path="{resume_path}" planner_id="GridBased"/>
+          <ClearEntireCostmap name="ClearGlobalCostmap-Resume-Retry"
+                              service_name="global_costmap/clear_entirely_global_costmap"/>
+        </RecoveryNode>
+        <FollowPath path="{resume_path}" controller_id="FollowPath"/>
       </Sequence>
 
       <Sequence name="PickThenNavigate">
@@ -208,7 +306,7 @@
                        arm_joint_names="joint1;joint2;joint3;joint4"
                        arm_move_time="3.0"
                        open_position="0.02501155674647538"
-                       grasp_position="0.002"
+                       grasp_position="-0.002"
                        max_effort="0.0002"
                        server_timeout="5.0"
                        step_timeout="15.0"/>
