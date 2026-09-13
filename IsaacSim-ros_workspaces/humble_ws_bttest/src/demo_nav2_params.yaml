@@ -175,7 +175,15 @@ controller_server:
     failure_tolerance: 0.3
     progress_checker_plugin: "progress_checker"
     goal_checker_plugins: ["general_goal_checker"] # "precise_goal_checker"
-    controller_plugins: ["FollowPath"]
+    # FollowPathReverse: same DWB config as FollowPath but reverse-only
+    # (min_vel_x negative, max_vel_x 0.0) - used ONLY for the PlaceOnCommand
+    # Leg 2 return-to-spot-A leg (demo.xml), whose path keeps the robot
+    # facing the same yaw it arrived at spot A with (so FixedPickObject's
+    # fixed-joint pick sees the object in front of it, not behind) - which
+    # geometrically requires backing up to it, not turning around and
+    # driving forward. FollowPath itself stays forward-only for every other
+    # leg (Leg 1/3, normal navigation) so ordinary driving never reverses.
+    controller_plugins: ["FollowPath", "FollowPathReverse"]
 
     # Progress checker parameters
     progress_checker:
@@ -257,6 +265,47 @@ controller_server:
       # with a high slowing_factor decelerating angular velocity so
       # aggressively near the target that the final approach asymptotes
       # instead of completing within the time window.
+      RotateToGoal.slowing_factor: 1.5
+      RotateToGoal.lookahead_time: -1.0
+
+    # Reverse-only variant of FollowPath above - see controller_plugins comment.
+    FollowPathReverse:
+      plugin: "dwb_core::DWBLocalPlanner"
+      debug_trajectory_details: True
+      min_vel_x: -0.15
+      min_vel_y: 0.0
+      max_vel_x: 0.0
+      max_vel_y: 0.0
+      max_vel_theta: 1.0
+      min_speed_xy: 0.0
+      max_speed_xy: 0.15
+      min_speed_theta: 0.0
+      acc_lim_x: 2.5
+      acc_lim_y: 0.0
+      acc_lim_theta: 3.2
+      decel_lim_x: -2.5
+      decel_lim_y: 0.0
+      decel_lim_theta: -3.2
+      vx_samples: 20
+      vy_samples: 5
+      vtheta_samples: 20
+      sim_time: 1.7
+      linear_granularity: 0.05
+      angular_granularity: 0.025
+      transform_tolerance: 0.2
+      xy_goal_tolerance: 0.25
+      trans_stopped_velocity: 0.25
+      short_circuit_trajectory_evaluation: True
+      stateful: True
+      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+      BaseObstacle.scale: 0.02
+      PathAlign.scale: 32.0
+      PathAlign.forward_point_distance: 0.1
+      GoalAlign.scale: 24.0
+      GoalAlign.forward_point_distance: 0.1
+      PathDist.scale: 32.0
+      GoalDist.scale: 24.0
+      RotateToGoal.scale: 32.0
       RotateToGoal.slowing_factor: 1.5
       RotateToGoal.lookahead_time: -1.0
 
