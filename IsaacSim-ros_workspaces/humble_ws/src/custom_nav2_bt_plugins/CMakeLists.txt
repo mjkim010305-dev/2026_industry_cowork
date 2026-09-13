@@ -171,6 +171,29 @@ target_compile_definitions(custom_record_odom_pose_action_bt_node
   PRIVATE BT_PLUGIN_EXPORT)
 
 # ---------------------------------------------------------------------------
+# BT plugin: RecordMapPose (stateful action) - snapshot current /amcl_pose
+# (map frame, immune to wheel-slip-corrupted odom during the push)
+# ---------------------------------------------------------------------------
+add_library(custom_record_map_pose_action_bt_node SHARED
+  src/record_map_pose_action.cpp)
+ament_target_dependencies(custom_record_map_pose_action_bt_node
+  rclcpp behaviortree_cpp_v3 nav2_behavior_tree geometry_msgs)
+target_compile_definitions(custom_record_map_pose_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
+# ---------------------------------------------------------------------------
+# BT plugin: ComputeStraightPathToPose (sync action) - build a straight-line
+# path from the current TF pose to a map-frame goal, bypassing the global
+# planner's refusal to path onto/near a just-placed object
+# ---------------------------------------------------------------------------
+add_library(custom_compute_straight_path_to_pose_action_bt_node SHARED
+  src/compute_straight_path_to_pose_action.cpp)
+ament_target_dependencies(custom_compute_straight_path_to_pose_action_bt_node
+  rclcpp behaviortree_cpp_v3 nav2_behavior_tree nav_msgs geometry_msgs tf2 tf2_ros)
+target_compile_definitions(custom_compute_straight_path_to_pose_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
+# ---------------------------------------------------------------------------
 # BT plugin: OdomLimitedDrive (stateful action) - blind push, but stops at
 # the actual odom-measured distance instead of a fixed time
 # ---------------------------------------------------------------------------
@@ -220,8 +243,10 @@ set(bt_plugin_libs
   custom_orient_path_to_yaw_action_bt_node
   custom_open_loop_drive_action_bt_node
   custom_record_odom_pose_action_bt_node
+  custom_record_map_pose_action_bt_node
   custom_odom_limited_drive_action_bt_node
   custom_drive_to_recorded_pose_action_bt_node
+  custom_compute_straight_path_to_pose_action_bt_node
 )
 
 # ---------------------------------------------------------------------------

@@ -11,11 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// NOTE: not currently wired into CMakeLists.txt/demo_nav2_params.yaml/
-// demo.xml - the session reverted from /amcl_pose back to /odom
-// (RecordOdomPoseAction) for Leg 2's record/return, keeping this file on
-// disk rather than deleting it in case /amcl_pose is worth retrying later.
 
 #ifndef CUSTOM_NAV2_BT_PLUGINS__RECORD_MAP_POSE_ACTION_HPP_
 #define CUSTOM_NAV2_BT_PLUGINS__RECORD_MAP_POSE_ACTION_HPP_

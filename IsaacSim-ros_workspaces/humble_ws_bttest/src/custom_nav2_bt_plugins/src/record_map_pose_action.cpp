@@ -11,9 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-// NOTE: not currently wired into CMakeLists.txt/demo_nav2_params.yaml/
-// demo.xml - see the header for why.
 
 #include "custom_nav2_bt_plugins/record_map_pose_action.hpp"
 

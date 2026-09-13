@@ -16,17 +16,18 @@
       in-flight FollowPath - are halted/canceled) and runs a 3-leg detour:
         Leg 1: ComputePathToPose(spot A) -> OrientPathToYaw (pre-align the
                last 3m of the path to spot A's yaw) -> FollowPath, PlaceObject
-        Leg 2: RecordOdomPose (snapshot current pose) -> PushObstacle (arm
-               extends to the push pose and HOLDS, gripper OPEN) ->
-               OdomLimitedDrive (the BASE drives forward into the obstacle,
-               using the held-out arm as a plow - this is what actually
-               pushes it; stops once /odom shows `distance` ACTUALLY
-               covered, not after a fixed time - see CAVEAT 1) ->
+        Leg 2: PushObstacle (arm extends to the push pose and HOLDS,
+               gripper OPEN) -> OdomLimitedDrive (the BASE drives forward
+               into the obstacle, using the held-out arm as a plow - this
+               is what actually pushes it; stops once /odom shows
+               `distance` ACTUALLY covered, not after a fixed time) ->
                RetractArm (folds the arm back to home) ->
-               DriveToRecordedPose (odom-feedback reverse + yaw correction
-               back to the snapshot above, regardless of how far the push
-               really went - see CAVEAT 1) -> FixedPickObject
-               (re-pick object #1, still sitting where PlaceObject left it)
+               ComputeStraightPathToPose + FollowPath (build a straight
+               path from wherever the robot now is back to {spot_a_goal} -
+               no need to record anything, it's the same fixed coordinate
+               Leg 1 already used - skipping ComputePathToPose; see
+               CAVEAT 1) -> FixedPickObject (re-pick object #1, still sitting where
+               PlaceObject left it)
         Leg 3: ComputePathToPose({goal}) + FollowPath   (plan fresh from
                                              wherever the robot is now to
                                              the original goal - NOT a
@@ -51,21 +52,40 @@
       DriveOnHeading" - correctly so, since driving into the obstacle on
       purpose is exactly what it exists to prevent. BackUp for the return
       leg hit the identical problem (backing toward the object just placed
-      at spot A). Fixed in two steps: (1) blind /cmd_vel driving with no
+      at spot A). Fixed in steps: (1) blind /cmd_vel driving with no
       collision check at all (first OpenLoopDrive, a fixed-time push/
       fixed-distance-mirrored reverse); (2) that still wasn't reliable -
       pushing against the obstacle's resistance meant the ACTUAL distance
       covered fell well short of the commanded one, so mirroring the same
       nominal distance on the way back overshot the real start position/
-      yaw, and FixedPickObject's fixed-joint pick needs to be positioned
-      precisely. Now: RecordOdomPose snapshots the pose before the push,
-      OdomLimitedDrive pushes until /odom shows `distance` truly covered,
-      and DriveToRecordedPose returns via odom feedback (position, then a
-      yaw correction) to that exact snapshot - all three are pure odometry
-      dead-reckoning, no map/costmap/goal-checker involved anywhere, so
-      none of them can hit the "won't approach the just-placed object"
-      collision-check problem that map-frame navigation or DriveOnHeading/
-      BackUp's lookahead kept hitting here.
+      yaw - fixed with RecordOdomPose/OdomLimitedDrive/DriveToRecordedPose,
+      pure odometry dead-reckoning (record before the push, push until
+      /odom shows `distance` truly covered, return via odom feedback);
+      (3) pure odom dead-reckoning has ITS OWN failure mode: pushing
+      against the obstacle's resistance makes the wheels slip, and if the
+      slip isn't symmetric between the two sides, /odom integrates a false
+      yaw drift that never physically happened, so the pose RecordOdomPose
+      captured (and everything DriveToRecordedPose computed from it) could
+      already be wrong. Tried recording via /amcl_pose instead (RecordMapPose
+      - laser scan matching isn't fooled by wheel slip), but that has its
+      OWN failure mode: AMCL only republishes /amcl_pose on qualifying
+      motion (update_min_d/update_min_a), so while the robot sits still
+      during PlaceObject's multi-second arm sequence, no fresh message ever
+      arrives and the fresh subscription (started only once RecordMapPose
+      ticks) times out - observed live as the whole Leg 2 failing before
+      PushObstacle ever ran, falling back to CAVEAT 2's redundant pick.
+      Fixed (4th revision) by realizing recording is unnecessary at all:
+      spot A is already a FIXED, known map coordinate ({spot_a_goal}, set
+      once by SetFixedGoal at the top of Leg 1) - the return leg just
+      reuses it directly. ComputeStraightPathToPose builds a straight path
+      from the robot's current TF pose to {spot_a_goal} (map frame,
+      skipping ComputePathToPose's global-costmap query entirely) + the
+      normal FollowPath - same controller Leg 1/3 use, which is what
+      actually gives position+yaw precision (proven by Leg 1's
+      OrientPathToYaw fix). This bypasses the GLOBAL planner's refusal to
+      path near the just-placed object, but NOT any refusal from the LOCAL
+      controller (DWB) itself, which still costmap-checks the path - not
+      yet addressed, testing how far this gets on its own first.
     * CAVEAT 2: if any leg FAILS, PlaceOnCommand fails, and the fallback
       drops back to PickThenNavigate - which, since it was halted mid-flight,
       restarts from FixedPickObject rather than resuming where it left off.
@@ -204,25 +224,30 @@
              the actual push is the ROBOT BASE driving forward into the
              obstacle while the arm stays rigid, using the extended gripper
              as a plow. RetractArm then folds the arm back to home, and the
-             robot returns to spot A via odom feedback (no map/costmap
-             involved anywhere in this leg, top to bottom - see CAVEAT 1
-             above for the full history of why). FixedPickObject then
-             re-picks object #1, which should still be sitting where
+             robot returns to spot A by building a straight path (map
+             frame) directly to {spot_a_goal} - the same fixed coordinate
+             SetFixedGoal produced for Leg 1, reused as-is rather than
+             recorded again - then FollowPath. See CAVEAT 1 above for the
+             full history of why (went through odom dead-reckoning, then
+             AMCL-snapshot dead-reckoning, before landing here). FixedPickObject
+             then re-picks object #1, which should still be sitting where
              PlaceObject left it since the base is back at spot A.
 
              EDIT: `distance` on OdomLimitedDrive is a PLACEHOLDER
              (currently 3.0m, same convention as the 0.30/0.05 used in
              RecoveryActions further down) - tune to how far the obstacle
              actually needs to move to clear the original path.
-             DriveToRecordedPose doesn't need its own distance - it just
-             drives back to the recorded pose regardless of how far the
-             push actually went.
+             ComputeStraightPathToPose doesn't need its own distance - it
+             just builds a path back to the recorded pose regardless of
+             how far the push actually went.
              ============================================================ -->
-        <!-- Snapshot the current position via /odom (no map/costmap - immune
-             to the "goal coincides with the just-placed object" collision
-             problem) BEFORE the push, so we can return to exactly this
-             spot afterward no matter how far the push actually traveled. -->
-        <RecordOdomPose odom_topic="/odom" timeout="3.0" pose="{spot_a_odom_pose}"/>
+        <!-- No snapshot needed before the push: spot A is already a fixed,
+             known map coordinate ({spot_a_goal}, set by SetFixedGoal at the
+             top of Leg 1) - reused as-is below for the return, instead of
+             recording wherever the robot happens to be (which needed
+             /amcl_pose or /odom and inherited their respective failure
+             modes - AMCL not publishing while stationary, or odom drifting
+             from wheel slip during the push). -->
         <PushObstacle arm_action_name="/arm_controller/follow_joint_trajectory"
                       gripper_action_name="/gripper_controller/gripper_cmd"
                       arm_joint_names="joint1;joint2;joint3;joint4"
@@ -243,24 +268,23 @@
                     arm_move_time="3.0"
                     server_timeout="5.0"
                     step_timeout="15.0"/>
-        <!-- BackUp (nav2's built-in, collision-checked reverse) reliably
-             failed here: backing up toward spot A means backing up toward
-             the object PlaceObject just set down there, which its normal
-             collision check correctly refuses to do - same reason the push
-             leg above needed OdomLimitedDrive instead of DriveOnHeading.
-             A blind fixed-distance reverse (OpenLoopDrive) isn't reliable
-             either: since the actual push distance can fall short of the
-             configured one, mirroring that same nominal distance backward
-             overshoots the real starting point, landing the robot at the
-             wrong position/yaw for FixedPickObject's fixed-joint pick to
-             work. DriveToRecordedPose uses odom feedback (no costmap) to
-             return to the exact pose recorded above, then corrects yaw -
-             correct regardless of how far the push actually went. -->
-        <DriveToRecordedPose cmd_vel_topic="/cmd_vel" odom_topic="/odom"
-                             target_pose="{spot_a_odom_pose}"
-                             speed="1.0" angular_speed="0.4"
-                             xy_tolerance="0.05" yaw_tolerance="0.05"
-                             time_allowance="30.0"/>
+        <!-- Return leg (testing): build a straight path (in the MAP frame,
+             from wherever the robot is now to {spot_a_goal} - the same
+             fixed coordinate SetFixedGoal produced for Leg 1) directly,
+             skipping ComputePathToPose - it queries the global costmap and
+             refuses/routes around a goal cell that reads as lethal, which
+             is exactly what the just-placed object looks like there. Then
+             hand that path to the normal FollowPath (same controller as
+             Leg 1/3), which is what actually gives position+yaw precision
+             (proven by Leg 1's OrientPathToYaw fix) instead of a hand-rolled
+             P-controller. NOTE: this only bypasses the GLOBAL planner's
+             refusal - the LOCAL controller (DWB) still costmap-checks the
+             path itself and may still balk near the object; not yet
+             addressed here, testing how far this gets on its own first. -->
+        <ComputeStraightPathToPose goal="{spot_a_goal}" path="{return_path}"
+                                   global_frame="map" robot_base_frame="base_link"
+                                   step_distance="0.1"/>
+        <FollowPath path="{return_path}" controller_id="FollowPath"/>
         <FixedPickObject arm_action_name="/arm_controller/follow_joint_trajectory"
                          gripper_action_name="/gripper_controller/gripper_cmd"
                          arm_joint_names="joint1;joint2;joint3;joint4"

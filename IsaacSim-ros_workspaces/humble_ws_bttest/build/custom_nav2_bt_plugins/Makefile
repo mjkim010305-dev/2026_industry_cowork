@@ -380,6 +380,32 @@ custom_record_odom_pose_action_bt_node/fast:
 .PHONY : custom_record_odom_pose_action_bt_node/fast
 
 #=============================================================================
+# Target rules for targets named custom_record_map_pose_action_bt_node
+
+# Build rule for target.
+custom_record_map_pose_action_bt_node: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_record_map_pose_action_bt_node
+.PHONY : custom_record_map_pose_action_bt_node
+
+# fast build rule for target.
+custom_record_map_pose_action_bt_node/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_record_map_pose_action_bt_node.dir/build.make CMakeFiles/custom_record_map_pose_action_bt_node.dir/build
+.PHONY : custom_record_map_pose_action_bt_node/fast
+
+#=============================================================================
+# Target rules for targets named custom_compute_straight_path_to_pose_action_bt_node
+
+# Build rule for target.
+custom_compute_straight_path_to_pose_action_bt_node: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_compute_straight_path_to_pose_action_bt_node
+.PHONY : custom_compute_straight_path_to_pose_action_bt_node
+
+# fast build rule for target.
+custom_compute_straight_path_to_pose_action_bt_node/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_compute_straight_path_to_pose_action_bt_node.dir/build.make CMakeFiles/custom_compute_straight_path_to_pose_action_bt_node.dir/build
+.PHONY : custom_compute_straight_path_to_pose_action_bt_node/fast
+
+#=============================================================================
 # Target rules for targets named custom_odom_limited_drive_action_bt_node
 
 # Build rule for target.
@@ -491,6 +517,30 @@ src/capture_initial_path_action.s: src/capture_initial_path_action.cpp.s
 src/capture_initial_path_action.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_capture_initial_path_action_bt_node.dir/build.make CMakeFiles/custom_capture_initial_path_action_bt_node.dir/src/capture_initial_path_action.cpp.s
 .PHONY : src/capture_initial_path_action.cpp.s
+
+src/compute_straight_path_to_pose_action.o: src/compute_straight_path_to_pose_action.cpp.o
+.PHONY : src/compute_straight_path_to_pose_action.o
+
+# target to build an object file
+src/compute_straight_path_to_pose_action.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_compute_straight_path_to_pose_action_bt_node.dir/build.make CMakeFiles/custom_compute_straight_path_to_pose_action_bt_node.dir/src/compute_straight_path_to_pose_action.cpp.o
+.PHONY : src/compute_straight_path_to_pose_action.cpp.o
+
+src/compute_straight_path_to_pose_action.i: src/compute_straight_path_to_pose_action.cpp.i
+.PHONY : src/compute_straight_path_to_pose_action.i
+
+# target to preprocess a source file
+src/compute_straight_path_to_pose_action.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_compute_straight_path_to_pose_action_bt_node.dir/build.make CMakeFiles/custom_compute_straight_path_to_pose_action_bt_node.dir/src/compute_straight_path_to_pose_action.cpp.i
+.PHONY : src/compute_straight_path_to_pose_action.cpp.i
+
+src/compute_straight_path_to_pose_action.s: src/compute_straight_path_to_pose_action.cpp.s
+.PHONY : src/compute_straight_path_to_pose_action.s
+
+# target to generate assembly for a file
+src/compute_straight_path_to_pose_action.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_compute_straight_path_to_pose_action_bt_node.dir/build.make CMakeFiles/custom_compute_straight_path_to_pose_action_bt_node.dir/src/compute_straight_path_to_pose_action.cpp.s
+.PHONY : src/compute_straight_path_to_pose_action.cpp.s
 
 src/drive_to_recorded_pose_action.o: src/drive_to_recorded_pose_action.cpp.o
 .PHONY : src/drive_to_recorded_pose_action.o
@@ -756,6 +806,30 @@ src/push_obstacle_action.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_push_obstacle_action_bt_node.dir/build.make CMakeFiles/custom_push_obstacle_action_bt_node.dir/src/push_obstacle_action.cpp.s
 .PHONY : src/push_obstacle_action.cpp.s
 
+src/record_map_pose_action.o: src/record_map_pose_action.cpp.o
+.PHONY : src/record_map_pose_action.o
+
+# target to build an object file
+src/record_map_pose_action.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_record_map_pose_action_bt_node.dir/build.make CMakeFiles/custom_record_map_pose_action_bt_node.dir/src/record_map_pose_action.cpp.o
+.PHONY : src/record_map_pose_action.cpp.o
+
+src/record_map_pose_action.i: src/record_map_pose_action.cpp.i
+.PHONY : src/record_map_pose_action.i
+
+# target to preprocess a source file
+src/record_map_pose_action.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_record_map_pose_action_bt_node.dir/build.make CMakeFiles/custom_record_map_pose_action_bt_node.dir/src/record_map_pose_action.cpp.i
+.PHONY : src/record_map_pose_action.cpp.i
+
+src/record_map_pose_action.s: src/record_map_pose_action.cpp.s
+.PHONY : src/record_map_pose_action.s
+
+# target to generate assembly for a file
+src/record_map_pose_action.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_record_map_pose_action_bt_node.dir/build.make CMakeFiles/custom_record_map_pose_action_bt_node.dir/src/record_map_pose_action.cpp.s
+.PHONY : src/record_map_pose_action.cpp.s
+
 src/record_odom_pose_action.o: src/record_odom_pose_action.cpp.o
 .PHONY : src/record_odom_pose_action.o
 
@@ -917,6 +991,7 @@ help:
 	@echo "... uninstall"
 	@echo "... custom_approach_obstacle_normal_action_bt_node"
 	@echo "... custom_capture_initial_path_action_bt_node"
+	@echo "... custom_compute_straight_path_to_pose_action_bt_node"
 	@echo "... custom_drive_to_recorded_pose_action_bt_node"
 	@echo "... custom_fixed_pick_object_action_bt_node"
 	@echo "... custom_is_movable_obstacle_detected_condition_bt_node"
@@ -928,6 +1003,7 @@ help:
 	@echo "... custom_orient_path_to_yaw_action_bt_node"
 	@echo "... custom_place_object_action_bt_node"
 	@echo "... custom_push_obstacle_action_bt_node"
+	@echo "... custom_record_map_pose_action_bt_node"
 	@echo "... custom_record_odom_pose_action_bt_node"
 	@echo "... custom_retract_arm_action_bt_node"
 	@echo "... custom_set_fixed_goal_action_bt_node"
@@ -940,6 +1016,9 @@ help:
 	@echo "... src/capture_initial_path_action.o"
 	@echo "... src/capture_initial_path_action.i"
 	@echo "... src/capture_initial_path_action.s"
+	@echo "... src/compute_straight_path_to_pose_action.o"
+	@echo "... src/compute_straight_path_to_pose_action.i"
+	@echo "... src/compute_straight_path_to_pose_action.s"
 	@echo "... src/drive_to_recorded_pose_action.o"
 	@echo "... src/drive_to_recorded_pose_action.i"
 	@echo "... src/drive_to_recorded_pose_action.s"
@@ -973,6 +1052,9 @@ help:
 	@echo "... src/push_obstacle_action.o"
 	@echo "... src/push_obstacle_action.i"
 	@echo "... src/push_obstacle_action.s"
+	@echo "... src/record_map_pose_action.o"
+	@echo "... src/record_map_pose_action.i"
+	@echo "... src/record_map_pose_action.s"
 	@echo "... src/record_odom_pose_action.o"
 	@echo "... src/record_odom_pose_action.i"
 	@echo "... src/record_odom_pose_action.s"

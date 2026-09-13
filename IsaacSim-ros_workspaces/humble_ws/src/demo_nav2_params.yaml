@@ -144,13 +144,18 @@ bt_navigator:
       # custom_nav2_bt_plugins: blind /cmd_vel drive, no collision lookahead
       # (demo.xml PlaceOnCommand Leg 2, the intentional push into the obstacle)
       - custom_open_loop_drive_action_bt_node
-      # custom_nav2_bt_plugins: odom-feedback push/return (demo.xml Leg 2) -
-      # actual distance covered instead of blind timing, and precise return
-      # via odom dead-reckoning instead of costmap-based nav (which refuses
-      # to approach the object PlaceObject just set down at spot A)
+      # custom_nav2_bt_plugins: measured-distance push (demo.xml Leg 2) -
+      # actual distance covered instead of blind timing
       - custom_record_odom_pose_action_bt_node
       - custom_odom_limited_drive_action_bt_node
       - custom_drive_to_recorded_pose_action_bt_node
+      # custom_nav2_bt_plugins: return leg (demo.xml Leg 2) - snapshot spot A
+      # in the MAP frame via AMCL (immune to wheel-slip-corrupted odom during
+      # the push), then build a straight path back to it directly (skipping
+      # ComputePathToPose, which refuses a goal cell that reads as lethal -
+      # exactly what the just-placed object looks like to the costmap)
+      - custom_record_map_pose_action_bt_node
+      - custom_compute_straight_path_to_pose_action_bt_node
 
 bt_navigator_navigate_through_poses_rclcpp_node:
   ros__parameters:
