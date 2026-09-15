@@ -1,0 +1,73 @@
+{
+	"backtrace" : 1,
+	"backtraceGraph" : 
+	{
+		"commands" : 
+		[
+			"add_custom_target"
+		],
+		"files" : 
+		[
+			"/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces/perception_interfaces__rs/CMakeLists.txt"
+		],
+		"nodes" : 
+		[
+			{
+				"file" : 0
+			},
+			{
+				"command" : 0,
+				"file" : 0,
+				"line" : 35,
+				"parent" : 0
+			}
+		]
+	},
+	"id" : "perception_interfaces__rs::@33da1861474e259d878d",
+	"name" : "perception_interfaces__rs",
+	"paths" : 
+	{
+		"build" : "perception_interfaces__rs",
+		"source" : "/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces/perception_interfaces__rs"
+	},
+	"sourceGroups" : 
+	[
+		{
+			"name" : "",
+			"sourceIndexes" : 
+			[
+				0
+			]
+		},
+		{
+			"name" : "CMake Rules",
+			"sourceIndexes" : 
+			[
+				1,
+				2
+			]
+		}
+	],
+	"sources" : 
+	[
+		{
+			"backtrace" : 1,
+			"isGenerated" : true,
+			"path" : "/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces/perception_interfaces__rs/CMakeFiles/perception_interfaces__rs",
+			"sourceGroupIndex" : 0
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces/perception_interfaces__rs/CMakeFiles/perception_interfaces__rs.rule",
+			"sourceGroupIndex" : 1
+		},
+		{
+			"backtrace" : 0,
+			"isGenerated" : true,
+			"path" : "/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces/rosidl_generator_rs/perception_interfaces/rust/src/lib.rs.rule",
+			"sourceGroupIndex" : 1
+		}
+	],
+	"type" : "UTILITY"
+}

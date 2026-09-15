@@ -406,6 +406,19 @@ custom_compute_straight_path_to_pose_action_bt_node/fast:
 .PHONY : custom_compute_straight_path_to_pose_action_bt_node/fast
 
 #=============================================================================
+# Target rules for targets named custom_wiggle_in_place_action_bt_node
+
+# Build rule for target.
+custom_wiggle_in_place_action_bt_node: cmake_check_build_system
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 custom_wiggle_in_place_action_bt_node
+.PHONY : custom_wiggle_in_place_action_bt_node
+
+# fast build rule for target.
+custom_wiggle_in_place_action_bt_node/fast:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/build.make CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/build
+.PHONY : custom_wiggle_in_place_action_bt_node/fast
+
+#=============================================================================
 # Target rules for targets named custom_odom_limited_drive_action_bt_node
 
 # Build rule for target.
@@ -974,6 +987,30 @@ src/wait_for_obstacle_clearance_action.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_wait_for_obstacle_clearance_action_bt_node.dir/build.make CMakeFiles/custom_wait_for_obstacle_clearance_action_bt_node.dir/src/wait_for_obstacle_clearance_action.cpp.s
 .PHONY : src/wait_for_obstacle_clearance_action.cpp.s
 
+src/wiggle_in_place_action.o: src/wiggle_in_place_action.cpp.o
+.PHONY : src/wiggle_in_place_action.o
+
+# target to build an object file
+src/wiggle_in_place_action.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/build.make CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/src/wiggle_in_place_action.cpp.o
+.PHONY : src/wiggle_in_place_action.cpp.o
+
+src/wiggle_in_place_action.i: src/wiggle_in_place_action.cpp.i
+.PHONY : src/wiggle_in_place_action.i
+
+# target to preprocess a source file
+src/wiggle_in_place_action.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/build.make CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/src/wiggle_in_place_action.cpp.i
+.PHONY : src/wiggle_in_place_action.cpp.i
+
+src/wiggle_in_place_action.s: src/wiggle_in_place_action.cpp.s
+.PHONY : src/wiggle_in_place_action.s
+
+# target to generate assembly for a file
+src/wiggle_in_place_action.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/build.make CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/src/wiggle_in_place_action.cpp.s
+.PHONY : src/wiggle_in_place_action.cpp.s
+
 # Help Target
 help:
 	@echo "The following are some of the valid targets for this Makefile:"
@@ -1009,6 +1046,7 @@ help:
 	@echo "... custom_set_fixed_goal_action_bt_node"
 	@echo "... custom_topic_trigger_condition_bt_node"
 	@echo "... custom_wait_for_obstacle_clearance_action_bt_node"
+	@echo "... custom_wiggle_in_place_action_bt_node"
 	@echo "... rgbd_obstacle_localizer"
 	@echo "... src/approach_obstacle_normal_action.o"
 	@echo "... src/approach_obstacle_normal_action.i"
@@ -1073,6 +1111,9 @@ help:
 	@echo "... src/wait_for_obstacle_clearance_action.o"
 	@echo "... src/wait_for_obstacle_clearance_action.i"
 	@echo "... src/wait_for_obstacle_clearance_action.s"
+	@echo "... src/wiggle_in_place_action.o"
+	@echo "... src/wiggle_in_place_action.i"
+	@echo "... src/wiggle_in_place_action.s"
 .PHONY : help
 
 

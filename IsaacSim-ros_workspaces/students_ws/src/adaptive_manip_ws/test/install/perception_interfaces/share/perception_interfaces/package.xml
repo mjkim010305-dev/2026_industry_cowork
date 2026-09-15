@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematron="http://download.ros.org/schema/package_format3.xsd"?>
+<package format="3">
+  <name>perception_interfaces</name>
+  <version>0.0.1</version>
+  <description>
+    9단계: Perception(팀원1) -> Manipulation(팀원2)로 넘기는 DetectedObject /
+    DetectedObjectArray 커스텀 메시지 정의 전용 패키지.
+    ROS2에서 커스텀 .msg는 ament_cmake 패키지에서만 빌드할 수 있어서
+    (rosidl_generate_interfaces), 실제 노드가 들어있는 perception_pkg
+    (ament_python)와 패키지를 분리했다.
+  </description>
+  <maintainer email="you@example.com">team1</maintainer>
+  <license>TODO</license>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+
+  <build_depend>rosidl_default_generators</build_depend>
+  <exec_depend>rosidl_default_runtime</exec_depend>
+  <member_of_group>rosidl_interface_packages</member_of_group>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>

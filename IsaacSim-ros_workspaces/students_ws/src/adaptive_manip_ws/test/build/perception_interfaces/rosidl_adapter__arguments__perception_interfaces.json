@@ -1,0 +1,7 @@
+{
+  "package_name": "perception_interfaces",
+  "non_idl_tuples": [
+    "/home/ciderlab-server3/adaptive_manip_ws/test/src/perception_interfaces:msg/DetectedObject.msg",
+    "/home/ciderlab-server3/adaptive_manip_ws/test/src/perception_interfaces:msg/DetectedObjectArray.msg"
+  ]
+}

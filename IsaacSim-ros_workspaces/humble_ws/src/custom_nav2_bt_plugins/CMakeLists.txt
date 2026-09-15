@@ -194,6 +194,17 @@ target_compile_definitions(custom_compute_straight_path_to_pose_action_bt_node
   PRIVATE BT_PLUGIN_EXPORT)
 
 # ---------------------------------------------------------------------------
+# BT plugin: WiggleInPlace (stateful action) - blind rotate sweep to help
+# AMCL reconverge after a slip-heavy push, before trusting its pose
+# ---------------------------------------------------------------------------
+add_library(custom_wiggle_in_place_action_bt_node SHARED
+  src/wiggle_in_place_action.cpp)
+ament_target_dependencies(custom_wiggle_in_place_action_bt_node
+  rclcpp behaviortree_cpp_v3 nav2_behavior_tree nav_msgs geometry_msgs)
+target_compile_definitions(custom_wiggle_in_place_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
+# ---------------------------------------------------------------------------
 # BT plugin: OdomLimitedDrive (stateful action) - blind push, but stops at
 # the actual odom-measured distance instead of a fixed time
 # ---------------------------------------------------------------------------
@@ -247,6 +258,7 @@ set(bt_plugin_libs
   custom_odom_limited_drive_action_bt_node
   custom_drive_to_recorded_pose_action_bt_node
   custom_compute_straight_path_to_pose_action_bt_node
+  custom_wiggle_in_place_action_bt_node
 )
 
 # ---------------------------------------------------------------------------

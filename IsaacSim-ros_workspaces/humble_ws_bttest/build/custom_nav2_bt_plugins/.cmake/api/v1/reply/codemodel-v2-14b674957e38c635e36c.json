@@ -1,0 +1,268 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-be1a33f81de8409e1d20.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0
+					],
+					"name" : "custom_nav2_bt_plugins",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18,
+						19,
+						20,
+						21,
+						22,
+						23
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_approach_obstacle_normal_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_approach_obstacle_normal_action_bt_node-da25066d5e7f9d930df6.json",
+					"name" : "custom_approach_obstacle_normal_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_capture_initial_path_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_capture_initial_path_action_bt_node-1c7ffbd7525a5c0d8cd0.json",
+					"name" : "custom_capture_initial_path_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_compute_straight_path_to_pose_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_compute_straight_path_to_pose_action_bt_node-61763c815359167c6d31.json",
+					"name" : "custom_compute_straight_path_to_pose_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_drive_to_recorded_pose_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_drive_to_recorded_pose_action_bt_node-33edc68665f2a3280fa0.json",
+					"name" : "custom_drive_to_recorded_pose_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_fixed_pick_object_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_fixed_pick_object_action_bt_node-670fa19623e27f9bed68.json",
+					"name" : "custom_fixed_pick_object_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_is_movable_obstacle_detected_condition_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_is_movable_obstacle_detected_condition_bt_node-ee580ccc6cc69538967d.json",
+					"name" : "custom_is_movable_obstacle_detected_condition_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_is_obstacle_tracking_condition_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_is_obstacle_tracking_condition_bt_node-e668cdb903cc55289c5d.json",
+					"name" : "custom_is_obstacle_tracking_condition_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_lock_approach_pose_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_lock_approach_pose_action_bt_node-f435836a760251e822d3.json",
+					"name" : "custom_lock_approach_pose_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_movable_obstacle_localizers::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_movable_obstacle_localizers-76fcbaf22bf18f51a5b9.json",
+					"name" : "custom_movable_obstacle_localizers",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_nav2_bt_plugins_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_nav2_bt_plugins_uninstall-16c5bdd5fdac52592983.json",
+					"name" : "custom_nav2_bt_plugins_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_odom_limited_drive_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_odom_limited_drive_action_bt_node-2d8ece3368a08cdb86b1.json",
+					"name" : "custom_odom_limited_drive_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_open_loop_drive_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_open_loop_drive_action_bt_node-bc35b34d43b876418633.json",
+					"name" : "custom_open_loop_drive_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_orient_path_to_yaw_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_orient_path_to_yaw_action_bt_node-bdc3f9e4b6fb1c818a9f.json",
+					"name" : "custom_orient_path_to_yaw_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_place_object_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_place_object_action_bt_node-ed62d9276c2579476f58.json",
+					"name" : "custom_place_object_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_push_obstacle_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_push_obstacle_action_bt_node-fcfc6ad4684940f945d9.json",
+					"name" : "custom_push_obstacle_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_record_map_pose_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_record_map_pose_action_bt_node-eb6f615b808ae23739af.json",
+					"name" : "custom_record_map_pose_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_record_odom_pose_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_record_odom_pose_action_bt_node-8845ad15e99c824d7b6c.json",
+					"name" : "custom_record_odom_pose_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_retract_arm_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_retract_arm_action_bt_node-724a6916bfa88eb16d97.json",
+					"name" : "custom_retract_arm_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_set_fixed_goal_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_set_fixed_goal_action_bt_node-e9de5e340ab47354ab48.json",
+					"name" : "custom_set_fixed_goal_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_topic_trigger_condition_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_topic_trigger_condition_bt_node-4ca60f36fd74fc9dc47d.json",
+					"name" : "custom_topic_trigger_condition_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_wait_for_obstacle_clearance_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_wait_for_obstacle_clearance_action_bt_node-9c5cd0a988c2698fc19e.json",
+					"name" : "custom_wait_for_obstacle_clearance_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "custom_wiggle_in_place_action_bt_node::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-custom_wiggle_in_place_action_bt_node-855b8317243e75904844.json",
+					"name" : "custom_wiggle_in_place_action_bt_node",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "rgbd_obstacle_localizer::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-rgbd_obstacle_localizer-fab11808dbd21f48553f.json",
+					"name" : "rgbd_obstacle_localizer",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-5038b361f7d7503ef912.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/build/custom_nav2_bt_plugins",
+		"source" : "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/src/custom_nav2_bt_plugins"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

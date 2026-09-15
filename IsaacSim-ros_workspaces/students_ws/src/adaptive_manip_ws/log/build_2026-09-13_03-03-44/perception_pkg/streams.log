@@ -1,0 +1,61 @@
+[0.780s] Invoking command in '/home/cofla/adaptive_manip_ws/src/perception_pkg': AMENT_PREFIX_PATH=/home/cofla/adaptive_manip_ws/install/perception_interfaces:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/cofla/adaptive_manip_ws/install/perception_interfaces LD_LIBRARY_PATH=/home/cofla/adaptive_manip_ws/install/perception_interfaces/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/cofla/adaptive_manip_ws/build/perception_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages:/home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/perception_pkg build --build-base /home/cofla/adaptive_manip_ws/build/perception_pkg/build install --record /home/cofla/adaptive_manip_ws/build/perception_pkg/install.log --install-scripts $base/lib/perception_pkg --single-version-externally-managed install_data
+[0.981s] running egg_info
+[0.982s] creating ../../build/perception_pkg/perception_pkg.egg-info
+[0.982s] writing ../../build/perception_pkg/perception_pkg.egg-info/PKG-INFO
+[0.983s] writing dependency_links to ../../build/perception_pkg/perception_pkg.egg-info/dependency_links.txt
+[0.983s] writing entry points to ../../build/perception_pkg/perception_pkg.egg-info/entry_points.txt
+[0.983s] writing requirements to ../../build/perception_pkg/perception_pkg.egg-info/requires.txt
+[0.983s] writing top-level names to ../../build/perception_pkg/perception_pkg.egg-info/top_level.txt
+[0.983s] writing manifest file '../../build/perception_pkg/perception_pkg.egg-info/SOURCES.txt'
+[0.985s] reading manifest file '../../build/perception_pkg/perception_pkg.egg-info/SOURCES.txt'
+[0.986s] writing manifest file '../../build/perception_pkg/perception_pkg.egg-info/SOURCES.txt'
+[0.987s] running build
+[0.987s] running build_py
+[0.987s] creating /home/cofla/adaptive_manip_ws/build/perception_pkg/build
+[0.987s] creating /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib
+[0.987s] creating /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg
+[0.987s] copying perception_pkg/stabilizer.py -> /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg
+[0.988s] copying perception_pkg/fake_d555_publisher.py -> /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg
+[0.988s] copying perception_pkg/detected_object_node.py -> /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg
+[0.988s] copying perception_pkg/pixel_to_3d.py -> /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg
+[0.988s] copying perception_pkg/roi_detector.py -> /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg
+[0.988s] copying perception_pkg/__init__.py -> /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg
+[0.988s] copying perception_pkg/point_cloud_utils.py -> /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg
+[0.988s] copying perception_pkg/experiment_logger.py -> /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg
+[0.988s] copying perception_pkg/base_link_transform.py -> /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg
+[0.988s] running install
+[0.988s] running install_lib
+[0.989s] creating /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+[0.989s] copying /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg/stabilizer.py -> /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+[0.989s] copying /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg/fake_d555_publisher.py -> /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+[0.989s] copying /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg/detected_object_node.py -> /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+[0.989s] copying /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg/pixel_to_3d.py -> /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+[0.989s] copying /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg/roi_detector.py -> /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+[0.989s] copying /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg/__init__.py -> /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+[0.989s] copying /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg/point_cloud_utils.py -> /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+[0.989s] copying /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg/experiment_logger.py -> /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+[0.989s] copying /home/cofla/adaptive_manip_ws/build/perception_pkg/build/lib/perception_pkg/base_link_transform.py -> /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+[0.989s] byte-compiling /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/stabilizer.py to stabilizer.cpython-310.pyc
+[0.991s] byte-compiling /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/fake_d555_publisher.py to fake_d555_publisher.cpython-310.pyc
+[0.992s] byte-compiling /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/detected_object_node.py to detected_object_node.cpython-310.pyc
+[0.993s] byte-compiling /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/pixel_to_3d.py to pixel_to_3d.cpython-310.pyc
+[0.993s] byte-compiling /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/roi_detector.py to roi_detector.cpython-310.pyc
+[0.993s] byte-compiling /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/__init__.py to __init__.cpython-310.pyc
+[0.993s] byte-compiling /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/point_cloud_utils.py to point_cloud_utils.cpython-310.pyc
+[0.994s] byte-compiling /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/experiment_logger.py to experiment_logger.cpython-310.pyc
+[0.994s] byte-compiling /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/base_link_transform.py to base_link_transform.cpython-310.pyc
+[0.995s] running install_data
+[0.995s] creating /home/cofla/adaptive_manip_ws/install/perception_pkg/share/ament_index
+[0.995s] creating /home/cofla/adaptive_manip_ws/install/perception_pkg/share/ament_index/resource_index
+[0.995s] creating /home/cofla/adaptive_manip_ws/install/perception_pkg/share/ament_index/resource_index/packages
+[0.995s] copying resource/perception_pkg -> /home/cofla/adaptive_manip_ws/install/perception_pkg/share/ament_index/resource_index/packages
+[0.995s] copying package.xml -> /home/cofla/adaptive_manip_ws/install/perception_pkg/share/perception_pkg
+[0.995s] creating /home/cofla/adaptive_manip_ws/install/perception_pkg/share/perception_pkg/sample_data
+[0.996s] copying sample_data/fake_input.json -> /home/cofla/adaptive_manip_ws/install/perception_pkg/share/perception_pkg/sample_data
+[0.996s] running install_egg_info
+[0.997s] Copying ../../build/perception_pkg/perception_pkg.egg-info to /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages/perception_pkg-0.0.1-py3.10.egg-info
+[0.998s] running install_scripts
+[1.015s] Installing detected_object_node script to /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/perception_pkg
+[1.015s] Installing fake_d555_publisher script to /home/cofla/adaptive_manip_ws/install/perception_pkg/lib/perception_pkg
+[1.015s] writing list of installed files to '/home/cofla/adaptive_manip_ws/build/perception_pkg/install.log'
+[1.035s] Invoked command in '/home/cofla/adaptive_manip_ws/src/perception_pkg' returned '0': AMENT_PREFIX_PATH=/home/cofla/adaptive_manip_ws/install/perception_interfaces:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/cofla/adaptive_manip_ws/install/perception_interfaces LD_LIBRARY_PATH=/home/cofla/adaptive_manip_ws/install/perception_interfaces/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/cofla/adaptive_manip_ws/build/perception_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/cofla/adaptive_manip_ws/install/perception_pkg/lib/python3.10/site-packages:/home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/perception_pkg build --build-base /home/cofla/adaptive_manip_ws/build/perception_pkg/build install --record /home/cofla/adaptive_manip_ws/build/perception_pkg/install.log --install-scripts $base/lib/perception_pkg --single-version-externally-managed install_data

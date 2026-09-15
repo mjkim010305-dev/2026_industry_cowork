@@ -1,0 +1,258 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-5104207d46799d6b309a.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						17,
+						18
+					]
+				},
+				{
+					"build" : "perception_interfaces__py",
+					"jsonFile" : "directory-perception_interfaces__py-04a56f163e90319e4666.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/cofla/adaptive_manip_ws/build/perception_interfaces/perception_interfaces__py",
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"build" : "perception_interfaces__rs",
+					"jsonFile" : "directory-perception_interfaces__rs-4209c1cf444d94654fcb.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/cofla/adaptive_manip_ws/build/perception_interfaces/perception_interfaces__rs",
+					"targetIndexes" : 
+					[
+						16
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2
+					],
+					"name" : "perception_interfaces",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_build_perception_interfaces_egg::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_build_perception_interfaces_egg-ce46df7f2eef82585355.json",
+					"name" : "ament_cmake_python_build_perception_interfaces_egg",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_copy_perception_interfaces::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_copy_perception_interfaces-e09ac7c79b4fe23f1fa9.json",
+					"name" : "ament_cmake_python_copy_perception_interfaces",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces-83f8af66684e9fc0dcbf.json",
+					"name" : "perception_interfaces",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__cpp-829ef2f53dbdc3b40647.json",
+					"name" : "perception_interfaces__cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "perception_interfaces__py::@90ae2e71c88d7af79f92",
+					"jsonFile" : "target-perception_interfaces__py-f95e5a3dfa859ba8d608.json",
+					"name" : "perception_interfaces__py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_generator_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_generator_c-2664a0d803dbc3cbcb5a.json",
+					"name" : "perception_interfaces__rosidl_generator_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_generator_py::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_generator_py-0384738a0eadfca80fd7.json",
+					"name" : "perception_interfaces__rosidl_generator_py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_c-4a66f0d40f1533add6a9.json",
+					"name" : "perception_interfaces__rosidl_typesupport_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_c__pyext-579a19b919f524bdad89.json",
+					"name" : "perception_interfaces__rosidl_typesupport_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_cpp-876510ae885785ddd530.json",
+					"name" : "perception_interfaces__rosidl_typesupport_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_fastrtps_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_fastrtps_c-64e606b73299a33c8598.json",
+					"name" : "perception_interfaces__rosidl_typesupport_fastrtps_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_fastrtps_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_fastrtps_c__pyext-d77e02f6d9cf510c559e.json",
+					"name" : "perception_interfaces__rosidl_typesupport_fastrtps_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_fastrtps_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_fastrtps_cpp-74cabbe25da002d2664e.json",
+					"name" : "perception_interfaces__rosidl_typesupport_fastrtps_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_introspection_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_introspection_c-fb452db1958d49b88dad.json",
+					"name" : "perception_interfaces__rosidl_typesupport_introspection_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_introspection_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_introspection_c__pyext-5c62b51ceaeefe2e315b.json",
+					"name" : "perception_interfaces__rosidl_typesupport_introspection_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_introspection_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_introspection_cpp-2666e7cfcad01432d790.json",
+					"name" : "perception_interfaces__rosidl_typesupport_introspection_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "perception_interfaces__rs::@33da1861474e259d878d",
+					"jsonFile" : "target-perception_interfaces__rs-8b4bbd51c760b249bd9d.json",
+					"name" : "perception_interfaces__rs",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces_uninstall-5de812ad531f9ff3310c.json",
+					"name" : "perception_interfaces_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-0b3d3780502a1a45996b.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/cofla/adaptive_manip_ws/build/perception_interfaces",
+		"source" : "/home/cofla/adaptive_manip_ws/src/perception_interfaces"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}

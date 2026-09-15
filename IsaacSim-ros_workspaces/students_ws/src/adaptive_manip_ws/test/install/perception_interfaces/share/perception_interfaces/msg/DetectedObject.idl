@@ -1,0 +1,28 @@
+// generated from rosidl_adapter/resource/msg.idl.em
+// with input from perception_interfaces/msg/DetectedObject.msg
+// generated code does not contain a copyright notice
+
+#include "geometry_msgs/msg/Point.idl"
+#include "geometry_msgs/msg/Vector3.idl"
+
+module perception_interfaces {
+  module msg {
+    @verbatim (language="comment", text=
+      "9단계: 물체 하나에 대한 정보." "\n"
+      "notes/message_spec.md v3 기준 — class_name/orientation은 아직 추가하지 않음(팀원2 요청, 후순위 보류).")
+    struct DetectedObject {
+      @verbatim (language="comment", text=
+        "프레임 내 순번(0,1,2,...). 프레임 간 추적 ID 아님 — 열린 이슈 참고.")
+      int32 id;
+
+      @verbatim (language="comment", text=
+        "base_link 기준 (x, y, z), 단위 m")
+      geometry_msgs::msg::Point position;
+
+      @verbatim (language="comment", text=
+        "size.x=width(폭), size.y=depth(깊이), size.z=height(높이), 단위 m" "\n"
+        "(Vector3에는 w/d/h라는 이름이 없어서 x/y/z에 이 순서로 대응시킨다)")
+      geometry_msgs::msg::Vector3 size;
+    };
+  };
+};

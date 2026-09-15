@@ -1,0 +1,4 @@
+[console_scripts]
+detected_object_node = perception_pkg.detected_object_node:main
+fake_d555_publisher = perception_pkg.fake_d555_publisher:main
+

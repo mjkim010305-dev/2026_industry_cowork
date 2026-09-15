@@ -1,0 +1,26 @@
+running egg_info
+writing ../../build/perception_pkg/perception_pkg.egg-info/PKG-INFO
+writing dependency_links to ../../build/perception_pkg/perception_pkg.egg-info/dependency_links.txt
+writing entry points to ../../build/perception_pkg/perception_pkg.egg-info/entry_points.txt
+writing requirements to ../../build/perception_pkg/perception_pkg.egg-info/requires.txt
+writing top-level names to ../../build/perception_pkg/perception_pkg.egg-info/top_level.txt
+reading manifest file '../../build/perception_pkg/perception_pkg.egg-info/SOURCES.txt'
+writing manifest file '../../build/perception_pkg/perception_pkg.egg-info/SOURCES.txt'
+running build
+running build_py
+copying perception_pkg/detected_object_node.py -> /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg
+copying perception_pkg/depth_detector.py -> /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg
+running install
+running install_lib
+copying /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg/detected_object_node.py -> /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+copying /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg/depth_detector.py -> /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+byte-compiling /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/detected_object_node.py to detected_object_node.cpython-310.pyc
+byte-compiling /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/depth_detector.py to depth_detector.cpython-310.pyc
+running install_data
+running install_egg_info
+removing '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg-0.0.1-py3.10.egg-info' (and everything under it)
+Copying ../../build/perception_pkg/perception_pkg.egg-info to /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg-0.0.1-py3.10.egg-info
+running install_scripts
+Installing detected_object_node script to /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/perception_pkg
+Installing fake_d555_publisher script to /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/perception_pkg
+writing list of installed files to '/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/install.log'

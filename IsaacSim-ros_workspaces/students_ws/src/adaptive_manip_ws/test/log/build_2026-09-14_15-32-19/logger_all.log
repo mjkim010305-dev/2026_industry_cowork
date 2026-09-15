@@ -1,0 +1,232 @@
+[0.049s] DEBUG:colcon:Command line arguments: ['/usr/bin/colcon', 'build', '--packages-select', 'perception_interfaces', 'perception_pkg']
+[0.049s] DEBUG:colcon:Parsed command line arguments: Namespace(log_base=None, log_level=None, verb_name='build', build_base='build', install_base='install', merge_install=False, symlink_install=False, test_result_base=None, continue_on_error=False, executor='parallel', parallel_workers=24, event_handlers=None, ignore_user_meta=False, metas=['./colcon.meta'], base_paths=['.'], packages_ignore=None, packages_ignore_regex=None, paths=None, packages_up_to=None, packages_up_to_regex=None, packages_above=None, packages_above_and_dependencies=None, packages_above_depth=None, packages_select_by_dep=None, packages_skip_by_dep=None, packages_skip_up_to=None, packages_select_build_failed=False, packages_skip_build_finished=False, packages_select_test_failures=False, packages_skip_test_passed=False, packages_select=['perception_interfaces', 'perception_pkg'], packages_skip=None, packages_select_regex=None, packages_skip_regex=None, packages_start=None, packages_end=None, allow_overriding=[], cmake_args=None, cmake_target=None, cmake_target_skip_unavailable=False, cmake_clean_cache=False, cmake_clean_first=False, cmake_force_configure=False, ament_cmake_args=None, catkin_cmake_args=None, catkin_skip_building_tests=False, mixin_files=None, mixin=None, verb_parser=<colcon_mixin.mixin.mixin_argument.MixinArgumentDecorator object at 0x796b39a8fb50>, verb_extension=<colcon_core.verb.build.BuildVerb object at 0x796b39bd4d30>, main=<bound method BuildVerb.main of <colcon_core.verb.build.BuildVerb object at 0x796b39bd4d30>>, mixin_verb=('build',))
+[0.120s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) check parameters
+[0.120s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) check parameters
+[0.120s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) check parameters
+[0.120s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) check parameters
+[0.120s] Level 1:colcon.colcon_core.package_discovery:discover_packages(colcon_meta) discover
+[0.120s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) discover
+[0.120s] INFO:colcon.colcon_core.package_discovery:Crawling recursively for packages in '/home/ciderlab-server3/adaptive_manip_ws/test'
+[0.120s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ignore', 'ignore_ament_install']
+[0.120s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore'
+[0.120s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ignore_ament_install'
+[0.120s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_pkg']
+[0.120s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_pkg'
+[0.120s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['colcon_meta']
+[0.120s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'colcon_meta'
+[0.120s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['ros']
+[0.120s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'ros'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['cmake', 'python']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'cmake'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python'
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extensions ['python_setup_py']
+[0.129s] Level 1:colcon.colcon_core.package_identification:_identify(.) by extension 'python_setup_py'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extensions ['ignore', 'ignore_ament_install']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(build) by extension 'ignore'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(build) ignored
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extensions ['ignore', 'ignore_ament_install']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(install) by extension 'ignore'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(install) ignored
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extensions ['ignore', 'ignore_ament_install']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(log) by extension 'ignore'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(log) ignored
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(logs) by extensions ['ignore', 'ignore_ament_install']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(logs) by extension 'ignore'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(logs) by extension 'ignore_ament_install'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(logs) by extensions ['colcon_pkg']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(logs) by extension 'colcon_pkg'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(logs) by extensions ['colcon_meta']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(logs) by extension 'colcon_meta'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(logs) by extensions ['ros']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(logs) by extension 'ros'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(logs) by extensions ['cmake', 'python']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(logs) by extension 'cmake'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(logs) by extension 'python'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(logs) by extensions ['python_setup_py']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(logs) by extension 'python_setup_py'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(notes) by extensions ['ignore', 'ignore_ament_install']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(notes) by extension 'ignore'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(notes) by extension 'ignore_ament_install'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(notes) by extensions ['colcon_pkg']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(notes) by extension 'colcon_pkg'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(notes) by extensions ['colcon_meta']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(notes) by extension 'colcon_meta'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(notes) by extensions ['ros']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(notes) by extension 'ros'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(notes) by extensions ['cmake', 'python']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(notes) by extension 'cmake'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(notes) by extension 'python'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(notes) by extensions ['python_setup_py']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(notes) by extension 'python_setup_py'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ignore', 'ignore_ament_install']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ignore_ament_install'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_pkg']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_pkg'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['colcon_meta']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'colcon_meta'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['ros']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'ros'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['cmake', 'python']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'cmake'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python'
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extensions ['python_setup_py']
+[0.130s] Level 1:colcon.colcon_core.package_identification:_identify(src) by extension 'python_setup_py'
+[0.131s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_interfaces) by extensions ['ignore', 'ignore_ament_install']
+[0.131s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_interfaces) by extension 'ignore'
+[0.131s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_interfaces) by extension 'ignore_ament_install'
+[0.131s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_interfaces) by extensions ['colcon_pkg']
+[0.131s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_interfaces) by extension 'colcon_pkg'
+[0.131s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_interfaces) by extensions ['colcon_meta']
+[0.131s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_interfaces) by extension 'colcon_meta'
+[0.131s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_interfaces) by extensions ['ros']
+[0.131s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_interfaces) by extension 'ros'
+[0.132s] DEBUG:colcon.colcon_core.package_identification:Package 'src/perception_interfaces' with type 'ros.ament_cmake' and name 'perception_interfaces'
+[0.132s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_pkg) by extensions ['ignore', 'ignore_ament_install']
+[0.132s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_pkg) by extension 'ignore'
+[0.132s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_pkg) by extension 'ignore_ament_install'
+[0.132s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_pkg) by extensions ['colcon_pkg']
+[0.132s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_pkg) by extension 'colcon_pkg'
+[0.132s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_pkg) by extensions ['colcon_meta']
+[0.132s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_pkg) by extension 'colcon_meta'
+[0.132s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_pkg) by extensions ['ros']
+[0.132s] Level 1:colcon.colcon_core.package_identification:_identify(src/perception_pkg) by extension 'ros'
+[0.132s] DEBUG:colcon.colcon_core.package_identification:Package 'src/perception_pkg' with type 'ros.ament_python' and name 'perception_pkg'
+[0.132s] Level 1:colcon.colcon_core.package_discovery:discover_packages(recursive) using defaults
+[0.132s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) discover
+[0.132s] Level 1:colcon.colcon_core.package_discovery:discover_packages(ignore) using defaults
+[0.132s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) discover
+[0.132s] Level 1:colcon.colcon_core.package_discovery:discover_packages(path) using defaults
+[0.142s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) check parameters
+[0.142s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) discover
+[0.143s] WARNING:colcon.colcon_ros.prefix_path.ament:The path '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg' in the environment variable AMENT_PREFIX_PATH doesn't exist
+[0.143s] WARNING:colcon.colcon_ros.prefix_path.ament:The path '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces' in the environment variable AMENT_PREFIX_PATH doesn't exist
+[0.143s] WARNING:colcon.colcon_ros.prefix_path.catkin:The path '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces' in the environment variable CMAKE_PREFIX_PATH doesn't exist
+[0.143s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 0 installed packages in /home/ciderlab-server3/adaptive_manip_ws/test/install
+[0.144s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 21 installed packages in /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install
+[0.144s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 31 installed packages in /home/ciderlab-server3/turtlebot3_ws/install
+[0.145s] DEBUG:colcon.colcon_installed_package_information.package_discovery:Found 446 installed packages in /opt/ros/humble
+[0.146s] Level 1:colcon.colcon_core.package_discovery:discover_packages(prefix_path) using defaults
+[0.167s] Level 5:colcon.colcon_core.verb:set package 'perception_interfaces' build argument 'cmake_args' from command line to 'None'
+[0.167s] Level 5:colcon.colcon_core.verb:set package 'perception_interfaces' build argument 'cmake_target' from command line to 'None'
+[0.167s] Level 5:colcon.colcon_core.verb:set package 'perception_interfaces' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.167s] Level 5:colcon.colcon_core.verb:set package 'perception_interfaces' build argument 'cmake_clean_cache' from command line to 'False'
+[0.167s] Level 5:colcon.colcon_core.verb:set package 'perception_interfaces' build argument 'cmake_clean_first' from command line to 'False'
+[0.167s] Level 5:colcon.colcon_core.verb:set package 'perception_interfaces' build argument 'cmake_force_configure' from command line to 'False'
+[0.167s] Level 5:colcon.colcon_core.verb:set package 'perception_interfaces' build argument 'ament_cmake_args' from command line to 'None'
+[0.167s] Level 5:colcon.colcon_core.verb:set package 'perception_interfaces' build argument 'catkin_cmake_args' from command line to 'None'
+[0.167s] Level 5:colcon.colcon_core.verb:set package 'perception_interfaces' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.167s] DEBUG:colcon.colcon_core.verb:Building package 'perception_interfaces' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces', 'merge_install': False, 'path': '/home/ciderlab-server3/adaptive_manip_ws/test/src/perception_interfaces', 'symlink_install': False, 'test_result_base': None}
+[0.168s] Level 5:colcon.colcon_core.verb:set package 'perception_pkg' build argument 'cmake_args' from command line to 'None'
+[0.168s] Level 5:colcon.colcon_core.verb:set package 'perception_pkg' build argument 'cmake_target' from command line to 'None'
+[0.168s] Level 5:colcon.colcon_core.verb:set package 'perception_pkg' build argument 'cmake_target_skip_unavailable' from command line to 'False'
+[0.168s] Level 5:colcon.colcon_core.verb:set package 'perception_pkg' build argument 'cmake_clean_cache' from command line to 'False'
+[0.168s] Level 5:colcon.colcon_core.verb:set package 'perception_pkg' build argument 'cmake_clean_first' from command line to 'False'
+[0.168s] Level 5:colcon.colcon_core.verb:set package 'perception_pkg' build argument 'cmake_force_configure' from command line to 'False'
+[0.168s] Level 5:colcon.colcon_core.verb:set package 'perception_pkg' build argument 'ament_cmake_args' from command line to 'None'
+[0.168s] Level 5:colcon.colcon_core.verb:set package 'perception_pkg' build argument 'catkin_cmake_args' from command line to 'None'
+[0.168s] Level 5:colcon.colcon_core.verb:set package 'perception_pkg' build argument 'catkin_skip_building_tests' from command line to 'False'
+[0.168s] DEBUG:colcon.colcon_core.verb:Building package 'perception_pkg' with the following arguments: {'ament_cmake_args': None, 'build_base': '/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg', 'catkin_cmake_args': None, 'catkin_skip_building_tests': False, 'cmake_args': None, 'cmake_clean_cache': False, 'cmake_clean_first': False, 'cmake_force_configure': False, 'cmake_target': None, 'cmake_target_skip_unavailable': False, 'install_base': '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg', 'merge_install': False, 'path': '/home/ciderlab-server3/adaptive_manip_ws/test/src/perception_pkg', 'symlink_install': False, 'test_result_base': None}
+[0.168s] INFO:colcon.colcon_core.executor:Executing jobs using 'parallel' executor
+[0.169s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete
+[0.169s] INFO:colcon.colcon_ros.task.ament_cmake.build:Building ROS package in '/home/ciderlab-server3/adaptive_manip_ws/test/src/perception_interfaces' with build type 'ament_cmake'
+[0.169s] INFO:colcon.colcon_cmake.task.cmake.build:Building CMake package in '/home/ciderlab-server3/adaptive_manip_ws/test/src/perception_interfaces'
+[0.170s] INFO:colcon.colcon_core.plugin_system:Skipping extension 'colcon_core.shell.bat': Not used on non-Windows systems
+[0.170s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[0.170s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[0.177s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros_navigation_goal:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake /home/ciderlab-server3/adaptive_manip_ws/test/src/perception_interfaces -DCMAKE_INSTALL_PREFIX=/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces
+[1.204s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros_navigation_goal:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake /home/ciderlab-server3/adaptive_manip_ws/test/src/perception_interfaces -DCMAKE_INSTALL_PREFIX=/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces
+[1.205s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros_navigation_goal:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake --build /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces -- -j24 -l24
+[2.163s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros_navigation_goal:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake --build /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces -- -j24 -l24
+[2.168s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros_navigation_goal:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake --install /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces
+[2.205s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(perception_interfaces)
+[2.205s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces' returned '0': CMAKE_PREFIX_PATH=${CMAKE_PREFIX_PATH}:/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaacsim_bringup:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_ros_navigation_goal:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_moveit:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/isaac_compressed_image_decoder:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/h1_fullbody_controller:/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/cmdvel_to_ackermann:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_teleop:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_example:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_dqn:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_core:/home/ciderlab-server3/turtlebot3_ws/install/turtlebot3_home_service_challenge_aruco:/opt/ros/humble /usr/bin/cmake --install /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces
+[2.206s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces' for CMake module files
+[2.207s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces' for CMake config files
+[2.207s] Level 1:colcon.colcon_core.shell:create_environment_hook('perception_interfaces', 'cmake_prefix_path')
+[2.207s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/hook/cmake_prefix_path.ps1'
+[2.207s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/hook/cmake_prefix_path.dsv'
+[2.207s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/hook/cmake_prefix_path.sh'
+[2.208s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/lib'
+[2.208s] Level 1:colcon.colcon_core.shell:create_environment_hook('perception_interfaces', 'ld_library_path_lib')
+[2.208s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/hook/ld_library_path_lib.ps1'
+[2.208s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/hook/ld_library_path_lib.dsv'
+[2.208s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/hook/ld_library_path_lib.sh'
+[2.208s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/bin'
+[2.208s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/lib/pkgconfig/perception_interfaces.pc'
+[2.208s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/lib/python3.10/site-packages'
+[2.208s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/bin'
+[2.209s] INFO:colcon.colcon_core.shell:Creating package script '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/package.ps1'
+[2.209s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/package.dsv'
+[2.209s] INFO:colcon.colcon_core.shell:Creating package script '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/package.sh'
+[2.209s] INFO:colcon.colcon_core.shell:Creating package script '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/package.bash'
+[2.210s] INFO:colcon.colcon_core.shell:Creating package script '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/package.zsh'
+[2.210s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/colcon-core/packages/perception_interfaces)
+[2.210s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(perception_interfaces)
+[2.210s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces' for CMake module files
+[2.210s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces' for CMake config files
+[2.211s] Level 1:colcon.colcon_core.shell:create_environment_hook('perception_interfaces', 'cmake_prefix_path')
+[2.211s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/hook/cmake_prefix_path.ps1'
+[2.211s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/hook/cmake_prefix_path.dsv'
+[2.211s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/hook/cmake_prefix_path.sh'
+[2.211s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/lib'
+[2.211s] Level 1:colcon.colcon_core.shell:create_environment_hook('perception_interfaces', 'ld_library_path_lib')
+[2.211s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/hook/ld_library_path_lib.ps1'
+[2.211s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/hook/ld_library_path_lib.dsv'
+[2.211s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/hook/ld_library_path_lib.sh'
+[2.212s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/bin'
+[2.212s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/lib/pkgconfig/perception_interfaces.pc'
+[2.212s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/lib/python3.10/site-packages'
+[2.212s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/bin'
+[2.212s] INFO:colcon.colcon_core.shell:Creating package script '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/package.ps1'
+[2.212s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/package.dsv'
+[2.212s] INFO:colcon.colcon_core.shell:Creating package script '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/package.sh'
+[2.212s] INFO:colcon.colcon_core.shell:Creating package script '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/package.bash'
+[2.213s] INFO:colcon.colcon_core.shell:Creating package script '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/perception_interfaces/package.zsh'
+[2.213s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/share/colcon-core/packages/perception_interfaces)
+[2.213s] INFO:colcon.colcon_ros.task.ament_python.build:Building ROS package in '/home/ciderlab-server3/adaptive_manip_ws/test/src/perception_pkg' with build type 'ament_python'
+[2.213s] Level 1:colcon.colcon_core.shell:create_environment_hook('perception_pkg', 'ament_prefix_path')
+[2.213s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/perception_pkg/hook/ament_prefix_path.ps1'
+[2.214s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/perception_pkg/hook/ament_prefix_path.dsv'
+[2.214s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/perception_pkg/hook/ament_prefix_path.sh'
+[2.214s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[2.214s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[2.334s] INFO:colcon.colcon_core.task.python.build:Building Python package in '/home/ciderlab-server3/adaptive_manip_ws/test/src/perception_pkg'
+[2.334s] INFO:colcon.colcon_core.shell:Skip shell extension 'powershell' for command environment: Not usable outside of PowerShell
+[2.334s] DEBUG:colcon.colcon_core.shell:Skip shell extension 'dsv' for command environment
+[2.500s] DEBUG:colcon.colcon_core.task.python.build:Available setuptools commands: install, install_data, easy_install, build, saveopts, bdist, symlink_data, setopt, build_py, bdist_egg, build_clib, register, sdist, upload_docs, bdist_dumb, dist_info, update_catalog, check, install_scripts, install_lib, rotate, init_catalog, compile_catalog, install_headers, test, clean, develop, bdist_wheel, extract_messages, alias, install_egg_info, upload, build_scripts, bdist_rpm, build_ext, egg_info
+[2.501s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoking command in '/home/ciderlab-server3/adaptive_manip_ws/test/src/perception_pkg': PYTHONPATH=/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/perception_pkg build --build-base /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build install --record /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/install.log --install-scripts $base/lib/perception_pkg --single-version-externally-managed install_data
+[2.639s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg' for CMake module files
+[2.639s] DEBUG:colcon.colcon_core.event_handler.log_command:Invoked command in '/home/ciderlab-server3/adaptive_manip_ws/test/src/perception_pkg' returned '0': PYTHONPATH=/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/perception_pkg build --build-base /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build install --record /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/install.log --install-scripts $base/lib/perception_pkg --single-version-externally-managed install_data
+[2.639s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg' for CMake config files
+[2.639s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib'
+[2.639s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/bin'
+[2.639s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/pkgconfig/perception_pkg.pc'
+[2.639s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages'
+[2.640s] Level 1:colcon.colcon_core.shell:create_environment_hook('perception_pkg', 'pythonpath')
+[2.640s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/perception_pkg/hook/pythonpath.ps1'
+[2.640s] INFO:colcon.colcon_core.shell:Creating environment descriptor '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/perception_pkg/hook/pythonpath.dsv'
+[2.640s] INFO:colcon.colcon_core.shell:Creating environment hook '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/perception_pkg/hook/pythonpath.sh'
+[2.640s] Level 1:colcon.colcon_core.environment:checking '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/bin'
+[2.640s] Level 1:colcon.colcon_core.environment:create_environment_scripts_only(perception_pkg)
+[2.640s] INFO:colcon.colcon_core.shell:Creating package script '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/perception_pkg/package.ps1'
+[2.641s] INFO:colcon.colcon_core.shell:Creating package descriptor '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/perception_pkg/package.dsv'
+[2.641s] INFO:colcon.colcon_core.shell:Creating package script '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/perception_pkg/package.sh'
+[2.641s] INFO:colcon.colcon_core.shell:Creating package script '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/perception_pkg/package.bash'
+[2.641s] INFO:colcon.colcon_core.shell:Creating package script '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/perception_pkg/package.zsh'
+[2.641s] Level 1:colcon.colcon_core.environment:create_file_with_runtime_dependencies(/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/colcon-core/packages/perception_pkg)
+[2.641s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:closing loop
+[2.641s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:loop closed
+[2.641s] DEBUG:colcon.colcon_parallel_executor.executor.parallel:run_until_complete finished with '0'
+[2.641s] DEBUG:colcon.colcon_core.event_reactor:joining thread
+[2.642s] DEBUG:colcon.colcon_core.event_reactor:joined thread
+[2.642s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/ciderlab-server3/adaptive_manip_ws/test/install/local_setup.ps1'
+[2.642s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/ciderlab-server3/adaptive_manip_ws/test/install/_local_setup_util_ps1.py'
+[2.642s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/ciderlab-server3/adaptive_manip_ws/test/install/setup.ps1'
+[2.643s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/ciderlab-server3/adaptive_manip_ws/test/install/local_setup.sh'
+[2.644s] INFO:colcon.colcon_core.shell:Creating prefix util module '/home/ciderlab-server3/adaptive_manip_ws/test/install/_local_setup_util_sh.py'
+[2.644s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/ciderlab-server3/adaptive_manip_ws/test/install/setup.sh'
+[2.645s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/ciderlab-server3/adaptive_manip_ws/test/install/local_setup.bash'
+[2.645s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/ciderlab-server3/adaptive_manip_ws/test/install/setup.bash'
+[2.646s] INFO:colcon.colcon_core.shell:Creating prefix script '/home/ciderlab-server3/adaptive_manip_ws/test/install/local_setup.zsh'
+[2.646s] INFO:colcon.colcon_core.shell:Creating prefix chain script '/home/ciderlab-server3/adaptive_manip_ws/test/install/setup.zsh'

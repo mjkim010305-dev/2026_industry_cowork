@@ -1,0 +1,52 @@
+running egg_info
+creating ../../build/perception_pkg/perception_pkg.egg-info
+writing ../../build/perception_pkg/perception_pkg.egg-info/PKG-INFO
+writing dependency_links to ../../build/perception_pkg/perception_pkg.egg-info/dependency_links.txt
+writing entry points to ../../build/perception_pkg/perception_pkg.egg-info/entry_points.txt
+writing requirements to ../../build/perception_pkg/perception_pkg.egg-info/requires.txt
+writing top-level names to ../../build/perception_pkg/perception_pkg.egg-info/top_level.txt
+writing manifest file '../../build/perception_pkg/perception_pkg.egg-info/SOURCES.txt'
+reading manifest file '../../build/perception_pkg/perception_pkg.egg-info/SOURCES.txt'
+writing manifest file '../../build/perception_pkg/perception_pkg.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build
+creating /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib
+creating /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg
+copying perception_pkg/point_cloud_utils.py -> /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg
+copying perception_pkg/stabilizer.py -> /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg
+copying perception_pkg/pixel_to_3d.py -> /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg
+copying perception_pkg/detected_object_node.py -> /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg
+copying perception_pkg/experiment_logger.py -> /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg
+copying perception_pkg/depth_detector.py -> /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg
+copying perception_pkg/__init__.py -> /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg
+running install
+running install_lib
+creating /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+copying /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg/point_cloud_utils.py -> /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+copying /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg/stabilizer.py -> /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+copying /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg/pixel_to_3d.py -> /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+copying /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg/detected_object_node.py -> /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+copying /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg/experiment_logger.py -> /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+copying /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg/depth_detector.py -> /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+copying /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg/__init__.py -> /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+byte-compiling /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/point_cloud_utils.py to point_cloud_utils.cpython-310.pyc
+byte-compiling /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/stabilizer.py to stabilizer.cpython-310.pyc
+byte-compiling /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/pixel_to_3d.py to pixel_to_3d.cpython-310.pyc
+byte-compiling /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/detected_object_node.py to detected_object_node.cpython-310.pyc
+byte-compiling /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/experiment_logger.py to experiment_logger.cpython-310.pyc
+byte-compiling /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/depth_detector.py to depth_detector.cpython-310.pyc
+byte-compiling /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/ament_index
+creating /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/ament_index/resource_index
+creating /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/ament_index/resource_index/packages
+copying resource/perception_pkg -> /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/ament_index/resource_index/packages
+copying package.xml -> /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/perception_pkg
+creating /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/share/perception_pkg/sample_data
+running install_egg_info
+Copying ../../build/perception_pkg/perception_pkg.egg-info to /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg-0.0.1-py3.10.egg-info
+running install_scripts
+Installing detected_object_node script to /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/perception_pkg
+Installing fake_d555_publisher script to /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/perception_pkg
+writing list of installed files to '/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/install.log'

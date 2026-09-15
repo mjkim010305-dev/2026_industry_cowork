@@ -149,13 +149,20 @@ bt_navigator:
       - custom_record_odom_pose_action_bt_node
       - custom_odom_limited_drive_action_bt_node
       - custom_drive_to_recorded_pose_action_bt_node
-      # custom_nav2_bt_plugins: return leg (demo.xml Leg 2) - snapshot spot A
-      # in the MAP frame via AMCL (immune to wheel-slip-corrupted odom during
-      # the push), then build a straight path back to it directly (skipping
+      # custom_nav2_bt_plugins: return leg (demo.xml Leg 2) - build a
+      # straight path back to the fixed {spot_a_goal} directly (skipping
       # ComputePathToPose, which refuses a goal cell that reads as lethal -
-      # exactly what the just-placed object looks like to the costmap)
+      # exactly what the just-placed object looks like to the costmap).
+      # custom_record_map_pose_action_bt_node is built but unused in
+      # demo.xml - see its header for why (kept on disk, not wired in).
       - custom_record_map_pose_action_bt_node
       - custom_compute_straight_path_to_pose_action_bt_node
+      # custom_nav2_bt_plugins: rotate sweep right after the push, before
+      # computing the return path, so AMCL gets fresh scan-matching
+      # bearings to correct any residual bias from slip-corrupted odom
+      # during the push (straight-line motion alone often can't fully
+      # correct this - see WiggleInPlace's header)
+      - custom_wiggle_in_place_action_bt_node
 
 bt_navigator_navigate_through_poses_rclcpp_node:
   ros__parameters:
@@ -174,7 +181,13 @@ controller_server:
     min_theta_velocity_threshold: 0.001
     failure_tolerance: 0.3
     progress_checker_plugin: "progress_checker"
-    goal_checker_plugins: ["general_goal_checker"] # "precise_goal_checker"
+    # return_goal_checker: tighter xy tolerance than general_goal_checker,
+    # used ONLY for the PlaceOnCommand Leg 2 return leg (demo.xml,
+    # FollowPathReverse's goal_checker_id) - general_goal_checker's 0.35m
+    # was loosened for Leg 1's approach (see its comment below), but that
+    # same looseness let the return leg call "arrived" up to 0.35m short of
+    # spot A, too far off for FixedPickObject's fixed-joint pick to reach.
+    goal_checker_plugins: ["general_goal_checker", "return_goal_checker"] # "precise_goal_checker"
     # FollowPathReverse: same DWB config as FollowPath but reverse-only
     # (min_vel_x negative, max_vel_x 0.0) - used ONLY for the PlaceOnCommand
     # Leg 2 return-to-spot-A leg (demo.xml), whose path keeps the robot
@@ -203,6 +216,11 @@ controller_server:
     #  xy_goal_tolerance: 0.25
     #  yaw_goal_tolerance: 0.25
     #  stateful: True
+    return_goal_checker:
+      stateful: True
+      plugin: "nav2_controller::SimpleGoalChecker"
+      xy_goal_tolerance: 0.1
+      yaw_goal_tolerance: 0.05
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
@@ -293,21 +311,46 @@ controller_server:
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.2
-      xy_goal_tolerance: 0.25
+      # was 0.25 (copied from FollowPath) -> tightened to 0.08: this is the
+      # radius at which RotateToGoal zeroes translation and switches to
+      # rotate-only. Since the path already keeps yaw matched to the goal
+      # throughout (no turning needed), RotateToGoal had nothing to correct
+      # and the robot just stopped translating at 0.25m out - short of
+      # return_goal_checker's 0.1m arrival radius, so it sat there stuck.
+      # Must stay <= return_goal_checker.xy_goal_tolerance.
+      xy_goal_tolerance: 0.08
       trans_stopped_velocity: 0.25
       short_circuit_trajectory_evaluation: True
       stateful: True
-      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
-      BaseObstacle.scale: 0.02
+      # RotateToGoal removed (was in FollowPath's list, copied here at
+      # first): with an asymmetric reverse-only velocity range
+      # (min_vel_x=-0.15, max_vel_x=0.0), DWB's trajectory sampling doesn't
+      # reliably produce an exact vx=0 sample once inside xy_goal_tolerance,
+      # so EVERY sampled trajectory reads as "translating" to RotateToGoal
+      # and gets rejected - "No valid trajectories out of 420!" / "1.00:
+      # RotateToGoal/Nonrotation command near goal." on every cycle, so the
+      # robot could never actually finish arriving. Not needed anyway: the
+      # path already keeps yaw matched to the goal the whole way (no
+      # in-place rotation to do at the end), so GoalAlign/PathAlign already
+      # cover orientation.
+      critics: ["Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+      # was 0.02 (same as FollowPath) -> 0.0: the last leg of the return is
+      # a short (~0.3m) approach directly to spot A, where the just-placed
+      # object sits - even this low a weight seemed to be enough cost to
+      # keep the robot crawling/dithering near it and never actually
+      # closing the gap (39s of silence then "Failed to make progress",
+      # no "No valid trajectories" so it wasn't a hard refusal, just never
+      # enough net progress). Zeroing it removes obstacle-avoidance cost
+      # entirely for this controller instance - acceptable here since
+      # approaching this specific, known, self-placed object on purpose is
+      # the whole point of this leg.
+      BaseObstacle.scale: 0.0
       PathAlign.scale: 32.0
       PathAlign.forward_point_distance: 0.1
       GoalAlign.scale: 24.0
       GoalAlign.forward_point_distance: 0.1
       PathDist.scale: 32.0
       GoalDist.scale: 24.0
-      RotateToGoal.scale: 32.0
-      RotateToGoal.slowing_factor: 1.5
-      RotateToGoal.lookahead_time: -1.0
 
 local_costmap:
   local_costmap:

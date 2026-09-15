@@ -1,0 +1,186 @@
+[0.015s] Invoking command in '/home/cofla/adaptive_manip_ws/build/perception_interfaces': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/cofla/adaptive_manip_ws/build/perception_interfaces -- -j18 -l18
+[0.058s] [35m[1mConsolidate compiler generated dependencies of target perception_interfaces__rosidl_generator_c[0m
+[0.062s] [  2%] Built target perception_interfaces__rs
+[0.068s] [  5%] Built target perception_interfaces__cpp
+[0.073s] [ 15%] Built target perception_interfaces__rosidl_generator_c
+[0.079s] [ 15%] Built target ament_cmake_python_copy_perception_interfaces
+[0.081s] [35m[1mConsolidate compiler generated dependencies of target perception_interfaces__rosidl_typesupport_fastrtps_cpp[0m
+[0.081s] [35m[1mConsolidate compiler generated dependencies of target perception_interfaces__rosidl_typesupport_cpp[0m
+[0.083s] [35m[1mConsolidate compiler generated dependencies of target perception_interfaces__rosidl_typesupport_introspection_cpp[0m
+[0.088s] [35m[1mConsolidate compiler generated dependencies of target perception_interfaces__rosidl_typesupport_c[0m
+[0.093s] [35m[1mConsolidate compiler generated dependencies of target perception_interfaces__rosidl_typesupport_fastrtps_c[0m
+[0.095s] [35m[1mConsolidate compiler generated dependencies of target perception_interfaces__rosidl_typesupport_introspection_c[0m
+[0.096s] [ 25%] Built target perception_interfaces__rosidl_typesupport_cpp
+[0.097s] [ 35%] Built target perception_interfaces__rosidl_typesupport_introspection_cpp
+[0.099s] [ 45%] Built target perception_interfaces__rosidl_typesupport_c
+[0.100s] [ 55%] Built target perception_interfaces__rosidl_typesupport_fastrtps_cpp
+[0.107s] [ 65%] Built target perception_interfaces__rosidl_typesupport_fastrtps_c
+[0.108s] [ 75%] Built target perception_interfaces__rosidl_typesupport_introspection_c
+[0.126s] [ 75%] Built target perception_interfaces
+[0.146s] [ 77%] Built target perception_interfaces__py
+[0.157s] [35m[1mConsolidate compiler generated dependencies of target perception_interfaces__rosidl_generator_py[0m
+[0.167s] [ 85%] Built target perception_interfaces__rosidl_generator_py
+[0.180s] [35m[1mConsolidate compiler generated dependencies of target perception_interfaces__rosidl_typesupport_c__pyext[0m
+[0.180s] [35m[1mConsolidate compiler generated dependencies of target perception_interfaces__rosidl_typesupport_introspection_c__pyext[0m
+[0.180s] [35m[1mConsolidate compiler generated dependencies of target perception_interfaces__rosidl_typesupport_fastrtps_c__pyext[0m
+[0.190s] [ 90%] Built target perception_interfaces__rosidl_typesupport_introspection_c__pyext
+[0.194s] [100%] Built target perception_interfaces__rosidl_typesupport_fastrtps_c__pyext
+[0.194s] [100%] Built target perception_interfaces__rosidl_typesupport_c__pyext
+[0.281s] running egg_info
+[0.281s] writing perception_interfaces.egg-info/PKG-INFO
+[0.281s] writing dependency_links to perception_interfaces.egg-info/dependency_links.txt
+[0.281s] writing top-level names to perception_interfaces.egg-info/top_level.txt
+[0.284s] reading manifest file 'perception_interfaces.egg-info/SOURCES.txt'
+[0.285s] writing manifest file 'perception_interfaces.egg-info/SOURCES.txt'
+[0.305s] [100%] Built target ament_cmake_python_build_perception_interfaces_egg
+[0.314s] Invoked command in '/home/cofla/adaptive_manip_ws/build/perception_interfaces' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --build /home/cofla/adaptive_manip_ws/build/perception_interfaces -- -j18 -l18
+[0.323s] Invoking command in '/home/cofla/adaptive_manip_ws/build/perception_interfaces': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/cofla/adaptive_manip_ws/build/perception_interfaces
+[0.328s] -- Install configuration: ""
+[0.328s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/ament_index/resource_index/rosidl_interfaces/perception_interfaces
+[0.328s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces
+[0.328s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg
+[0.328s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detected_object_array.h
+[0.328s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail
+[0.329s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object__functions.h
+[0.329s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object_array__type_support.h
+[0.329s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object__functions.c
+[0.329s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object__type_support.h
+[0.329s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object_array__struct.h
+[0.329s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object__struct.h
+[0.330s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object_array__functions.c
+[0.330s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object_array__functions.h
+[0.330s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/rosidl_generator_c__visibility_control.h
+[0.330s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detected_object.h
+[0.330s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/environment/library_path.sh
+[0.330s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/environment/library_path.dsv
+[0.330s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/lib/libperception_interfaces__rosidl_generator_c.so
+[0.330s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces
+[0.330s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg
+[0.330s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail
+[0.331s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object__rosidl_typesupport_fastrtps_c.h
+[0.331s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object_array__rosidl_typesupport_fastrtps_c.h
+[0.331s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/rosidl_typesupport_fastrtps_c__visibility_control.h
+[0.331s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/lib/libperception_interfaces__rosidl_typesupport_fastrtps_c.so
+[0.331s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces
+[0.332s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg
+[0.332s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/rosidl_typesupport_introspection_c__visibility_control.h
+[0.332s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail
+[0.332s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object_array__rosidl_typesupport_introspection_c.h
+[0.332s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object__type_support.c
+[0.332s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object_array__type_support.c
+[0.332s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object__rosidl_typesupport_introspection_c.h
+[0.333s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/lib/libperception_interfaces__rosidl_typesupport_introspection_c.so
+[0.333s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/lib/libperception_interfaces__rosidl_typesupport_c.so
+[0.333s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces
+[0.334s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg
+[0.334s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detected_object.hpp
+[0.334s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail
+[0.334s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object_array__builder.hpp
+[0.334s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object__builder.hpp
+[0.334s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object__struct.hpp
+[0.334s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object__type_support.hpp
+[0.335s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object_array__type_support.hpp
+[0.335s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object_array__traits.hpp
+[0.335s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object__traits.hpp
+[0.335s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object_array__struct.hpp
+[0.335s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/rosidl_generator_cpp__visibility_control.hpp
+[0.335s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detected_object_array.hpp
+[0.335s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces
+[0.335s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg
+[0.335s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail
+[0.336s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/dds_fastrtps
+[0.336s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object_array__rosidl_typesupport_fastrtps_cpp.hpp
+[0.336s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object__rosidl_typesupport_fastrtps_cpp.hpp
+[0.336s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/rosidl_typesupport_fastrtps_cpp__visibility_control.h
+[0.337s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/lib/libperception_interfaces__rosidl_typesupport_fastrtps_cpp.so
+[0.337s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces
+[0.337s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg
+[0.338s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail
+[0.338s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object__rosidl_typesupport_introspection_cpp.hpp
+[0.338s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object_array__type_support.cpp
+[0.338s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object__type_support.cpp
+[0.338s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/include/perception_interfaces/perception_interfaces/msg/detail/detected_object_array__rosidl_typesupport_introspection_cpp.hpp
+[0.339s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/lib/libperception_interfaces__rosidl_typesupport_introspection_cpp.so
+[0.339s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/lib/libperception_interfaces__rosidl_typesupport_cpp.so
+[0.340s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/environment/pythonpath.sh
+[0.340s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/environment/pythonpath.dsv
+[0.340s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces-0.0.1-py3.10.egg-info
+[0.340s] -- Installing: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces-0.0.1-py3.10.egg-info/SOURCES.txt
+[0.340s] -- Installing: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces-0.0.1-py3.10.egg-info/PKG-INFO
+[0.340s] -- Installing: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces-0.0.1-py3.10.egg-info/dependency_links.txt
+[0.341s] -- Installing: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces-0.0.1-py3.10.egg-info/top_level.txt
+[0.341s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces
+[0.341s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/_perception_interfaces_s.ep.rosidl_typesupport_introspection_c.c
+[0.341s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/perception_interfaces_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[0.341s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/perception_interfaces_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[0.341s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/perception_interfaces_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[0.341s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/_perception_interfaces_s.ep.rosidl_typesupport_c.c
+[0.341s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/__init__.py
+[0.341s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/msg
+[0.341s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/msg/_detected_object_s.c
+[0.341s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/msg/_detected_object_array_s.c
+[0.341s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/msg/_detected_object.py
+[0.341s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/msg/__init__.py
+[0.342s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/msg/_detected_object_array.py
+[0.342s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/_perception_interfaces_s.ep.rosidl_typesupport_fastrtps_c.c
+[0.342s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/libperception_interfaces__rosidl_generator_py.so
+[0.371s] Listing '/home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces'...
+[0.371s] Listing '/home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/msg'...
+[0.375s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/perception_interfaces_s__rosidl_typesupport_fastrtps_c.cpython-310-x86_64-linux-gnu.so
+[0.375s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/perception_interfaces_s__rosidl_typesupport_introspection_c.cpython-310-x86_64-linux-gnu.so
+[0.376s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/local/lib/python3.10/dist-packages/perception_interfaces/perception_interfaces_s__rosidl_typesupport_c.cpython-310-x86_64-linux-gnu.so
+[0.377s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/lib/libperception_interfaces__rosidl_generator_py.so
+[0.377s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/ament_index/resource_index/rust_packages/perception_interfaces
+[0.377s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/rust
+[0.377s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/rust/Cargo.toml
+[0.377s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/rust/src
+[0.377s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/rust/src/msg.rs
+[0.378s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/rust/src/lib.rs
+[0.378s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/rust/src/msg
+[0.378s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/rust/src/msg/rmw.rs
+[0.378s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/rust/build.rs
+[0.378s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/msg/DetectedObject.idl
+[0.378s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/msg/DetectedObjectArray.idl
+[0.379s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/msg/DetectedObject.msg
+[0.379s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/msg/DetectedObjectArray.msg
+[0.379s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/ament_index/resource_index/package_run_dependencies/perception_interfaces
+[0.379s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/ament_index/resource_index/parent_prefix_path/perception_interfaces
+[0.379s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/environment/ament_prefix_path.sh
+[0.379s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/environment/ament_prefix_path.dsv
+[0.379s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/environment/path.sh
+[0.379s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/environment/path.dsv
+[0.379s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/local_setup.bash
+[0.379s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/local_setup.sh
+[0.379s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/local_setup.zsh
+[0.379s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/local_setup.dsv
+[0.379s] -- Installing: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/package.dsv
+[0.379s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/ament_index/resource_index/packages/perception_interfaces
+[0.380s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/export_perception_interfaces__rosidl_generator_cExport.cmake
+[0.380s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/export_perception_interfaces__rosidl_generator_cExport-noconfig.cmake
+[0.381s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/export_perception_interfaces__rosidl_typesupport_fastrtps_cExport.cmake
+[0.381s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/export_perception_interfaces__rosidl_typesupport_fastrtps_cExport-noconfig.cmake
+[0.381s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/perception_interfaces__rosidl_typesupport_introspection_cExport.cmake
+[0.381s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/perception_interfaces__rosidl_typesupport_introspection_cExport-noconfig.cmake
+[0.382s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/perception_interfaces__rosidl_typesupport_cExport.cmake
+[0.382s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/perception_interfaces__rosidl_typesupport_cExport-noconfig.cmake
+[0.383s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/export_perception_interfaces__rosidl_generator_cppExport.cmake
+[0.383s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/export_perception_interfaces__rosidl_typesupport_fastrtps_cppExport.cmake
+[0.383s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/export_perception_interfaces__rosidl_typesupport_fastrtps_cppExport-noconfig.cmake
+[0.384s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/perception_interfaces__rosidl_typesupport_introspection_cppExport.cmake
+[0.384s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/perception_interfaces__rosidl_typesupport_introspection_cppExport-noconfig.cmake
+[0.384s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/perception_interfaces__rosidl_typesupport_cppExport.cmake
+[0.385s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/perception_interfaces__rosidl_typesupport_cppExport-noconfig.cmake
+[0.385s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/export_perception_interfaces__rosidl_generator_pyExport.cmake
+[0.386s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/export_perception_interfaces__rosidl_generator_pyExport-noconfig.cmake
+[0.386s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/rosidl_cmake-extras.cmake
+[0.386s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/ament_cmake_export_dependencies-extras.cmake
+[0.386s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/ament_cmake_export_include_directories-extras.cmake
+[0.386s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/ament_cmake_export_libraries-extras.cmake
+[0.386s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/ament_cmake_export_targets-extras.cmake
+[0.386s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/rosidl_cmake_export_typesupport_targets-extras.cmake
+[0.386s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/rosidl_cmake_export_typesupport_libraries-extras.cmake
+[0.386s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/rosidl_cmake_aggregate_target-extras.cmake
+[0.386s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/perception_interfacesConfig.cmake
+[0.386s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/cmake/perception_interfacesConfig-version.cmake
+[0.386s] -- Up-to-date: /home/cofla/adaptive_manip_ws/install/perception_interfaces/share/perception_interfaces/package.xml
+[0.389s] Invoked command in '/home/cofla/adaptive_manip_ws/build/perception_interfaces' returned '0': CMAKE_PREFIX_PATH=/opt/ros/humble /usr/bin/cmake --install /home/cofla/adaptive_manip_ws/build/perception_interfaces

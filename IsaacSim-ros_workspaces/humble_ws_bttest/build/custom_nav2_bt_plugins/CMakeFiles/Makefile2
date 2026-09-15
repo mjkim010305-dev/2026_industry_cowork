@@ -79,6 +79,7 @@ all: CMakeFiles/custom_open_loop_drive_action_bt_node.dir/all
 all: CMakeFiles/custom_record_odom_pose_action_bt_node.dir/all
 all: CMakeFiles/custom_record_map_pose_action_bt_node.dir/all
 all: CMakeFiles/custom_compute_straight_path_to_pose_action_bt_node.dir/all
+all: CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/all
 all: CMakeFiles/custom_odom_limited_drive_action_bt_node.dir/all
 all: CMakeFiles/custom_drive_to_recorded_pose_action_bt_node.dir/all
 all: CMakeFiles/custom_orient_path_to_yaw_action_bt_node.dir/all
@@ -109,6 +110,7 @@ clean: CMakeFiles/custom_open_loop_drive_action_bt_node.dir/clean
 clean: CMakeFiles/custom_record_odom_pose_action_bt_node.dir/clean
 clean: CMakeFiles/custom_record_map_pose_action_bt_node.dir/clean
 clean: CMakeFiles/custom_compute_straight_path_to_pose_action_bt_node.dir/clean
+clean: CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/clean
 clean: CMakeFiles/custom_odom_limited_drive_action_bt_node.dir/clean
 clean: CMakeFiles/custom_drive_to_recorded_pose_action_bt_node.dir/clean
 clean: CMakeFiles/custom_orient_path_to_yaw_action_bt_node.dir/clean
@@ -585,6 +587,32 @@ CMakeFiles/custom_compute_straight_path_to_pose_action_bt_node.dir/clean:
 .PHONY : CMakeFiles/custom_compute_straight_path_to_pose_action_bt_node.dir/clean
 
 #=============================================================================
+# Target rules for target CMakeFiles/custom_wiggle_in_place_action_bt_node.dir
+
+# All Build rule for target.
+CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/all:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/build.make CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/depend
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/build.make CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/build
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/build/custom_nav2_bt_plugins/CMakeFiles --progress-num=41,42 "Built target custom_wiggle_in_place_action_bt_node"
+.PHONY : CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/all
+
+# Build rule for subdir invocation for target.
+CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/rule: cmake_check_build_system
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/build/custom_nav2_bt_plugins/CMakeFiles 2
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/build/custom_nav2_bt_plugins/CMakeFiles 0
+.PHONY : CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/rule
+
+# Convenience name for target.
+custom_wiggle_in_place_action_bt_node: CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/rule
+.PHONY : custom_wiggle_in_place_action_bt_node
+
+# clean rule for target.
+CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/clean:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/build.make CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/clean
+.PHONY : CMakeFiles/custom_wiggle_in_place_action_bt_node.dir/clean
+
+#=============================================================================
 # Target rules for target CMakeFiles/custom_odom_limited_drive_action_bt_node.dir
 
 # All Build rule for target.
@@ -695,7 +723,7 @@ CMakeFiles/custom_movable_obstacle_localizers.dir/clean:
 CMakeFiles/rgbd_obstacle_localizer.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rgbd_obstacle_localizer.dir/build.make CMakeFiles/rgbd_obstacle_localizer.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/rgbd_obstacle_localizer.dir/build.make CMakeFiles/rgbd_obstacle_localizer.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/build/custom_nav2_bt_plugins/CMakeFiles --progress-num=41,42 "Built target rgbd_obstacle_localizer"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws_bttest/build/custom_nav2_bt_plugins/CMakeFiles --progress-num=43,44 "Built target rgbd_obstacle_localizer"
 .PHONY : CMakeFiles/rgbd_obstacle_localizer.dir/all
 
 # Build rule for subdir invocation for target.

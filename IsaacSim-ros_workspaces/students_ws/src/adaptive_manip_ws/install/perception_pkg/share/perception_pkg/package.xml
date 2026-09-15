@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematron="http://download.ros.org/schema/package_format3.xsd"?>
+<package format="3">
+  <name>perception_pkg</name>
+  <version>0.0.1</version>
+  <description>
+    TurtleBot3 + D555 + OpenMANIPULATOR-X 프로젝트, Perception(팀원1) 정식 ROS2 패키지.
+    9단계에서 만들어짐 — Phase 1(가짜 데이터) 동안 scripts/ 아래에서 따로 테스트하던
+    코드(3~8단계)를 정식 패키지로 옮기고, 실제로 /detected_object 토픽에 연속
+    publish하는 노드(detected_object_node)를 추가했다.
+  </description>
+  <maintainer email="you@example.com">team1</maintainer>
+  <license>TODO</license>
+
+  <depend>rclpy</depend>
+  <depend>sensor_msgs</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+  <depend>message_filters</depend>
+  <depend>cv_bridge</depend>
+  <depend>perception_interfaces</depend>
+  <exec_depend>python3-opencv</exec_depend>
+  <exec_depend>python3-numpy</exec_depend>
+
+  <test_depend>ament_copyright</test_depend>
+  <test_depend>ament_flake8</test_depend>
+  <test_depend>ament_pep257</test_depend>
+  <test_depend>python3-pytest</test_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>

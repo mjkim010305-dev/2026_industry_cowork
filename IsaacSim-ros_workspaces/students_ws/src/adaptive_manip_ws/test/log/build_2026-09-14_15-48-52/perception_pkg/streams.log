@@ -1,0 +1,25 @@
+[0.290s] Invoking command in '/home/ciderlab-server3/adaptive_manip_ws/test/src/perception_pkg': PYTHONPATH=/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/perception_pkg build --build-base /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build install --record /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/install.log --install-scripts $base/lib/perception_pkg --single-version-externally-managed install_data
+[0.405s] running egg_info
+[0.405s] writing ../../build/perception_pkg/perception_pkg.egg-info/PKG-INFO
+[0.405s] writing dependency_links to ../../build/perception_pkg/perception_pkg.egg-info/dependency_links.txt
+[0.405s] writing entry points to ../../build/perception_pkg/perception_pkg.egg-info/entry_points.txt
+[0.405s] writing requirements to ../../build/perception_pkg/perception_pkg.egg-info/requires.txt
+[0.405s] writing top-level names to ../../build/perception_pkg/perception_pkg.egg-info/top_level.txt
+[0.406s] reading manifest file '../../build/perception_pkg/perception_pkg.egg-info/SOURCES.txt'
+[0.406s] writing manifest file '../../build/perception_pkg/perception_pkg.egg-info/SOURCES.txt'
+[0.406s] running build
+[0.406s] running build_py
+[0.406s] copying perception_pkg/detected_object_node.py -> /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg
+[0.407s] running install
+[0.407s] running install_lib
+[0.407s] copying /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg/detected_object_node.py -> /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+[0.407s] byte-compiling /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/detected_object_node.py to detected_object_node.cpython-310.pyc
+[0.408s] running install_data
+[0.408s] running install_egg_info
+[0.408s] removing '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg-0.0.1-py3.10.egg-info' (and everything under it)
+[0.410s] Copying ../../build/perception_pkg/perception_pkg.egg-info to /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg-0.0.1-py3.10.egg-info
+[0.410s] running install_scripts
+[0.419s] Installing detected_object_node script to /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/perception_pkg
+[0.419s] Installing fake_d555_publisher script to /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/perception_pkg
+[0.420s] writing list of installed files to '/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/install.log'
+[0.430s] Invoked command in '/home/ciderlab-server3/adaptive_manip_ws/test/src/perception_pkg' returned '0': PYTHONPATH=/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/perception_pkg build --build-base /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build install --record /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/install.log --install-scripts $base/lib/perception_pkg --single-version-externally-managed install_data

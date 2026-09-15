@@ -1,0 +1,25 @@
+[0.291s] Invoking command in '/home/ciderlab-server3/adaptive_manip_ws/test/src/perception_pkg': AMENT_PREFIX_PATH=/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces:${CMAKE_PREFIX_PATH} LD_LIBRARY_PATH=/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages:/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/perception_pkg build --build-base /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build install --record /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/install.log --install-scripts $base/lib/perception_pkg --single-version-externally-managed install_data
+[0.398s] running egg_info
+[0.398s] writing ../../build/perception_pkg/perception_pkg.egg-info/PKG-INFO
+[0.398s] writing dependency_links to ../../build/perception_pkg/perception_pkg.egg-info/dependency_links.txt
+[0.398s] writing entry points to ../../build/perception_pkg/perception_pkg.egg-info/entry_points.txt
+[0.398s] writing requirements to ../../build/perception_pkg/perception_pkg.egg-info/requires.txt
+[0.398s] writing top-level names to ../../build/perception_pkg/perception_pkg.egg-info/top_level.txt
+[0.399s] reading manifest file '../../build/perception_pkg/perception_pkg.egg-info/SOURCES.txt'
+[0.399s] writing manifest file '../../build/perception_pkg/perception_pkg.egg-info/SOURCES.txt'
+[0.399s] running build
+[0.399s] running build_py
+[0.399s] copying perception_pkg/depth_detector.py -> /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg
+[0.399s] running install
+[0.399s] running install_lib
+[0.400s] copying /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build/lib/perception_pkg/depth_detector.py -> /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg
+[0.400s] byte-compiling /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg/depth_detector.py to depth_detector.cpython-310.pyc
+[0.400s] running install_data
+[0.400s] running install_egg_info
+[0.401s] removing '/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg-0.0.1-py3.10.egg-info' (and everything under it)
+[0.401s] Copying ../../build/perception_pkg/perception_pkg.egg-info to /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages/perception_pkg-0.0.1-py3.10.egg-info
+[0.401s] running install_scripts
+[0.411s] Installing detected_object_node script to /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/perception_pkg
+[0.412s] Installing fake_d555_publisher script to /home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/perception_pkg
+[0.412s] writing list of installed files to '/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/install.log'
+[0.422s] Invoked command in '/home/ciderlab-server3/adaptive_manip_ws/test/src/perception_pkg' returned '0': AMENT_PREFIX_PATH=/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces:${AMENT_PREFIX_PATH} CMAKE_PREFIX_PATH=/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces:${CMAKE_PREFIX_PATH} LD_LIBRARY_PATH=/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/lib:${LD_LIBRARY_PATH} PYTHONPATH=/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/prefix_override:/usr/lib/python3/dist-packages/colcon_core/task/python/colcon_distutils_commands:/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_pkg/lib/python3.10/site-packages:/home/ciderlab-server3/adaptive_manip_ws/test/install/perception_interfaces/local/lib/python3.10/dist-packages:${PYTHONPATH} /usr/bin/python3 -W ignore:setup.py install is deprecated -W ignore:easy_install command is deprecated setup.py egg_info --egg-base ../../build/perception_pkg build --build-base /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/build install --record /home/ciderlab-server3/adaptive_manip_ws/test/build/perception_pkg/install.log --install-scripts $base/lib/perception_pkg --single-version-externally-managed install_data

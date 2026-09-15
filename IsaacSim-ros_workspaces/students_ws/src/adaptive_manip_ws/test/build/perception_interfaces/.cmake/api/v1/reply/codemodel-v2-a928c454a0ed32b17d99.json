@@ -1,0 +1,258 @@
+{
+	"configurations" : 
+	[
+		{
+			"directories" : 
+			[
+				{
+					"build" : ".",
+					"childIndexes" : 
+					[
+						1,
+						2
+					],
+					"hasInstallRule" : true,
+					"jsonFile" : "directory-.-9344d709ef3c88f2b794.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"projectIndex" : 0,
+					"source" : ".",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						17,
+						18
+					]
+				},
+				{
+					"build" : "perception_interfaces__py",
+					"jsonFile" : "directory-perception_interfaces__py-7c984da606bf62db2e2a.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces/perception_interfaces__py",
+					"targetIndexes" : 
+					[
+						4
+					]
+				},
+				{
+					"build" : "perception_interfaces__rs",
+					"jsonFile" : "directory-perception_interfaces__rs-ba2ad4064be61dc1af8b.json",
+					"minimumCMakeVersion" : 
+					{
+						"string" : "3.12"
+					},
+					"parentIndex" : 0,
+					"projectIndex" : 0,
+					"source" : "/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces/perception_interfaces__rs",
+					"targetIndexes" : 
+					[
+						16
+					]
+				}
+			],
+			"name" : "",
+			"projects" : 
+			[
+				{
+					"directoryIndexes" : 
+					[
+						0,
+						1,
+						2
+					],
+					"name" : "perception_interfaces",
+					"targetIndexes" : 
+					[
+						0,
+						1,
+						2,
+						3,
+						4,
+						5,
+						6,
+						7,
+						8,
+						9,
+						10,
+						11,
+						12,
+						13,
+						14,
+						15,
+						16,
+						17,
+						18
+					]
+				}
+			],
+			"targets" : 
+			[
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_build_perception_interfaces_egg::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_build_perception_interfaces_egg-223a4840557dc10a8de3.json",
+					"name" : "ament_cmake_python_build_perception_interfaces_egg",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "ament_cmake_python_copy_perception_interfaces::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-ament_cmake_python_copy_perception_interfaces-bda7be67ff137c714200.json",
+					"name" : "ament_cmake_python_copy_perception_interfaces",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces-1523e9b7de6a61dea757.json",
+					"name" : "perception_interfaces",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__cpp-921bed0e32500c225143.json",
+					"name" : "perception_interfaces__cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 1,
+					"id" : "perception_interfaces__py::@90ae2e71c88d7af79f92",
+					"jsonFile" : "target-perception_interfaces__py-e9eb0041061394176172.json",
+					"name" : "perception_interfaces__py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_generator_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_generator_c-6f1de8aab0f9dd43038b.json",
+					"name" : "perception_interfaces__rosidl_generator_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_generator_py::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_generator_py-ee5aac2fa6fe4c69b4a7.json",
+					"name" : "perception_interfaces__rosidl_generator_py",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_c-fa222a02fba24892982a.json",
+					"name" : "perception_interfaces__rosidl_typesupport_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_c__pyext-cf58e0ce8521dd40c550.json",
+					"name" : "perception_interfaces__rosidl_typesupport_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_cpp-d33f0e1c3b86f4c4d38c.json",
+					"name" : "perception_interfaces__rosidl_typesupport_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_fastrtps_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_fastrtps_c-31e9c747a64bfaa4b7ae.json",
+					"name" : "perception_interfaces__rosidl_typesupport_fastrtps_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_fastrtps_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_fastrtps_c__pyext-a6e3bd998d683ad17bd7.json",
+					"name" : "perception_interfaces__rosidl_typesupport_fastrtps_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_fastrtps_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_fastrtps_cpp-6f27b17794a35c02e13c.json",
+					"name" : "perception_interfaces__rosidl_typesupport_fastrtps_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_introspection_c::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_introspection_c-2ac07c783a1823c3d640.json",
+					"name" : "perception_interfaces__rosidl_typesupport_introspection_c",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_introspection_c__pyext::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_introspection_c__pyext-86a00dd5214b201ed12c.json",
+					"name" : "perception_interfaces__rosidl_typesupport_introspection_c__pyext",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces__rosidl_typesupport_introspection_cpp::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces__rosidl_typesupport_introspection_cpp-cb0e4cc970c0abb4a3e0.json",
+					"name" : "perception_interfaces__rosidl_typesupport_introspection_cpp",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 2,
+					"id" : "perception_interfaces__rs::@33da1861474e259d878d",
+					"jsonFile" : "target-perception_interfaces__rs-afb77a7620b2a7958158.json",
+					"name" : "perception_interfaces__rs",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "perception_interfaces_uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-perception_interfaces_uninstall-d11b424cc51057eb2a45.json",
+					"name" : "perception_interfaces_uninstall",
+					"projectIndex" : 0
+				},
+				{
+					"directoryIndex" : 0,
+					"id" : "uninstall::@6890427a1f51a3e7e1df",
+					"jsonFile" : "target-uninstall-0b3d3780502a1a45996b.json",
+					"name" : "uninstall",
+					"projectIndex" : 0
+				}
+			]
+		}
+	],
+	"kind" : "codemodel",
+	"paths" : 
+	{
+		"build" : "/home/ciderlab-server3/adaptive_manip_ws/test/build/perception_interfaces",
+		"source" : "/home/ciderlab-server3/adaptive_manip_ws/test/src/perception_interfaces"
+	},
+	"version" : 
+	{
+		"major" : 2,
+		"minor" : 3
+	}
+}
