@@ -289,6 +289,14 @@ class PerceptionStabilizer(Node):
         yaw_std = circular_std(np.array([y for _, y in self.yaw_hist]))
         converged = math.degrees(yaw_std) < self.converge_std_deg
 
+        self.get_logger().info(
+            "perception_stabilizer: state=%s detect_rate=%.2f yaw_std=%.1fdeg(need<%.1f) "
+            "n_points=%s planar=%s" % (
+                self.state, detect_rate, math.degrees(yaw_std), self.converge_std_deg,
+                (est["n_points"] if est is not None else "n/a"),
+                (est["planar"] if est is not None else "n/a")),
+            throttle_duration_sec=1.0)
+
         # ---- state transition (convergence side) --------------------
         if self.state == CANDIDATE:
             if (detect_rate >= self.tracking_enter_rate and converged and

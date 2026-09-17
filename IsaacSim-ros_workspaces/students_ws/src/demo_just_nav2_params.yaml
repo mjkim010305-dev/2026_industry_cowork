@@ -1,0 +1,522 @@
+amcl:
+  ros__parameters:
+    use_sim_time: True
+    # was 0.2 / 0.2 / 0.2 / 0.2 -> lowered to 0.1: AMCL covariance was observed growing
+    # (not shrinking) across samples; 0.2 overestimates odom motion noise given the sim
+    # bridge's odom is fairly accurate, so particles were spreading faster than the
+    # (already weak, see max_beams below) laser correction could pull them back in.
+    alpha1: 0.1
+    alpha2: 0.1
+    alpha3: 0.1
+    alpha4: 0.1
+    # was 0.2 -> lowered to 0.05: same reasoning as alpha1-4, applied to the
+    # rotation-induced translation noise term specifically.
+    alpha5: 0.05
+    base_frame_id: "base_footprint"
+    beam_skip_distance: 0.5
+    beam_skip_error_threshold: 0.9
+    beam_skip_threshold: 0.3
+    do_beamskip: false
+    global_frame_id: "map"
+    lambda_short: 0.1
+    laser_likelihood_max_dist: 2.0
+    laser_max_range: 100.0
+    laser_min_range: -1.0
+    laser_model_type: "likelihood_field"
+    # was 60 -> raised to 200: /scan has a ~155 degree (~45% of 1066 beams) contiguous
+    # invalid/blind arc (range -1.0, roughly behind the robot). AMCL subsamples
+    # max_beams evenly across the full scan, so most of the 60 picked beams were
+    # landing in the blind arc and contributing no real correction information.
+    # Raising the count compensates so enough beams still land in the valid ~205 degrees.
+    max_beams: 200
+    max_particles: 2000
+    min_particles: 500
+    odom_frame_id: "odom"
+    pf_err: 0.05
+    pf_z: 0.99
+    # was 0.0 / 0.0 -> enabled Augmented MCL recovery (fast 0.1, slow 0.001): with both
+    # at 0.0, AMCL has no mechanism to inject random particles when average likelihood
+    # drops, so once the filter starts diverging (as observed: covariance climbing
+    # across two consecutive /amcl_pose samples) it has no way to recover on its own.
+    recovery_alpha_fast: 0.1
+    recovery_alpha_slow: 0.001
+    resample_interval: 1
+    robot_model_type: "nav2_amcl::DifferentialMotionModel"
+    save_pose_rate: 0.5
+    sigma_hit: 0.2
+    tf_broadcast: true
+    transform_tolerance: 1.0
+    # was 0.2 rad (~11.5 deg) / 0.25 m -> lowered to 0.1 / 0.1: with alpha1-5 causing
+    # particle spread between updates, correcting more frequently (smaller motion
+    # thresholds before AMCL re-runs the laser update) limits how far particles can
+    # drift apart before being pulled back in.
+    update_min_a: 0.1
+    update_min_d: 0.1
+    z_hit: 0.5
+    z_max: 0.05
+    z_rand: 0.5
+    z_short: 0.05
+    scan_topic: scan
+
+bt_navigator:
+  ros__parameters:
+    use_sim_time: True
+    global_frame: map
+    robot_base_frame: base_link
+    odom_topic: /odom
+    bt_loop_duration: 10
+    default_server_timeout: 20
+    wait_for_service_timeout: 1000
+    # 'default_nav_through_poses_bt_xml' and 'default_nav_to_pose_bt_xml' are use defaults:
+    # nav2_bt_navigator/navigate_to_pose_w_replanning_and_recovery.xml
+    # nav2_bt_navigator/navigate_through_poses_w_replanning_and_recovery.xml
+    # They can be set here or via a RewrittenYaml remap from a parent launch file to Nav2.
+    default_nav_to_pose_bt_xml: "/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/demo_just_nav2.xml"
+    plugin_lib_names:
+      - nav2_compute_path_to_pose_action_bt_node
+      - nav2_compute_path_through_poses_action_bt_node
+      - nav2_smooth_path_action_bt_node
+      - nav2_follow_path_action_bt_node
+      - nav2_spin_action_bt_node
+      - nav2_wait_action_bt_node
+      - nav2_assisted_teleop_action_bt_node
+      - nav2_back_up_action_bt_node
+      - nav2_drive_on_heading_bt_node
+      - nav2_clear_costmap_service_bt_node
+      - nav2_is_stuck_condition_bt_node
+      - nav2_goal_reached_condition_bt_node
+      - nav2_goal_updated_condition_bt_node
+      - nav2_globally_updated_goal_condition_bt_node
+      - nav2_is_path_valid_condition_bt_node
+      - nav2_initial_pose_received_condition_bt_node
+      - nav2_reinitialize_global_localization_service_bt_node
+      - nav2_rate_controller_bt_node
+      - nav2_distance_controller_bt_node
+      - nav2_speed_controller_bt_node
+      - nav2_truncate_path_action_bt_node
+      - nav2_truncate_path_local_action_bt_node
+      - nav2_goal_updater_node_bt_node
+      - nav2_recovery_node_bt_node
+      - nav2_pipeline_sequence_bt_node
+      - nav2_round_robin_node_bt_node
+      - nav2_transform_available_condition_bt_node
+      - nav2_time_expired_condition_bt_node
+      - nav2_path_expiring_timer_condition
+      - nav2_distance_traveled_condition_bt_node
+      - nav2_single_trigger_bt_node
+      - nav2_goal_updated_controller_bt_node
+      - nav2_is_battery_low_condition_bt_node
+      - nav2_navigate_through_poses_action_bt_node
+      - nav2_navigate_to_pose_action_bt_node
+      - nav2_remove_passed_goals_action_bt_node
+      - nav2_planner_selector_bt_node
+      - nav2_controller_selector_bt_node
+      - nav2_goal_checker_selector_bt_node
+      - nav2_controller_cancel_bt_node
+      - nav2_path_longer_on_approach_bt_node
+      - nav2_wait_cancel_bt_node
+      - nav2_spin_cancel_bt_node
+      - nav2_back_up_cancel_bt_node
+      - nav2_assisted_teleop_cancel_bt_node
+      - nav2_drive_on_heading_cancel_bt_node
+      - nav2_is_battery_charging_condition_bt_node
+      # custom_nav2_bt_plugins: movable-obstacle handling
+      - custom_is_movable_obstacle_detected_condition_bt_node
+      - custom_wait_for_obstacle_clearance_action_bt_node
+      - custom_capture_initial_path_action_bt_node
+      - custom_approach_obstacle_normal_action_bt_node
+      # custom_nav2_bt_plugins: fixed pick-before-navigate (custom_bt_manipulator.xml)
+      - custom_fixed_pick_object_action_bt_node
+      # custom_nav2_bt_plugins: perception-decoupled gate + pose lock (task 2)
+      - custom_is_obstacle_tracking_condition_bt_node
+      - custom_lock_approach_pose_action_bt_node
+      # custom_nav2_bt_plugins: fixed-coordinate goal + on-demand place (place_object_example.xml)
+      - custom_set_fixed_goal_action_bt_node
+      - custom_place_object_action_bt_node
+      # custom_nav2_bt_plugins: topic-triggered on-demand branch (demo.xml PlaceOnCommand)
+      - custom_topic_trigger_condition_bt_node
+      # custom_nav2_bt_plugins: in-place push-obstacle-aside action (demo.xml PlaceOnCommand Leg 2)
+      - custom_push_obstacle_action_bt_node
+      - custom_retract_arm_action_bt_node
+      # custom_nav2_bt_plugins: pre-orient the path's final stretch instead of
+      # relying on DWB's slow terminal RotateToGoal-only phase (demo.xml Leg 1)
+      - custom_orient_path_to_yaw_action_bt_node
+      # custom_nav2_bt_plugins: blind /cmd_vel drive, no collision lookahead
+      # (demo.xml PlaceOnCommand Leg 2, the intentional push into the obstacle)
+      - custom_open_loop_drive_action_bt_node
+      # custom_nav2_bt_plugins: measured-distance push (demo.xml Leg 2) -
+      # actual distance covered instead of blind timing
+      - custom_record_odom_pose_action_bt_node
+      - custom_odom_limited_drive_action_bt_node
+      - custom_drive_to_recorded_pose_action_bt_node
+      # custom_nav2_bt_plugins: return leg (demo.xml Leg 2) - build a
+      # straight path back to the fixed {spot_a_goal} directly (skipping
+      # ComputePathToPose, which refuses a goal cell that reads as lethal -
+      # exactly what the just-placed object looks like to the costmap).
+      # custom_record_map_pose_action_bt_node is built but unused in
+      # demo.xml - see its header for why (kept on disk, not wired in).
+      - custom_record_map_pose_action_bt_node
+      - custom_compute_straight_path_to_pose_action_bt_node
+      # custom_nav2_bt_plugins: rotate sweep right after the push, before
+      # computing the return path, so AMCL gets fresh scan-matching
+      # bearings to correct any residual bias from slip-corrupted odom
+      # during the push (straight-line motion alone often can't fully
+      # correct this - see WiggleInPlace's header)
+      - custom_wiggle_in_place_action_bt_node
+
+bt_navigator_navigate_through_poses_rclcpp_node:
+  ros__parameters:
+    use_sim_time: True
+
+bt_navigator_navigate_to_pose_rclcpp_node:
+  ros__parameters:
+    use_sim_time: True
+
+controller_server:
+  ros__parameters:
+    use_sim_time: True
+    controller_frequency: 20.0
+    min_x_velocity_threshold: 0.001
+    min_y_velocity_threshold: 0.5
+    min_theta_velocity_threshold: 0.001
+    failure_tolerance: 0.3
+    progress_checker_plugin: "progress_checker"
+    # return_goal_checker: tighter xy tolerance than general_goal_checker,
+    # used ONLY for the PlaceOnCommand Leg 2 return leg (demo.xml,
+    # FollowPathReverse's goal_checker_id) - general_goal_checker's 0.35m
+    # was loosened for Leg 1's approach (see its comment below), but that
+    # same looseness let the return leg call "arrived" up to 0.35m short of
+    # spot A, too far off for FixedPickObject's fixed-joint pick to reach.
+    goal_checker_plugins: ["general_goal_checker", "return_goal_checker"] # "precise_goal_checker"
+    # FollowPathReverse: same DWB config as FollowPath but reverse-only
+    # (min_vel_x negative, max_vel_x 0.0) - used ONLY for the PlaceOnCommand
+    # Leg 2 return-to-spot-A leg (demo.xml), whose path keeps the robot
+    # facing the same yaw it arrived at spot A with (so FixedPickObject's
+    # fixed-joint pick sees the object in front of it, not behind) - which
+    # geometrically requires backing up to it, not turning around and
+    # driving forward. FollowPath itself stays forward-only for every other
+    # leg (Leg 1/3, normal navigation) so ordinary driving never reverses.
+    controller_plugins: ["FollowPath", "FollowPathReverse"]
+
+    # Progress checker parameters
+    progress_checker:
+      plugin: "nav2_controller::SimpleProgressChecker"
+      required_movement_radius: 0.5
+      # was 10.0 -> raised to 25.0: SimpleProgressChecker only counts translational
+      # movement, but the FollowPath "RotateToGoal" critic intentionally zeroes linear
+      # velocity to rotate in place once the robot is within xy_goal_tolerance of a
+      # goal. Sim log showed a spot-goal FollowPath failing with "Failed to make
+      # progress" after 33s (not immediately at 10s), consistent with the robot
+      # actually reaching the goal area then stalling during the rotate-in-place
+      # alignment phase and getting killed by this timer before it could finish.
+      movement_time_allowance: 25.0
+    # Goal checker parameters
+    #precise_goal_checker:
+    #  plugin: "nav2_controller::SimpleGoalChecker"
+    #  xy_goal_tolerance: 0.25
+    #  yaw_goal_tolerance: 0.25
+    #  stateful: True
+    return_goal_checker:
+      stateful: True
+      plugin: "nav2_controller::SimpleGoalChecker"
+      xy_goal_tolerance: 0.1
+      yaw_goal_tolerance: 0.05
+    general_goal_checker:
+      stateful: True
+      plugin: "nav2_controller::SimpleGoalChecker"
+      # was 0.25 -> loosened to 0.35: spot-goal legs (e.g. Leg 1) kept hitting
+      # "Failed to make progress" within centimeters of the goal (observed:
+      # robot sat 0.257m away, just outside the old 0.25 tolerance) - the
+      # final approach near a tight/obstacle-adjacent spot couldn't quite
+      # close that last gap before the progress checker gave up.
+      xy_goal_tolerance: 0.35
+      # was 0.25 (nav2 default; still what the commented-out precise_goal_checker
+      # above uses) -> tightened to 0.05: with xy loosened above, the robot
+      # was satisfying "close enough" and stopping well before its final yaw
+      # matched the commanded one. xy_goal_tolerance was the actual cause of
+      # the old stalls (translation-only progress checker vs RotateToGoal),
+      # not yaw, so tightening yaw alone shouldn't reintroduce that failure.
+      yaw_goal_tolerance: 0.05
+    # DWB parameters
+    FollowPath:
+      plugin: "dwb_core::DWBLocalPlanner"
+      debug_trajectory_details: True
+      min_vel_x: 0.0
+      min_vel_y: 0.0
+      max_vel_x: 0.26
+      max_vel_y: 0.0
+      max_vel_theta: 1.0
+      min_speed_xy: 0.0
+      max_speed_xy: 0.26
+      min_speed_theta: 0.0
+      # Add high threshold velocity for turtlebot 3 issue.
+      # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
+      acc_lim_x: 2.5
+      acc_lim_y: 0.0
+      acc_lim_theta: 3.2
+      decel_lim_x: -2.5
+      decel_lim_y: 0.0
+      decel_lim_theta: -3.2
+      vx_samples: 20
+      vy_samples: 5
+      vtheta_samples: 20
+      sim_time: 1.7
+      linear_granularity: 0.05
+      angular_granularity: 0.025
+      transform_tolerance: 0.2
+      xy_goal_tolerance: 0.25
+      trans_stopped_velocity: 0.25
+      short_circuit_trajectory_evaluation: True
+      stateful: True
+      critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+      BaseObstacle.scale: 0.02
+      PathAlign.scale: 32.0
+      PathAlign.forward_point_distance: 0.1
+      GoalAlign.scale: 24.0
+      GoalAlign.forward_point_distance: 0.1
+      PathDist.scale: 32.0
+      GoalDist.scale: 24.0
+      RotateToGoal.scale: 32.0
+      # was 5.0 -> lowered to 1.5: robot kept getting VERY close to the goal
+      # yaw (within a few cm / single-digit-to-teens degrees) but never
+      # closing the last bit before "Failed to make progress" - consistent
+      # with a high slowing_factor decelerating angular velocity so
+      # aggressively near the target that the final approach asymptotes
+      # instead of completing within the time window.
+      RotateToGoal.slowing_factor: 1.5
+      RotateToGoal.lookahead_time: -1.0
+
+    # Reverse-only variant of FollowPath above - see controller_plugins comment.
+    FollowPathReverse:
+      plugin: "dwb_core::DWBLocalPlanner"
+      debug_trajectory_details: True
+      min_vel_x: -0.15
+      min_vel_y: 0.0
+      max_vel_x: 0.0
+      max_vel_y: 0.0
+      max_vel_theta: 1.0
+      min_speed_xy: 0.0
+      max_speed_xy: 0.15
+      min_speed_theta: 0.0
+      acc_lim_x: 2.5
+      acc_lim_y: 0.0
+      acc_lim_theta: 3.2
+      decel_lim_x: -2.5
+      decel_lim_y: 0.0
+      decel_lim_theta: -3.2
+      vx_samples: 20
+      vy_samples: 5
+      vtheta_samples: 20
+      sim_time: 1.7
+      linear_granularity: 0.05
+      angular_granularity: 0.025
+      transform_tolerance: 0.2
+      # was 0.25 (copied from FollowPath) -> tightened to 0.08: this is the
+      # radius at which RotateToGoal zeroes translation and switches to
+      # rotate-only. Since the path already keeps yaw matched to the goal
+      # throughout (no turning needed), RotateToGoal had nothing to correct
+      # and the robot just stopped translating at 0.25m out - short of
+      # return_goal_checker's 0.1m arrival radius, so it sat there stuck.
+      # Must stay <= return_goal_checker.xy_goal_tolerance.
+      xy_goal_tolerance: 0.08
+      trans_stopped_velocity: 0.25
+      short_circuit_trajectory_evaluation: True
+      stateful: True
+      # RotateToGoal removed (was in FollowPath's list, copied here at
+      # first): with an asymmetric reverse-only velocity range
+      # (min_vel_x=-0.15, max_vel_x=0.0), DWB's trajectory sampling doesn't
+      # reliably produce an exact vx=0 sample once inside xy_goal_tolerance,
+      # so EVERY sampled trajectory reads as "translating" to RotateToGoal
+      # and gets rejected - "No valid trajectories out of 420!" / "1.00:
+      # RotateToGoal/Nonrotation command near goal." on every cycle, so the
+      # robot could never actually finish arriving. Not needed anyway: the
+      # path already keeps yaw matched to the goal the whole way (no
+      # in-place rotation to do at the end), so GoalAlign/PathAlign already
+      # cover orientation.
+      critics: ["Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
+      # was 0.02 (same as FollowPath) -> 0.0: the last leg of the return is
+      # a short (~0.3m) approach directly to spot A, where the just-placed
+      # object sits - even this low a weight seemed to be enough cost to
+      # keep the robot crawling/dithering near it and never actually
+      # closing the gap (39s of silence then "Failed to make progress",
+      # no "No valid trajectories" so it wasn't a hard refusal, just never
+      # enough net progress). Zeroing it removes obstacle-avoidance cost
+      # entirely for this controller instance - acceptable here since
+      # approaching this specific, known, self-placed object on purpose is
+      # the whole point of this leg.
+      BaseObstacle.scale: 0.0
+      PathAlign.scale: 32.0
+      PathAlign.forward_point_distance: 0.1
+      GoalAlign.scale: 24.0
+      GoalAlign.forward_point_distance: 0.1
+      PathDist.scale: 32.0
+      GoalDist.scale: 24.0
+
+local_costmap:
+  local_costmap:
+    ros__parameters:
+      update_frequency: 5.0
+      publish_frequency: 2.0
+      global_frame: odom
+      robot_base_frame: base_link
+      use_sim_time: True
+      rolling_window: true
+      width: 3
+      height: 3
+      resolution: 0.05
+      robot_radius: 0.22
+      plugins: ["voxel_layer", "inflation_layer"]
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 3.0
+        inflation_radius: 0.3 #원래 0.55
+      voxel_layer:
+        plugin: "nav2_costmap_2d::VoxelLayer"
+        enabled: True
+        publish_voxel_map: True
+        origin_z: 0.0
+        z_resolution: 0.05
+        z_voxels: 16
+        max_obstacle_height: 2.0
+        mark_threshold: 0
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+          raytrace_max_range: 3.0
+          raytrace_min_range: 0.0
+          obstacle_max_range: 2.5
+          obstacle_min_range: 0.0
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: True
+      always_send_full_costmap: True
+
+global_costmap:
+  global_costmap:
+    ros__parameters:
+      update_frequency: 1.0
+      publish_frequency: 1.0
+      global_frame: map
+      robot_base_frame: base_link
+      use_sim_time: True
+      robot_radius: 0.22
+      resolution: 0.05
+      track_unknown_space: true
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
+        enabled: True
+        observation_sources: scan
+        scan:
+          topic: /scan
+          max_obstacle_height: 2.0
+          clearing: True
+          marking: True
+          data_type: "LaserScan"
+          raytrace_max_range: 3.0
+          raytrace_min_range: 0.0
+          obstacle_max_range: 2.5
+          obstacle_min_range: 0.0
+      static_layer:
+        plugin: "nav2_costmap_2d::StaticLayer"
+        map_subscribe_transient_local: True
+      inflation_layer:
+        plugin: "nav2_costmap_2d::InflationLayer"
+        cost_scaling_factor: 3.0
+        inflation_radius: 0.55
+      always_send_full_costmap: True
+
+map_server:
+  ros__parameters:
+    use_sim_time: True
+    # Overridden in launch by the "map" launch configuration or provided default value.
+    # To use in yaml, remove the default "map" value in the tb3_simulation_launch.py file & provide full path to map below.
+    yaml_filename: ""
+
+map_saver:
+  ros__parameters:
+    use_sim_time: True
+    save_map_timeout: 5.0
+    free_thresh_default: 0.25
+    occupied_thresh_default: 0.65
+    map_subscribe_transient_local: True
+
+planner_server:
+  ros__parameters:
+    expected_planner_frequency: 20.0
+    use_sim_time: True
+    planner_plugins: ["GridBased"]
+    GridBased:
+      plugin: "nav2_navfn_planner/NavfnPlanner"
+      tolerance: 0.5
+      use_astar: false
+      allow_unknown: true
+
+smoother_server:
+  ros__parameters:
+    use_sim_time: True
+    smoother_plugins: ["simple_smoother"]
+    simple_smoother:
+      plugin: "nav2_smoother::SimpleSmoother"
+      tolerance: 1.0e-10
+      max_its: 1000
+      do_refinement: True
+
+behavior_server:
+  ros__parameters:
+    costmap_topic: local_costmap/costmap_raw
+    footprint_topic: local_costmap/published_footprint
+    cycle_frequency: 10.0
+    behavior_plugins: ["spin", "backup", "drive_on_heading", "assisted_teleop", "wait"]
+    spin:
+      plugin: "nav2_behaviors/Spin"
+    backup:
+      plugin: "nav2_behaviors/BackUp"
+    drive_on_heading:
+      plugin: "nav2_behaviors/DriveOnHeading"
+    wait:
+      plugin: "nav2_behaviors/Wait"
+    assisted_teleop:
+      plugin: "nav2_behaviors/AssistedTeleop"
+    global_frame: odom
+    robot_base_frame: base_link
+    transform_tolerance: 0.1
+    use_sim_time: true
+    simulate_ahead_time: 2.0
+    max_rotational_vel: 1.0
+    min_rotational_vel: 0.4
+    rotational_acc_lim: 3.2
+
+robot_state_publisher:
+  ros__parameters:
+    use_sim_time: True
+
+waypoint_follower:
+  ros__parameters:
+    use_sim_time: True
+    loop_rate: 20
+    stop_on_failure: false
+    waypoint_task_executor_plugin: "wait_at_waypoint"
+    wait_at_waypoint:
+      plugin: "nav2_waypoint_follower::WaitAtWaypoint"
+      enabled: True
+      waypoint_pause_duration: 200
+
+velocity_smoother:
+  ros__parameters:
+    use_sim_time: True
+    smoothing_frequency: 20.0
+    scale_velocities: False
+    feedback: "OPEN_LOOP"
+    max_velocity: [0.26, 0.0, 1.0]
+    min_velocity: [-0.26, 0.0, -1.0]
+    max_accel: [2.5, 0.0, 3.2]
+    max_decel: [-2.5, 0.0, -3.2]
+    odom_topic: "odom"
+    odom_duration: 0.1
+    deadband_velocity: [0.0, 0.0, 0.0]
+    velocity_timeout: 1.0

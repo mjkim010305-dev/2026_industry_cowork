@@ -1,6 +1,0 @@
-setup.py
-perception_interfaces/__init__.py
-perception_interfaces.egg-info/PKG-INFO
-perception_interfaces.egg-info/SOURCES.txt
-perception_interfaces.egg-info/dependency_links.txt
-perception_interfaces.egg-info/top_level.txt

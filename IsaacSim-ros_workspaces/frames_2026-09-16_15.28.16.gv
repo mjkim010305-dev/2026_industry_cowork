@@ -1,0 +1,16 @@
+digraph G {
+"base_link" -> "rsd455"[label=" Broadcaster: default_authority\nAverage rate: 120.488\nBuffer length: 4.1\nMost recent transform: 6.8\nOldest transform: 2.7\n"];
+"base_footprint" -> "base_link"[label=" Broadcaster: default_authority\nAverage rate: 60.243\nBuffer length: 4.117\nMost recent transform: 6.816667\nOldest transform: 2.7\n"];
+"odom" -> "base_footprint"[label=" Broadcaster: default_authority\nAverage rate: 60.243\nBuffer length: 4.117\nMost recent transform: 6.816667\nOldest transform: 2.7\n"];
+"base_footprint" -> "base_scan"[label=" Broadcaster: default_authority\nAverage rate: 60.243\nBuffer length: 4.117\nMost recent transform: 6.816667\nOldest transform: 2.7\n"];
+"base_footprint" -> "wheel_left_link"[label=" Broadcaster: default_authority\nAverage rate: 60.243\nBuffer length: 4.117\nMost recent transform: 6.816667\nOldest transform: 2.7\n"];
+"base_footprint" -> "wheel_right_link"[label=" Broadcaster: default_authority\nAverage rate: 60.243\nBuffer length: 4.117\nMost recent transform: 6.816667\nOldest transform: 2.7\n"];
+"base_footprint" -> "caster_back_left_link"[label=" Broadcaster: default_authority\nAverage rate: 60.243\nBuffer length: 4.117\nMost recent transform: 6.816667\nOldest transform: 2.7\n"];
+"base_footprint" -> "caster_back_right_link"[label=" Broadcaster: default_authority\nAverage rate: 60.243\nBuffer length: 4.117\nMost recent transform: 6.816667\nOldest transform: 2.7\n"];
+"base_link" -> "Camera_Pseudo_Depth"[label=" Broadcaster: default_authority\nAverage rate: 60.244\nBuffer length: 4.1\nMost recent transform: 6.8\nOldest transform: 2.7\n"];
+"base_link" -> "Camera_OmniVision_OV9782_Color"[label=" Broadcaster: default_authority\nAverage rate: 60.244\nBuffer length: 4.1\nMost recent transform: 6.8\nOldest transform: 2.7\n"];
+edge [style=invis];
+ subgraph cluster_legend { style=bold; color=black; label ="view_frames Result";
+"Recorded at time: 1789540096.9068954"[ shape=plaintext ] ;
+}->"odom";
+}

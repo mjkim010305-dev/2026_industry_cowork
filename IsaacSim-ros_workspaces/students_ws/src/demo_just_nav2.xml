@@ -1,0 +1,521 @@
+<!--
+  Pick-first navigate-to-pose tree, plus an on-demand "go to a fixed spot and
+  place" branch triggered by a topic.
+
+  MainTree = ReactiveFallback[ PlaceOnCommand, PickThenNavigate ]:
+    * Every tick, PlaceOnCommand is checked FIRST (ReactiveFallback re-ticks
+      from the top every time, unlike a plain Sequence/Fallback). While its
+      TopicTrigger hasn't fired, it fails immediately (cheap) and the
+      fallback falls through to PickThenNavigate as usual - the initial pick
+      and normal navigation proceed untouched.
+    * The moment /place_request goes false->true (while driving toward the
+      original goal, carrying the object picked up at the very start),
+      TopicTrigger fires once and PlaceOnCommand takes over. Because it now
+      out-ranks PickThenNavigate in the ReactiveFallback, it PREEMPTS
+      whatever PickThenNavigate was doing (its RUNNING nodes - e.g. the
+      in-flight FollowPath - are halted/canceled) and runs a 3-leg detour:
+        Leg 1: ComputePathToPose(spot A) -> OrientPathToYaw (pre-align the
+               last 3m of the path to spot A's yaw) -> FollowPath, PlaceObject
+        Leg 2: PushObstacle (arm extends to the push pose and HOLDS,
+               gripper OPEN) -> OdomLimitedDrive (the BASE drives forward
+               into the obstacle, using the held-out arm as a plow - this
+               is what actually pushes it; stops once /odom shows
+               `distance` ACTUALLY covered, not after a fixed time) ->
+               RetractArm (folds the arm back to home) -> OdomLimitedDrive
+               again (a short REVERSE clearance drive, so the retracted arm
+               doesn't clip the obstacle during the rotate sweep next) ->
+               nav2's Spin x3 (rotate sweep to help AMCL reconverge after
+               the push) -> SetFixedGoal + ComputePathToPose + FollowPath
+               to a fixed staging point well clear of any obstacle
+               inflation (approaching spot A from close by kept stalling
+               regardless of controller mechanism - see CAVEAT 1) ->
+               ComputePathToPose({spot_a_goal}) + OrientPathToYaw +
+               forward FollowPath (Leg 1's exact proven approach pattern,
+               replayed from the staging point) -> FixedPickObject
+               (re-pick object #1, still sitting where PlaceObject left it)
+        Leg 3: ComputePathToPose({goal}) + FollowPath   (plan fresh from
+                                             wherever the robot is now to
+                                             the original goal - NOT a
+                                             resume of {initial_path},
+                                             which was found to end up
+                                             empty here; see CAVEAT 3)
+      If PlaceOnCommand SUCCEEDS (leg 3 finishes), the ReactiveFallback - and
+      therefore the whole NavigateToPose action - succeeds right there; it
+      never falls back to PickThenNavigate again for this goal.
+      (Earlier versions of Leg 2: (1) drove to a separate spot B/spot C to
+      pick-and-relocate the obstacle - used the arm 3x and extra navigation
+      legs in a tight space, kept failing "Failed to make progress" when a
+      leg landed on/near a point the robot had just placed an object on;
+      (2) pushed by sweeping the ARM through the pick pose in place with the
+      base stationary - mechanically ran fine but used the identical joint
+      pose PlaceObject had just used, so it risked shoving the just-placed
+      object instead of the separate obstacle. See git history for both.)
+    * CAVEAT 1 (fixed, kept for context): DriveOnHeading's lookahead
+      collision check (behavior_server's simulate_ahead_time, shared by
+      EVERY DriveOnHeading/BackUp instance on the server, not per-plugin)
+      reliably aborted the push with "Collision Ahead - Exiting
+      DriveOnHeading" - correctly so, since driving into the obstacle on
+      purpose is exactly what it exists to prevent. BackUp for the return
+      leg hit the identical problem (backing toward the object just placed
+      at spot A). Fixed in steps: (1) blind /cmd_vel driving with no
+      collision check at all (first OpenLoopDrive, a fixed-time push/
+      fixed-distance-mirrored reverse); (2) that still wasn't reliable -
+      pushing against the obstacle's resistance meant the ACTUAL distance
+      covered fell well short of the commanded one, so mirroring the same
+      nominal distance on the way back overshot the real start position/
+      yaw - fixed with RecordOdomPose/OdomLimitedDrive/DriveToRecordedPose,
+      pure odometry dead-reckoning (record before the push, push until
+      /odom shows `distance` truly covered, return via odom feedback);
+      (3) pure odom dead-reckoning has ITS OWN failure mode: pushing
+      against the obstacle's resistance makes the wheels slip, and if the
+      slip isn't symmetric between the two sides, /odom integrates a false
+      yaw drift that never physically happened, so the pose RecordOdomPose
+      captured (and everything DriveToRecordedPose computed from it) could
+      already be wrong. Tried recording via /amcl_pose instead (RecordMapPose
+      - laser scan matching isn't fooled by wheel slip), but that has its
+      OWN failure mode: AMCL only republishes /amcl_pose on qualifying
+      motion (update_min_d/update_min_a), so while the robot sits still
+      during PlaceObject's multi-second arm sequence, no fresh message ever
+      arrives and the fresh subscription (started only once RecordMapPose
+      ticks) times out - observed live as the whole Leg 2 failing before
+      PushObstacle ever ran, falling back to CAVEAT 2's redundant pick.
+      Fixed (4th revision) by realizing recording is unnecessary at all:
+      spot A is already a FIXED, known map coordinate ({spot_a_goal}, set
+      once by SetFixedGoal at the top of Leg 1) - the return leg just
+      reuses it directly, instead of recording anything. (5th revision)
+      Even with a fixed goal, trusting AMCL's pose estimate right after the
+      push was unreliable: AMCL's motion model uses odom as its control
+      input, and slip-corrupted odom during the push (plus straight-line
+      motion being weak-observability for scan matching to correct) left a
+      residual bias/divergence - the robot would confidently declare
+      "arrived" while actually 1-2m short. A rotate sweep right after
+      RetractArm (tried as a custom blind P-controller first - stalled on
+      real skid-steer pivot-turn friction; nav2's own Spin worked instead)
+      helps AMCL reconverge, and a subsequent odom-measured bulk backup
+      (reliable for this short, pure straight-line, no-rotation-involved
+      excursion) covers most of the remaining distance, so AMCL/map is only
+      ever trusted for a short final stretch. (7th revision) Even that
+      short final stretch, driven via a reverse-only DWB instance
+      (FollowPathReverse + ComputeStraightPathToPose bypassing the global
+      planner), kept stalling near the object - RotateToGoal doesn't
+      handle an asymmetric reverse-only velocity range correctly ("No
+      valid trajectories"), and even after removing it, BaseObstacle cost
+      alone was apparently enough to make the robot crawl/dither and never
+      close the last bit. Replaced with Leg 1's exact proven forward
+      pattern instead (ComputePathToPose + OrientPathToYaw + FollowPath) -
+      the object sits off to spot A's RIGHT, not on {spot_a_goal} itself,
+      so the concern that originally motivated bypassing ComputePathToPose
+      for this leg doesn't apply here. FollowPathReverse/
+      ComputeStraightPathToPose/return_goal_checker are left registered in
+      demo_nav2_params.yaml but unused, same convention as other
+      superseded pieces (RecordOdomPose, RecordMapPose, etc.) - not
+      deleted in case reverse-approach is worth revisiting.
+      (8th revision) Even Leg 1's own pattern stalled the exact same way
+      (goal accepted, then total silence - no "Passing new path to
+      controller" at all - until the progress checker gave up) when
+      started from only ~0.3-3m away (the odom bulk backup's end point).
+      Same symptom independent of controller mechanism (reverse-only vs
+      forward) pointed at the START position itself, not the controller -
+      likely still within the pushed obstacle's/spot A's costmap
+      inflation this close in. Fixed by not approaching from close by at
+      all: SetFixedGoal + ComputePathToPose + FollowPath first drives out
+      to a fixed staging point clear of any inflation, THEN the Leg-1-
+      pattern approach to {spot_a_goal} runs from there - replaying the
+      same "approach spot A from out in the open" trajectory shape that
+      already works reliably the first time TopicTrigger fires, instead
+      of inventing a new short final hop.
+    * CAVEAT 2: if any leg FAILS, PlaceOnCommand fails, and the fallback
+      drops back to PickThenNavigate - which, since it was halted mid-flight,
+      restarts from FixedPickObject rather than resuming where it left off.
+      Acceptable as a "give up on the detour, just keep doing the original
+      mission" fallback, but be aware a failed detour costs you a redundant
+      pick.
+    * CAVEAT 3 (fixed, kept for context): Leg 3 used to resume {initial_path}
+      (latched once by CaptureInitialPath, inside PickThenNavigate, before
+      the detour ever starts). Twice in testing it came back empty (0 poses)
+      by the time Leg 3 ran, tripping CAVEAT 2 above for a redundant pick
+      every time. Leg 3 now plans fresh from {goal} instead - see its own
+      comment below for why that's safe here.
+    * EDIT before using: spot A's coordinate (Leg 1) is set below; Leg 2's
+      dist_to_travel/speed/backup_dist/backup_speed are placeholders (0.3 m,
+      0.1 m/s) - tune to how far the obstacle actually needs to move.
+    * Fire it with (the -1 flag sends exactly one message, then exits):
+        ros2 topic pub -1 /place_request std_msgs/msg/Bool "{data: true}"
+
+  PickThenNavigate (memory Sequence):
+    1. FixedPickObject - runs ONCE at the very start, before ComputePathToPose.
+       Ported from fixed_pick_place.py::run_pick: drives the 4-DOF arm
+       (FollowJointTrajectory) and gripper (GripperCommand) through a fixed
+       joint-space sequence to pick up the object directly in front of the
+       robot and hold it in a carry pose. Non-blocking (StatefulActionNode),
+       so bt_navigator keeps ticking while the arm moves.
+       If the pick FAILS, the whole navigate goal fails - wrap the node in
+       <ForceSuccess> if you would rather drive on regardless.
+    2. NavigateRecovery - the existing navigate-to-pose tree with replanning,
+       recovery, and movable-obstacle handling (unchanged).
+
+  Movable-obstacle handling (unchanged from custom_bt (copy).xml):
+    * A VLM (outside this package) publishes two std_msgs/Bool topics:
+        /obstacle/is_movable     - the blocker is a movable obstacle
+        /obstacle/still_present  - that obstacle is still there
+    * `rgbd_obstacle_localizer` publishes the obstacle pose in the map frame on
+      /movable_obstacle/pose (only while is_movable is true). Its orientation is
+      the estimated surface normal once perception fills it in; until then it is
+      an identity quaternion.
+    * CaptureInitialPath latches the FIRST global path for the goal.
+    * ApproachObstacleNormal drives a short straight path to `standoff_distance`
+      in front of the on-path obstacle. When /movable_obstacle/pose carries a
+      real orientation it stops 0.2 m out along the surface normal and faces the
+      obstacle; otherwise it falls back to the initial-path tangent (unchanged
+      legacy behaviour).
+    * WaitForObstacleClearance holds there until /obstacle/still_present is
+      false, then the costmaps are wiped and the robot resumes {initial_path}.
+
+  Perception is decoupled from the tick loop (design doc
+  bt_perception_stabilizer_design.md):
+    * The perception_stabilizer node (custom_nav2_bt_plugins) runs on its own,
+      accumulating depth points, running PCA for the surface normal, and driving
+      an IDLE/CANDIDATE/TRACKING state machine with time-window hysteresis. It
+      publishes /perception_state (String), /obstacle_pose_stable (PoseStamped
+      with the normal yaw) and /obstacle_pose_confidence (Float32).
+    * IsObstacleTracking gates the branch on /perception_state == TRACKING, and
+      transparently falls back to the legacy /obstacle/is_movable Bool when the
+      stabilizer is not running.
+    * LockApproachPose freezes ONE /obstacle_pose_stable sample the moment the
+      branch commits (require_orientation=true -> waits for a converged normal)
+      and re-emits it every tick; ApproachObstacleNormal consumes that frozen
+      pose ({locked_obstacle_pose}), so the approach goal never drifts with
+      perception noise and a dropout mid-approach cannot abort the branch.
+-->
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <ReactiveFallback name="PlaceOnCommandOrPickThenNavigate">
+
+      <Sequence name="PlaceOnCommand">
+        <TopicTrigger topic="/place_request"/>
+
+        <!-- ============================================================
+             Leg 1: go straight to spot A, but pre-orient the final 3m of
+             the PLANNED PATH itself to face spot A's yaw (0.0), instead of
+             relying on DWB's terminal RotateToGoal-only phase to fix
+             orientation after arriving. Two earlier approaches both failed:
+             (1) tight yaw_goal_tolerance at spot A directly - RotateToGoal
+             took 100+ seconds to close the last few degrees and kept
+             getting killed by the (translation-only) progress checker
+             before finishing, even after confirming it WAS genuinely
+             converging (one run got to 0.2 deg residual, still timed out);
+             (2) a standoff point + DriveOnHeading - same stall, just moved
+             to wherever the standoff was, since the standoff goal itself
+             still needed RotateToGoal to nail its own yaw.
+             This replaces both: OrientPathToYaw drops the last
+             align_distance meters of {spot_a_path_raw} and rebuilds that
+             stretch as a fresh straight line of new waypoints (not just
+             relabeling the orientation of NavFn's original points, whose
+             positions can wobble slightly from grid discretization), all
+             facing yaw=0.0, ending exactly at spot A.
+             PathAlign/GoalAlign (scale 32/24, already high) then pull the
+             robot to match that heading as part of NORMAL forward-driving
+             scoring the whole final stretch, not a separate slow rotate-
+             in-place mode - so by the time the robot is close enough to
+             trigger RotateToGoal, the residual angle should already be
+             small and finish quickly instead of needing to close a large
+             angle from a standing start.
+             장애물 좌표 (30.52300,-3.76110)에다가 base_link와 chassis의 offset(0.080[전방 오프셋])을 뺌
+             ============================================================ -->
+        <SetFixedGoal x="29.443" y="-3.59661" yaw="0.0" frame="map" goal="{spot_a_goal}"/>
+        <RecoveryNode number_of_retries="1" name="ComputePathToSpotA">
+          <ComputePathToPose goal="{spot_a_goal}" path="{spot_a_path_raw}" planner_id="GridBased"/>
+          <ClearEntireCostmap name="ClearGlobalCostmap-SpotA"
+                              service_name="global_costmap/clear_entirely_global_costmap"/>
+        </RecoveryNode>
+        <OrientPathToYaw path="{spot_a_path_raw}" yaw="0.0" align_distance="3.0" oriented_path="{spot_a_path}"/>
+        <FollowPath path="{spot_a_path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/>
+        <ClearEntireCostmap name="ClearLocalCostmap-SpotA"
+                            service_name="local_costmap/clear_entirely_local_costmap"/>
+        <!-- <PlaceObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                     gripper_action_name="/gripper_controller/gripper_cmd"
+                     arm_joint_names="joint1;joint2;joint3;joint4"
+                     arm_move_time="3.0"
+                     open_position="0.02501155674647538"
+                     max_effort="0.0"
+                     server_timeout="5.0"
+                     step_timeout="15.0"
+                     post_open_delay="1.0"/> -->
+
+        <!-- ============================================================
+             Leg 2 (simplified): push the obstacle aside IN PLACE - no
+             navigation at all, the robot is already sitting at spot A.
+
+             The original design here was a 3-leg detour (go to spot B and
+             pick the obstacle up, go to spot C and place it, go BACK to
+             spot A and re-pick object #1) using SetFixedGoal + Spin +
+             ComputePathToPose/FollowPath, same as Leg 1/3 below. It used
+             the arm 3x, spent a lot of time on planning/replanning in a
+             tight space, and every navigation leg that landed on/near a
+             point the robot itself had just placed an object on kept
+             failing with "Failed to make progress" (DWB's RotateToGoal
+             stalling against the very obstacle it needed to reach). See
+             git history for that version if you want it back.
+
+             Replaced with (4th revision): PushObstacle extends the arm to
+             the push pose and HOLDS it there (gripper open, no grasp) -
+             the actual push is the ROBOT BASE driving forward into the
+             obstacle while the arm stays rigid, using the extended gripper
+             as a plow. RetractArm then folds the arm back to home, and the
+             robot returns to spot A by building a straight path (map
+             frame) directly to {spot_a_goal} - the same fixed coordinate
+             SetFixedGoal produced for Leg 1, reused as-is rather than
+             recorded again - then FollowPath. See CAVEAT 1 above for the
+             full history of why (went through odom dead-reckoning, then
+             AMCL-snapshot dead-reckoning, before landing here). FixedPickObject
+             then re-picks object #1, which should still be sitting where
+             PlaceObject left it since the base is back at spot A.
+
+             EDIT: `distance` on OdomLimitedDrive is a PLACEHOLDER
+             (currently 3.0m, same convention as the 0.30/0.05 used in
+             RecoveryActions further down) - tune to how far the obstacle
+             actually needs to move to clear the original path.
+             ComputeStraightPathToPose doesn't need its own distance - it
+             just builds a path back to the recorded pose regardless of
+             how far the push actually went.
+             ============================================================ -->
+        <!-- No snapshot needed before the push: spot A is already a fixed,
+             known map coordinate ({spot_a_goal}, set by SetFixedGoal at the
+             top of Leg 1) - reused as-is below for the return, instead of
+             recording wherever the robot happens to be (which needed
+             /amcl_pose or /odom and inherited their respective failure
+             modes - AMCL not publishing while stationary, or odom drifting
+             from wheel slip during the push). -->
+        <PushObstacle arm_action_name="/arm_controller/follow_joint_trajectory"
+                      gripper_action_name="/gripper_controller/gripper_cmd"
+                      arm_joint_names="joint1;joint2;joint3;joint4"
+                      arm_move_time="3.0"
+                      open_position="0.02501155674647538"
+                      max_effort="0.0"
+                      push_hold_time="1.0"
+                      server_timeout="5.0"
+                      step_timeout="15.0"/>
+        <!-- OdomLimitedDrive (not OpenLoopDrive): stops once /odom shows the
+             robot has ACTUALLY covered `distance`, not after a fixed time -
+             pushing against the obstacle's resistance meant the real
+             distance covered was well short of what blind timing assumed. -->
+        <OdomLimitedDrive cmd_vel_topic="/cmd_vel" odom_topic="/odom"
+                          distance="3.0" speed="1.0" time_allowance="30.0"/>
+        <!-- <RetractArm arm_action_name="/arm_controller/follow_joint_trajectory"
+                    arm_joint_names="joint1;joint2;joint3;joint4"
+                    arm_move_time="3.0"
+                    server_timeout="5.0"
+                    step_timeout="15.0"/> -->
+        <!-- Extra clearance drive (separate from OdomLimitedDrive's push
+             `distance` above, which is tuned to how far the OBSTACLE needs
+             to move - not this) before rotating: right after the push, the
+             robot is still close enough to the obstacle that even the
+             retracted/home arm pose could clip it during WiggleInPlace's
+             sweep below. MUST be negative (backward, toward spot A) - the
+             obstacle was pushed FORWARD along with the base, so it's still
+             right in front of the robot; driving forward again (the bug in
+             the first version of this step) drove straight at it instead
+             of away from it. speed is direction-agnostic in this node
+             (cmd.linear.x = speed, distance is |traveled| via odom), so a
+             negative speed here is exactly a short reverse. -->
+        <!-- <OdomLimitedDrive cmd_vel_topic="/cmd_vel" odom_topic="/odom"
+                          distance="0.5" speed="-0.3" time_allowance="10.0"/> -->
+        <!-- Give AMCL fresh bearings to correct any residual bias before
+             trusting its pose for the return: the push+drive-forward above
+             is pure straight-line motion, which scan matching alone often
+             can't fully correct if slip-corrupted odom skewed AMCL's
+             motion-model prediction during the push. Net rotation ends
+             back at 0, so it doesn't disturb the yaw=0.0 assumption the
+             return leg depends on.
+
+             Custom WiggleInPlace (blind /cmd_vel P-controller) tried first
+             here and reliably stalled partway through every angle tested
+             (0.3rad, then 0.2rad) - logging showed commanded angular.z
+             staying large throughout while actual yaw asymptotically
+             plateaued, the signature of a real physical stall (skid-steer
+             pivot turns need much more torque than driving - wheels scrub
+             the ground on all corners at once - and our modest blind
+             command apparently couldn't push through it), not a tuning
+             problem. Replaced with nav2's own Spin behavior (already
+             loaded on behavior_server) - simpler, and its accel-limited
+             control is more likely to actually get through the same
+             friction than our hand-rolled P-controller. NOTE: Spin does
+             its own local-costmap collision check (same mechanism that
+             refused DriveOnHeading/BackUp earlier in this leg) - if IT
+             also refuses here, that's useful signal the robot is still
+             genuinely too close to something, not just under-powered. -->
+        <!-- <Sequence name="WiggleForAmcl">
+          <Spin spin_dist="0.2" time_allowance="10.0" is_recovery="false"/>
+          <Spin spin_dist="-0.4" time_allowance="10.0" is_recovery="false"/>
+          <Spin spin_dist="0.2" time_allowance="10.0" is_recovery="false"/>
+        </Sequence> -->
+        <!-- Return leg (8th revision): the short-hop versions of this
+             (odom-measured bulk retreat then approach from ~0.3-3m out,
+             tried both with a reverse-only controller and with Leg 1's
+             forward pattern) BOTH hit the identical failure - the path
+             computed fine, FollowPath accepted the goal, then total
+             silence (no "Passing new path to controller" at all) until
+             the progress checker gave up. Same symptom regardless of
+             controller mechanism strongly suggests the problem isn't
+             which controller - it's that the START of the approach was
+             still within a costmap-complicated zone this close to
+             spot A/the pushed obstacle's inflation.
+             Fix: don't approach from close by at all - drive BACK OUT
+             to a fixed staging point ({staging_goal}, chosen clear of any
+             obstacle inflation) via a normal ComputePathToPose+FollowPath
+             leg first, then re-run the SAME ComputePathToPose+
+             OrientPathToYaw+FollowPath approach to {spot_a_goal} that
+             already works reliably at the top of this whole detour (the
+             very first time TopicTrigger fires, the robot is usually out
+             in the open like this too) - i.e. replay that original
+             approach trajectory shape instead of trying to invent a new
+             short final hop. -->
+        <!-- <SetFixedGoal x="24.5" y="-3.59661" yaw="0.0" frame="map" goal="{staging_goal}"/> -->
+        <!-- <RecoveryNode number_of_retries="1" name="ComputePathToStaging">
+          <ComputePathToPose goal="{staging_goal}" path="{staging_path}" planner_id="GridBased"/>
+          <ClearEntireCostmap name="ClearGlobalCostmap-Staging"
+                              service_name="global_costmap/clear_entirely_global_costmap"/>
+        </RecoveryNode>
+        <FollowPath path="{staging_path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/> -->
+        <!-- Reuse Leg 1's exact proven pattern (ComputePathToPose +
+             OrientPathToYaw + forward FollowPath) for the actual approach
+             to spot A, now starting from the clear staging point above
+             instead of from close by. The concern that originally
+             motivated bypassing ComputePathToPose here - a goal cell
+             reading as lethal because the just-placed object sits on it -
+             doesn't apply: the object actually sits off to spot A's
+             RIGHT, not on top of {spot_a_goal} itself, so the global
+             planner has a clear cell to path to. -->
+        <!-- <RecoveryNode number_of_retries="1" name="ComputePathToSpotA-Return">
+          <ComputePathToPose goal="{spot_a_goal}" path="{return_path_raw}" planner_id="GridBased"/>
+          <ClearEntireCostmap name="ClearGlobalCostmap-SpotAReturn"
+                              service_name="global_costmap/clear_entirely_global_costmap"/>
+        </RecoveryNode>
+        <OrientPathToYaw path="{return_path_raw}" yaw="0.0" align_distance="3.0" oriented_path="{return_path}"/>
+        <FollowPath path="{return_path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/>
+        <ClearEntireCostmap name="ClearLocalCostmap-SpotAReturn"
+                            service_name="local_costmap/clear_entirely_local_costmap"/>
+        <FixedPickObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                         gripper_action_name="/gripper_controller/gripper_cmd"
+                         arm_joint_names="joint1;joint2;joint3;joint4"
+                         arm_move_time="3.0"
+                         open_position="0.02501155674647538"
+                         grasp_position="0.002"
+                         max_effort="0.0002"
+                         server_timeout="5.0"
+                         step_timeout="15.0"/> -->
+
+        <!-- ============================================================
+             Leg 3: plan a FRESH path from wherever the robot is right now
+             to the original goal ({goal} - set by nav2 when the
+             NavigateToPose action was accepted, untouched by any of our
+             custom legs, so it is always valid) and follow it.
+
+             Originally this resumed {initial_path} (the pre-detour path
+             latched by CaptureInitialPath at the very start of navigation),
+             but that node lives inside PickThenNavigate/NavigateRecovery,
+             which gets halted the instant PlaceOnCommand takes over and
+             was never ticked again - twice now this produced an EMPTY
+             {initial_path} (0 poses) here, aborting FollowPath immediately
+             and triggering CAVEAT 2 (a redundant extra pick). Root cause
+             not fully nailed down, but planning fresh from {goal} sidesteps
+             it entirely and is simpler besides.
+             ============================================================ -->
+        <ClearEntireCostmap name="ClearLocalCostmap-ResumeInitial"
+                            service_name="local_costmap/clear_entirely_local_costmap"/>
+        <ClearEntireCostmap name="ClearGlobalCostmap-ResumeInitial"
+                            service_name="global_costmap/clear_entirely_global_costmap"/>
+        <RecoveryNode number_of_retries="1" name="ComputePathToGoal-Resume">
+          <ComputePathToPose goal="{goal}" path="{resume_path}" planner_id="GridBased"/>
+          <ClearEntireCostmap name="ClearGlobalCostmap-Resume-Retry"
+                              service_name="global_costmap/clear_entirely_global_costmap"/>
+        </RecoveryNode>
+        <FollowPath path="{resume_path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/>
+      </Sequence>
+
+      <Sequence name="PickThenNavigate">
+
+      <!-- <FixedPickObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                       gripper_action_name="/gripper_controller/gripper_cmd"
+                       arm_joint_names="joint1;joint2;joint3;joint4"
+                       arm_move_time="3.0"
+                       open_position="0.02501155674647538"
+                       grasp_position="-0.002"
+                       max_effort="0.0002"
+                       server_timeout="5.0"
+                       step_timeout="15.0"/> -->
+
+      <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+        <PipelineSequence name="NavigateWithReplanning">
+          <RateController hz="1.0">
+            <RecoveryNode number_of_retries="1" name="ComputePathToPose">
+              <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+              <ClearEntireCostmap name="ClearGlobalCostmap-Context" service_name="global_costmap/clear_entirely_global_costmap"/>
+            </RecoveryNode>
+          </RateController>
+          <RecoveryNode number_of_retries="1" name="FollowPath">
+            <ReactiveFallback name="FollowPathOrHandleMovableObstacle">
+              <Sequence name="HandleMovableObstacle">
+                <CaptureInitialPath path="{path}" goal="{goal}"
+                                    goal_change_threshold="0.5"
+                                    initial_path="{initial_path}"/>
+                <IsObstacleTracking state_topic="/perception_state"
+                                    tracking_value="TRACKING"
+                                    state_timeout="1.0"
+                                    fallback_topic="/obstacle/is_movable"
+                                    fallback_timeout="3.0"/>
+                <LockApproachPose pose_topic="/obstacle_pose_stable"
+                                  pose_timeout="2.0"
+                                  acquire_timeout="8.0"
+                                  require_orientation="true"
+                                  locked_pose="{locked_obstacle_pose}"/>
+                <ApproachObstacleNormal path="{initial_path}"
+                                        obstacle_pose="{locked_obstacle_pose}"
+                                        pose_topic="/movable_obstacle/pose"
+                                        standoff_distance="0.2"
+                                        use_surface_normal="true"
+                                        face_obstacle="true"
+                                        on_path_tolerance="0.35"
+                                        pose_timeout="2.0"
+                                        recompute_threshold="0.2"
+                                        global_frame="map"
+                                        robot_base_frame="base_link"
+                                        approach_path="{approach_path}"
+                                        approach_goal="{approach_goal}"/>
+                <Sequence name="ApproachThenResume">
+                  <FollowPath path="{approach_path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/>
+                  <WaitForObstacleClearance topic="/obstacle/still_present"
+                                            timeout="0.0"
+                                            clear_on_stale="true"
+                                            message_timeout="3.0"/>
+                  <ClearEntireCostmap name="ClearLocalCostmap-Resume"
+                                      service_name="local_costmap/clear_entirely_local_costmap"/>
+                  <ClearEntireCostmap name="ClearGlobalCostmap-Resume"
+                                      service_name="global_costmap/clear_entirely_global_costmap"/>
+                  <FollowPath path="{initial_path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/>
+                </Sequence>
+              </Sequence>
+              <FollowPath path="{path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/>
+            </ReactiveFallback>
+            <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
+          </RecoveryNode>
+        </PipelineSequence>
+        <ReactiveFallback name="RecoveryFallback">
+          <GoalUpdated/>
+          <RoundRobin name="RecoveryActions">
+            <Sequence name="ClearingActions">
+              <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
+              <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
+            </Sequence>
+            <Spin spin_dist="1.57"/>
+            <Wait wait_duration="5"/>
+            <BackUp backup_dist="0.30" backup_speed="0.05"/>
+          </RoundRobin>
+        </ReactiveFallback>
+      </RecoveryNode>
+
+      </Sequence>
+
+    </ReactiveFallback>
+  </BehaviorTree>
+</root>
