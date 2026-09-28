@@ -229,6 +229,9 @@ class GreenBoxDetector(Node):
                 else:
                     mean_xy = confirm_window_mean(list(self._confirm_window), self.confirm_radius)
                     if mean_xy is None:
+                        # Frames disagree: start over, as the docstring and
+                        # README promise for every rejected frame.
+                        self._confirm_window.clear()
                         reason = "unstable"
                         pose_xy = None
                     else:
