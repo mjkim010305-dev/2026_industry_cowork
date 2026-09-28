@@ -44,7 +44,19 @@ Two ranging paths, per the Session 11 contract:
     ``geometry.fallback_point_from_height``.
 Which path fired is written into the debug image text and logged at debug
 level, per the contract (source must be visible, not just inferred).
+
+Session 11 R4: two guards against a partially occluded blob being resolved
+against the wrong object (g6 live-run defect - see geometry.py module
+docstring). (1) a blob narrower than ``min_width_px`` is rejected outright,
+this frame counting as "no detection". (2) even a wide-enough blob's resolved
+position is only published as a detection once the last ``confirm_frames``
+consecutive frames were all accepted and agree within ``confirm_radius`` of
+their mean (``geometry.confirm_window_mean``); any rejected or unresolved
+frame clears the confirmation window. ``green_box/detected`` still publishes
+every image, as before - it is just ``False`` more often now.
 """
+
+from collections import deque
 
 import cv2
 import numpy as np
@@ -64,8 +76,10 @@ from tf2_ros import Buffer, TransformListener, TransformException
 
 from green_box_approach.geometry import (
     box_center_from_front,
+    confirm_window_mean,
     fallback_point_from_height,
     hsv_mask_to_blob,
+    is_bbox_wide_enough,
     nearest_by_range,
     scan_points_xyz,
     select_points_in_column_window,
@@ -106,6 +120,14 @@ class GreenBoxDetector(Node):
             "hsv_upper", [80, 255, 255]).value)
         self.min_area = int(self.declare_parameter("min_area", 200).value)
         self.morph_kernel = int(self.declare_parameter("morph_kernel", 5).value)
+
+        # --- Session 11 R4 guards (g6 live-run: an occluded sliver got
+        # resolved against the wall behind the box) - see geometry.py
+        # module docstring for the reasoning behind both defaults.
+        self.min_width_px = int(self.declare_parameter("min_width_px", 20).value)
+        self.confirm_frames = int(self.declare_parameter("confirm_frames", 3).value)
+        self.confirm_radius = float(self.declare_parameter("confirm_radius", 0.15).value)
+        self._confirm_window = deque(maxlen=self.confirm_frames)
 
         # --- lidar fusion ---------------------------------------------------
         # Pixel margin (not radians, see Session 11 R2) widening the blob's
@@ -184,15 +206,40 @@ class GreenBoxDetector(Node):
         detected = False
         source = "none"
         pose_xy = None
+        reason = "no-blob"
 
-        if bbox is not None:
+        if bbox is None:
+            self._confirm_window.clear()
+        elif not is_bbox_wide_enough(bbox, self.min_width_px):
+            # g6: an occluded sliver still resolves to *a* range, just the
+            # wrong object's - reject before ranging at all, and this frame
+            # is a rejection, not a detection, for the confirmation window.
+            reason = "narrow"
+            self._confirm_window.clear()
+        else:
             pose_xy, source = self._resolve_front(msg.header, bbox, fx, fy, cx, cy)
-            detected = pose_xy is not None
+            if pose_xy is None:
+                reason = "no-range"
+                self._confirm_window.clear()
+            else:
+                self._confirm_window.append(pose_xy)
+                if len(self._confirm_window) < self.confirm_frames:
+                    reason = "confirming %d/%d" % (len(self._confirm_window), self.confirm_frames)
+                    pose_xy = None
+                else:
+                    mean_xy = confirm_window_mean(list(self._confirm_window), self.confirm_radius)
+                    if mean_xy is None:
+                        reason = "unstable"
+                        pose_xy = None
+                    else:
+                        reason = "confirmed"
+                        pose_xy = mean_xy
+                        detected = True
 
         if detected:
             self._publish_pose(msg.header, pose_xy)
         self.detected_pub.publish(Bool(data=detected))
-        self._publish_debug_image(bgr, mask, bbox, detected, source)
+        self._publish_debug_image(bgr, mask, bbox, detected, source, reason)
 
     # ------------------------------------------------------------------
     # ranging
@@ -287,14 +334,14 @@ class GreenBoxDetector(Node):
         pose.pose.orientation.w = 1.0
         self.pose_pub.publish(pose)
 
-    def _publish_debug_image(self, bgr, mask, bbox, detected, source):
+    def _publish_debug_image(self, bgr, mask, bbox, detected, source, reason):
         debug = bgr.copy()
         outline = cv2.bitwise_and(bgr, bgr, mask=mask)
         debug = cv2.addWeighted(debug, 0.6, outline, 0.4, 0)
         if bbox is not None:
             x, y, w, h = bbox
             cv2.rectangle(debug, (x, y), (x + w, y + h), (0, 0, 255), 2)
-        text = "detected=%s source=%s" % (detected, source)
+        text = "detected=%s source=%s reason=%s" % (detected, source, reason)
         cv2.putText(debug, text, (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     (0, 0, 255), 1, cv2.LINE_AA)
         try:

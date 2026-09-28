@@ -27,8 +27,10 @@ import pytest
 
 from green_box_approach.geometry import (
     box_center_from_front,
+    confirm_window_mean,
     fallback_point_from_height,
     hsv_mask_to_blob,
+    is_bbox_wide_enough,
     nearest_by_range,
     rotation_matrix_from_quaternion,
     scan_points_xyz,
@@ -212,3 +214,30 @@ def test_box_center_from_front_diagonal_ray():
 def test_box_center_from_front_rejects_degenerate_ray():
     with pytest.raises(ValueError):
         box_center_from_front(front_xy=(1.0, 1.0), camera_origin_xy=(1.0, 1.0), box_depth_m=0.3)
+
+
+# --- Session 11 R4 (g6 live-run defect: occluded sliver read as a valid
+# detection, resolved against the wall behind the box) -------------------
+
+def test_is_bbox_wide_enough_rejects_narrow_blob():
+    # g6-like sliver: 3 px wide, well under a 20 px threshold.
+    assert is_bbox_wide_enough((100, 50, 3, 40), min_width_px=20) is False
+
+
+def test_is_bbox_wide_enough_accepts_wide_blob():
+    # 60 px wide, boundary-inclusive at exactly the threshold.
+    assert is_bbox_wide_enough((100, 50, 20, 40), min_width_px=20) is True
+
+
+def test_confirm_window_mean_tight_frames_returns_mean():
+    positions = [(31.0, -2.30), (31.02, -2.28), (30.98, -2.32)]
+    # mean = ((31.0+31.02+30.98)/3, (-2.30-2.28-2.32)/3) = (31.0, -2.30)
+    got = confirm_window_mean(positions, radius=0.15)
+    assert got == pytest.approx((31.0, -2.30))
+
+
+def test_confirm_window_mean_outlier_returns_none():
+    # g6-like case: two tight readings near the real box, one bad reading
+    # (wall-behind-the-sliver) ~0.5 m off, mixed into the same window.
+    positions = [(31.0, -2.30), (31.02, -2.28), (31.5, -2.30)]
+    assert confirm_window_mean(positions, radius=0.15) is None

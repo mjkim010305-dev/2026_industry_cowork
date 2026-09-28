@@ -32,6 +32,14 @@ full rotation matrix + translation, and are matched against the detected
 blob by projecting them with the pinhole model and checking the resulting
 pixel column - never by comparing a "camera bearing" against a "scan angle"
 in two frames that generally do not share an axis.
+
+Session 11 R4 (g6 live-run defect): a partially occluded box can still pass
+the R2 fusion above with a plausible-looking but wrong position, because a
+narrow visible sliver still projects to *some* pixel column and *some*
+lidar return under that column - just the wrong object (a wall edge behind
+the box, in g6). ``is_bbox_wide_enough`` and ``confirm_window_mean`` add two
+independent guards against that: reject blobs too narrow to be a real box
+view, and only trust a position once several consecutive frames agree on it.
 """
 
 import math
@@ -158,6 +166,45 @@ def fallback_point_from_height(u_c, v_c, pixel_h, real_height_m, fx, fy, cx, cy)
     x = (u_c - cx) / fx * z
     y = (v_c - cy) / fy * z
     return (x, y, z)
+
+
+def is_bbox_wide_enough(bbox, min_width_px):
+    """Reject a blob whose bbox is narrower than ``min_width_px``.
+
+    Session 11 g6: the box was partly hidden behind a wall edge and showed
+    up as a strip only a few pixels wide; the old code accepted it as a
+    normal detection and the lidar column under that sliver was the wall
+    behind the box, not the box itself. A real box a few tenths of a metre
+    wide, at the ~3 m range where this detector first picks it up, spans
+    tens of pixels (``fx * width_m / range_m``, e.g. ~40 px for a 0.2 m box
+    at 3 m with fx~634) - a few-pixel strip is an order of magnitude below
+    that, so it is a wall/occlusion edge artifact, not a genuinely distant
+    or small box.
+    """
+    _, _, w, _ = bbox
+    return w >= min_width_px
+
+
+def confirm_window_mean(positions, radius):
+    """Mean of ``positions`` (list of ``(x, y)``) if they all agree, else
+    ``None``.
+
+    "Agree" means every point lies within ``radius`` metres of the mean of
+    the window - a single stale/incorrect frame (e.g. g6's wall-behind-strip
+    reading, momentarily mixed in with otherwise-good frames) pulls the mean
+    away from the rest and gets caught here. Length/recency (which frames
+    are actually in the window, and that they were all consecutive accepted
+    detections) is the caller's responsibility - this function only judges
+    spatial agreement of whatever list it is given.
+    """
+    if not positions:
+        return None
+    mean_x = sum(p[0] for p in positions) / len(positions)
+    mean_y = sum(p[1] for p in positions) / len(positions)
+    for x, y in positions:
+        if math.hypot(x - mean_x, y - mean_y) > radius:
+            return None
+    return (mean_x, mean_y)
 
 
 def box_center_from_front(front_xy, camera_origin_xy, box_depth_m):

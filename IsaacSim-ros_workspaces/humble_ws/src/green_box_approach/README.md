@@ -43,6 +43,9 @@ AI Festa 실기 데모(TurtleBot3 + manipulation, Nav2 Humble)용 초록 박스 
 | `box_height_m` | `0.30` | **PLACEHOLDER, 나브팀 실측 필요** — 카메라 단독 폴백 경로에서만 사용 |
 | `box_depth_m` | `0.30` | **PLACEHOLDER, 나브팀 실측 필요** — front face에서 박스 중심까지 미는 거리 |
 | `tf_timeout` | `0.2` | TF lookup 타임아웃(초) |
+| `min_width_px` | `20` | (R4) bbox 폭이 이 값(px) 미만이면 거부 — 이번 프레임은 미검출로 취급. 실측 3 m 거리·fx~634에서 실제 박스(폭 수십 cm)는 수십 px를 채우므로(예: 0.2 m 폭이면 ~42 px), `20`은 그 절반 이하로 가려진 조각(g6: 벽 모서리에 가려 몇 px 띠만 보임 → 그 열의 라이다 점은 벽이었음)을 걸러내면서도 부분 가림에 여유를 둔다 |
+| `confirm_frames` | `3` | (R4) 이 수만큼 **연속**으로 검출(폭 통과 + 거리 해소)이 성공하고 서로 `confirm_radius` 이내에 모여야 `green_box/detected=true`를 발행한다. 거부/미검출 프레임이 하나라도 끼면 창이 초기화된다 |
+| `confirm_radius` | `0.15` | (R4) `confirm_frames`개 프레임의 해소 위치가 서로의 평균에서 이 반경(m) 안에 있어야 "확정"으로 본다. 확정 시 발행 위치는 그 프레임들의 평균 |
 
 ## 실행
 
@@ -67,7 +70,8 @@ ros2 launch green_box_approach green_box_approach.launch.py \
 2. 박스가 마스크에 안 걸리면 `hsv_lower`/`hsv_upper`의 H(색상) 범위를 넓히고, 조명 반사로 다른 물체가 같이
    걸리면 S(채도)/V(명도) 하한을 올린다.
 3. 노이즈 스펙클이 남으면 `morph_kernel`을 키우거나 `min_area`를 올린다.
-4. 디버그 이미지 텍스트(`detected=... source=lidar|camera-fallback`)로 어느 경로가 쓰였는지 확인한다.
+4. 디버그 이미지 텍스트(`detected=... source=lidar|camera-fallback reason=...`)로 어느 경로가 쓰였는지, R4 가드가 이번
+   프레임을 어떻게 판단했는지(`narrow`/`no-range`/`confirming k/N`/`unstable`/`confirmed`) 확인한다.
 
 ## Lane C(BT 노드) 연결법
 
@@ -90,6 +94,11 @@ ros2 launch green_box_approach green_box_approach.launch.py \
   실기 조명 재현은 이번 범위 밖이다.
 - **`box_height_m`/`box_depth_m`은 자리표시자(placeholder) 값**이다. 실측 후 파라미터를 덮어써야 정확한 거리
   추정이 나온다(R6).
+- **R4 확정 지연(latency)**: `green_box/detected`가 `true`가 되려면 `confirm_frames`(기본 3)개의 이미지 주기 동안
+  연속으로 검출이 성공하고 서로 `confirm_radius` 이내여야 한다 — 즉 박스가 처음 시야에 들어온 뒤 최소
+  `confirm_frames`개 이미지 주기(카메라 프레임레이트에 반비례, 예: 10 Hz면 최소 ~0.2-0.3 s)가 지나야 `detected=true`가
+  뜬다. 도중에 한 프레임이라도 거부(`narrow`/`no-range`)되면 창이 초기화돼 다시 `confirm_frames`개를 채워야 한다.
+  g6처럼 순간적으로 가려지는 상황이 반복되면 지연이 더 늘 수 있다.
 
 ## use_sim_time 일관성 전제조건
 
