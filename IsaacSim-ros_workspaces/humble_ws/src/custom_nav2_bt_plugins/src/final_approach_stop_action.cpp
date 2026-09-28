@@ -210,6 +210,14 @@ BT::NodeStatus FinalApproachStopAction::onRunning()
   // frozen box position (poseCallback) plus the current TF robot pose, so it
   // still stops the robot when every forward beam reads "no return".
   const double center_distance = std::hypot(dx, dy);
+  if (center_distance <= stop_center_distance_ && std::abs(bearing_error) > align_threshold_) {
+    // Close enough but not facing the box (review 4: the distance test alone
+    // could end the approach side-on). Turn in place only - no forward
+    // motion this close - and stop once aligned; time_allowance still bounds it.
+    publishTwist(
+      0.0, std::clamp(heading_gain_ * bearing_error, -max_angular_speed_, max_angular_speed_));
+    return BT::NodeStatus::RUNNING;
+  }
   if (center_distance <= stop_center_distance_) {
     publishZero();
     RCLCPP_INFO(
