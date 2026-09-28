@@ -110,6 +110,10 @@ ros2 launch green_box_approach green_box_approach.launch.py \
   거리 기준 정지(`stop_center_distance`)와 `/scan` 전방 원뿔 정지로 넘어가는 것을 전제로 한다.
   `stop_center_distance` 기본값 0.55 m는 약 0.3 m 박스 기준 자리표시값이다 — 실제 박스 크기에 맞춰 설정해야 한다.
 
+- **재시도 상한 없음(예제 트리)**: `green_box_approach_example.xml`은 `ReactiveFallback` 아래에서 접근 시퀀스가 실패하면
+  다음 틱에 처음부터 다시 시도한다. 토픽 이름 오설정·TF 끊김처럼 **구조적으로** 계속 실패하는 경우 재시도가 끝없이
+  반복된다(로그만 남음). 예제는 참고용이다 — 실제 트리에 옮길 때는 시도 횟수 상한과 포기 후 동작을 네비 트리 쪽에서 정해야 한다.
+
 ## use_sim_time 일관성 전제조건
 
 `green_box/pose`의 헤더 타임스탬프는 **그 포즈를 만든 이미지 메시지의 스탬프**를 그대로 쓴다(카메라→
