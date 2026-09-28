@@ -267,7 +267,8 @@ target_compile_definitions(custom_compute_green_box_approach_goal_action_bt_node
 add_library(custom_final_approach_stop_action_bt_node SHARED
   src/final_approach_stop_action.cpp)
 ament_target_dependencies(custom_final_approach_stop_action_bt_node
-  rclcpp behaviortree_cpp_v3 nav2_behavior_tree sensor_msgs geometry_msgs)
+  rclcpp behaviortree_cpp_v3 nav2_behavior_tree sensor_msgs geometry_msgs
+  nav2_util tf2 tf2_ros)
 target_compile_definitions(custom_final_approach_stop_action_bt_node
   PRIVATE BT_PLUGIN_EXPORT)
 

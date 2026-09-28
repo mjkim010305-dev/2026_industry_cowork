@@ -18,8 +18,21 @@
 #include <cmath>
 #include <limits>
 
+#include "nav2_util/robot_utils.hpp"
+#include "tf2/utils.h"
+
 namespace custom_nav2_bt_plugins
 {
+
+namespace
+{
+double normalizeAngle(double angle)
+{
+  while (angle > M_PI) {angle -= 2.0 * M_PI;}
+  while (angle < -M_PI) {angle += 2.0 * M_PI;}
+  return angle;
+}
+}  // namespace
 
 FinalApproachStopAction::FinalApproachStopAction(
   const std::string & name, const BT::NodeConfiguration & conf)
@@ -28,6 +41,7 @@ FinalApproachStopAction::FinalApproachStopAction(
   start_time_(0, 0, RCL_ROS_TIME)
 {
   node_ = config().blackboard->get<rclcpp::Node::SharedPtr>("node");
+  tf_buffer_ = config().blackboard->get<std::shared_ptr<tf2_ros::Buffer>>("tf_buffer");
   callback_group_ = node_->create_callback_group(
     rclcpp::CallbackGroupType::MutuallyExclusive, false);
   callback_group_executor_.add_callback_group(
@@ -40,6 +54,13 @@ void FinalApproachStopAction::scanCallback(sensor_msgs::msg::LaserScan::SharedPt
   latest_scan_time_ = node_->now();
 }
 
+void FinalApproachStopAction::poseCallback(geometry_msgs::msg::PoseStamped::SharedPtr msg)
+{
+  std::lock_guard<std::mutex> lock(pose_mutex_);
+  last_box_pose_ = *msg;
+  pose_received_since_start_ = true;
+}
+
 BT::NodeStatus FinalApproachStopAction::onStart()
 {
   getInput("scan_topic", scan_topic_);
@@ -49,6 +70,12 @@ BT::NodeStatus FinalApproachStopAction::onStart()
   getInput("front_half_angle", front_half_angle_);
   getInput("scan_loss_timeout", scan_loss_timeout_);
   getInput("time_allowance", time_allowance_);
+  getInput("pose_topic", pose_topic_);
+  getInput("global_frame", global_frame_);
+  getInput("robot_base_frame", robot_base_frame_);
+  getInput("align_threshold", align_threshold_);
+  getInput("max_angular_speed", max_angular_speed_);
+  getInput("heading_gain", heading_gain_);
 
   if (!cmd_vel_pub_ || cmd_vel_pub_->get_topic_name() != cmd_vel_topic_) {
     cmd_vel_pub_ = node_->create_publisher<geometry_msgs::msg::Twist>(
@@ -62,6 +89,22 @@ BT::NodeStatus FinalApproachStopAction::onStart()
       scan_topic_, rclcpp::SensorDataQoS(),
       std::bind(&FinalApproachStopAction::scanCallback, this, std::placeholders::_1),
       opts);
+  }
+  if (!pose_sub_ || pose_sub_->get_topic_name() != pose_topic_) {
+    rclcpp::SubscriptionOptions opts;
+    opts.callback_group = callback_group_;
+    pose_sub_ = node_->create_subscription<geometry_msgs::msg::PoseStamped>(
+      pose_topic_, rclcpp::SystemDefaultsQoS(),
+      std::bind(&FinalApproachStopAction::poseCallback, this, std::placeholders::_1),
+      opts);
+  }
+  // Reset every onStart (not only on resubscribe, unlike latest_scan_ above):
+  // g6 crept on whatever heading the robot already had, so a fresh run of
+  // this leaf must wait for a fresh bearing fix rather than trust a pose
+  // received during some earlier run of the leaf.
+  {
+    std::lock_guard<std::mutex> lock(pose_mutex_);
+    pose_received_since_start_ = false;
   }
 
   start_time_ = node_->now();
@@ -110,6 +153,49 @@ BT::NodeStatus FinalApproachStopAction::onRunning()
     return BT::NodeStatus::FAILURE;
   }
 
+  // g6: this leaf must not creep on whatever heading the robot happens to
+  // have, so it needs a box bearing before it may move at all. The box is
+  // static, so once a pose_topic message has arrived it stays valid for the
+  // rest of this run (no per-tick freshness check, unlike the scan above) -
+  // but the same grace-then-fail shape as the first-scan handling applies
+  // while waiting for that first message, reusing scan_loss_timeout as the
+  // grace window (see header).
+  geometry_msgs::msg::PoseStamped box_pose;
+  {
+    std::lock_guard<std::mutex> lock(pose_mutex_);
+    if (!pose_received_since_start_) {
+      const double pose_age = (node_->now() - start_time_).seconds();
+      publishZero();
+      if (pose_age <= scan_loss_timeout_) {
+        return BT::NodeStatus::RUNNING;
+      }
+      RCLCPP_ERROR(
+        node_->get_logger(),
+        "FinalApproachStop: no pose on \"%s\" within %.2fs of onStart - stopping rather "
+        "than creep on an unknown heading",
+        pose_topic_.c_str(), scan_loss_timeout_);
+      return BT::NodeStatus::FAILURE;
+    }
+    box_pose = last_box_pose_;
+  }
+
+  geometry_msgs::msg::PoseStamped robot_pose;
+  if (!nav2_util::getCurrentPose(robot_pose, *tf_buffer_, global_frame_, robot_base_frame_)) {
+    publishZero();
+    RCLCPP_ERROR(
+      node_->get_logger(),
+      "FinalApproachStop: TF lookup failed (\"%s\" <- \"%s\") - stopping rather than "
+      "creep on a stale heading",
+      global_frame_.c_str(), robot_base_frame_.c_str());
+    return BT::NodeStatus::FAILURE;
+  }
+
+  const double robot_yaw = tf2::getYaw(robot_pose.pose.orientation);
+  const double bearing_to_box = std::atan2(
+    box_pose.pose.position.y - robot_pose.pose.position.y,
+    box_pose.pose.position.x - robot_pose.pose.position.x);
+  const double bearing_error = normalizeAngle(bearing_to_box - robot_yaw);
+
   const auto & scan = *latest_scan_;
   double min_range = std::numeric_limits<double>::infinity();
   for (std::size_t i = 0; i < scan.ranges.size(); ++i) {
@@ -144,7 +230,16 @@ BT::NodeStatus FinalApproachStopAction::onRunning()
     return BT::NodeStatus::SUCCESS;
   }
 
-  publishForward(approach_speed_);
+  const double angular = std::clamp(
+    heading_gain_ * bearing_error, -max_angular_speed_, max_angular_speed_);
+  if (std::abs(bearing_error) > align_threshold_) {
+    // Outside the align cone: rotate in place rather than creep forward on
+    // a heading that would (as in g6) miss the box out of the stop-check
+    // cone entirely and drive straight past/into it from the side.
+    publishTwist(0.0, angular);
+  } else {
+    publishTwist(approach_speed_, angular);
+  }
   return BT::NodeStatus::RUNNING;
 }
 
@@ -156,17 +251,15 @@ void FinalApproachStopAction::onHalted()
 
 void FinalApproachStopAction::publishZero()
 {
-  if (cmd_vel_pub_) {
-    geometry_msgs::msg::Twist cmd;
-    cmd_vel_pub_->publish(cmd);
-  }
+  publishTwist(0.0, 0.0);
 }
 
-void FinalApproachStopAction::publishForward(double speed)
+void FinalApproachStopAction::publishTwist(double linear, double angular)
 {
   if (cmd_vel_pub_) {
     geometry_msgs::msg::Twist cmd;
-    cmd.linear.x = speed;
+    cmd.linear.x = linear;
+    cmd.angular.z = angular;
     cmd_vel_pub_->publish(cmd);
   }
 }
