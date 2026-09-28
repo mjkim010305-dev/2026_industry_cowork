@@ -90,8 +90,16 @@ BT::NodeStatus FinalApproachStopAction::onRunning()
   // periods at typical 10-40Hz rates, enough to ride out one dropped frame,
   // but far below time_allowance so a real sensor/link loss is caught in
   // well under a second instead of creeping blind for the full 30s budget.
+  // Measured from onStart when nothing has arrived yet: the first scan after
+  // the node starts is "not yet", not "lost" (g3 failed twice on the first
+  // tick with age inf). Stand still while waiting - never creep before the
+  // first scan.
   const double scan_age = latest_scan_ ?
-    (node_->now() - latest_scan_time_).seconds() : std::numeric_limits<double>::infinity();
+    (node_->now() - latest_scan_time_).seconds() : (node_->now() - start_time_).seconds();
+  if (!latest_scan_ && scan_age <= scan_loss_timeout_) {
+    publishZero();
+    return BT::NodeStatus::RUNNING;
+  }
   if (!latest_scan_ || scan_age > scan_loss_timeout_) {
     publishZero();
     RCLCPP_ERROR(
@@ -118,9 +126,13 @@ BT::NodeStatus FinalApproachStopAction::onRunning()
     if (r > scan.range_max) {
       continue;
     }
-    // A finite reading below range_min means "closer than the sensor can
-    // measure" - clamp to 0 so it still drives the stop instead of being
-    // discarded as invalid.
+    // r <= 0 is a no-return sentinel, not a distance: Isaac's RTX lidar sends
+    // -1.0 and the TurtleBot3 LDS-01 driver 0.0 (g3 stopped on a -1.0 read as
+    // "0 m ahead"). A positive reading below range_min means "closer than the
+    // sensor can measure" - clamp to 0 so it still drives the stop.
+    if (r <= 0.0) {
+      continue;
+    }
     min_range = std::min(min_range, r < scan.range_min ? 0.0 : r);
   }
 
