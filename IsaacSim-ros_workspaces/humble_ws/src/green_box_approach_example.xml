@@ -60,7 +60,7 @@
                             stop_distance="0.4"
                             approach_speed="0.15"
                             front_half_angle="0.26"
-                            scan_timeout="1.0"
+                            scan_loss_timeout="0.5"
                             time_allowance="30.0"/>
       </Sequence>
 

@@ -47,7 +47,7 @@ BT::NodeStatus FinalApproachStopAction::onStart()
   getInput("stop_distance", stop_distance_);
   getInput("approach_speed", approach_speed_);
   getInput("front_half_angle", front_half_angle_);
-  getInput("scan_timeout", scan_timeout_);
+  getInput("scan_loss_timeout", scan_loss_timeout_);
   getInput("time_allowance", time_allowance_);
 
   if (!cmd_vel_pub_ || cmd_vel_pub_->get_topic_name() != cmd_vel_topic_) {
@@ -84,34 +84,53 @@ BT::NodeStatus FinalApproachStopAction::onRunning()
     return BT::NodeStatus::FAILURE;
   }
 
-  const bool have_fresh_scan = latest_scan_ &&
-    (node_->now() - latest_scan_time_).seconds() <= scan_timeout_;
-  if (have_fresh_scan) {
-    const auto & scan = *latest_scan_;
-    double min_range = std::numeric_limits<double>::infinity();
-    for (std::size_t i = 0; i < scan.ranges.size(); ++i) {
-      const double angle = scan.angle_min + static_cast<double>(i) * scan.angle_increment;
-      if (std::abs(angle) > front_half_angle_) {
-        continue;
-      }
-      const double r = scan.ranges[i];
-      if (!std::isfinite(r) || r < scan.range_min || r > scan.range_max) {
-        continue;
-      }
-      min_range = std::min(min_range, r);
-    }
-
-    if (std::isfinite(min_range) && min_range <= stop_distance_) {
-      publishZero();
-      RCLCPP_INFO(
-        node_->get_logger(), "FinalApproachStop: min forward range %.2fm <= %.2fm, stopped",
-        min_range, stop_distance_);
-      return BT::NodeStatus::SUCCESS;
-    }
+  // This creep is blind between scans, so a missing/stale scan is a
+  // fail-safe: stop and FAIL rather than keep driving open-loop on data we
+  // no longer trust. scan_loss_timeout defaults to 0.5s - a few LaserScan
+  // periods at typical 10-40Hz rates, enough to ride out one dropped frame,
+  // but far below time_allowance so a real sensor/link loss is caught in
+  // well under a second instead of creeping blind for the full 30s budget.
+  const double scan_age = latest_scan_ ?
+    (node_->now() - latest_scan_time_).seconds() : std::numeric_limits<double>::infinity();
+  if (!latest_scan_ || scan_age > scan_loss_timeout_) {
+    publishZero();
+    RCLCPP_ERROR(
+      node_->get_logger(),
+      "FinalApproachStop: no scan within scan_loss_timeout (%.2fs, age %.2fs) - "
+      "stopping rather than creep blind",
+      scan_loss_timeout_, scan_age);
+    return BT::NodeStatus::FAILURE;
   }
-  // No fresh scan, or fresh scan but still beyond stop_distance: keep
-  // creeping forward. A stale scan is not treated as a failure by itself -
-  // only time_allowance bounds how long this leaf may run.
+
+  const auto & scan = *latest_scan_;
+  double min_range = std::numeric_limits<double>::infinity();
+  for (std::size_t i = 0; i < scan.ranges.size(); ++i) {
+    const double angle = scan.angle_min + static_cast<double>(i) * scan.angle_increment;
+    if (std::abs(angle) > front_half_angle_) {
+      continue;
+    }
+    const double r = scan.ranges[i];
+    if (!std::isfinite(r)) {
+      // No return on this beam - not proof of clear space, just no
+      // evidence either way, so it cannot count toward min_range.
+      continue;
+    }
+    if (r > scan.range_max) {
+      continue;
+    }
+    // A finite reading below range_min means "closer than the sensor can
+    // measure" - clamp to 0 so it still drives the stop instead of being
+    // discarded as invalid.
+    min_range = std::min(min_range, r < scan.range_min ? 0.0 : r);
+  }
+
+  if (std::isfinite(min_range) && min_range <= stop_distance_) {
+    publishZero();
+    RCLCPP_INFO(
+      node_->get_logger(), "FinalApproachStop: min forward range %.2fm <= %.2fm, stopped",
+      min_range, stop_distance_);
+    return BT::NodeStatus::SUCCESS;
+  }
 
   publishForward(approach_speed_);
   return BT::NodeStatus::RUNNING;

@@ -41,11 +41,21 @@ namespace custom_nav2_bt_plugins
  *
  * onRunning: take the freshest /scan, look at ranges whose angle falls inside
  * [-front_half_angle, +front_half_angle] (LaserScan frame, 0 = forward), take
- * the minimum valid range r. r <= stop_distance -> publish zero Twist and
- * SUCCEED. Otherwise publish a forward Twist and stay RUNNING. A stale/never
- * scan does not fail outright (LIDAR frames can be dropped intermittently) -
- * it simply keeps creeping forward, bounded by `time_allowance` like the
- * other open-loop actions in this package.
+ * the minimum range r among readings that carry any distance evidence:
+ * finite r < range_min is closer than the sensor can report and is clamped
+ * to 0 (it still drives the stop, it is not discarded); inf/NaN readings are
+ * "no return" and are skipped (absence of a return is not proof the box is
+ * gone, so it must not count as clear space either). min_range <=
+ * stop_distance -> publish zero Twist and SUCCEED. Otherwise publish a
+ * forward Twist and stay RUNNING.
+ * This creep is open-loop and blind between scans, so a missing/stale scan
+ * is a fail-safe, not a shrug: if no scan has ever arrived, or the latest
+ * one is older than `scan_loss_timeout`, publish zero Twist and FAIL
+ * immediately rather than let the robot keep creeping on stale data. One
+ * transiently late scan inside that window is tolerated (falls through to
+ * the same command as last tick); only a loss that outlasts the window
+ * fails. `time_allowance` remains the separate, much larger bound on total
+ * leaf runtime when scans are healthy but the box is never reached.
  * onHalted always publishes zero, so a preempted approach never leaves the
  * robot creeping.
  */
@@ -66,7 +76,10 @@ public:
       BT::InputPort<double>(
         "front_half_angle", 0.26, "Half-angle [rad] of the forward cone (0=full width)"),
       BT::InputPort<double>(
-        "scan_timeout", 1.0, "Max age [s] of the last scan before it is ignored (not a failure)"),
+        "scan_loss_timeout", 0.5,
+        "FAILURE if no scan has ever arrived or the latest one is older than this [s] "
+        "(must stay well below time_allowance - this is the blind-creep fail-safe, "
+        "not the overall runtime budget)"),
       BT::InputPort<double>(
         "time_allowance", 30.0, "FAILURE if stop_distance is not reached within this many seconds"),
     };
@@ -92,7 +105,7 @@ private:
   double stop_distance_ {0.4};
   double approach_speed_ {0.15};
   double front_half_angle_ {0.26};
-  double scan_timeout_ {1.0};
+  double scan_loss_timeout_ {0.5};
   double time_allowance_ {30.0};
 
   sensor_msgs::msg::LaserScan::SharedPtr latest_scan_;
