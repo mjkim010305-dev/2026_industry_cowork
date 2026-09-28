@@ -73,7 +73,7 @@ BT::NodeStatus ComputeGreenBoxApproachGoalAction::tick()
 {
   callback_group_executor_.spin_some();
 
-  double standoff = 0.5;
+  double standoff = 0.8;
   double max_age = 1.0;
   double transform_tolerance = 0.1;
   std::string global_frame = "map";

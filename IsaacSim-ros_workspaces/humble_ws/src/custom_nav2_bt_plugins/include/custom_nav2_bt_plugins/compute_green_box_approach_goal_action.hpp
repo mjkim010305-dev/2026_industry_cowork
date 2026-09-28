@@ -39,6 +39,11 @@ namespace custom_nav2_bt_plugins
  * used by ApproachObstacleNormalAction/ComputeStraightPathToPoseAction in this
  * package (`nav2_util::getCurrentPose`).
  *
+ * If the robot is already within `standoff_distance` of the box, the goal is
+ * the robot's current pose and heading (hold position): a goal behind the
+ * robot would need a slow in-place turn next to the box (g8). The final turn
+ * to face the box is left to FinalApproachStop.
+ *
  * FAILURE (with a log) if the last `pose_topic` message is missing/stale
  * (age > `max_age`) or the TF lookup fails - either way there is nothing
  * usable to compute a goal from.
