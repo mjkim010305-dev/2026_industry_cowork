@@ -238,6 +238,39 @@ ament_target_dependencies(custom_orient_path_to_yaw_action_bt_node
 target_compile_definitions(custom_orient_path_to_yaw_action_bt_node
   PRIVATE BT_PLUGIN_EXPORT)
 
+# ---------------------------------------------------------------------------
+# BT plugin: IsGreenBoxDetected (condition) - fresh detection gate for the
+# AI Festa green-box approach-and-stop demo (Session 11)
+# ---------------------------------------------------------------------------
+add_library(custom_is_green_box_detected_condition_bt_node SHARED
+  src/is_green_box_detected_condition.cpp)
+ament_target_dependencies(custom_is_green_box_detected_condition_bt_node
+  rclcpp behaviortree_cpp_v3 nav2_behavior_tree std_msgs geometry_msgs)
+target_compile_definitions(custom_is_green_box_detected_condition_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
+# ---------------------------------------------------------------------------
+# BT plugin: ComputeGreenBoxApproachGoal (sync action) - box pose -> standoff
+# goal in front of the box, for ComputePathToPose/FollowPath
+# ---------------------------------------------------------------------------
+add_library(custom_compute_green_box_approach_goal_action_bt_node SHARED
+  src/compute_green_box_approach_goal_action.cpp)
+ament_target_dependencies(custom_compute_green_box_approach_goal_action_bt_node
+  rclcpp behaviortree_cpp_v3 nav2_behavior_tree nav2_util geometry_msgs tf2 tf2_ros)
+target_compile_definitions(custom_compute_green_box_approach_goal_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
+# ---------------------------------------------------------------------------
+# BT plugin: FinalApproachStop (stateful action) - open-loop /cmd_vel creep,
+# stops on min /scan range in the forward cone (bypasses costmap, see header)
+# ---------------------------------------------------------------------------
+add_library(custom_final_approach_stop_action_bt_node SHARED
+  src/final_approach_stop_action.cpp)
+ament_target_dependencies(custom_final_approach_stop_action_bt_node
+  rclcpp behaviortree_cpp_v3 nav2_behavior_tree sensor_msgs geometry_msgs)
+target_compile_definitions(custom_final_approach_stop_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
 set(bt_plugin_libs
   custom_is_movable_obstacle_detected_condition_bt_node
   custom_wait_for_obstacle_clearance_action_bt_node
@@ -259,6 +292,9 @@ set(bt_plugin_libs
   custom_drive_to_recorded_pose_action_bt_node
   custom_compute_straight_path_to_pose_action_bt_node
   custom_wiggle_in_place_action_bt_node
+  custom_is_green_box_detected_condition_bt_node
+  custom_compute_green_box_approach_goal_action_bt_node
+  custom_final_approach_stop_action_bt_node
 )
 
 # ---------------------------------------------------------------------------
