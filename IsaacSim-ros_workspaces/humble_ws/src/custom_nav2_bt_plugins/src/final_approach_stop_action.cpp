@@ -57,6 +57,13 @@ void FinalApproachStopAction::scanCallback(sensor_msgs::msg::LaserScan::SharedPt
 void FinalApproachStopAction::poseCallback(geometry_msgs::msg::PoseStamped::SharedPtr msg)
 {
   std::lock_guard<std::mutex> lock(pose_mutex_);
+  // g8: at contact range the detector's pose goes unreliable (its close-range
+  // geometry breaks down), which kept moving the steering target. The box is
+  // static, so only the first pose after onStart is kept for the rest of this
+  // run - later messages are ignored until the next onStart resets the flag.
+  if (pose_received_since_start_) {
+    return;
+  }
   last_box_pose_ = *msg;
   pose_received_since_start_ = true;
 }
@@ -76,6 +83,7 @@ BT::NodeStatus FinalApproachStopAction::onStart()
   getInput("align_threshold", align_threshold_);
   getInput("max_angular_speed", max_angular_speed_);
   getInput("heading_gain", heading_gain_);
+  getInput("stop_center_distance", stop_center_distance_);
 
   if (!cmd_vel_pub_ || cmd_vel_pub_->get_topic_name() != cmd_vel_topic_) {
     cmd_vel_pub_ = node_->create_publisher<geometry_msgs::msg::Twist>(
@@ -191,10 +199,25 @@ BT::NodeStatus FinalApproachStopAction::onRunning()
   }
 
   const double robot_yaw = tf2::getYaw(robot_pose.pose.orientation);
-  const double bearing_to_box = std::atan2(
-    box_pose.pose.position.y - robot_pose.pose.position.y,
-    box_pose.pose.position.x - robot_pose.pose.position.x);
+  const double dx = box_pose.pose.position.x - robot_pose.pose.position.x;
+  const double dy = box_pose.pose.position.y - robot_pose.pose.position.y;
+  const double bearing_to_box = std::atan2(dy, dx);
   const double bearing_error = normalizeAngle(bearing_to_box - robot_yaw);
+
+  // g8: the forward lidar sector can go fully blind at contact range (e.g.
+  // self-occluded by the manipulator arm), so the range-based stop below can
+  // never fire. This test is independent of the lidar and uses only the
+  // frozen box position (poseCallback) plus the current TF robot pose, so it
+  // still stops the robot when every forward beam reads "no return".
+  const double center_distance = std::hypot(dx, dy);
+  if (center_distance <= stop_center_distance_) {
+    publishZero();
+    RCLCPP_INFO(
+      node_->get_logger(),
+      "FinalApproachStop: pose-based stop fired, box-centre distance %.2fm <= %.2fm",
+      center_distance, stop_center_distance_);
+    return BT::NodeStatus::SUCCESS;
+  }
 
   const auto & scan = *latest_scan_;
   double min_range = std::numeric_limits<double>::infinity();
@@ -225,7 +248,7 @@ BT::NodeStatus FinalApproachStopAction::onRunning()
   if (std::isfinite(min_range) && min_range <= stop_distance_) {
     publishZero();
     RCLCPP_INFO(
-      node_->get_logger(), "FinalApproachStop: min forward range %.2fm <= %.2fm, stopped",
+      node_->get_logger(), "FinalApproachStop: lidar stop fired, min forward range %.2fm <= %.2fm",
       min_range, stop_distance_);
     return BT::NodeStatus::SUCCESS;
   }

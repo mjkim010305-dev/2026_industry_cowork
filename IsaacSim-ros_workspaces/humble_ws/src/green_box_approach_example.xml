@@ -64,7 +64,8 @@
                             time_allowance="30.0"
                             pose_topic="green_box/pose"
                             global_frame="map"
-                            robot_base_frame="base_link"/>
+                            robot_base_frame="base_link"
+                            stop_center_distance="0.55"/>
       </Sequence>
 
       <Sequence name="NavigateNormally">

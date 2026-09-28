@@ -97,6 +97,24 @@ namespace custom_nav2_bt_plugins
  * rotate) at low commanded angular speeds.
  * onHalted always publishes zero, so a preempted approach never leaves the
  * robot creeping.
+ *
+ * g8 (Session 11 live run): with the robot already pressed against the box,
+ * every forward beam in [-0.46, +0.46] rad read -1.0 (no return) for the
+ * whole run - most likely the manipulator arm sits in front of the LIDAR and
+ * self-occludes that sector at close range, so the min_range test above
+ * never sees a reading below `stop_distance` and never fires. Also, at that
+ * range the detector's pose kept changing (its close-range/clipped geometry
+ * goes unreliable), so re-reading `pose_topic` every tick made the steering
+ * target wander. Two fixes: (1) only the FIRST `pose_topic` message after
+ * onStart is kept (the box is static - later, unreliable close-range poses
+ * are never trusted for the rest of this run); (2) a second, independent
+ * stop test compares the frozen box position to the robot's TF pose
+ * directly (`stop_center_distance`), so the leaf still stops even when the
+ * lidar's forward sector is fully blind. Either test firing stops the
+ * robot - both are checked before any motion command, in both phases.
+ * Note for the navigation team: the real TurtleBot3 + manipulator may have
+ * the same self-occlusion (arm in front of the LDS), so a lidar-only stop
+ * gate is not sufficient on the real robot either.
  */
 class FinalApproachStopAction : public BT::StatefulActionNode
 {
@@ -139,6 +157,14 @@ public:
         "max_angular_speed", 0.8, "Angular speed clamp [rad/s], both phases"),
       BT::InputPort<double>(
         "heading_gain", 1.5, "Proportional gain, bearing error [rad] -> angular speed [rad/s]"),
+      BT::InputPort<double>(
+        "stop_center_distance", 0.55,
+        "Stop once horizontal distance from robot base to the frozen box centre (TF) <= this "
+        "[m] - independent of the lidar test above (g8: the forward lidar sector can go fully "
+        "blind at contact range, e.g. self-occluded by the manipulator arm). Box half-size is "
+        "unknown on the real course, so this default only assumes a ~0.3m box and leaves room "
+        "for the robot's own front (0.55m center-to-center still clears the box face); it must "
+        "be re-set per actual box size."),
     };
   }
 
@@ -173,6 +199,7 @@ private:
   double align_threshold_ {0.26};
   double max_angular_speed_ {0.8};
   double heading_gain_ {1.5};
+  double stop_center_distance_ {0.55};
 
   sensor_msgs::msg::LaserScan::SharedPtr latest_scan_;
   rclcpp::Time latest_scan_time_;
