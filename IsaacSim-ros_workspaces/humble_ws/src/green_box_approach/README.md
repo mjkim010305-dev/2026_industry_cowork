@@ -46,6 +46,7 @@ AI Festa 실기 데모(TurtleBot3 + manipulation, Nav2 Humble)용 초록 박스 
 | `min_width_px` | `20` | (R4) bbox 폭이 이 값(px) 미만이면 거부 — 이번 프레임은 미검출로 취급. 실측 3 m 거리·fx~634에서 실제 박스(폭 수십 cm)는 수십 px를 채우므로(예: 0.2 m 폭이면 ~42 px), `20`은 그 절반 이하로 가려진 조각(g6: 벽 모서리에 가려 몇 px 띠만 보임 → 그 열의 라이다 점은 벽이었음)을 걸러내면서도 부분 가림에 여유를 둔다 |
 | `confirm_frames` | `3` | (R4) 이 수만큼 **연속**으로 검출(폭 통과 + 거리 해소)이 성공하고 서로 `confirm_radius` 이내에 모여야 `green_box/detected=true`를 발행한다. 거부/미검출 프레임이 하나라도 끼면 창이 초기화된다 |
 | `confirm_radius` | `0.15` | (R4) `confirm_frames`개 프레임의 해소 위치가 서로의 평균에서 이 반경(m) 안에 있어야 "확정"으로 본다. 확정 시 발행 위치는 그 프레임들의 평균 |
+| `edge_margin_px` | `3` | (R7b) bbox가 이미지 위/아래 경계에서 이 값(px) 이내면 "닿았다"로 본다 — `min_area`처럼 HSV/컨투어 노이즈로 bbox가 진짜 경계에서 1~2 px 못 미치는 경우까지 잡기 위한 여유. 카메라 폴백 경로에서만 쓰임(아래 "알려진 한계") |
 
 ## 실행
 
@@ -70,8 +71,8 @@ ros2 launch green_box_approach green_box_approach.launch.py \
 2. 박스가 마스크에 안 걸리면 `hsv_lower`/`hsv_upper`의 H(색상) 범위를 넓히고, 조명 반사로 다른 물체가 같이
    걸리면 S(채도)/V(명도) 하한을 올린다.
 3. 노이즈 스펙클이 남으면 `morph_kernel`을 키우거나 `min_area`를 올린다.
-4. 디버그 이미지 텍스트(`detected=... source=lidar|camera-fallback reason=...`)로 어느 경로가 쓰였는지, R4 가드가 이번
-   프레임을 어떻게 판단했는지(`narrow`/`no-range`/`confirming k/N`/`unstable`/`confirmed`) 확인한다.
+4. 디버그 이미지 텍스트(`detected=... source=lidar|camera-fallback reason=...`)로 어느 경로가 쓰였는지, R4/R7b 가드가
+   이번 프레임을 어떻게 판단했는지(`narrow`/`no-range`/`clipped`/`confirming k/N`/`unstable`/`confirmed`) 확인한다.
 
 ## Lane C(BT 노드) 연결법
 
@@ -79,8 +80,9 @@ ros2 launch green_box_approach green_box_approach.launch.py \
   타임스탬프로 판단)를 구독해 SUCCESS/FAILURE를 결정한다.
 - `ComputeGreenBoxApproachGoalAction`이 `green_box/pose`를 구독해 접근 목표(PoseStamped)를 계산한다. 이때
   `global_frame` 포트는 이 패키지의 `output_frame` 파라미터와 반드시 같은 값이어야 한다(R7).
-- `FinalApproachStopAction`은 이 패키지를 구독하지 않는다 — 정지 단계는 `/scan` 전방 원뿔 최소거리만으로
-  독립 동작한다(계약 근거 참조, custom_nav2_bt_plugins 쪽 문서).
+- `FinalApproachStopAction`도 `green_box/pose`를 구독한다 — 시작 직후 받은 첫 포즈를 고정해 박스 쪽으로 조향하고,
+  로봇→박스 중심 거리가 `stop_center_distance` 이하이거나 `/scan` 전방 원뿔 최소거리가 `stop_distance` 이하이면
+  정지한다(둘 중 먼저 걸리는 쪽). 라이다 전방이 팔에 가려 무반사(-1)여도 거리 기준 정지가 동작한다(g8).
 
 ## 알려진 한계
 
@@ -99,6 +101,14 @@ ros2 launch green_box_approach green_box_approach.launch.py \
   `confirm_frames`개 이미지 주기(카메라 프레임레이트에 반비례, 예: 10 Hz면 최소 ~0.2-0.3 s)가 지나야 `detected=true`가
   뜬다. 도중에 한 프레임이라도 거부(`narrow`/`no-range`)되면 창이 초기화돼 다시 `confirm_frames`개를 채워야 한다.
   g6처럼 순간적으로 가려지는 상황이 반복되면 지연이 더 늘 수 있다.
+- **접촉 거리에서는 어느 경로도 박스 거리를 잴 수 없다(R7b)**: 로봇이 박스에 거의 닿을 만큼 가까워지면 LIDAR
+  전방 빔이 (TurtleBot3 manipulator의 팔에 가려지거나 박스 상단을 넘어가) 아무것도 잡지 못하고(`-1`/무효), 동시에
+  카메라 이미지에서는 박스가 위/아래 경계를 넘어가 bbox 높이가 잘린다. 카메라 폴백은 이 잘린 픽셀 높이로
+  거리를 역산하므로 실제보다 먼 값을 그대로 발행할 수 있다 — 그래서 이 경우는 값을 내지 않고 거부한다
+  (`reason=clipped`, `edge_margin_px` 참조). **즉 두 경로 모두 접촉 거리에서는 멈춘다.** BT 쪽 최종 접근은 이
+  구간에서 새 검출을 기다리지 않고, 그 전에 확정된(`confirmed`) 포즈를 고정해 쓴 채 `FinalApproachStopAction`의
+  거리 기준 정지(`stop_center_distance`)와 `/scan` 전방 원뿔 정지로 넘어가는 것을 전제로 한다.
+  `stop_center_distance` 기본값 0.55 m는 약 0.3 m 박스 기준 자리표시값이다 — 실제 박스 크기에 맞춰 설정해야 한다.
 
 ## use_sim_time 일관성 전제조건
 

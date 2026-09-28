@@ -26,6 +26,7 @@ import numpy as np
 import pytest
 
 from green_box_approach.geometry import (
+    bbox_touches_vertical_border,
     box_center_from_front,
     confirm_window_mean,
     fallback_point_from_height,
@@ -241,3 +242,30 @@ def test_confirm_window_mean_outlier_returns_none():
     # (wall-behind-the-sliver) ~0.5 m off, mixed into the same window.
     positions = [(31.0, -2.30), (31.02, -2.28), (31.5, -2.30)]
     assert confirm_window_mean(positions, radius=0.15) is None
+
+
+# --- Session 11 R7b (contact-range defect: bbox clipped by the image
+# top/bottom border makes the camera-fallback height-based range wrong) ---
+
+def test_bbox_touches_vertical_border_touching_top():
+    # y=0 -> flush with the top edge.
+    assert bbox_touches_vertical_border((100, 0, 40, 60), image_height=480,
+                                         edge_margin_px=3) is True
+
+
+def test_bbox_touches_vertical_border_touching_bottom():
+    # y+h = 480 -> flush with the bottom edge (image_height=480).
+    assert bbox_touches_vertical_border((100, 420, 40, 60), image_height=480,
+                                         edge_margin_px=3) is True
+
+
+def test_bbox_touches_vertical_border_within_margin_counts_as_touching():
+    # y=2 is within edge_margin_px=3 of the top (0) - HSV/contour jitter.
+    assert bbox_touches_vertical_border((100, 2, 40, 60), image_height=480,
+                                         edge_margin_px=3) is True
+
+
+def test_bbox_touches_vertical_border_clear_of_both_edges():
+    # y=200, y+h=260, well clear of top (0) and bottom (480) with margin 3.
+    assert bbox_touches_vertical_border((100, 200, 40, 60), image_height=480,
+                                         edge_margin_px=3) is False

@@ -75,6 +75,7 @@ from std_msgs.msg import Bool
 from tf2_ros import Buffer, TransformListener, TransformException
 
 from green_box_approach.geometry import (
+    bbox_touches_vertical_border,
     box_center_from_front,
     confirm_window_mean,
     fallback_point_from_height,
@@ -125,6 +126,11 @@ class GreenBoxDetector(Node):
         # resolved against the wall behind the box) - see geometry.py
         # module docstring for the reasoning behind both defaults.
         self.min_width_px = int(self.declare_parameter("min_width_px", 20).value)
+        # Session 11 R7b: at contact range the box overflows the frame
+        # top/bottom, clipping the blob's pixel height that the
+        # camera-fallback path's similar-triangles depth relies on - see
+        # geometry.bbox_touches_vertical_border docstring.
+        self.edge_margin_px = int(self.declare_parameter("edge_margin_px", 3).value)
         self.confirm_frames = int(self.declare_parameter("confirm_frames", 3).value)
         self.confirm_radius = float(self.declare_parameter("confirm_radius", 0.15).value)
         self._confirm_window = deque(maxlen=self.confirm_frames)
@@ -217,9 +223,10 @@ class GreenBoxDetector(Node):
             reason = "narrow"
             self._confirm_window.clear()
         else:
-            pose_xy, source = self._resolve_front(msg.header, bbox, fx, fy, cx, cy)
+            pose_xy, source = self._resolve_front(
+                msg.header, bbox, fx, fy, cx, cy, bgr.shape[0])
             if pose_xy is None:
-                reason = "no-range"
+                reason = "clipped" if source == "clipped" else "no-range"
                 self._confirm_window.clear()
             else:
                 self._confirm_window.append(pose_xy)
@@ -247,10 +254,11 @@ class GreenBoxDetector(Node):
     # ------------------------------------------------------------------
     # ranging
 
-    def _resolve_front(self, image_header, bbox, fx, fy, cx, cy):
+    def _resolve_front(self, image_header, bbox, fx, fy, cx, cy, image_height):
         """Box centre ``(x, y)`` in ``output_frame``, or ``None`` if neither
         the lidar nor the camera-fallback path could resolve one. Also
-        returns which path fired (``"lidar" | "camera-fallback" | "none"``).
+        returns which path fired (``"lidar" | "camera-fallback" | "clipped" |
+        "none"``).
 
         ``camera_frame`` (param, "" = ``image_header.frame_id``) MUST be an
         OPTICAL frame - see module docstring and README.
@@ -278,6 +286,14 @@ class GreenBoxDetector(Node):
                     source = "lidar"
 
         if front_cam is None:
+            # R7b: lidar found nothing under the blob (this branch), and the
+            # blob touches the image's top/bottom border - the box is closer
+            # than the frame can show, so its pixel height is clipped and
+            # the fallback's similar-triangles depth below would be wrong.
+            # The lidar path is unaffected by this check: its range comes
+            # from an actual 3D return, not the blob's height.
+            if bbox_touches_vertical_border(bbox, image_height, self.edge_margin_px):
+                return None, "clipped"
             # Camera-fallback: depth from known box height, back-projected
             # through the blob centre pixel (camera optical frame).
             u_c, v_c = x + w / 2.0, y + h / 2.0

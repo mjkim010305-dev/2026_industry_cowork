@@ -185,6 +185,26 @@ def is_bbox_wide_enough(bbox, min_width_px):
     return w >= min_width_px
 
 
+def bbox_touches_vertical_border(bbox, image_height, edge_margin_px=3):
+    """Whether ``bbox`` touches the image's top or bottom edge, within
+    ``edge_margin_px`` pixels.
+
+    Session 11 R7b: at contact range the box fills more of the frame than
+    its true height (the camera is closer than the pinhole model behind
+    ``fallback_point_from_height`` was ever exercised at), so the top and/or
+    bottom of the bbox gets clipped by the image border - ``pixel_h`` is then
+    smaller than the box's real projected height, and the height-based
+    fallback silently reports a wrong (usually too far) range. A clipped
+    bbox is a reliable symptom of that: a box that is fully in view never
+    touches the border. ``edge_margin_px`` (a few px, same order as
+    ``hsv_mask_to_blob``'s contour/HSV noise) tolerates the bbox landing one
+    or two pixels short of the true border because of mask jitter, rather
+    than requiring an exact 0/``image_height-1`` pixel match.
+    """
+    _, y, _, h = bbox
+    return y <= edge_margin_px or (y + h) >= image_height - edge_margin_px
+
+
 def confirm_window_mean(positions, radius):
     """Mean of ``positions`` (list of ``(x, y)``) if they all agree, else
     ``None``.
