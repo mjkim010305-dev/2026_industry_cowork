@@ -17,27 +17,34 @@
 
 No object-recognition AI (Session 11 scope): the box is found by HSV colour
 thresholding on the RGB stream, and its distance/centre is resolved by fusing
-the blob's horizontal bearing with the nearest /scan return in that bearing
-span. All geometry/vision math lives in ``geometry.py`` (ROS-free, unit
-tested); this node is only the ROS plumbing around it - ONE class of io wiring
-- subscribe, convert, call geometry, transform, publish - the same
+the blob's pixel column with the nearest /scan return that projects inside
+that column. All geometry/vision math lives in ``geometry.py`` (ROS-free,
+unit tested); this node is only the ROS plumbing around it - ONE class of io
+wiring - subscribe, convert, call geometry, transform, publish - the same
 perception/action split ``vlm_movability_node.py`` documents for this
 codebase (Python nodes publish, BT actions act).
 
+Session 11 R2 rewrite: the association between the blob and /scan is done
+entirely in 3D with the FULL camera<->scan TF (rotation + translation), never
+a yaw-only approximation - see ``geometry.py`` module docstring for why that
+mattered (optical-frame mounts, parallax at close range). ``camera_frame``
+must therefore be an OPTICAL frame (REP-103: x right, y down, z forward);
+this is what the pinhole projection in ``geometry.select_points_in_column_window``
+assumes.
+
 Two ranging paths, per the Session 11 contract:
-  * lidar path (primary) - ``geometry.select_scan_span`` picks /scan points
-    whose bearing (as seen from the camera) falls inside the blob's angular
-    span, ``geometry.nearest_cluster`` picks the closest of those as the
-    box's front face.
+  * lidar path (primary) - scan returns are converted to 3D points and
+    transformed into ``camera_frame``, then ``geometry.select_points_in_
+    column_window`` keeps the ones in front of the camera that project into
+    the blob's pixel columns (+/- ``bearing_margin_px``); ``geometry.
+    nearest_by_range`` picks the closest of those as the box's front face.
   * camera-fallback path - used only when the lidar path finds nothing in
-    span (lidar plane above/below the box - see README limits). Range comes
+    view (lidar plane above/below the box - see README limits). Depth comes
     from the known box height and the blob's pixel height via
-    ``geometry.fallback_range_from_height``.
+    ``geometry.fallback_point_from_height``.
 Which path fired is written into the debug image text and logged at debug
 level, per the contract (source must be visible, not just inferred).
 """
-
-import math
 
 import cv2
 import numpy as np
@@ -56,12 +63,14 @@ from std_msgs.msg import Bool
 from tf2_ros import Buffer, TransformListener, TransformException
 
 from green_box_approach.geometry import (
-    bearing_from_pixel,
     box_center_from_front,
-    fallback_range_from_height,
+    fallback_point_from_height,
     hsv_mask_to_blob,
-    nearest_cluster,
-    select_scan_span,
+    nearest_by_range,
+    scan_points_xyz,
+    select_points_in_column_window,
+    transform_point,
+    transform_points,
 )
 
 
@@ -79,6 +88,12 @@ class GreenBoxDetector(Node):
             "camera_info_topic", "/camera/camera_info").value
         self.scan_topic = self.declare_parameter("scan_topic", "/scan").value
         self.output_frame = self.declare_parameter("output_frame", "map").value
+        # "" -> use the image message's own header.frame_id. Whichever frame
+        # is used MUST be an OPTICAL frame per REP-103 (x right, y down, z
+        # forward) - the pinhole projection below assumes that convention.
+        # In this sim the image header frame is a non-optical identity
+        # frame, so a real run overrides this with e.g. "camera_optical".
+        self.camera_frame = self.declare_parameter("camera_frame", "").value
 
         # --- HSV thresholding ---------------------------------------------
         # Placeholder green range (pure green in OpenCV HSV, H 0-179). Real
@@ -93,7 +108,9 @@ class GreenBoxDetector(Node):
         self.morph_kernel = int(self.declare_parameter("morph_kernel", 5).value)
 
         # --- lidar fusion ---------------------------------------------------
-        self.bearing_margin = self.declare_parameter("bearing_margin", 0.05).value
+        # Pixel margin (not radians, see Session 11 R2) widening the blob's
+        # bbox columns before matching projected scan points against them.
+        self.bearing_margin_px = self.declare_parameter("bearing_margin_px", 20.0).value
         self.range_min = self.declare_parameter("range_min", 0.05).value
         self.range_max = self.declare_parameter("range_max", 8.0).value
 
@@ -169,17 +186,8 @@ class GreenBoxDetector(Node):
         pose_xy = None
 
         if bbox is not None:
-            x, y, w, h = bbox
-            bearing_left = bearing_from_pixel(x, fx, cx)
-            bearing_right = bearing_from_pixel(x + w, fx, cx)
-            bearing_lo, bearing_hi = min(bearing_left, bearing_right), max(
-                bearing_left, bearing_right)
-
-            front, ray_xy, source = self._resolve_front(
-                msg, bearing_lo, bearing_hi, h, fy)
-            if front is not None:
-                pose_xy = box_center_from_front(front, ray_xy, self.box_depth_m)
-                detected = True
+            pose_xy, source = self._resolve_front(msg.header, bbox, fx, fy, cx, cy)
+            detected = pose_xy is not None
 
         if detected:
             self._publish_pose(msg.header, pose_xy)
@@ -189,118 +197,82 @@ class GreenBoxDetector(Node):
     # ------------------------------------------------------------------
     # ranging
 
-    def _resolve_front(self, image_header, bearing_lo, bearing_hi, pixel_h, fy):
-        """Front-face point (x, y) in ``output_frame`` plus the unit ray
-        from sensor to box, or ``(None, None, source)`` if neither the
-        lidar nor the camera-fallback path could resolve a range.
+    def _resolve_front(self, image_header, bbox, fx, fy, cx, cy):
+        """Box centre ``(x, y)`` in ``output_frame``, or ``None`` if neither
+        the lidar nor the camera-fallback path could resolve one. Also
+        returns which path fired (``"lidar" | "camera-fallback" | "none"``).
+
+        ``camera_frame`` (param, "" = ``image_header.frame_id``) MUST be an
+        OPTICAL frame - see module docstring and README.
         """
+        x, y, w, h = bbox
+        camera_frame = self.camera_frame or image_header.frame_id
+        u_lo = x - self.bearing_margin_px
+        u_hi = x + w + self.bearing_margin_px
+
+        front_cam = None
+        source = "none"
         scan = self.last_scan
         if scan is not None:
-            yaw = self._camera_to_scan_yaw(image_header, scan.header)
-            if yaw is not None:
-                # Blob bearing is measured in the camera's own horizontal
-                # plane (bearing_from_pixel); rotate the window into the
-                # scan frame's own angle convention before matching against
-                # scan.angle_min/angle_increment, per contract ("bearing as
-                # seen from the camera" mapped onto the scan via camera->
-                # scan TF, not compared raw across two different frames).
-                points = select_scan_span(
+            tf_sc = self._lookup_transform(
+                camera_frame, scan.header.frame_id, scan.header.stamp, "scan->camera")
+            if tf_sc is not None:
+                translation, quat = tf_sc
+                scan_pts = scan_points_xyz(
                     scan.ranges, scan.angle_min, scan.angle_increment,
-                    bearing_lo + yaw, bearing_hi + yaw, self.bearing_margin,
                     self.range_min, self.range_max)
-                nearest = nearest_cluster(points)
-                if nearest is not None:
-                    angle, r = nearest
-                    ray_scan = (math.cos(angle), math.sin(angle))
-                    front = self._to_output_frame(
-                        scan.header, ray_scan[0] * r, ray_scan[1] * r)
-                    ray_out = self._ray_to_output_frame(scan.header, ray_scan)
-                    if front is not None and ray_out is not None:
-                        return front, ray_out, "lidar"
+                cam_pts = transform_points(scan_pts, translation, quat)
+                kept = select_points_in_column_window(cam_pts, fx, cx, u_lo, u_hi)
+                front_cam = nearest_by_range(kept)
+                if front_cam is not None:
+                    source = "lidar"
 
-        # Camera-fallback: range from known box height, ray straight along
-        # the mean bearing of the blob's span (camera's own horizontal plane).
+        if front_cam is None:
+            # Camera-fallback: depth from known box height, back-projected
+            # through the blob centre pixel (camera optical frame).
+            u_c, v_c = x + w / 2.0, y + h / 2.0
+            try:
+                front_cam = fallback_point_from_height(
+                    u_c, v_c, h, self.box_height_m, fx, fy, cx, cy)
+            except ValueError:
+                return None, "camera-fallback"
+            source = "camera-fallback"
+
+        tf_co = self._lookup_transform(
+            self.output_frame, camera_frame, image_header.stamp, "camera->output")
+        if tf_co is None:
+            return None, source
+        translation, quat = tf_co
+        front_out = transform_point(front_cam, translation, quat)
+        camera_origin_xy = (translation[0], translation[1])
         try:
-            r = fallback_range_from_height(pixel_h, self.box_height_m, fy)
+            pose_xy = box_center_from_front(
+                (front_out[0], front_out[1]), camera_origin_xy, self.box_depth_m)
         except ValueError:
-            return None, None, "camera-fallback"
-        mean_bearing = (bearing_lo + bearing_hi) / 2.0
-        ray_cam = (math.cos(mean_bearing), math.sin(mean_bearing))
-        front = self._to_output_frame(image_header, ray_cam[0] * r, ray_cam[1] * r)
-        ray_out = self._ray_to_output_frame(image_header, ray_cam)
-        if front is None or ray_out is None:
-            return None, None, "camera-fallback"
-        return front, ray_out, "camera-fallback"
+            return None, source
+        return pose_xy, source
 
-    def _camera_to_scan_yaw(self, image_header, scan_header):
-        """Yaw (rad) of the rotation that carries the camera's horizontal
-        bearing plane into the scan frame's angle convention, via TF. This
-        is what lets a blob bearing computed in the camera frame be matched
-        against scan angles that are defined in the scan frame - without it
-        the two would be compared as if the sensors shared an axis, which
-        they generally do not (mount offset). Returns ``None`` (never a
-        guess) if the transform is unavailable.
+    def _lookup_transform(self, target_frame, source_frame, stamp, context):
+        """TF lookup with the existing stamp-then-latest fallback pattern,
+        returning the full ``((tx, ty, tz), (qx, qy, qz, qw))`` transform (not
+        just its yaw) or ``None`` if unavailable - contract requirement: log
+        throttled and skip, never guess.
         """
         try:
             tf = self.tf_buffer.lookup_transform(
-                scan_header.frame_id, image_header.frame_id, image_header.stamp,
-                timeout=Duration(seconds=self.tf_timeout))
+                target_frame, source_frame, stamp, timeout=Duration(seconds=self.tf_timeout))
         except TransformException:
             try:
-                tf = self.tf_buffer.lookup_transform(
-                    scan_header.frame_id, image_header.frame_id, Time())
+                tf = self.tf_buffer.lookup_transform(target_frame, source_frame, Time())
             except TransformException as exc:
                 self.get_logger().warn(
-                    "green_box_detector: TF %s->%s unavailable: %s" %
-                    (image_header.frame_id, scan_header.frame_id, exc),
-                    throttle_duration_sec=2.0)
-                return None
-        q = tf.transform.rotation
-        return _yaw_from_quaternion(q.x, q.y, q.z, q.w)
-
-    def _to_output_frame(self, header, x, y):
-        """Transform a point ``(x, y, 0)`` in ``header.frame_id`` into
-        ``output_frame`` via TF. Returns ``None`` (never a guess) if the
-        transform is unavailable - contract requirement: log and skip.
-        """
-        try:
-            tf = self.tf_buffer.lookup_transform(
-                self.output_frame, header.frame_id, header.stamp,
-                timeout=Duration(seconds=self.tf_timeout))
-        except TransformException:
-            try:
-                tf = self.tf_buffer.lookup_transform(
-                    self.output_frame, header.frame_id, Time())
-            except TransformException as exc:
-                self.get_logger().warn(
-                    "green_box_detector: TF %s->%s unavailable: %s" %
-                    (header.frame_id, self.output_frame, exc),
+                    "green_box_detector: TF %s->%s unavailable (%s): %s" %
+                    (source_frame, target_frame, context, exc),
                     throttle_duration_sec=2.0)
                 return None
         t = tf.transform.translation
         q = tf.transform.rotation
-        rx, ry = _rotate_xy(x, y, q.x, q.y, q.z, q.w)
-        return (rx + t.x, ry + t.y)
-
-    def _ray_to_output_frame(self, header, ray_xy):
-        """Rotate-only version of ``_to_output_frame`` for a direction
-        vector (no translation applied)."""
-        try:
-            tf = self.tf_buffer.lookup_transform(
-                self.output_frame, header.frame_id, header.stamp,
-                timeout=Duration(seconds=self.tf_timeout))
-        except TransformException:
-            try:
-                tf = self.tf_buffer.lookup_transform(
-                    self.output_frame, header.frame_id, Time())
-            except TransformException as exc:
-                self.get_logger().warn(
-                    "green_box_detector: TF %s->%s unavailable: %s" %
-                    (header.frame_id, self.output_frame, exc),
-                    throttle_duration_sec=2.0)
-                return None
-        q = tf.transform.rotation
-        return _rotate_xy(ray_xy[0], ray_xy[1], q.x, q.y, q.z, q.w)
+        return (t.x, t.y, t.z), (q.x, q.y, q.z, q.w)
 
     # ------------------------------------------------------------------
     # publishing
@@ -331,28 +303,6 @@ class GreenBoxDetector(Node):
             self.get_logger().warn("green_box_detector: debug image convert failed: %s" % exc)
             return
         self.debug_image_pub.publish(msg)
-
-
-def _yaw_from_quaternion(qx, qy, qz, qw):
-    """Standard quaternion -> yaw (rotation about z) extraction. Used as an
-    approximation of the horizontal-plane rotation between two frames even
-    when the transform also carries a small pitch/roll (e.g. camera mount
-    tilt) - good enough for bearing matching in this demo scope, not exact
-    for a heavily tilted sensor (see README limits).
-    """
-    return math.atan2(2.0 * (qw * qz + qx * qy), 1.0 - 2.0 * (qy * qy + qz * qz))
-
-
-def _rotate_xy(x, y, qx, qy, qz, qw):
-    """Rotate planar point/direction ``(x, y)`` by a frame transform's
-    quaternion, using only its yaw component (see ``_yaw_from_quaternion``)
-    since every geometry quantity here lives in a horizontal xy-plane.
-    Reimplemented without ``tf2_geometry_msgs`` since only that plane is
-    needed.
-    """
-    angle = _yaw_from_quaternion(qx, qy, qz, qw)
-    c, s = math.cos(angle), math.sin(angle)
-    return (c * x - s * y, s * x + c * y)
 
 
 def main(args=None):

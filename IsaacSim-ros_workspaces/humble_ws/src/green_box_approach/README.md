@@ -33,11 +33,12 @@ AI Festa 실기 데모(TurtleBot3 + manipulation, Nav2 Humble)용 초록 박스 
 | `image_topic` | `/camera/image_raw` | RGB 구독 토픽 |
 | `camera_info_topic` | `/camera/camera_info` | 카메라 내부파라미터 구독 토픽 |
 | `scan_topic` | `/scan` | LIDAR 구독 토픽 |
+| `camera_frame` | `""` (빈 문자열) | 라이다↔카메라 기하 융합에 쓰는 카메라 프레임. 빈 문자열이면 이미지 메시지의 `header.frame_id`를 그대로 쓴다. **반드시 OPTICAL 프레임**(REP-103: x=오른쪽, y=아래, z=전방)이어야 함 — 핀홀 투영이 이 규약을 전제로 한다. 이 시뮬레이션의 이미지 header 프레임은 OPTICAL이 아닌 항등(identity) 프레임이므로, 실행 시 `camera_frame:=camera_optical`(실측 정적 TF `base_link->camera_optical` 존재)로 오버라이드해야 한다 |
 | `output_frame` | `map` | `green_box/pose`가 발행되는 프레임. `ComputeGreenBoxApproachGoalAction`의 `global_frame`과 **반드시 같은 값**이어야 함(R7) |
 | `hsv_lower` / `hsv_upper` | `[40,60,40]` / `[80,255,255]` | **PLACEHOLDER** — OpenCV HSV(H 0-179) 초록 범위. 실기 박스/조명으로 재튜닝 필수(아래 절차) |
 | `min_area` | `200` | HSV 마스크에서 박스로 인정할 최소 컨투어 면적(px²) |
 | `morph_kernel` | `5` | 마스크 노이즈 제거용 morphological open 커널 크기(px) |
-| `bearing_margin` | `0.05` | blob 각도 창을 양쪽으로 넓히는 여유(rad) |
+| `bearing_margin_px` | `20.0` | blob bbox의 열(column) 창을 양쪽으로 넓히는 여유(px). Session 11 R2부터 라디안이 아니라 픽셀 단위 — 핀홀 투영으로 라이다 점을 카메라 픽셀 열에 직접 매칭하기 때문 |
 | `range_min` / `range_max` | `0.05` / `8.0` | 유효 스캔 거리 범위(m) |
 | `box_height_m` | `0.30` | **PLACEHOLDER, 나브팀 실측 필요** — 카메라 단독 폴백 경로에서만 사용 |
 | `box_depth_m` | `0.30` | **PLACEHOLDER, 나브팀 실측 필요** — front face에서 박스 중심까지 미는 거리 |
@@ -87,7 +88,14 @@ ros2 launch green_box_approach green_box_approach.launch.py \
   `hsv_upper`·`min_area`는 현장 튜닝 전제이며, 이 세션은 코드 배선까지만 다룬다.
 - **조명 민감도**: HSV는 조명 변화(그림자·역광 등)에 약하다. 이 패키지는 시뮬/정적 이미지로만 검증했고,
   실기 조명 재현은 이번 범위 밖이다.
-- **camera->scan TF의 yaw 근사**: 두 센서의 마운트가 크게 기울어져 있으면(pitch/roll이 큰 경우) bearing 매칭에
-  쓰는 yaw 근사가 부정확해질 수 있다. 일반적인 수평 마운트에서는 문제없다.
 - **`box_height_m`/`box_depth_m`은 자리표시자(placeholder) 값**이다. 실측 후 파라미터를 덮어써야 정확한 거리
   추정이 나온다(R6).
+
+## use_sim_time 일관성 전제조건
+
+`green_box/pose`의 헤더 타임스탬프는 **그 포즈를 만든 이미지 메시지의 스탬프**를 그대로 쓴다(카메라→
+`output_frame` TF도 같은 스탬프로 조회한다). 이 값이 의미가 있으려면 이미지·TF·`green_box/pose`를 구독하는
+Nav2 쪽(`use_sim_time` 여부와 시계)이 **모두 같은 시계**를 기준으로 해야 한다 — 시뮬레이션이면 노드 전부
+`use_sim_time:=true`로 `/clock`을 따라야 하고, 실기면 전부 wall clock이어야 한다. 한쪽만 sim time이면 TF
+lookup이 과거/미래 시각을 조회하게 되어 stamp-then-latest 폴백(`_lookup_transform`)이 계속 latest로만 빠지거나
+아예 실패한다.

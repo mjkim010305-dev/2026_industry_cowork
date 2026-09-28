@@ -26,12 +26,15 @@ import numpy as np
 import pytest
 
 from green_box_approach.geometry import (
-    bearing_from_pixel,
     box_center_from_front,
-    fallback_range_from_height,
+    fallback_point_from_height,
     hsv_mask_to_blob,
-    nearest_cluster,
-    select_scan_span,
+    nearest_by_range,
+    rotation_matrix_from_quaternion,
+    scan_points_xyz,
+    select_points_in_column_window,
+    transform_point,
+    transform_points,
 )
 
 
@@ -62,90 +65,150 @@ def test_hsv_mask_to_blob_picks_largest_of_two_contours():
     assert bbox == (40, 40, 80, 40)
 
 
-def test_bearing_from_pixel_center_is_zero():
-    # px == cx -> straight ahead
-    assert bearing_from_pixel(px=320, fx=500.0, cx=320.0) == pytest.approx(0.0)
+def test_scan_points_xyz_converts_polar_to_cartesian():
+    # 3 rays at angles -0.5, 0.0, 0.5 rad, all valid ranges
+    ranges = [2.0, 3.0, 4.0]
+    pts = scan_points_xyz(ranges, angle_min=-0.5, angle_increment=0.5,
+                           range_min=0.1, range_max=10.0)
+    expected = [
+        (2.0 * math.cos(-0.5), 2.0 * math.sin(-0.5), 0.0),
+        (3.0 * math.cos(0.0), 3.0 * math.sin(0.0), 0.0),
+        (4.0 * math.cos(0.5), 4.0 * math.sin(0.5), 0.0),
+    ]
+    assert len(pts) == 3
+    for got, want in zip(pts, expected):
+        assert got == pytest.approx(want)
 
 
-def test_bearing_from_pixel_right_is_negative():
-    # px > cx (right of centre) -> negative bearing (right turn convention)
-    # atan2(-(400-320), 500) = atan2(-80, 500) = -0.15866 rad (hand-computed)
-    got = bearing_from_pixel(px=400, fx=500.0, cx=320.0)
-    assert got == pytest.approx(-0.15866, abs=1e-5)
-
-
-def test_bearing_from_pixel_left_is_positive():
-    # px < cx (left of centre) -> positive bearing
-    # atan2(-(240-320), 500) = atan2(80, 500) = 0.15866 rad
-    got = bearing_from_pixel(px=240, fx=500.0, cx=320.0)
-    assert got == pytest.approx(0.15866, abs=1e-5)
-
-
-def test_select_scan_span_filters_by_angle_and_range():
-    # 5 rays spanning -0.2 .. 0.2 rad in 0.1 rad steps
-    ranges = [1.0, 2.0, 3.0, 4.0, 5.0]
-    points = select_scan_span(
-        ranges, angle_min=-0.2, angle_increment=0.1,
-        bearing_lo=-0.05, bearing_hi=0.05, margin=0.0,
-        range_min=0.1, range_max=10.0)
-    # angles are -0.2,-0.1,0.0,0.1,0.2 -> only angle==0.0 (index 2, range 3.0)
-    # falls inside [-0.05, 0.05]
-    assert points == [(pytest.approx(0.0, abs=1e-9), 3.0)]
-
-
-def test_select_scan_span_margin_widens_window():
-    ranges = [1.0, 2.0, 3.0, 4.0, 5.0]
-    points = select_scan_span(
-        ranges, angle_min=-0.2, angle_increment=0.1,
-        bearing_lo=-0.05, bearing_hi=0.05, margin=0.1,
-        range_min=0.1, range_max=10.0)
-    # window widens to [-0.15, 0.15] -> indices 1,2,3 (angles -0.1,0.0,0.1)
-    got_ranges = [r for _, r in points]
-    assert got_ranges == [2.0, 3.0, 4.0]
-
-
-def test_select_scan_span_drops_out_of_range_and_nonfinite():
+def test_scan_points_xyz_drops_out_of_range_and_nonfinite():
     ranges = [0.05, float("inf"), 3.0, float("nan"), 20.0]
-    points = select_scan_span(
-        ranges, angle_min=0.0, angle_increment=0.0,
-        bearing_lo=0.0, bearing_hi=0.0, margin=0.0,
-        range_min=0.1, range_max=10.0)
-    # all 5 rays share angle 0.0 (increment 0) so only range validity matters:
-    # 0.05 < range_min, inf/nan invalid, 3.0 valid, 20.0 > range_max
-    assert points == [(0.0, 3.0)]
+    pts = scan_points_xyz(ranges, angle_min=0.0, angle_increment=0.0,
+                           range_min=0.1, range_max=10.0)
+    # only index 2 (range 3.0) is finite and inside [0.1, 10.0]; angle 0 -> (3,0,0)
+    assert pts == [pytest.approx((3.0, 0.0, 0.0))]
 
 
-def test_nearest_cluster_picks_min_range():
-    points = [(0.1, 3.0), (0.0, 1.5), (-0.1, 2.0)]
-    assert nearest_cluster(points) == (0.0, 1.5)
+def test_rotation_matrix_identity_quaternion():
+    r = rotation_matrix_from_quaternion(0.0, 0.0, 0.0, 1.0)
+    assert r == pytest.approx(np.eye(3))
 
 
-def test_nearest_cluster_empty_returns_none():
-    assert nearest_cluster([]) is None
+def test_rotation_matrix_90deg_about_x():
+    # q = (sin(45deg), 0, 0, cos(45deg)) -> +90 deg rotation about x.
+    # Hand-derived: R = [[1,0,0],[0,0,-1],[0,1,0]] (y->z, z->-y).
+    s = math.sqrt(0.5)
+    r = rotation_matrix_from_quaternion(s, 0.0, 0.0, s)
+    expected = np.array([[1.0, 0.0, 0.0], [0.0, 0.0, -1.0], [0.0, 1.0, 0.0]])
+    assert r == pytest.approx(expected, abs=1e-9)
 
 
-def test_fallback_range_from_height():
-    # range = fy * real_height_m / pixel_h = 500 * 0.3 / 100 = 1.5 m
-    got = fallback_range_from_height(pixel_h=100.0, real_height_m=0.3, fy=500.0)
-    assert got == pytest.approx(1.5)
+def test_transform_point_translation_only():
+    got = transform_point((1.0, 2.0, 3.0), translation=(0.5, -1.0, 2.0), quat=(0, 0, 0, 1))
+    assert got == pytest.approx((1.5, 1.0, 5.0))
 
 
-def test_fallback_range_from_height_rejects_zero_pixel_height():
+def test_transform_points_rotation_and_translation():
+    # Same 90deg-about-x rotation as above, plus a translation. Point
+    # (1.0, 2.0, 0.0) -> R@p = (1.0, 0.0, 2.0) -> + t(0.1, 0.2, 0.5)
+    # = (1.1, 0.2, 2.5).
+    s = math.sqrt(0.5)
+    got = transform_points([(1.0, 2.0, 0.0)], translation=(0.1, 0.2, 0.5), quat=(s, 0.0, 0.0, s))
+    assert got == [pytest.approx((1.1, 0.2, 2.5))]
+
+
+def test_select_points_in_column_window_rejects_behind_camera_and_wrong_column():
+    """Regression for the R2 defect: the old code matched by comparing a
+    yaw-only "camera bearing" against a raw scan angle, in two different
+    axis conventions, and never checked whether a point was actually in
+    front of the camera. Here the camera is rotated 90 degrees about x
+    relative to the scan frame (an optical-frame-style mount) with a
+    translation offset - exactly the case the old yaw extraction got wrong,
+    since this rotation's yaw component is 0 (see
+    test_rotation_matrix_90deg_about_x) even though the true rotation is
+    far from identity.
+
+    Three scan-frame points:
+      A = (1.0, 2.0, 0.0)  -> camera (1.0, 0.0, 2.5): in front, in column window
+      B = (1.0, -2.0, 0.0) -> camera (1.0, 0.0, -1.5): BEHIND the camera (z<=0)
+      C = (5.0, 2.0, 0.0)  -> camera (5.0, 0.0, 2.5): in front, but far outside
+                               the column window (wrong bbox column)
+    A yaw-only, depth-blind match (old code) could not tell B and C apart
+    from A by angle alone; the new full-TF + pinhole-projection path
+    correctly keeps only A.
+    """
+    s = math.sqrt(0.5)
+    quat = (s, 0.0, 0.0, s)
+    translation = (0.0, 0.0, 0.5)
+    scan_pts = [(1.0, 2.0, 0.0), (1.0, -2.0, 0.0), (5.0, 2.0, 0.0)]
+    cam_pts = transform_points(scan_pts, translation, quat)
+    assert cam_pts == [
+        pytest.approx((1.0, 0.0, 2.5)),
+        pytest.approx((1.0, 0.0, -1.5)),
+        pytest.approx((5.0, 0.0, 2.5)),
+    ]
+
+    fx, cx = 500.0, 320.0
+    # u_A = 500*1.0/2.5 + 320 = 520 -> window [500, 540] keeps only A
+    kept = select_points_in_column_window(cam_pts, fx, cx, u_lo=500.0, u_hi=540.0)
+    assert len(kept) == 1
+    r, point = kept[0]
+    assert point == pytest.approx((1.0, 0.0, 2.5))
+    assert r == pytest.approx(math.sqrt(1.0 ** 2 + 2.5 ** 2))
+
+
+def test_select_points_in_column_window_z_epsilon_boundary():
+    # x=0 keeps u == cx regardless of z, isolating the z_epsilon boundary
+    # itself: z exactly at epsilon is rejected (not "> epsilon"); just above
+    # is kept.
+    pts = [(0.0, 0.0, 1e-6), (0.0, 0.0, 1e-6 + 1e-9)]
+    kept = select_points_in_column_window(pts, fx=500.0, cx=320.0, u_lo=0.0, u_hi=1000.0,
+                                           z_epsilon=1e-6)
+    assert len(kept) == 1
+    assert kept[0][1] == pytest.approx((0.0, 0.0, 1e-6 + 1e-9))
+
+
+def test_nearest_by_range_picks_min_range():
+    ranged = [(3.0, (0.0, 0.0, 3.0)), (1.5, (0.0, 0.0, 1.5)), (2.0, (0.0, 0.0, 2.0))]
+    assert nearest_by_range(ranged) == (0.0, 0.0, 1.5)
+
+
+def test_nearest_by_range_empty_returns_none():
+    assert nearest_by_range([]) is None
+
+
+def test_fallback_point_from_height():
+    # z = fy * real_height_m / pixel_h = 500 * 0.3 / 100 = 1.5
+    # x = (u_c - cx) / fx * z = (340 - 320) / 500 * 1.5 = 0.06
+    # y = (v_c - cy) / fy * z = (260 - 240) / 500 * 1.5 = 0.06
+    got = fallback_point_from_height(u_c=340.0, v_c=260.0, pixel_h=100.0,
+                                      real_height_m=0.3, fx=500.0, fy=500.0, cx=320.0, cy=240.0)
+    assert got == pytest.approx((0.06, 0.06, 1.5))
+
+
+def test_fallback_point_from_height_rejects_zero_pixel_height():
     with pytest.raises(ValueError):
-        fallback_range_from_height(pixel_h=0.0, real_height_m=0.3, fy=500.0)
+        fallback_point_from_height(u_c=320.0, v_c=240.0, pixel_h=0.0, real_height_m=0.3,
+                                    fx=500.0, fy=500.0, cx=320.0, cy=240.0)
 
 
 def test_box_center_from_front_pushes_half_depth_along_ray():
-    # front at (2.0, 1.0), ray unit (1, 0) (straight ahead), depth 0.4
+    # front at (2.0, 1.0), camera origin at (0.0, 1.0) -> ray (1, 0), depth 0.4
     # -> center = (2.0 + 0.2, 1.0 + 0.0) = (2.2, 1.0)
-    center = box_center_from_front(front_xy=(2.0, 1.0), ray_unit_xy=(1.0, 0.0),
+    center = box_center_from_front(front_xy=(2.0, 1.0), camera_origin_xy=(0.0, 1.0),
                                     box_depth_m=0.4)
     assert center == pytest.approx((2.2, 1.0))
 
 
 def test_box_center_from_front_diagonal_ray():
-    # ray unit (cos45, sin45), depth 2.0 -> half=1.0 pushed diagonally
-    ray = (math.cos(math.pi / 4), math.sin(math.pi / 4))
-    center = box_center_from_front(front_xy=(0.0, 0.0), ray_unit_xy=ray,
-                                    box_depth_m=2.0)
-    assert center == pytest.approx((math.cos(math.pi / 4), math.sin(math.pi / 4)))
+    # camera at origin, front at (cos45, sin45) * 3 -> unit ray (cos45, sin45),
+    # depth 2.0 -> half=1.0 pushed diagonally
+    d = 3.0
+    front = (d * math.cos(math.pi / 4), d * math.sin(math.pi / 4))
+    center = box_center_from_front(front_xy=front, camera_origin_xy=(0.0, 0.0), box_depth_m=2.0)
+    expected = (front[0] + math.cos(math.pi / 4), front[1] + math.sin(math.pi / 4))
+    assert center == pytest.approx(expected)
+
+
+def test_box_center_from_front_rejects_degenerate_ray():
+    with pytest.raises(ValueError):
+        box_center_from_front(front_xy=(1.0, 1.0), camera_origin_xy=(1.0, 1.0), box_depth_m=0.3)
