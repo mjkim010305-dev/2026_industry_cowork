@@ -63,7 +63,7 @@ public:
       BT::InputPort<std::string>(
         "robot_base_frame", std::string("base_link"), "Robot base frame"),
       BT::InputPort<double>(
-        "standoff_distance", 0.5, "Stop this far [m] short of the box, facing it"),
+        "standoff_distance", 0.8, "Stop this far [m] short of the box centre, facing it. 0.8, not 0.5: at 0.5 m from the centre only ~0.15 m is left between a 0.3 m box and the robot, and with the goal checker's 0.35 m xy tolerance FollowPath ended touching the box, so the final turn pushed it (g7)"),
       BT::InputPort<double>(
         "max_age", 1.0, "Max age [s] of the last pose_topic message before it counts as stale"),
       BT::InputPort<double>("transform_tolerance", 0.1, "TF tolerance [s]"),

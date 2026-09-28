@@ -43,7 +43,7 @@
         <ComputeGreenBoxApproachGoal pose_topic="green_box/pose"
                                       global_frame="map"
                                       robot_base_frame="base_link"
-                                      standoff_distance="0.5"
+                                      standoff_distance="0.8"
                                       max_age="1.0"
                                       approach_goal="{approach_goal}"/>
 
