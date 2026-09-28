@@ -30,7 +30,7 @@ namespace custom_nav2_bt_plugins
 {
 
 /**
- * @brief Final leg of the green-box approach: drive straight ahead, open-loop,
+ * @brief Final leg of the green-box approach: turn to the box and creep toward it,
  * until the LIDAR says the box is right in front, then stop. No pushing.
  *
  * This deliberately bypasses Nav2's planner/controller/costmap for the last
@@ -42,6 +42,10 @@ namespace custom_nav2_bt_plugins
  * the robot roughly square-on at `standoff_distance`, so a short blind
  * forward creep with a LIDAR range gate is enough and safer than trying to
  * coerce the costmap.
+ *
+ * Limitation: the only collision check is the forward lidar cone. When the
+ * bearing error exceeds align_threshold the robot turns in place with no
+ * side or rear sensing, so a large correction next to a wall is unguarded.
  *
  * onRunning: take the freshest /scan, look at ranges whose angle falls inside
  * [-front_half_angle, +front_half_angle] (LaserScan frame, 0 = forward), take
