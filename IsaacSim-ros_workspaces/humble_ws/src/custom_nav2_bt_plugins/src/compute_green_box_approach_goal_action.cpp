@@ -137,16 +137,25 @@ BT::NodeStatus ComputeGreenBoxApproachGoalAction::tick()
   geometry_msgs::msg::PoseStamped goal;
   goal.header.frame_id = global_frame;
   goal.header.stamp = node_->now();
-  goal.pose.position.x = bx - standoff * ux;
-  goal.pose.position.y = by - standoff * uy;
-  goal.pose.orientation = yawToQuaternion(yaw);
+  // Already inside the standoff: stay put (facing the box) instead of
+  // sending the robot to a point behind it. The controller only drives
+  // forward, so a goal behind the robot means turning round next to the box,
+  // which stalled for minutes in g8 (the sim base turns poorly at low speed).
+  // FinalApproachStop takes over from here. The goal keeps the robot's own
+  // heading too: asking FollowPath to turn to the box would be the same slow
+  // in-place turn; FinalApproachStop turns faster (max_angular_speed).
+  const bool inside = dist <= standoff;
+  goal.pose.position.x = inside ? rx : bx - standoff * ux;
+  goal.pose.position.y = inside ? ry : by - standoff * uy;
+  goal.pose.orientation = inside ? robot_pose.pose.orientation : yawToQuaternion(yaw);
 
   setOutput("approach_goal", goal);
 
   RCLCPP_INFO(
     node_->get_logger(),
-    "ComputeGreenBoxApproachGoal: box (%.2f, %.2f) -> goal (%.2f, %.2f) yaw=%.2f in \"%s\"",
-    bx, by, goal.pose.position.x, goal.pose.position.y, yaw, global_frame.c_str());
+    "ComputeGreenBoxApproachGoal: box (%.2f, %.2f) -> goal (%.2f, %.2f) yaw=%.2f in \"%s\"%s",
+    bx, by, goal.pose.position.x, goal.pose.position.y, yaw, global_frame.c_str(),
+    inside ? " (already within standoff - holding position)" : "");
   return BT::NodeStatus::SUCCESS;
 }
 
