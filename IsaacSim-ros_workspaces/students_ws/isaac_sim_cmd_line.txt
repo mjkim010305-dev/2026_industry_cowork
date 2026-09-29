@@ -14,8 +14,11 @@ python3 moveit_to_isaac_bridge.py --ros-args \
   -p isaac_state_topic:=/joint_states \
   -p isaac_command_topic:=/joint_commands
 
-Nav2 launcher
-ros2 launch nav2_bringup bringup_launch.py   use_sim_time:=true   map:=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/1_obs.yaml   params_file:="/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_params (copy).yaml"
+Nav2 launcher(ai-festa-version)
+ros2 launch nav2_bringup bringup_launch.py   use_sim_time:=true   map:=/home/students/workspace/src/ai-festa-map.yaml   params_file:="/home/students/workspace/src/ai-festa-map-params.yaml"
+
+Nav2 launcher(2_obs_fix-version)
+ros2 launch nav2_bringup bringup_launch.py   use_sim_time:=true   map:=/home/students/workspace/src/2_obs_fix_map.yaml   params_file:="/home/students/workspace/src/2_obs_fix_map_params.yaml"
 
 Nav2 Rviz launcher
 ros2 launch nav2_bringup rviz_launch.py

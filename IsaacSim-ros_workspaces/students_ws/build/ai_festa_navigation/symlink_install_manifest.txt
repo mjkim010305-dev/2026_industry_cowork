@@ -1,0 +1,17 @@
+/home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/launch/ai_festa_nav2.launch.py
+/home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/config/ai_festa_nav2_params.yaml
+/home/students/workspace/install/ai_festa_navigation/share/ament_index/resource_index/package_run_dependencies/ai_festa_navigation
+/home/students/workspace/install/ai_festa_navigation/share/ament_index/resource_index/parent_prefix_path/ai_festa_navigation
+/home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/environment/ament_prefix_path.sh
+/home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/environment/ament_prefix_path.dsv
+/home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/environment/path.sh
+/home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/environment/path.dsv
+/home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/local_setup.bash
+/home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/local_setup.sh
+/home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/local_setup.zsh
+/home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/local_setup.dsv
+/home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/package.dsv
+/home/students/workspace/install/ai_festa_navigation/share/ament_index/resource_index/packages/ai_festa_navigation
+/home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/cmake/ai_festa_navigationConfig.cmake
+/home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/cmake/ai_festa_navigationConfig-version.cmake
+/home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/package.xml

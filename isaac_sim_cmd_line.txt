@@ -15,7 +15,7 @@ python3 moveit_to_isaac_bridge.py --ros-args \
   -p isaac_command_topic:=/joint_commands
 
 Nav2 launcher
-ros2 launch nav2_bringup bringup_launch.py   use_sim_time:=true   map:=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/1_obs.yaml   params_file:="/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/custom_nav2_params (copy).yaml"
+ros2 launch nav2_bringup bringup_launch.py   use_sim_time:=true   map:=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/1_obs.yaml   params_file:="/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/final_nav2_params.yaml"
 
 Nav2 Rviz launcher
 ros2 launch nav2_bringup rviz_launch.py use_sim_time:=true
@@ -25,7 +25,10 @@ ros2 run teleop_twist_keyboard teleop_twist_keyboard
 
 ======perception 확인용=====
 ros2 launch custom_nav2_bt_plugins rgbd_obstacle_localizer.launch.py depth_topic:=/depth_camera camera_info_topic:=/front_camera_info
-ros2 launch custom_nav2_bt_plugins perception_stabilizer.launch.py
+ros2 launch custom_nav2_bt_plugins perception_stabilizer.launch.py # 모드조절 centroid_source:=latest_frame
+ros2 launch custom_nav2_bt_plugins perception_stabilizer.launch.py \
+  detect_topic:=/vlm/is_movable \
+  roi_topic:=/vlm/roi
 
 publish 1 for test
 ros2 topic pub -r 5 /obstacle/is_movable std_msgs/msg/Bool '{data: true}'

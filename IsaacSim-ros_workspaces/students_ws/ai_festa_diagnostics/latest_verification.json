@@ -1,0 +1,186 @@
+{
+  "lifecycle": {
+    "map_server": "active",
+    "amcl": "active",
+    "planner_server": "NO_RESPONSE",
+    "controller_server": "active",
+    "bt_navigator": "inactive",
+    "smoother_server": "active",
+    "behavior_server": "inactive",
+    "waypoint_follower": "inactive",
+    "velocity_smoother": "inactive"
+  },
+  "parameters": {
+    "map_server": [
+      {
+        "bool": true,
+        "string": ""
+      },
+      {
+        "bool": false,
+        "string": "/home/students/workspace/src/ai-festa-map.yaml"
+      }
+    ],
+    "amcl": [
+      {
+        "bool": true,
+        "string": ""
+      }
+    ],
+    "planner_server": "NO_RESPONSE",
+    "controller_server": [
+      {
+        "bool": true,
+        "string": ""
+      }
+    ],
+    "bt_navigator": [
+      {
+        "bool": true,
+        "string": ""
+      }
+    ],
+    "smoother_server": [
+      {
+        "bool": true,
+        "string": ""
+      }
+    ],
+    "behavior_server": [
+      {
+        "bool": true,
+        "string": ""
+      }
+    ],
+    "waypoint_follower": [
+      {
+        "bool": true,
+        "string": ""
+      }
+    ],
+    "velocity_smoother": [
+      {
+        "bool": true,
+        "string": ""
+      }
+    ]
+  },
+  "samples": {
+    "/map": {
+      "frame": "map",
+      "width": 120,
+      "height": 83,
+      "resolution": 0.05000000074505806,
+      "origin": [
+        -2.975,
+        -2.975
+      ],
+      "cells": 9960
+    },
+    "/scan": {
+      "frame": "base_scan",
+      "beams": 1066
+    }
+  },
+  "endpoints": {
+    "/map": {
+      "publishers": [
+        {
+          "node": "/map_server",
+          "type": "nav_msgs/msg/OccupancyGrid",
+          "reliability": "ReliabilityPolicy.RELIABLE"
+        }
+      ],
+      "subscribers": [
+        {
+          "node": "/amcl",
+          "type": "nav_msgs/msg/OccupancyGrid",
+          "reliability": "ReliabilityPolicy.RELIABLE"
+        },
+        {
+          "node": "/global_costmap/global_costmap",
+          "type": "nav_msgs/msg/OccupancyGrid",
+          "reliability": "ReliabilityPolicy.RELIABLE"
+        }
+      ]
+    },
+    "/scan": {
+      "publishers": [
+        {
+          "node": "/_Render_PostProcess_SDGPipeline_Replicator_43_NodeWriterWriter",
+          "type": "sensor_msgs/msg/LaserScan",
+          "reliability": "ReliabilityPolicy.RELIABLE"
+        }
+      ],
+      "subscribers": [
+        {
+          "node": "/amcl",
+          "type": "sensor_msgs/msg/LaserScan",
+          "reliability": "ReliabilityPolicy.BEST_EFFORT"
+        },
+        {
+          "node": "/local_costmap/local_costmap",
+          "type": "sensor_msgs/msg/LaserScan",
+          "reliability": "ReliabilityPolicy.BEST_EFFORT"
+        }
+      ]
+    },
+    "/cmd_vel_nav": {
+      "publishers": [
+        {
+          "node": "/controller_server",
+          "type": "geometry_msgs/msg/Twist",
+          "reliability": "ReliabilityPolicy.RELIABLE"
+        }
+      ],
+      "subscribers": [
+        {
+          "node": "/velocity_smoother",
+          "type": "geometry_msgs/msg/Twist",
+          "reliability": "ReliabilityPolicy.RELIABLE"
+        }
+      ]
+    },
+    "/cmd_vel": {
+      "publishers": [
+        {
+          "node": "/behavior_server",
+          "type": "geometry_msgs/msg/Twist",
+          "reliability": "ReliabilityPolicy.RELIABLE"
+        },
+        {
+          "node": "/behavior_server",
+          "type": "geometry_msgs/msg/Twist",
+          "reliability": "ReliabilityPolicy.RELIABLE"
+        },
+        {
+          "node": "/behavior_server",
+          "type": "geometry_msgs/msg/Twist",
+          "reliability": "ReliabilityPolicy.RELIABLE"
+        },
+        {
+          "node": "/behavior_server",
+          "type": "geometry_msgs/msg/Twist",
+          "reliability": "ReliabilityPolicy.RELIABLE"
+        },
+        {
+          "node": "/behavior_server",
+          "type": "geometry_msgs/msg/Twist",
+          "reliability": "ReliabilityPolicy.RELIABLE"
+        },
+        {
+          "node": "/velocity_smoother",
+          "type": "geometry_msgs/msg/Twist",
+          "reliability": "ReliabilityPolicy.RELIABLE"
+        }
+      ],
+      "subscribers": [
+        {
+          "node": "/_ROS_Differential_Drive_ros2_subscribe_twist",
+          "type": "geometry_msgs/msg/Twist",
+          "reliability": "ReliabilityPolicy.RELIABLE"
+        }
+      ]
+    }
+  }
+}

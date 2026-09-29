@@ -31,6 +31,7 @@ def generate_launch_description():
     camera_info_topic = LaunchConfiguration("camera_info_topic")
     detect_topic = LaunchConfiguration("detect_topic")
     roi_topic = LaunchConfiguration("roi_topic")
+    centroid_source = LaunchConfiguration("centroid_source")
     use_sim_time = ParameterValue(LaunchConfiguration("use_sim_time"), value_type=bool)
 
     return LaunchDescription([
@@ -40,6 +41,12 @@ def generate_launch_description():
         # Empty -> centred ratio crop. Set to the VLM's sensor_msgs/RegionOfInterest
         # topic once it exists; nothing else changes.
         DeclareLaunchArgument("roi_topic", default_value=""),
+        # "buffer" (default): obstacle position = mean of the rolling buffer,
+        # same as before. "latest_frame": obstacle position = this tick's own
+        # frame only, to avoid mixing near/far-frame depth noise into the
+        # standoff coordinate on a head-on approach. yaw/normal is unaffected
+        # either way - still under evaluation, hence the switch.
+        DeclareLaunchArgument("centroid_source", default_value="buffer"),
         DeclareLaunchArgument("use_sim_time", default_value="true"),
         Node(
             package="custom_nav2_bt_plugins",
@@ -52,6 +59,7 @@ def generate_launch_description():
                 "camera_info_topic": camera_info_topic,
                 "detect_topic": detect_topic,
                 "roi_topic": roi_topic,
+                "centroid_source": centroid_source,
                 "target_frame": "map",
                 "process_rate": 10.0,
                 "buffer_duration": 1.0,

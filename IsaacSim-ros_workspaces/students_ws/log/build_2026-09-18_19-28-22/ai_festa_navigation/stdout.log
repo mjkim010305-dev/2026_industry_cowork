@@ -1,0 +1,24 @@
+-- Found ament_cmake: 1.3.14 (/opt/ros/humble/share/ament_cmake/cmake)
+-- Override CMake install command with custom implementation using symlinks instead of copying resources
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /home/students/workspace/build/ai_festa_navigation
+-- Install configuration: ""
+-- Execute custom install script
+-- Symlinking: /home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/launch/ai_festa_nav2.launch.py
+-- Symlinking: /home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/config/ai_festa_nav2_params.yaml
+-- Symlinking: /home/students/workspace/install/ai_festa_navigation/share/ament_index/resource_index/package_run_dependencies/ai_festa_navigation
+-- Symlinking: /home/students/workspace/install/ai_festa_navigation/share/ament_index/resource_index/parent_prefix_path/ai_festa_navigation
+-- Symlinking: /home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/environment/ament_prefix_path.sh
+-- Symlinking: /home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/environment/ament_prefix_path.dsv
+-- Symlinking: /home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/environment/path.sh
+-- Symlinking: /home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/environment/path.dsv
+-- Symlinking: /home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/local_setup.bash
+-- Symlinking: /home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/local_setup.sh
+-- Symlinking: /home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/local_setup.zsh
+-- Symlinking: /home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/local_setup.dsv
+-- Symlinking: /home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/package.dsv
+-- Symlinking: /home/students/workspace/install/ai_festa_navigation/share/ament_index/resource_index/packages/ai_festa_navigation
+-- Symlinking: /home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/cmake/ai_festa_navigationConfig.cmake
+-- Symlinking: /home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/cmake/ai_festa_navigationConfig-version.cmake
+-- Symlinking: /home/students/workspace/install/ai_festa_navigation/share/ai_festa_navigation/package.xml

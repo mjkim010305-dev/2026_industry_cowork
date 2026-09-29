@@ -1,0 +1,210 @@
+AI Festa Basic Nav2 Baseline 실행 안내
+====================================
+
+1. 목적과 현재 구조
+------------------
+기존 학교 Linux 서버의 Isaac Sim / ROS2 Humble 환경에서 AI Festa map을
+사용하여 기본 Nav2 주행을 재현하는 안내서다. AI Festa map은 실제 대회에서
+예상되는 환경을 단순화한 공통 simulation test environment다.
+
+src/ai-festa-map.usd, .png, .yaml = 공통 AI Festa simulation environment
+ai_festa_src/ai_festa_navigation = 기본 Nav2 주행을 검증한 baseline package
+src/custom_nav2_bt_plugins 등 = 향후 main custom development
+
+baseline은 메인 기능 개발 프로젝트가 아니다. 현재 디렉터리와 맵 위치를 유지한다.
+이 안내서의 명령은 필요한 단계만 선택해서 실행한다. 실행 중인 Nav2에 중복
+launch하지 않는다. Initial Pose 및 Goal 명령은 상태 확인 후 사용자가 실행한다.
+
+2. 기존 명령과 AI Festa 명령 비교
+--------------------------------
+[기존 Nav2: isaac_sim_cmd_line.txt의 실제 명령]
+ros2 launch nav2_bringup bringup_launch.py   use_sim_time:=true   map:=/home/students/workspace/src/ai-festa-map.yaml   params_file:="/home/students/workspace/src/ai-festa-map-params.yaml"
+
+[AI Festa Basic Nav2 Baseline]
+ros2 launch ai_festa_navigation ai_festa_nav2.launch.py
+
+[기존 Nav2 RViz]
+ros2 launch nav2_bringup rviz_launch.py
+
+[AI Festa RViz]
+rviz2 -d /home/students/workspace/ai_festa_src/ai_festa_navigation/config/ai_festa_initial_pose.rviz --ros-args -p use_sim_time:=true
+
+[실제 차이]
+- map: 기존 명령도 이미 ai-festa-map.yaml을 사용한다. 맵 변경이 아니다.
+- params: 기존 src/ai-festa-map-params.yaml 대신 baseline 전용
+  ai_festa_src/ai_festa_navigation/config/ai_festa_nav2_params.yaml을 사용한다.
+  baseline은 custom BT 라이브러리를 요구하지 않으며 일반 Nav2 BT를 사용한다.
+- baseline params는 src/custom_nav2_params.yaml을 기반으로 한다.
+  local costmap은 VoxelLayer 대신 2D ObstacleLayer를 사용한다.
+- launch wrapper: 동일한 Humble nav2_bringup/bringup_launch.py를 include한다.
+  use_sim_time=true, autostart=true, slam=False, use_composition=False,
+  use_respawn=False, namespace 없음으로 고정한다.
+  기존 명령은 use_composition을 생략하므로 설치된 launch의 기본 True를 사용한다.
+- domain: 기존 명령문에는 domain 설정이 없다. .bashrc 기본은 30이지만
+  현재 사용하는 Isaac ROS2 bridge는 1이므로 각 터미널에서 1로 맞춘다.
+- RViz: 기존 기본 view 대신 AI Festa 초기 위치용 view를 사용하고 sim time을 명시한다.
+- MoveIt, moveit_to_isaac_bridge.py, custom obstacle localizer는 이번 기본 주행에
+  필요하지 않다. MoveIt bridge는 팔/그리퍼 joint 명령 연결이며 주행 Twist bridge가 아니다.
+
+3. 환경 설정 (서버의 각 ROS 터미널)
+----------------------------------
+source /opt/ros/humble/setup.bash
+source /home/students/workspace/install/local_setup.bash
+export ROS_DOMAIN_ID=1
+export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+export FASTRTPS_DEFAULT_PROFILES_FILE=/home/students/workspace/fastdds.xml
+export ROS_LOCALHOST_ONLY=0
+
+.bashrc에는 domain 30과 위 Fast DDS profile이 설정되어 있다. source/.bashrc 실행
+이후 domain 1을 적용한다. 이 안내서는 .bashrc 자체를 변경하지 않는다.
+진단 셸 및 앞선 baseline 실행에서 사용한 profile 경로를 명시했다.
+fastdds.xml은 UDPv4 transport를 사용하고 builtin transports를 끈다.
+이 설정은 사용자별 ROS graph 격리 기능이 아니다. domain 1의 기존 Isaac과 통신한다.
+실행 중인 다른 계정 Isaac의 환경변수를 직접 읽어 검증한 것은 아니다.
+
+4. Build (패키지가 없거나 패키지 설치 내용이 바뀐 경우)
+-----------------------------------------------------
+cd /home/students/workspace
+colcon build --base-paths ai_festa_src \
+  --packages-select ai_festa_navigation \
+  --symlink-install
+source /home/students/workspace/install/local_setup.bash
+
+이 패키지만 빌드한다. 중복 패키지가 있는 workspace 전체를 무작정 빌드하지 않는다.
+문서만 추가한 이번 작업에는 재빌드가 필요하지 않다.
+
+5. Isaac Sim (기존 shared instance)
+----------------------------------
+현재 USD: /home/students/workspace/src/ai-festa-map.usd
+현재 map YAML: /home/students/workspace/src/ai-festa-map.yaml
+현재 map image: /home/students/workspace/src/ai-festa-map.png
+
+Isaac은 학교 Linux 서버에서 실행된다. Windows에서는 WebRTC Streaming Client로
+기존 shared Isaac 화면을 보고, 해당 stage를 열어 Play한다.
+다른 사용자가 쓰는 stage를 전환하기 전에는 shared instance 사용 상황을 확인한다.
+기존 isaac_sim_cmd_line.txt의 streaming 실행 경로는 과거 실행 메모다.
+현재 테스트는 이미 실행된 shared instance를 사용하므로 새 Isaac 실행/종료가 필요 없다.
+ROS2 Context는 domain 1이며 /clock, /scan, /odom, /tf 및 /cmd_vel 구독 연결을 사용한다.
+
+6. Basic Nav2 Baseline 실행 (Terminal 1)
+---------------------------------------
+3번 환경 설정을 적용하고 Isaac Play 상태를 확인한다.
+현재 Nav2가 이미 실행 중이면 아래 명령을 다시 실행하지 않는다.
+
+ros2 launch ai_festa_navigation ai_festa_nav2.launch.py
+
+이 패키지는 새 navigation implementation이 아니라 AI Festa용 설정 wrapper다.
+map_server + AMCL 및 표준 Nav2 planner/controller/BT/velocity smoother 등을 실행한다.
+map -> odom은 AMCL이 담당하고 odom -> base_footprint -> base_link/base_scan은
+Isaac이 담당한다. 임의의 static TF를 추가하지 않는다.
+초기 위치 지정 전에는 planner/global costmap이 map TF를 기다리고 후속 lifecycle
+노드가 inactive일 수 있다. 초기 위치와 scan이 반영된 뒤 active 여부를 확인한다.
+
+7. RViz 실행 (Terminal 2)
+------------------------
+Windows에서 VcXsrv/XLaunch를 실행한다. 서버의 rviz2 GUI를 X11로 Windows에
+표시한다. RViz/ROS2 실행 자체는 Linux 서버에서 이루어지며 노트북 ROS 설치는 필요 없다.
+아래는 현재 성공한 직접 X11 접속 방식이다. WebRTC는 Isaac 화면용이며 RViz용이 아니다.
+Windows의 X server 접근 허용 및 방화벽 설정이 서버의 X11 연결을 허용해야 한다.
+
+3번 환경 설정을 먼저 적용한다. 아래 <Windows_PC_IP>는 실제 Windows 주소로 치환한다.
+꺾쇠가 들어간 예시를 그대로 shell에 붙여넣지 않는다.
+
+export DISPLAY=<Windows_PC_IP>:0.0
+
+GUI 연결 검사 (성공한 경우에만 RViz 실행):
+xdpyinfo >/dev/null
+
+rviz2 \
+  -d /home/students/workspace/ai_festa_src/ai_festa_navigation/config/ai_festa_initial_pose.rviz \
+  --ros-args -p use_sim_time:=true
+
+Fixed Frame: map
+Displays: /map, /scan, TF, /global_costmap/costmap, /local_costmap/costmap,
+          /plan, /local_plan
+초기 위치 전에는 scan/TF가 map 기준으로 표시되지 않을 수 있다.
+Goal 전에는 경로가 없는 것이 정상이다.
+이 config에는 2D Pose Estimate는 있지만 Nav2 GoalTool은 없다 (9번 참고).
+
+8. Initial Pose (Terminal 3 또는 RViz)
+------------------------------------
+현재 사용자 확인 reset/default pose는 map 기준 x=0, y=0, yaw=-90도이다.
+Quaternion: x=0, y=0, z=-0.7071068, w=0.7071068.
+아래 명령은 실제 shell 기록의 성공 명령을 그대로 옮겼다.
+36개 covariance 중 index 0(x)=0.25, index 7(y)=0.25, index 35(yaw)=0.0685,
+나머지는 0이다. RViz config의 yaw covariance 0.068538919...와 구분한다.
+
+중요: Isaac 로봇이 실제로 이 default/reset pose에 있을 때만 사용한다.
+로봇이 이동한 후나 다른 pose로 reset된 경우 현재 실제 위치/방향에 맞춰 지정한다.
+3번 환경 설정을 적용한 터미널에서 필요할 때 한 번 실행한다.
+
+ros2 topic pub --once /initialpose geometry_msgs/msg/PoseWithCovarianceStamped "{header: {frame_id: 'map'}, pose: {pose: {position: {x: 0.0, y: 0.0, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: -0.7071068, w: 0.7071068}}, covariance: [0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.25, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0685]}}"
+
+또는 RViz 상단 2D Pose Estimate를 누르고 로봇의 실제 맵 위치에서 클릭한 뒤
+전방 방향으로 드래그한다. default yaw -90도는 map 좌표계의 -Y 방향이다.
+초기 위치를 보낸 뒤 map -> odom TF, map/scan 정렬 및 Nav2 active를 먼저 확인한다.
+
+확인 명령 (Goal을 보내지 않는 조회):
+ros2 run tf2_ros tf2_echo map base_link
+# 위 연속 조회만 Ctrl+C로 끝낸 뒤 아래를 실행한다.
+ros2 lifecycle get /map_server
+ros2 lifecycle get /amcl
+ros2 lifecycle get /planner_server
+ros2 lifecycle get /controller_server
+ros2 lifecycle get /bt_navigator
+ros2 lifecycle get /velocity_smoother
+
+9. Navigation Goal (초기 위치와 lifecycle 확인 후에만)
+-----------------------------------------------------
+[RViz]
+Nav2 GoalTool이 있는 화면에서는 Nav2 Goal을 선택하고 자유 공간의 목표 위치를
+클릭한 뒤 최종 방향으로 드래그한다. 현재 initial_pose.rviz에는 이 도구가 없다.
+필요하면 RViz의 도구 추가(+)에서 nav2_rviz_plugins/GoalTool을 추가해서 사용한다.
+이 문서 작업에서는 config를 바꾸거나 도구/Goal을 실제 실행하지 않았다.
+
+[직접 action: 주행 검증 당시 사용한 예시 좌표]
+x=-1.661188, y=-1.934808, 목표 yaw=0 (orientation w=1).
+항상 사용해야 하는 목적지가 아니다. 현재 map의 자유 공간과 경로를 확인한다.
+다음은 shell 기록에 있는 성공 예시이며 실행 시 로봇이 실제로 움직인다.
+
+ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose "{pose: {header: {frame_id: map}, pose: {position: {x: -1.661188, y: -1.934808, z: 0.0}, orientation: {x: 0.0, y: 0.0, z: 0.0, w: 1.0}}}}" --feedback
+
+10. 데이터 흐름
+---------------
+Isaac: /scan, /odom, /tf, /clock
+              |
+              v
+AMCL + Nav2 <--- map_server <--- ai-festa-map.yaml + PNG
+              |
+              v
+controller_server
+              |
+         /cmd_vel_nav
+              |
+      velocity_smoother
+              |
+          /cmd_vel
+              |
+Isaac Differential Drive
+              |
+          TurtleBot
+
+표준 recovery behavior도 /cmd_vel을 직접 발행할 수 있다.
+
+11. custom_nav2_bt_plugins와의 관계
+----------------------------------
+ai_festa_navigation은 Basic Nav2 baseline이며 custom_nav2_bt_plugins를 대체하지 않는다.
+향후 custom BT/plugin 등 메인 기능은 src/custom_nav2_bt_plugins 등을 중심으로
+개발하고 동일한 ai-festa-map/Isaac environment에서 테스트한다.
+통합 중 문제가 생기면 baseline과 비교하여 기본 Nav2/Isaac/map 연결 문제인지
+custom 기능 문제인지 구분한다. baseline과 custom Nav2를 같은 domain/노드 이름으로
+동시에 실행하지 않는다. 성공한 baseline params를 개발용 tuning으로 덮어쓰지 않는다.
+
+12. 재시작 주의사항
+------------------
+Isaac Stop -> Play 또는 robot reset 후 simulation time/odom/AMCL/map -> odom
+상태가 다시 안정화되어야 한다. robot reset 후 localization이 이상하면 Goal을
+반복 전송하지 말고 실제 위치, map/scan 정렬, TF 및 lifecycle부터 확인한다.
+필요한 경우 실제 reset pose에 맞는 Initial Pose를 다시 지정한다.
+Nav2 중복 launch, 다른 사용자의 프로세스 종료, shared Isaac 재실행은 하지 않는다.
+기존 isaac_sim_cmd_line.txt와 manipulation/custom plugin 코드는 그대로 유지한다.

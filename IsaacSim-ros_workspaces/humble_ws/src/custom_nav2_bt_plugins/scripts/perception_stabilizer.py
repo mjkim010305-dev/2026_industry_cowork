@@ -30,6 +30,12 @@ behavior tree. It implements the design in
     ``converge_std_deg`` the estimate is "stable".
   * missed-frame extrapolation: while TRACKING with a bad frame, the last good
     pose is held.
+  * ``centroid_source`` parameter (``buffer`` default | ``latest_frame``): the
+    surface *normal* always comes from the accumulated buffer above, but the
+    obstacle *position* can instead be read from just the newest frame, to
+    avoid mixing near/far-frame depth noise into the standoff coordinate on a
+    head-on approach. Still under discussion - default keeps the old
+    buffer-only behaviour.
   * ``busy`` flag + depth ``queue_size = 1``: overlapping work is dropped, the
     node always processes the freshest frame it can.
 
@@ -73,18 +79,14 @@ def quat_from_yaw(yaw):
     return (0.0, 0.0, math.sin(yaw * 0.5), math.cos(yaw * 0.5))
 
 
-def rotate_vec_by_quat(q, v):
-    """Rotate 3-vector v by quaternion q = (x, y, z, w)."""
+def quat_to_rotmat(q):
+    """3x3 rotation matrix for quaternion q = (x, y, z, w)."""
     x, y, z, w = q
-    vx, vy, vz = v
-    # t = 2 * cross(q_xyz, v)
-    tx = 2.0 * (y * vz - z * vy)
-    ty = 2.0 * (z * vx - x * vz)
-    tz = 2.0 * (x * vy - y * vx)
-    rx = vx + w * tx + (y * tz - z * ty)
-    ry = vy + w * ty + (z * tx - x * tz)
-    rz = vz + w * tz + (x * ty - y * tx)
-    return np.array([rx, ry, rz], dtype=np.float64)
+    return np.array([
+        [1 - 2 * (y * y + z * z), 2 * (x * y - z * w), 2 * (x * z + y * w)],
+        [2 * (x * y + z * w), 1 - 2 * (x * x + z * z), 2 * (y * z - x * w)],
+        [2 * (x * z - y * w), 2 * (y * z + x * w), 1 - 2 * (x * x + y * y)],
+    ], dtype=np.float64)
 
 
 def circular_std(angles):
@@ -134,6 +136,18 @@ class PerceptionStabilizer(Node):
         self.min_points = int(self.declare_parameter("min_points", 300).value)
         self.plane_residual_max = self.declare_parameter("plane_residual_max", 0.05).value
 
+        # centroid (obstacle xy) source: "buffer" averages the whole rolling
+        # cloud (stable, but mixes near/far-frame depth noise along the
+        # normal axis on a head-on approach); "latest_frame" uses only this
+        # tick's own deprojected points (noisier per-tick, but not smeared
+        # across the approach). yaw/normal always comes from the buffer.
+        self.centroid_source = self.declare_parameter("centroid_source", "buffer").value
+        if self.centroid_source not in ("buffer", "latest_frame"):
+            self.get_logger().warn(
+                "perception_stabilizer: unknown centroid_source '%s', falling back to 'buffer'"
+                % self.centroid_source)
+            self.centroid_source = "buffer"
+
         # --- state machine ----------------------------------------------
         self.state_window = self.declare_parameter("state_window", 1.0).value
         self.detect_timeout = self.declare_parameter("detect_timeout", 2.0).value
@@ -160,6 +174,7 @@ class PerceptionStabilizer(Node):
         self.buf_pts = np.zeros((0, 3), dtype=np.float32)
         self.buf_t = np.zeros((0,), dtype=np.float64)
         self.yaw_hist = deque()            # (t, yaw_map)
+        self.last_cam_origin_map = None     # latest camera position in map, for normal flip
 
         self.last_good_pose = None          # (x, y, yaw) in map
         self.last_good_t = None
@@ -191,11 +206,12 @@ class PerceptionStabilizer(Node):
 
         self.get_logger().info(
             "perception_stabilizer: depth='%s' info='%s' detect='%s' roi='%s' -> "
-            "'%s' / '%s' / '%s' in '%s' @ %.1f Hz (%s ROI)" % (
+            "'%s' / '%s' / '%s' in '%s' @ %.1f Hz (%s ROI, centroid_source=%s)" % (
                 self.depth_topic, self.info_topic, self.detect_topic,
                 self.roi_topic or "(centre crop)", self.state_out_topic,
                 self.pose_out_topic, self.conf_out_topic, self.target_frame,
-                self.process_rate, "topic" if self.roi_topic else "centre-crop"))
+                self.process_rate, "topic" if self.roi_topic else "centre-crop",
+                self.centroid_source))
 
     # ------------------------------------------------------------------
     # subscriptions
@@ -312,7 +328,7 @@ class PerceptionStabilizer(Node):
         if self.state != TRACKING:
             return
 
-        if est is not None and est["planar"]:
+        if est is not None and est["planar"] and est.get("has_position", True):
             pose = (est["cx_map"], est["cy_map"], est["yaw_map"])
             self.last_good_pose = pose
             self.last_good_t = now_s
@@ -343,6 +359,7 @@ class PerceptionStabilizer(Node):
         self.buf_pts = np.zeros((0, 3), dtype=np.float32)
         self.buf_t = np.zeros((0,), dtype=np.float64)
         self.yaw_hist.clear()
+        self.last_cam_origin_map = None
         self.last_good_pose = None
         self.last_good_t = None
 
@@ -418,10 +435,39 @@ class PerceptionStabilizer(Node):
             idx = np.random.choice(pts.shape[0], self.max_new_points, replace=False)
             pts = pts[idx]
 
-        # append to rolling buffer, trim by time then by size
+        # Transform this frame's points into the map frame using the TF *at
+        # this frame's own capture time*, before adding them to the rolling
+        # buffer. Otherwise points captured at different robot/camera poses
+        # (e.g. while driving toward the obstacle) get stacked as if they were
+        # all taken from the same spot, smearing the accumulated cloud and
+        # corrupting the PCA plane fit.
+        frame = self.optical_frame or msg.header.frame_id
+        try:
+            tf = self.tf_buffer.lookup_transform(
+                self.target_frame, frame, rclpy.time.Time.from_msg(msg.header.stamp))
+        except TransformException as exc:
+            self.get_logger().warn(
+                "perception_stabilizer: per-frame TF %s <- %s failed: %s" % (
+                    self.target_frame, frame, exc),
+                throttle_duration_sec=2.0)
+            tf = None
+
         now_s = self._now_s()
-        self.buf_pts = np.vstack([self.buf_pts, pts])
-        self.buf_t = np.concatenate([self.buf_t, np.full(pts.shape[0], now_s)])
+        frame_centroid_map = None   # this tick's own centroid, map frame (see centroid_source)
+        if tf is not None:
+            t = tf.transform.translation
+            r = tf.transform.rotation
+            rot = quat_to_rotmat((r.x, r.y, r.z, r.w))
+            cam_origin = np.array([t.x, t.y, t.z], dtype=np.float64)
+            pts_map = (pts.astype(np.float64) @ rot.T) + cam_origin
+            self.last_cam_origin_map = cam_origin
+            if pts_map.shape[0] > 0:
+                frame_centroid_map = pts_map.mean(axis=0)
+
+            # append to rolling buffer (already in map frame), trim by time then by size
+            self.buf_pts = np.vstack([self.buf_pts, pts_map.astype(np.float32)])
+            self.buf_t = np.concatenate([self.buf_t, np.full(pts_map.shape[0], now_s)])
+
         keep = self.buf_t > (now_s - self.buffer_duration)
         self.buf_pts = self.buf_pts[keep]
         self.buf_t = self.buf_t[keep]
@@ -437,8 +483,8 @@ class PerceptionStabilizer(Node):
             p = p[np.sort(uniq)]
 
         n_points = p.shape[0]
-        if n_points < self.min_points:
-            return {"planar": False, "n_points": n_points}
+        if n_points < self.min_points or self.last_cam_origin_map is None:
+            return {"planar": False, "n_points": n_points, "has_position": False}
 
         centroid = p.mean(axis=0)
         d = p - centroid
@@ -450,41 +496,34 @@ class PerceptionStabilizer(Node):
         planar = (residual < self.plane_residual_max and
                   evals[0] < 0.1 * max(evals[1], 1e-9))
 
-        # orient normal towards the camera (origin in optical frame)
-        if float(np.dot(normal, centroid)) > 0.0:
+        # orient normal towards the latest known camera position - everything
+        # is already in the map frame, so this replaces the old "camera at
+        # local origin" assumption.
+        view_dir = centroid - self.last_cam_origin_map
+        if float(np.dot(normal, view_dir)) > 0.0:
             normal = -normal
 
-        yaw_map, cx_map, cy_map = self._to_map(msg.header.frame_id, centroid, normal)
-        if yaw_map is None:
-            return {"planar": False, "n_points": n_points}
+        yaw_map = math.atan2(float(normal[1]), float(normal[0]))
+
+        # yaw/normal always comes from the accumulated buffer above (stable).
+        # The reported obstacle *position* can instead come from just this
+        # tick's own frame - see the centroid_source parameter.
+        if self.centroid_source == "latest_frame":
+            has_position = frame_centroid_map is not None
+            report_centroid = frame_centroid_map if has_position else centroid
+        else:
+            has_position = True
+            report_centroid = centroid
 
         return {
             "planar": bool(planar),
             "n_points": n_points,
             "residual": residual,
             "yaw_map": yaw_map,
-            "cx_map": cx_map,
-            "cy_map": cy_map,
+            "cx_map": float(report_centroid[0]),
+            "cy_map": float(report_centroid[1]),
+            "has_position": has_position,
         }
-
-    def _to_map(self, depth_frame, centroid_cam, normal_cam):
-        frame = self.optical_frame or depth_frame
-        try:
-            tf = self.tf_buffer.lookup_transform(
-                self.target_frame, frame, rclpy.time.Time())
-        except TransformException as exc:
-            self.get_logger().warn(
-                "perception_stabilizer: TF %s <- %s failed: %s" % (
-                    self.target_frame, frame, exc),
-                throttle_duration_sec=2.0)
-            return None, None, None
-        t = tf.transform.translation
-        r = tf.transform.rotation
-        q = (r.x, r.y, r.z, r.w)
-        c_map = rotate_vec_by_quat(q, centroid_cam) + np.array([t.x, t.y, t.z])
-        n_map = rotate_vec_by_quat(q, normal_cam)   # rotation only, no translation
-        yaw = math.atan2(float(n_map[1]), float(n_map[0]))
-        return yaw, float(c_map[0]), float(c_map[1])
 
     def _confidence(self, detect_rate, yaw_std, est):
         w_detect = max(0.0, min(1.0, detect_rate))

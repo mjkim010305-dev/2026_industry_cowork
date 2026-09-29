@@ -1,0 +1,364 @@
+<!--
+  Final pick-loop navigate-to-pose tree: shuttles forever between the
+  externally-requested goal ("target") and the origin (0,0).
+
+  Root structure:
+    Sequence "CaptureTargetThenShuttleForever"
+      1. SetBlackboard - runs ONCE, before the loop: snapshots whatever
+         PoseStamped the NavigateToPose action client originally sent into
+         {target_goal}, so it survives being overwritten every time the
+         "return to origin" leg rewrites {goal} to (0,0).
+      2. FixedPickObject - runs ONCE, before the loop: bootstrap pick so the
+         very first "GoToTarget" leg below has something to place. Without
+         this, cycle 1 would place with an empty gripper - the "place first"
+         shape only makes sense once the shuttle already carries something.
+      3. Repeat num_cycles="-1" "ShuttleForever" - re-ticks its child forever.
+         Each cycle is one full round trip, place-then-pick at BOTH stops:
+           a. "GoToTarget": restore {goal} from {target_goal} via
+              SetBlackboard, NavigateRecovery to {goal} (now = target), then
+              PlaceObject (drop what it's carrying) followed by
+              FixedPickObject (pick up the next item, same spot).
+           b. "ReturnToOrigin": overwrite {goal} to (0,0) via SetFixedGoal,
+              NavigateRecovery to {goal} (now = origin), then PlaceObject
+              followed by FixedPickObject - same place-then-pick shape as
+              the target leg.
+
+  IMPORTANT CAVEAT (behaviortree_cpp_v3, which is what Nav2 Humble uses):
+  RepeatNode does NOT keep looping through failures the way v4's does. Per
+  its own header comment: "If the child returns FAILURE, the loop is
+  stopped and this node returns FAILURE." So if the bootstrap
+  FixedPickObject, PlaceObject, a per-leg FixedPickObject, or either
+  NavigateRecovery exhausts its 6 retries, the ENTIRE shuttle stops (root
+  returns FAILURE) instead of just skipping to the next round trip. If you
+  want the shuttle to survive a failed leg and keep going forever
+  regardless, wrap "RoundTrip" below in <ForceSuccess> before it reaches
+  Repeat - not done here since that was flagged, not requested yet.
+
+  Because the root never returns SUCCESS while shuttling, the
+  NavigateToPose action this tree backs never completes/reports a result to
+  its action client - expected for a "run forever" mission, not a
+  single request/response nav call.
+
+  NavigateRecovery (duplicated once per leg, identical apart from the name
+  labels - the existing navigate-to-pose tree with replanning, recovery,
+  and movable-obstacle handling, unchanged in logic from
+  custom_bt_manipulator.xml):
+    * CaptureInitialPath latches the FIRST global path for the goal.
+    * ApproachObstacleNormal drives a short straight path to `standoff_distance`
+      in front of the on-path obstacle. When /movable_obstacle/pose carries a
+      real orientation it stops 0.2 m out along the surface normal and faces the
+      obstacle; otherwise it falls back to the initial-path tangent (unchanged
+      legacy behaviour).
+    * WaitForObstacleClearance holds there until /obstacle/still_present is
+      false, then the costmaps are wiped and the robot resumes {initial_path}.
+
+  MOVABLE-OBSTACLE HANDLING (re-enabled, one copy per leg - ToTarget and
+  ToOrigin each get their own HandleMovableObstacle branch, ported unchanged
+  from custom_bt_manipulator.xml):
+    * A VLM/CV node (outside this package) publishes /obstacle/is_movable and
+      /obstacle/still_present (std_msgs/Bool). perception_stabilizer publishes
+      /perception_state, /obstacle_pose_stable, /obstacle_pose_confidence
+      (design doc bt_perception_stabilizer_design.md).
+    * CaptureInitialPath latches the FIRST global path for the current leg's
+      goal (re-latches whenever the goal moves > 0.5 m, so ToTarget and
+      ToOrigin - and each new cycle of the shuttle - each get their own fresh
+      capture).
+    * IsObstacleTracking gates the branch on /perception_state == TRACKING,
+      falling back to the legacy /obstacle/is_movable Bool if the stabilizer
+      isn't running.
+    * LockApproachPose freezes ONE /obstacle_pose_stable sample the moment the
+      branch commits, so the approach goal never drifts with perception noise
+      for the rest of this encounter.
+    * ApproachObstacleNormal drives a short straight path to
+      `standoff_distance` (0.2 m) in front of the on-path obstacle, squared up
+      to its surface normal.
+    * ApproachThenResume: FollowPath to the standoff point, then
+      PlaceObject (set down whatever it's carrying so the arm is free),
+      PushObstacle (extend the arm to the push pose and HOLD it there -
+      posture only, no base motion; this does NOT physically move the
+      obstacle by itself), FixedPickObject (pick the carried item back up),
+      then WaitForObstacleClearance still holds the robot there - motionless
+      - until /obstacle/still_present goes false (obstacle actually cleared,
+      by whatever process does that) or times out; then both costmaps are
+      wiped and the robot resumes {initial_path} to the original goal.
+    * If IsObstacleTracking/LockApproachPose never commits (no obstacle on
+      path), ReactiveFallback drops straight through to the plain FollowPath
+      on {path}, same as before.
+-->
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <Sequence name="CaptureTargetThenShuttleForever">
+
+      <SetBlackboard value="{goal}" output_key="target_goal"/>
+
+      <FixedPickObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                       gripper_action_name="/gripper_controller/gripper_cmd"
+                       arm_joint_names="joint1;joint2;joint3;joint4"
+                       arm_move_time="3.0"
+                       open_position="0.02501155674647538"
+                       grasp_position="0.002"
+                       max_effort="0.0002"
+                       server_timeout="5.0"
+                       step_timeout="15.0"/>
+
+      <Repeat num_cycles="-1" name="ShuttleForever">
+        <Sequence name="RoundTrip">
+
+          <Sequence name="GoToTarget">
+            <SetBlackboard value="{target_goal}" output_key="goal"/>
+
+            <RecoveryNode number_of_retries="6" name="NavigateToTargetRecovery">
+              <PipelineSequence name="NavigateToTargetWithReplanning">
+                <RateController hz="1.0">
+                  <RecoveryNode number_of_retries="1" name="ComputePathToTarget">
+                    <Timeout msec="3000">
+                      <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+                    </Timeout>
+                    <ClearEntireCostmap name="ClearGlobalCostmap-Context-ToTarget" service_name="global_costmap/clear_entirely_global_costmap"/>
+                  </RecoveryNode>
+                </RateController>
+                <RecoveryNode number_of_retries="1" name="FollowPathToTarget">
+                  <ReactiveFallback name="FollowPathOrHandleMovableObstacle-ToTarget">
+                    <Sequence name="HandleMovableObstacle-ToTarget">
+                      <CaptureInitialPath path="{path}" goal="{goal}"
+                                          goal_change_threshold="0.5"
+                                          initial_path="{initial_path}"/>
+                      <IsObstacleTracking state_topic="/perception_state"
+                                          tracking_value="TRACKING"
+                                          state_timeout="1.0"
+                                          fallback_topic="/obstacle/is_movable"
+                                          fallback_timeout="3.0"/>
+                      <LockApproachPose pose_topic="/obstacle_pose_stable"
+                                        pose_timeout="2.0"
+                                        acquire_timeout="8.0"
+                                        require_orientation="true"
+                                        locked_pose="{locked_obstacle_pose}"/>
+                      <ApproachObstacleNormal path="{initial_path}"
+                                              obstacle_pose="{locked_obstacle_pose}"
+                                              pose_topic="/movable_obstacle/pose"
+                                              standoff_distance="0.2"
+                                              use_surface_normal="true"
+                                              face_obstacle="true"
+                                              on_path_tolerance="0.35"
+                                              pose_timeout="2.0"
+                                              recompute_threshold="0.2"
+                                              global_frame="map"
+                                              robot_base_frame="base_link"
+                                              approach_path="{approach_path}"
+                                              approach_goal="{approach_goal}"/>
+                      <Sequence name="ApproachThenResume-ToTarget">
+                        <FollowPath path="{approach_path}" controller_id="FollowPath"/>
+
+                        <PlaceObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                                     gripper_action_name="/gripper_controller/gripper_cmd"
+                                     arm_joint_names="joint1;joint2;joint3;joint4"
+                                     arm_move_time="3.0"
+                                     open_position="0.02501155674647538"
+                                     max_effort="0.0002"
+                                     server_timeout="5.0"
+                                     step_timeout="15.0"
+                                     post_open_delay="1.0"/>
+
+                        <PushObstacle arm_action_name="/arm_controller/follow_joint_trajectory"
+                                      gripper_action_name="/gripper_controller/gripper_cmd"
+                                      arm_joint_names="joint1;joint2;joint3;joint4"
+                                      arm_move_time="3.0"
+                                      open_position="0.02501155674647538"
+                                      max_effort="0.0"
+                                      push_hold_time="1.0"
+                                      server_timeout="5.0"
+                                      step_timeout="15.0"/>
+
+                        <FixedPickObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                                         gripper_action_name="/gripper_controller/gripper_cmd"
+                                         arm_joint_names="joint1;joint2;joint3;joint4"
+                                         arm_move_time="3.0"
+                                         open_position="0.02501155674647538"
+                                         grasp_position="0.002"
+                                         max_effort="0.0002"
+                                         server_timeout="5.0"
+                                         step_timeout="15.0"/>
+
+                        <WaitForObstacleClearance topic="/obstacle/still_present"
+                                                  timeout="0.0"
+                                                  clear_on_stale="true"
+                                                  message_timeout="3.0"/>
+                        <ClearEntireCostmap name="ClearLocalCostmap-Resume-ToTarget"
+                                            service_name="local_costmap/clear_entirely_local_costmap"/>
+                        <ClearEntireCostmap name="ClearGlobalCostmap-Resume-ToTarget"
+                                            service_name="global_costmap/clear_entirely_global_costmap"/>
+                        <FollowPath path="{initial_path}" controller_id="FollowPath"/>
+                      </Sequence>
+                    </Sequence>
+                    <FollowPath path="{path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/>
+                  </ReactiveFallback>
+                  <ClearEntireCostmap name="ClearLocalCostmap-Context-ToTarget" service_name="local_costmap/clear_entirely_local_costmap"/>
+                </RecoveryNode>
+              </PipelineSequence>
+              <ReactiveFallback name="RecoveryFallback-ToTarget">
+                <GoalUpdated/>
+                <RoundRobin name="RecoveryActions-ToTarget">
+                  <Sequence name="ClearingActions-ToTarget">
+                    <ClearEntireCostmap name="ClearLocalCostmap-Subtree-ToTarget" service_name="local_costmap/clear_entirely_local_costmap"/>
+                    <ClearEntireCostmap name="ClearGlobalCostmap-Subtree-ToTarget" service_name="global_costmap/clear_entirely_global_costmap"/>
+                  </Sequence>
+                  <Spin spin_dist="3.14"/>
+                  <Wait wait_duration="5"/>
+                  <BackUp backup_dist="0.30" backup_speed="0.05"/>
+                </RoundRobin>
+              </ReactiveFallback>
+            </RecoveryNode>
+
+            <PlaceObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                         gripper_action_name="/gripper_controller/gripper_cmd"
+                         arm_joint_names="joint1;joint2;joint3;joint4"
+                         arm_move_time="3.0"
+                         open_position="0.02501155674647538"
+                         max_effort="0.0002"
+                         server_timeout="5.0"
+                         step_timeout="15.0"
+                         post_open_delay="1.0"/>
+
+            <FixedPickObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                             gripper_action_name="/gripper_controller/gripper_cmd"
+                             arm_joint_names="joint1;joint2;joint3;joint4"
+                             arm_move_time="3.0"
+                             open_position="0.02501155674647538"
+                             grasp_position="0.002"
+                             max_effort="0.0002"
+                             server_timeout="5.0"
+                             step_timeout="15.0"/>
+          </Sequence>
+
+          <Sequence name="ReturnToOrigin">
+            <SetFixedGoal x="0.0" y="0.0" yaw="0.0" frame="map" goal="{goal}"/>
+
+            <RecoveryNode number_of_retries="6" name="NavigateToOriginRecovery">
+              <PipelineSequence name="NavigateToOriginWithReplanning">
+                <RateController hz="1.0">
+                  <RecoveryNode number_of_retries="1" name="ComputePathToOrigin">
+                    <Timeout msec="3000">
+                      <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+                    </Timeout>
+                    <ClearEntireCostmap name="ClearGlobalCostmap-Context-ToOrigin" service_name="global_costmap/clear_entirely_global_costmap"/>
+                  </RecoveryNode>
+                </RateController>
+                <RecoveryNode number_of_retries="1" name="FollowPathToOrigin">
+                  <ReactiveFallback name="FollowPathOrHandleMovableObstacle-ToOrigin">
+                    <Sequence name="HandleMovableObstacle-ToOrigin">
+                      <CaptureInitialPath path="{path}" goal="{goal}"
+                                          goal_change_threshold="0.5"
+                                          initial_path="{initial_path}"/>
+                      <IsObstacleTracking state_topic="/perception_state"
+                                          tracking_value="TRACKING"
+                                          state_timeout="1.0"
+                                          fallback_topic="/obstacle/is_movable"
+                                          fallback_timeout="3.0"/>
+                      <LockApproachPose pose_topic="/obstacle_pose_stable"
+                                        pose_timeout="2.0"
+                                        acquire_timeout="8.0"
+                                        require_orientation="true"
+                                        locked_pose="{locked_obstacle_pose}"/>
+                      <ApproachObstacleNormal path="{initial_path}"
+                                              obstacle_pose="{locked_obstacle_pose}"
+                                              pose_topic="/movable_obstacle/pose"
+                                              standoff_distance="0.2"
+                                              use_surface_normal="true"
+                                              face_obstacle="true"
+                                              on_path_tolerance="0.35"
+                                              pose_timeout="2.0"
+                                              recompute_threshold="0.2"
+                                              global_frame="map"
+                                              robot_base_frame="base_link"
+                                              approach_path="{approach_path}"
+                                              approach_goal="{approach_goal}"/>
+                      <Sequence name="ApproachThenResume-ToOrigin">
+                        <FollowPath path="{approach_path}" controller_id="FollowPath"/>
+
+                        <PlaceObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                                     gripper_action_name="/gripper_controller/gripper_cmd"
+                                     arm_joint_names="joint1;joint2;joint3;joint4"
+                                     arm_move_time="3.0"
+                                     open_position="0.02501155674647538"
+                                     max_effort="0.0002"
+                                     server_timeout="5.0"
+                                     step_timeout="15.0"
+                                     post_open_delay="1.0"/>
+
+                        <PushObstacle arm_action_name="/arm_controller/follow_joint_trajectory"
+                                      gripper_action_name="/gripper_controller/gripper_cmd"
+                                      arm_joint_names="joint1;joint2;joint3;joint4"
+                                      arm_move_time="3.0"
+                                      open_position="0.02501155674647538"
+                                      max_effort="0.0"
+                                      push_hold_time="1.0"
+                                      server_timeout="5.0"
+                                      step_timeout="15.0"/>
+
+                        <FixedPickObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                                         gripper_action_name="/gripper_controller/gripper_cmd"
+                                         arm_joint_names="joint1;joint2;joint3;joint4"
+                                         arm_move_time="3.0"
+                                         open_position="0.02501155674647538"
+                                         grasp_position="0.002"
+                                         max_effort="0.0002"
+                                         server_timeout="5.0"
+                                         step_timeout="15.0"/>
+
+                        <WaitForObstacleClearance topic="/obstacle/still_present"
+                                                  timeout="0.0"
+                                                  clear_on_stale="true"
+                                                  message_timeout="3.0"/>
+                        <ClearEntireCostmap name="ClearLocalCostmap-Resume-ToOrigin"
+                                            service_name="local_costmap/clear_entirely_local_costmap"/>
+                        <ClearEntireCostmap name="ClearGlobalCostmap-Resume-ToOrigin"
+                                            service_name="global_costmap/clear_entirely_global_costmap"/>
+                        <FollowPath path="{initial_path}" controller_id="FollowPath"/>
+                      </Sequence>
+                    </Sequence>
+                    <FollowPath path="{path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/>
+                  </ReactiveFallback>
+                  <ClearEntireCostmap name="ClearLocalCostmap-Context-ToOrigin" service_name="local_costmap/clear_entirely_local_costmap"/>
+                </RecoveryNode>
+              </PipelineSequence>
+              <ReactiveFallback name="RecoveryFallback-ToOrigin">
+                <GoalUpdated/>
+                <RoundRobin name="RecoveryActions-ToOrigin">
+                  <Sequence name="ClearingActions-ToOrigin">
+                    <ClearEntireCostmap name="ClearLocalCostmap-Subtree-ToOrigin" service_name="local_costmap/clear_entirely_local_costmap"/>
+                    <ClearEntireCostmap name="ClearGlobalCostmap-Subtree-ToOrigin" service_name="global_costmap/clear_entirely_global_costmap"/>
+                  </Sequence>
+                  <Spin spin_dist="3.14"/>
+                  <Wait wait_duration="5"/>
+                  <BackUp backup_dist="0.30" backup_speed="0.05"/>
+                </RoundRobin>
+              </ReactiveFallback>
+            </RecoveryNode>
+
+            <PlaceObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                         gripper_action_name="/gripper_controller/gripper_cmd"
+                         arm_joint_names="joint1;joint2;joint3;joint4"
+                         arm_move_time="3.0"
+                         open_position="0.02501155674647538"
+                         max_effort="0.0002"
+                         server_timeout="5.0"
+                         step_timeout="15.0"
+                         post_open_delay="1.0"/>
+
+            <FixedPickObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                             gripper_action_name="/gripper_controller/gripper_cmd"
+                             arm_joint_names="joint1;joint2;joint3;joint4"
+                             arm_move_time="3.0"
+                             open_position="0.02501155674647538"
+                             grasp_position="0.002"
+                             max_effort="0.0002"
+                             server_timeout="5.0"
+                             step_timeout="15.0"/>
+          </Sequence>
+
+        </Sequence>
+      </Repeat>
+
+    </Sequence>
+  </BehaviorTree>
+</root>

@@ -1,0 +1,152 @@
+
+<!--
+  This Behavior Tree replans the global path periodically at 1 Hz and it also has
+  recovery actions specific to planning / control as well as general system issues.
+  This will be continuous if a kinematically valid planner is selected.
+-->
+<!-- <root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+      <PipelineSequence name="NavigateWithReplanning">
+        <RateController hz="1.0">
+          <RecoveryNode number_of_retries="1" name="ComputePathToPose">
+            <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+            <ClearEntireCostmap name="ClearGlobalCostmap-Context" service_name="global_costmap/clear_entirely_global_costmap"/>
+          </RecoveryNode>
+        </RateController>
+        <RecoveryNode number_of_retries="1" name="FollowPath">
+          <FollowPath path="{path}" controller_id="FollowPath"/>
+          <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
+        </RecoveryNode>
+      </PipelineSequence>
+      <ReactiveFallback name="RecoveryFallback">
+        <GoalUpdated/>
+        <RoundRobin name="RecoveryActions">
+          <Sequence name="ClearingActions">
+            <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
+            <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
+          </Sequence>
+          <Spin spin_dist="1.57"/>
+          <Wait wait_duration="5"/>
+          <BackUp backup_dist="0.30" backup_speed="0.05"/>
+        </RoundRobin>
+      </ReactiveFallback>
+    </RecoveryNode>
+  </BehaviorTree>
+</root> -->
+
+
+-----
+
+<!-- <root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+      <PipelineSequence name="NavigateWithReplanning">
+        <RateController hz="1.0">
+          <Fallback name="ReplanIfNeeded">
+            <ReactiveSequence name="CheckCurrentPath">
+              <Inverter>
+                <GlobalUpdatedGoal/>
+              </Inverter>
+              <IsPathValid path="{path}"/>
+            </ReactiveSequence>
+            <RecoveryNode number_of_retries="1" name="ComputePathToPose">
+              <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+              <ClearEntireCostmap name="ClearGlobalCostmap-Context" service_name="global_costmap/clear_entirely_global_costmap"/>
+            </RecoveryNode>
+          </Fallback>
+        </RateController>
+        <RecoveryNode number_of_retries="1" name="FollowPath">
+          <FollowPath path="{path}" controller_id="FollowPath"/>
+          <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
+        </RecoveryNode>
+      </PipelineSequence>
+      <ReactiveFallback name="RecoveryFallback">
+        <GoalUpdated/>
+        <RoundRobin name="RecoveryActions">
+          <Sequence name="ClearingActions">
+            <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap" />
+            <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
+          </Sequence>
+          <Spin spin_dist="1.57"/>
+          <Wait wait_duration="5"/>
+          <BackUp backup_dist="0.30" backup_speed="0.05"/>
+        </RoundRobin>
+      </ReactiveFallback>
+    </RecoveryNode>
+  </BehaviorTree>
+</root> -->
+
+***기존에 1초마다 경로를 계산후 주행하던 로직을, 1초마다 목표지점이 변경되었는지 확인,그에 따른 현재 경로 유효성 확인 후 유효하면 경로계산을 하지않고 계속 이어가며, 변경된 경우에만 경로를 계산해서 진행하도록 수정했습니다.
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+<!-- <root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+      <PipelineSequence name="NavigateWithReplanning">
+        <RateController hz="1.0">
+          <RecoveryNode number_of_retries="1" name="ComputePathToPose">
+            <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+            <ClearEntireCostmap name="ClearGlobalCostmap-Context" service_name="global_costmap/clear_entirely_global_costmap"/>
+          </RecoveryNode>
+        </RateController>
+        <RecoveryNode number_of_retries="1" name="FollowPath">
+          <FollowPath path="{path}" controller_id="FollowPath"/>
+          <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
+        </RecoveryNode>
+      </PipelineSequence>
+      <ReactiveFallback name="RecoveryFallback">
+        <GoalUpdated/>
+        <RoundRobin name="RecoveryActions">
+          <ClearEntireCostmap name="ClearLocalCostmap-Recovery" service_name="local_costmap/clear_entirely_local_costmap"/>
+          <ClearEntireCostmap name="ClearGlobalCostmap-Recovery" service_name="global_costmap/clear_entirely_global_costmap"/>
+
+          <BackUp backup_dist="0.20" backup_speed="0.05"/>
+          <Spin spin_dist="1.57"/>
+          <Wait wait_duration="2"/> 
+        </RoundRobin>
+      </ReactiveFallback>
+    </RecoveryNode>
+  </BehaviorTree>
+</root>
+
+**recovery 과정을 spin -> wait -> backup에서 backup -> spin -> wait로 변경 -->
+
+--------------------------------------------------------------------------------------------------------------------------------------
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+      <PipelineSequence name="NavigateWithDistanceReplanning">
+        <DistanceController distance="0.5" global_frame="map" robot_base_frame="base-link">
+          <RecoveryNode number_of_retries="1" name="ComputePathToPose">
+            <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+            <ClearEntireCostmap name="ClearGlobalCostmap_Context" service_name="global_costmap/clear_entirely_global_costmap"/>
+          </RecoveryNode>
+        </DistanceController>
+        <RecoveryNode number_of_retries="1" name="FollowPath">
+          <FollowPath path="{path}" controller_id="FollowPath"/>
+          <ClearEntireCostmap name="ClearGlobalConstmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
+        </RecoveryNode>
+      </PipelineSequence>
+      <RecoveryFallback name="RecovertFallback">
+        <GoalUpdated />
+        <RoundRobin name="RecoveryActions">
+          <Sequence name="ClearingACtions">
+
+          <ClearEntireCostmap name="ClearLocalConstmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
+          <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
+          </Sequence>
+
+          <Spin spin_dist="1.57"/>
+          <Wait wait_duration="5"/>
+          <backup backup_dist="0.30" backup_speed="0.30" />
+        </RoundRobin>
+      </RecovertFallback>
+    </BehaviorTree>
+  </root>
+
+  **특정 이동 거리마다 현재 이동경로를 확인
+
+--------------------------------------------------------------------------------------------------------------------------------------
+

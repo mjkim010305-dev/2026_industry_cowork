@@ -1,0 +1,2 @@
+Invoking command in '/home/students/workspace/build/ai_festa_navigation': /usr/bin/cmake /home/students/workspace/ai_festa_src/ai_festa_navigation -DCMAKE_INSTALL_PREFIX=/home/students/workspace/install/ai_festa_navigation
+Invoked command in '/home/students/workspace/build/ai_festa_navigation' returned '1': /usr/bin/cmake /home/students/workspace/ai_festa_src/ai_festa_navigation -DCMAKE_INSTALL_PREFIX=/home/students/workspace/install/ai_festa_navigation

@@ -1,0 +1,1 @@
+/home/students/workspace/build/ai_festa_navigation/ament_cmake_core/ai_festa_navigationConfig-version.cmake
