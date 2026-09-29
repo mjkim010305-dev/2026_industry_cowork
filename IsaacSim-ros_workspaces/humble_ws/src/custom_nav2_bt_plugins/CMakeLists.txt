@@ -22,6 +22,7 @@ find_package(tf2_geometry_msgs REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(control_msgs REQUIRED)
 find_package(trajectory_msgs REQUIRED)
+find_package(turtlebot3_msgs REQUIRED)   # src/festa_manipulation/turtlebot3_msgs
 
 include_directories(include)
 
@@ -272,6 +273,30 @@ ament_target_dependencies(custom_final_approach_stop_action_bt_node
 target_compile_definitions(custom_final_approach_stop_action_bt_node
   PRIVATE BT_PLUGIN_EXPORT)
 
+# ---------------------------------------------------------------------------
+# BT plugin: RearPickObject (stateful action) - front pick stowed at
+# P_REAR_CARRY (port of turtlebot3_ws festa_action/rear_pick.py), the start
+# pose the /sweep sequence expects
+# ---------------------------------------------------------------------------
+add_library(custom_rear_pick_object_action_bt_node SHARED
+  src/rear_pick_object_action.cpp)
+ament_target_dependencies(custom_rear_pick_object_action_bt_node
+  rclcpp rclcpp_action behaviortree_cpp_v3 nav2_behavior_tree
+  control_msgs trajectory_msgs sensor_msgs)
+target_compile_definitions(custom_rear_pick_object_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
+# ---------------------------------------------------------------------------
+# BT plugin: SweepObstacle (stateful action) - /sweep action client
+# (turtlebot3_msgs/action/Sweep, from src/festa_manipulation/turtlebot3_msgs)
+# ---------------------------------------------------------------------------
+add_library(custom_sweep_obstacle_action_bt_node SHARED
+  src/sweep_obstacle_action.cpp)
+ament_target_dependencies(custom_sweep_obstacle_action_bt_node
+  rclcpp rclcpp_action behaviortree_cpp_v3 nav2_behavior_tree turtlebot3_msgs)
+target_compile_definitions(custom_sweep_obstacle_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+
 set(bt_plugin_libs
   custom_is_movable_obstacle_detected_condition_bt_node
   custom_wait_for_obstacle_clearance_action_bt_node
@@ -296,6 +321,8 @@ set(bt_plugin_libs
   custom_is_green_box_detected_condition_bt_node
   custom_compute_green_box_approach_goal_action_bt_node
   custom_final_approach_stop_action_bt_node
+  custom_rear_pick_object_action_bt_node
+  custom_sweep_obstacle_action_bt_node
 )
 
 # ---------------------------------------------------------------------------

@@ -1,16 +1,25 @@
-Green-box 시나리오 실행 명령 (final.xml + green_box_approach)
-=============================================================
+Green-box 시나리오 실행 명령 (L_corridor_sweep.xml + green_box_approach + /sweep)
+================================================================================
 
 시나리오
-  Nav2 목표(target)와 원점(0,0)을 계속 왕복한다(final.xml).
-  주행 중 초록 박스가 확정 검출되면 다음 순서로 동작한다.
-    박스 앞 0.8 m로 이동 → 박스 중심 0.55 m까지 천천히 접근해 정지
-    → Place → Push 자세 → Pick → 최대 10초 대기 → 원래 경로로 복귀
+  NavigateToPose 목표 하나로 L_corridor를 주행한다(L_corridor_sweep.xml).
+    1) 출발 전: 로봇 앞의 물체를 집어서 로봇 뒤쪽 운반 자세(P_REAR_CARRY)로 싣는다. (RearPickObject)
+    2) 주행 중 초록 박스가 확정 검출되면:
+         박스 앞 0.8 m로 이동 → 박스 중심 0.55 m까지 천천히 접근해 정지
+         → 1초 대기 → /sweep 호출
+            (매니퓰레이터 쪽: 뒤에 물체 내려놓기 → sweep으로 박스 치우기 → 후퇴 → 물체 다시 집기)
+         → costmap 초기화 → 원래 경로로 복귀
+    3) 목표에 도착하면 끝난다. (목표에서 물체를 내려놓는 동작은 아직 없다)
+
+  예전 흐름(Place → Push 자세 → Pick → 10초 대기)은 L_corrider.xml에 그대로 남아 있다.
 
 터미널 구성 (각 터미널에서 먼저 0번 환경 설정)
   T1 Isaac Sim  |  T2 MoveIt move_group  |  T3 MoveIt↔Isaac bridge
-  T4 Nav2       |  T5 green_box detector |  T6 RViz
-  T7 목표 전송 / 모니터링
+  T4 Sweep action server (매니퓰레이터)    |  T5 green_box detector
+  T6 Nav2       |  T7 RViz               |  T8 목표 전송 / 모니터링
+
+  권장 실행 순서: T1 → T2 → T3 → T4 → T5 → T6 → T7 → T8
+  (T4가 늦게 떠도 BT 로드는 되지만, 박스 앞에서 5초 안에 /sweep 서버가 없으면 sweep이 실패한다)
 
 
 0. 환경 설정 (모든 ROS 터미널)
@@ -18,28 +27,38 @@ Green-box 시나리오 실행 명령 (final.xml + green_box_approach)
 source /opt/ros/humble/setup.bash
 source /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/install/setup.bash
 # ROS_DOMAIN_ID 등은 기존에 쓰던 설정을 그대로 사용한다 (Isaac의 ROS2 bridge와 같아야 함).
+# ~/turtlebot3_ws는 source하지 않는다. turtlebot3_msgs(Sweep action)는 humble_ws 안의
+# src/festa_manipulation/turtlebot3_msgs 복사본을 쓴다. 두 워크스페이스를 같이 source하면
+# 같은 이름의 turtlebot3_msgs가 두 곳에 생겨 나중에 source한 쪽이 덮어쓴다.
 
 
 1. Build (코드나 패키지가 바뀌었을 때만)
 ----------------------------------------
 cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws
-colcon build --packages-select custom_nav2_bt_plugins green_box_approach
+colcon build --packages-select turtlebot3_msgs custom_nav2_bt_plugins green_box_approach
 source install/setup.bash
-# BT XML(final.xml)과 params yaml은 절대경로로 읽으므로, 수정만 했다면 재빌드는 필요 없다.
+# turtlebot3_msgs를 먼저 빌드해야 custom_nav2_bt_plugins의 SweepObstacle 노드가 빌드된다
+#   (--packages-select로 같이 주면 colcon이 의존 순서대로 빌드한다).
+# BT XML(L_corridor_sweep.xml)과 params yaml은 절대경로로 읽고, festa_action 스크립트는
+#   python3로 바로 실행하므로, 이 파일들만 수정했다면 재빌드는 필요 없다.
+# 예전에 ~/turtlebot3_ws를 source한 상태로 빌드한 적이 있으면 CMake 캐시가 그쪽
+#   turtlebot3_msgs를 기억하고 있을 수 있다. 그때는 한 번만 --cmake-clean-cache를 붙인다.
 
 
 2. Isaac Sim (T1)
 -----------------
 ~/isaac-sim-standalone-5.1.0-linux-x86_64/isaac-sim.streaming.sh
 # WebRTC Streaming Client로 접속한 뒤 초록 박스가 있는 stage를 열고 Play한다.
-# 맵은 1_obs.yaml을 쓰므로, stage도 1_obs 계열(초록 박스 배치)이어야 한다.
+# 맵은 L_corridor.yaml을 쓰므로, stage도 L_corridor 계열(L_corridor_green_box.usd)이어야 한다.
+# 출발 전 RearPickObject가 로봇 바로 앞(P_PICK 자세가 닿는 위치)의 물체를 집으므로,
+#   집을 물체를 로봇 앞에 놓아 둔다.
 
 
 3. MoveIt move_group (T2)
 -------------------------
 ros2 launch turtlebot3_manipulation_moveit_config move_group.launch.py
-# Place / Push / Pick 노드가 /arm_controller/follow_joint_trajectory,
-# /gripper_controller/gripper_cmd 액션을 사용한다.
+# RearPickObject(BT)와 sweep 시퀀스(T4)가 모두
+#   /arm_controller/follow_joint_trajectory, /gripper_controller/gripper_cmd 액션을 사용한다.
 
 
 4. MoveIt → Isaac bridge (T3)
@@ -52,15 +71,30 @@ python3 moveit_to_isaac_bridge.py --ros-args \
   -p isaac_command_topic:=/joint_commands
 
 
-5. Nav2 (T4)
-------------
-ros2 launch nav2_bringup bringup_launch.py \
-  use_sim_time:=true \
-  map:=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/L_corridor.yaml \
-  params_file:=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/L_corridor_nav2.yaml
-# final_nav2_params.yaml이 final.xml을 기본 BT로 쓰고, green-box 플러그인 3개를 로드한다.
-# 초기 위치는 params에서 (0,0,0)으로 자동 설정된다(set_initial_pose: true).
-# 로그에 "custom_is_green_box_detected_condition_bt_node" 등의 로드 에러가 없어야 한다.
+5. Sweep action server (T4, 매니퓰레이터 쪽)
+--------------------------------------------
+cd /home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/festa_manipulation/festa_action
+
+# Isaac Sim: 안전 감시(joint1 전류 / 추종 오차 컷오프)를 끈다
+python3 sweep_action_server.py --ros-args -p safety_monitor:=false
+
+# 실제 로봇: 안전 감시를 켠 기본값 그대로 실행한다
+python3 sweep_action_server.py
+
+# 하는 일
+#   /sweep (turtlebot3_msgs/action/Sweep) 요청을 받으면 같은 폴더의
+#   obstacle_clear_sequence.py all 을 실행한다:
+#     P_REAR_CARRY 확인 → REAR_PLACE(뒤에 내려놓기) → P_REAR_PRE_SWEEP → P_PRE_SWEEP
+#     → APPROACH_CONTACT → SWEEP_AFTER_CONTACT → RETREAT
+#     → P_PRE_SWEEP → P_REAR_PRE_SWEEP → P_REAR_PICK → REAR_REPICK(다시 집기) → P_REAR_CARRY
+#   결과: SUCCESS(정상 완료) / ERROR(그 외 모든 실패. 지금 서버는 STALL을 반환하지 않는다)
+# safety_monitor:=false가 필요한 이유
+#   안전 감시는 /dynamic_joint_states의 joint1 전류와 /arm_controller/controller_state를
+#   읽는다. Isaac Sim에는 전류 값이 없을 가능성이 높고, 그러면 sweep 시작 직후
+#   "전류 또는 관절 추종 오차 데이터 수신 실패"로 바로 실패한다.
+# 정상이면 로그에 "Sweep Action Server ready (safety_monitor=False)"가 찍힌다.
+# 이 스크립트들은 ~/turtlebot3_ws/scripts/festa_action의 복사본이다. 원본의 자세나 시퀀스가
+#   바뀌면 이쪽에도 직접 반영해야 한다.
 
 
 6. green_box detector (T5)
@@ -70,55 +104,92 @@ ros2 topic list | grep -iE "image|camera|rgb"
 #     기존 메모에서 쓰던 카메라 정보 토픽: /front_camera_info (depth: /depth_camera)
 
 # (2) optical 프레임 TF가 있는지 확인한다 (없으면 camera_frame 값을 실제 optical 프레임으로 바꾼다).
-ros2 run tf2_ros tf2_echo base_link camera_optical
+ros2 run tf2_ros tf2_echo base_link front_camera
 
 # (3) detector 실행. <RGB_TOPIC>, <CAMERA_INFO_TOPIC>은 (1)에서 확인한 값으로 바꾼다.
 ros2 run green_box_approach detector_node --ros-args \
   -r __node:=green_box_detector \
   -p use_sim_time:=true \
-  -p camera_frame:=camera_optical \
+  -p camera_frame:=front_camera \
   -p output_frame:=map \
   -p scan_topic:=/scan \
-  -p image_topic:=<RGB_TOPIC> \
-  -p camera_info_topic:=<CAMERA_INFO_TOPIC>
+  -p image_topic:=/front_camera \
+  -p camera_info_topic:=/front_camera_info
 # launch 파일(green_box_approach.launch.py) 대신 ros2 run을 쓰는 이유:
 #   launch 파일은 use_sim_time을 설정하지 않는다. 그러면 detector만 wall clock을 써서
 #   green_box/pose의 타임스탬프가 Nav2(sim time)와 어긋나고, IsGreenBoxDetected의
 #   max_age(1초) 판정이 항상 실패할 수 있다.
-# output_frame은 final.xml의 global_frame="map"과 같아야 한다.
+# output_frame은 L_corridor_sweep.xml의 global_frame="map"과 같아야 한다.
 
 
-7. RViz (T6)
+7. Nav2 (T6)
+------------
+ros2 launch nav2_bringup bringup_launch.py \
+  use_sim_time:=true \
+  map:=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/L_corridor.yaml \
+  params_file:=/home/ciderlab-server3/workspace/2026_industry_cowork/IsaacSim-ros_workspaces/humble_ws/src/L_corridor_nav2.yaml
+# L_corridor_nav2.yaml이 L_corridor_sweep.xml을 기본 BT로 쓰고, 다음 플러그인을 로드한다:
+#   green-box 3개 (IsGreenBoxDetected / ComputeGreenBoxApproachGoal / FinalApproachStop)
+#   custom_rear_pick_object_action_bt_node  (RearPickObject)
+#   custom_sweep_obstacle_action_bt_node    (SweepObstacle, /sweep 클라이언트)
+# 초기 위치는 params에서 (0,0,0)으로 자동 설정된다(set_initial_pose: true).
+# 로그에 플러그인 로드 에러가 없어야 한다. "libturtlebot3_msgs... not found"가 보이면
+#   0번 환경 설정(humble_ws source)을 빠뜨렸거나 1번 빌드에서 turtlebot3_msgs를 빼먹은 것이다.
+
+
+8. RViz (T7)
 ------------
 ros2 launch nav2_bringup rviz_launch.py use_sim_time:=true
 # 튜닝용 디버그 영상 (HSV 마스크, bbox, 판정 사유):
 ros2 run rqt_image_view rqt_image_view /green_box/debug_image
 
 
-8. 목표 전송 (T7)
+9. 목표 전송 (T8)
 -----------------
-# RViz의 "Nav2 Goal"로 찍거나 아래 명령을 쓴다. 이 목표가 왕복의 target이 된다.
-# final.xml은 무한 왕복이라 액션이 끝나지 않는 것이 정상이다 (Ctrl+C로 취소).
+# RViz의 "Nav2 Goal"로 찍거나 아래 명령을 쓴다.
 ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
   "{pose: {header: {frame_id: map}, pose: {position: {x: <X>, y: <Y>}, orientation: {w: 1.0}}}}"
+# 목표를 받으면 먼저 RearPickObject가 팔을 움직여 물체를 집고(약 30초), 그다음 출발한다.
+# 목표에 도착하면 액션이 끝난다 (예전 final.xml처럼 무한 왕복하지 않는다).
+# 같은 세션에서 목표를 다시 보내면 트리가 처음부터 다시 돈다. 이때 팔이 이미
+#   P_REAR_CARRY이면 RearPickObject는 움직이지 않고 넘어간다(들고 있는 물체를 떨어뜨리지 않음).
 
 
-9. 모니터링 / 테스트 (T7 등)
-----------------------------
-# 검출 여부 (확정되면 true)
+10. 모니터링 / 테스트 (T8 등)
+-----------------------------
+# 초록 박스 검출 여부 (확정되면 true) / 박스 중심 좌표 (map)
 ros2 topic echo /green_box/detected
-# 박스 중심 좌표 (map)
 ros2 topic echo /green_box/pose
 
-# 대기 단계를 10초 전에 해제하는 테스트 (나중에 로봇팔 쪽에서 보낼 이벤트와 같은 형식)
-ros2 topic pub --once /obstacle/still_present std_msgs/msg/Bool '{data: false}'
+# /sweep 서버가 떠 있는지 확인 (목록에 /sweep, 타입이 turtlebot3_msgs/action/Sweep)
+ros2 action list
+ros2 action info /sweep
+
+# sweep 진행 단계 확인 (REAR_PLACE → ... → SEQUENCE_COMPLETE, 실패 시 SAFETY_STOP / SEQUENCE_FAILED)
+ros2 topic echo /sweep_stage
+#   Nav2 로그에도 "SweepObstacle: state -> ..." 로 같은 단계가 찍힌다.
+
+# Nav2 없이 sweep만 단독 테스트 (팔이 P_REAR_CARRY 자세여야 시작된다)
+ros2 action send_goal /sweep turtlebot3_msgs/action/Sweep "{}" --feedback
+
+# 현재 팔 관절값 확인 (P_REAR_CARRY ≈ [-3.02, -0.98, 0.50, 0.22])
+ros2 topic echo /joint_states --once
 
 
-참고
-----
-- 거리 값 (final.xml, 두 leg 모두): standoff_distance 0.8, stop_center_distance 0.55,
-  stop_distance 0.4. 모두 0.3 m 박스 기준 임시값이다.
+참고 / 주의
+-----------
+- 거리 값 (L_corridor_sweep.xml): standoff_distance 0.8, stop_center_distance 0.55,
+  stop_distance 0.4. 모두 0.3 m 박스 기준 임시값이다. sweep 팔이 박스에 닿는 거리인지
+  시뮬레이션에서 확인이 필요하다.
 - detector의 box_depth_m / box_height_m (기본 0.30)도 임시값이다. 필요하면 6번 명령에
   -p box_depth_m:=... 을 추가한다.
 - 박스가 계속 안 잡히면 debug_image의 reason 텍스트(narrow / no-range / clipped / confirming)를 확인한다.
+- sweep이 실패하면(ERROR, 서버 없음, 요청 거절, 120초 초과) 로봇은 일반 경로 주행으로 넘어가
+  박스를 피해 가려고 한다. 실패한 박스를 "고정 장애물"로 기억하지 않으므로, 다시 검출되면
+  또 sweep을 시도할 수 있다.
+- SAFETY_STOP(실제 로봇에서 전류/추종 오차 컷오프)이 나면 팔은 멈춘 자세 그대로 남는다
+  (자동 후퇴 없음). 팔 상태를 확인한 뒤 주행을 계속한다.
+- /sweep 서버는 취소(cancel)를 지원하지 않는다. Nav2 목표를 취소해도 진행 중인 팔 동작은
+  끝까지 실행된다.
+- sweep 자세들은 실제 로봇에서 측정한 값이다. Isaac Sim에서도 그대로 맞는지는 확인이 필요하다.
 - 예전 perception 노드(rgbd_obstacle_localizer, perception_stabilizer)는 이 시나리오에서 실행하지 않는다.
