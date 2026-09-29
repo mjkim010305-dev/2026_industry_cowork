@@ -1,0 +1,82 @@
+<!--
+  Example BT for the AI Festa green-box approach-and-stop demo (Session 11).
+
+  Not loaded automatically - point a NavigateToPose goal's `behavior_tree`
+  field at this file's absolute path to run it for that one goal:
+
+    ros2 action send_goal /navigate_to_pose nav2_msgs/action/NavigateToPose \
+      "{pose: {header: {frame_id: map}, \
+               pose: {position: {x: 0.0, y: 0.0}, orientation: {w: 1.0}}}, \
+        behavior_tree: '/path/to/green_box_approach_example.xml'}"
+
+  MainTree = ReactiveFallback[ GreenBoxApproach, NavigateNormally ]:
+    * Every tick, IsGreenBoxDetected is checked first. While it fails (no
+      fresh green_box/pose + green_box/detected from the Lane P detector
+      node), the fallback falls through to a normal ComputePathToPose ->
+      FollowPath toward the outer NavigateToPose goal.
+    * The moment a fresh detection appears, GreenBoxApproach preempts normal
+      navigation: ComputeGreenBoxApproachGoal turns the box pose into a
+      standoff goal in front of the box, ComputePathToPose/FollowPath (core
+      Nav2 BT nodes) drive there, then FinalApproachStopAction creeps the
+      last stretch open-loop and stops on /scan range (see its header for
+      why it bypasses the costmap). No pushing/manipulation - stop only.
+
+  Requires plugin_lib_names to include (in addition to the core nav2
+  planner/controller/costmap-clear BT nodes):
+    custom_is_green_box_detected_condition_bt_node
+    custom_compute_green_box_approach_goal_action_bt_node
+    custom_final_approach_stop_action_bt_node
+
+  Topic names below are the contract-table defaults (Session 11); override
+  per-leaf via the ports if a deployment's detector/robot uses different
+  topics.
+-->
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <ReactiveFallback name="GreenBoxOrNormalNav">
+
+      <Sequence name="GreenBoxApproach">
+        <IsGreenBoxDetected pose_topic="green_box/pose"
+                             visible_topic="green_box/detected"
+                             max_age="1.0"/>
+
+        <ComputeGreenBoxApproachGoal pose_topic="green_box/pose"
+                                      global_frame="map"
+                                      robot_base_frame="base_link"
+                                      standoff_distance="0.8"
+                                      max_age="1.0"
+                                      approach_goal="{approach_goal}"/>
+
+        <RecoveryNode number_of_retries="1" name="ComputePathToApproachGoal">
+          <ComputePathToPose goal="{approach_goal}" path="{approach_path}" planner_id="GridBased"/>
+          <ClearEntireCostmap name="ClearGlobalCostmap-GreenBox"
+                              service_name="global_costmap/clear_entirely_global_costmap"/>
+        </RecoveryNode>
+
+        <FollowPath path="{approach_path}" controller_id="FollowPath"/>
+
+        <FinalApproachStop scan_topic="/scan"
+                            cmd_vel_topic="/cmd_vel"
+                            stop_distance="0.4"
+                            approach_speed="0.15"
+                            front_half_angle="0.26"
+                            scan_loss_timeout="0.5"
+                            time_allowance="30.0"
+                            pose_topic="green_box/pose"
+                            global_frame="map"
+                            robot_base_frame="base_link"
+                            stop_center_distance="0.55"/>
+      </Sequence>
+
+      <Sequence name="NavigateNormally">
+        <RecoveryNode number_of_retries="1" name="ComputePathToPose">
+          <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+          <ClearEntireCostmap name="ClearGlobalCostmap"
+                              service_name="global_costmap/clear_entirely_global_costmap"/>
+        </RecoveryNode>
+        <FollowPath path="{path}" controller_id="FollowPath"/>
+      </Sequence>
+
+    </ReactiveFallback>
+  </BehaviorTree>
+</root>

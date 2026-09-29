@@ -1,0 +1,21 @@
+# Example parameter override file for green_box_approach's detector_node.
+#
+# This is NOT a full dump of every node default (see detector_node.py for
+# those) - only the values a real deployment actually needs to change:
+# real TurtleBot3 topic names (unknown until tested on the robot, R5) and an
+# HSV range retuned on the real box/lighting (R1/R2, see README "HSV 튜닝
+# 절차"). Leave every other parameter at its code default unless you have a
+# specific reason to override it - a copy here would silently go stale
+# against the node default it was meant to track (Session 3 lesson, see
+# README).
+#
+# Usage: ros2 launch green_box_approach green_box_approach.launch.py \
+#          params_file:=<path to this file (or your own copy)>
+
+green_box_detector:
+  ros__parameters:
+    image_topic: "/camera/image_raw"
+    camera_info_topic: "/camera/camera_info"
+    scan_topic: "/scan"
+    hsv_lower: [40, 60, 40]
+    hsv_upper: [80, 255, 255]
