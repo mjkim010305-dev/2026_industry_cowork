@@ -359,7 +359,16 @@ class GreenBoxDetector(Node):
         debug = cv2.addWeighted(debug, 0.6, outline, 0.4, 0)
         if bbox is not None:
             x, y, w, h = bbox
-            cv2.rectangle(debug, (x, y), (x + w, y + h), (0, 0, 255), 2)
+            # Green + "MOVABLE" once confirmed (what the BT acts on), yellow
+            # with the reason while it is still confirming or was rejected.
+            colour = (0, 200, 0) if detected else (0, 200, 255)
+            tag = "MOVABLE: green box" if detected else reason
+            cv2.rectangle(debug, (x, y), (x + w, y + h), colour, 3)
+            (tw, th), _ = cv2.getTextSize(tag, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)
+            ty = max(th + 8, y)
+            cv2.rectangle(debug, (x, ty - th - 8), (x + tw + 10, ty), colour, -1)
+            cv2.putText(debug, tag, (x + 5, ty - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.8,
+                        (20, 20, 20), 2, cv2.LINE_AA)
         text = "detected=%s source=%s reason=%s" % (detected, source, reason)
         cv2.putText(debug, text, (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
                     (0, 0, 255), 1, cv2.LINE_AA)
