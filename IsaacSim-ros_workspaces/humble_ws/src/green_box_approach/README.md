@@ -110,9 +110,11 @@ ros2 launch green_box_approach green_box_approach.launch.py \
   거리 기준 정지(`stop_center_distance`)와 `/scan` 전방 원뿔 정지로 넘어가는 것을 전제로 한다.
   `stop_center_distance` 기본값 0.55 m는 약 0.3 m 박스 기준 자리표시값이다 — 실제 박스 크기에 맞춰 설정해야 한다.
 
-- **재시도 상한 없음(예제 트리)**: `green_box_approach_example.xml`은 `ReactiveFallback` 아래에서 접근 시퀀스가 실패하면
-  다음 틱에 처음부터 다시 시도한다. 토픽 이름 오설정·TF 끊김처럼 **구조적으로** 계속 실패하는 경우 재시도가 끝없이
-  반복된다(로그만 남음). 예제는 참고용이다 — 실제 트리에 옮길 때는 시도 횟수 상한과 포기 후 동작을 네비 트리 쪽에서 정해야 한다.
+- **예제 트리 = final.xml 한 구간**: `green_box_approach_example.xml`은 `final.xml`의 주행 한 구간(1 Hz 재계획,
+  `RecoveryNode` 최대 6회, 박스 접근·정지 후 Place/Push/Pick, `WaitForObstacleClearance` 10초, `{initial_path}` 복귀)을
+  목표 하나에 대해 그대로 실행한다(왕복 루프·시작 시 Pick은 제외). 접근 시퀀스가 실패하면 `ReactiveFallback`이 다음 틱에
+  다시 시도하고, 그 실패가 주행 실패로 번지면 6회 recovery 후 목표 자체가 실패한다. 단, 복귀 주행이 실패했을 때 박스가
+  여전히 보이면 다시 박스로 접근하는 반복에는 별도 상한이 없다.
 
 ## use_sim_time 일관성 전제조건
 

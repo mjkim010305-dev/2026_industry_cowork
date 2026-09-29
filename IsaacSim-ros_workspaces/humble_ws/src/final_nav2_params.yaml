@@ -169,6 +169,11 @@ bt_navigator:
       # during the push (straight-line motion alone often can't fully
       # correct this - see WiggleInPlace's header)
       - custom_wiggle_in_place_action_bt_node
+      # custom_nav2_bt_plugins: green-box perception gate + approach-and-stop
+      # (final.xml HandleMovableObstacle; fed by green_box_approach detector_node)
+      - custom_is_green_box_detected_condition_bt_node
+      - custom_compute_green_box_approach_goal_action_bt_node
+      - custom_final_approach_stop_action_bt_node
 
 bt_navigator_navigate_through_poses_rclcpp_node:
   ros__parameters:

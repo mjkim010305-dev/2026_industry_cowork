@@ -40,50 +40,58 @@
   single request/response nav call.
 
   NavigateRecovery (duplicated once per leg, identical apart from the name
-  labels - the existing navigate-to-pose tree with replanning, recovery,
-  and movable-obstacle handling, unchanged in logic from
-  custom_bt_manipulator.xml):
+  labels - the existing navigate-to-pose tree with replanning and recovery,
+  plus the movable-obstacle branch below):
     * CaptureInitialPath latches the FIRST global path for the goal.
-    * ApproachObstacleNormal drives a short straight path to `standoff_distance`
-      in front of the on-path obstacle. When /movable_obstacle/pose carries a
-      real orientation it stops 0.2 m out along the surface normal and faces the
-      obstacle; otherwise it falls back to the initial-path tangent (unchanged
-      legacy behaviour).
+    * The green-box nodes drive to a standoff in front of the box and stop.
     * WaitForObstacleClearance holds there until /obstacle/still_present is
-      false, then the costmaps are wiped and the robot resumes {initial_path}.
+      false (or 10 s pass), then the costmaps are wiped and the robot
+      resumes {initial_path}.
 
-  MOVABLE-OBSTACLE HANDLING (re-enabled, one copy per leg - ToTarget and
-  ToOrigin each get their own HandleMovableObstacle branch, ported unchanged
-  from custom_bt_manipulator.xml):
-    * A VLM/CV node (outside this package) publishes /obstacle/is_movable and
-      /obstacle/still_present (std_msgs/Bool). perception_stabilizer publishes
-      /perception_state, /obstacle_pose_stable, /obstacle_pose_confidence
-      (design doc bt_perception_stabilizer_design.md).
+  MOVABLE-OBSTACLE HANDLING (one copy per leg - ToTarget and ToOrigin each
+  get their own HandleMovableObstacle branch):
+    * Perception is the green_box_approach package's detector_node (HSV +
+      /scan, no VLM): it publishes green_box/pose (PoseStamped, map frame,
+      box centre) and green_box/detected (Bool, true once confirmed over
+      consecutive frames). It must be running alongside Nav2
+      (ros2 launch green_box_approach green_box_approach.launch.py), and its
+      output_frame must match global_frame="map" below.
     * CaptureInitialPath latches the FIRST global path for the current leg's
       goal (re-latches whenever the goal moves > 0.5 m, so ToTarget and
       ToOrigin - and each new cycle of the shuttle - each get their own fresh
       capture).
-    * IsObstacleTracking gates the branch on /perception_state == TRACKING,
-      falling back to the legacy /obstacle/is_movable Bool if the stabilizer
-      isn't running.
-    * LockApproachPose freezes ONE /obstacle_pose_stable sample the moment the
-      branch commits, so the approach goal never drifts with perception noise
-      for the rest of this encounter.
-    * ApproachObstacleNormal drives a short straight path to
-      `standoff_distance` (0.2 m) in front of the on-path obstacle, squared up
-      to its surface normal.
+    * IsGreenBoxDetected gates the branch: green_box/detected is true AND
+      green_box/pose is no older than 1 s.
+    * ComputeGreenBoxApproachGoal turns the box pose into {approach_goal},
+      0.8 m short of the box centre along robot->box, facing it (holds the
+      current pose if the robot is already inside 0.8 m).
+    * ComputePathToPose plans {approach_path} to it (one global-costmap
+      clear + retry on failure).
     * ApproachThenResume: FollowPath to the standoff point, then
-      PlaceObject (set down whatever it's carrying so the arm is free),
-      PushObstacle (extend the arm to the push pose and HOLD it there -
-      posture only, no base motion; this does NOT physically move the
-      obstacle by itself), FixedPickObject (pick the carried item back up),
-      then WaitForObstacleClearance still holds the robot there - motionless
-      - until /obstacle/still_present goes false (obstacle actually cleared,
-      by whatever process does that) or times out; then both costmaps are
-      wiped and the robot resumes {initial_path} to the original goal.
-    * If IsObstacleTracking/LockApproachPose never commits (no obstacle on
-      path), ReactiveFallback drops straight through to the plain FollowPath
-      on {path}, same as before.
+      FinalApproachStop turns to the box and creeps in open-loop on /cmd_vel
+      (bypassing the costmap), stopping at 0.55 m robot-to-box-centre or
+      0.4 m forward /scan range - whichever fires first. Then PlaceObject
+      (set down whatever it's carrying so the arm is free), PushObstacle
+      (extend the arm to the push pose and HOLD it there - posture only, no
+      base motion; this does NOT physically move the obstacle by itself),
+      FixedPickObject (pick the carried item back up), then
+      WaitForObstacleClearance holds the robot there - motionless - until
+      /obstacle/still_present goes false or 10 s pass; then both costmaps
+      are wiped and the robot resumes {initial_path} to the original goal.
+    * WaitForObstacleClearance timeout="10.0" is a stopgap: nothing publishes
+      /obstacle/still_present yet, and with timeout 0 the wait never ends
+      when no message ever arrives (clear_on_stale only applies after a
+      first message). TODO: have the arm side publish a clearance event on
+      that topic (false = cleared); the 10 s timeout then only backs it up.
+      green_box/detected is not usable for this - at contact range the
+      detector rejects the clipped blob and reports false with the box still
+      in place.
+    * FinalApproachStop's 0.55 m / ComputeGreenBoxApproachGoal's 0.8 m assume
+      a ~0.3 m box - re-set them for the real box (see green_box_approach
+      README).
+    * If IsGreenBoxDetected fails (no confirmed box in view),
+      ReactiveFallback drops straight through to the plain FollowPath on
+      {path}.
 -->
 <root main_tree_to_execute="MainTree">
   <BehaviorTree ID="MainTree">
@@ -123,31 +131,32 @@
                       <CaptureInitialPath path="{path}" goal="{goal}"
                                           goal_change_threshold="0.5"
                                           initial_path="{initial_path}"/>
-                      <IsObstacleTracking state_topic="/perception_state"
-                                          tracking_value="TRACKING"
-                                          state_timeout="1.0"
-                                          fallback_topic="/obstacle/is_movable"
-                                          fallback_timeout="3.0"/>
-                      <LockApproachPose pose_topic="/obstacle_pose_stable"
-                                        pose_timeout="2.0"
-                                        acquire_timeout="8.0"
-                                        require_orientation="true"
-                                        locked_pose="{locked_obstacle_pose}"/>
-                      <ApproachObstacleNormal path="{initial_path}"
-                                              obstacle_pose="{locked_obstacle_pose}"
-                                              pose_topic="/movable_obstacle/pose"
-                                              standoff_distance="0.2"
-                                              use_surface_normal="true"
-                                              face_obstacle="true"
-                                              on_path_tolerance="0.35"
-                                              pose_timeout="2.0"
-                                              recompute_threshold="0.2"
-                                              global_frame="map"
-                                              robot_base_frame="base_link"
-                                              approach_path="{approach_path}"
-                                              approach_goal="{approach_goal}"/>
+                      <IsGreenBoxDetected pose_topic="green_box/pose"
+                                          visible_topic="green_box/detected"
+                                          max_age="1.0"/>
+                      <ComputeGreenBoxApproachGoal pose_topic="green_box/pose"
+                                                   global_frame="map"
+                                                   robot_base_frame="base_link"
+                                                   standoff_distance="0.8"
+                                                   max_age="1.0"
+                                                   approach_goal="{approach_goal}"/>
+                      <RecoveryNode number_of_retries="1" name="ComputePathToGreenBox-ToTarget">
+                        <ComputePathToPose goal="{approach_goal}" path="{approach_path}" planner_id="GridBased"/>
+                        <ClearEntireCostmap name="ClearGlobalCostmap-GreenBox-ToTarget" service_name="global_costmap/clear_entirely_global_costmap"/>
+                      </RecoveryNode>
                       <Sequence name="ApproachThenResume-ToTarget">
                         <FollowPath path="{approach_path}" controller_id="FollowPath"/>
+                        <FinalApproachStop scan_topic="/scan"
+                                           cmd_vel_topic="/cmd_vel"
+                                           stop_distance="0.4"
+                                           approach_speed="0.15"
+                                           front_half_angle="0.26"
+                                           scan_loss_timeout="0.5"
+                                           time_allowance="30.0"
+                                           pose_topic="green_box/pose"
+                                           global_frame="map"
+                                           robot_base_frame="base_link"
+                                           stop_center_distance="0.55"/>
 
                         <PlaceObject arm_action_name="/arm_controller/follow_joint_trajectory"
                                      gripper_action_name="/gripper_controller/gripper_cmd"
@@ -180,7 +189,7 @@
                                          step_timeout="15.0"/>
 
                         <WaitForObstacleClearance topic="/obstacle/still_present"
-                                                  timeout="0.0"
+                                                  timeout="10.0"
                                                   clear_on_stale="true"
                                                   message_timeout="3.0"/>
                         <ClearEntireCostmap name="ClearLocalCostmap-Resume-ToTarget"
@@ -249,31 +258,32 @@
                       <CaptureInitialPath path="{path}" goal="{goal}"
                                           goal_change_threshold="0.5"
                                           initial_path="{initial_path}"/>
-                      <IsObstacleTracking state_topic="/perception_state"
-                                          tracking_value="TRACKING"
-                                          state_timeout="1.0"
-                                          fallback_topic="/obstacle/is_movable"
-                                          fallback_timeout="3.0"/>
-                      <LockApproachPose pose_topic="/obstacle_pose_stable"
-                                        pose_timeout="2.0"
-                                        acquire_timeout="8.0"
-                                        require_orientation="true"
-                                        locked_pose="{locked_obstacle_pose}"/>
-                      <ApproachObstacleNormal path="{initial_path}"
-                                              obstacle_pose="{locked_obstacle_pose}"
-                                              pose_topic="/movable_obstacle/pose"
-                                              standoff_distance="0.2"
-                                              use_surface_normal="true"
-                                              face_obstacle="true"
-                                              on_path_tolerance="0.35"
-                                              pose_timeout="2.0"
-                                              recompute_threshold="0.2"
-                                              global_frame="map"
-                                              robot_base_frame="base_link"
-                                              approach_path="{approach_path}"
-                                              approach_goal="{approach_goal}"/>
+                      <IsGreenBoxDetected pose_topic="green_box/pose"
+                                          visible_topic="green_box/detected"
+                                          max_age="1.0"/>
+                      <ComputeGreenBoxApproachGoal pose_topic="green_box/pose"
+                                                   global_frame="map"
+                                                   robot_base_frame="base_link"
+                                                   standoff_distance="0.8"
+                                                   max_age="1.0"
+                                                   approach_goal="{approach_goal}"/>
+                      <RecoveryNode number_of_retries="1" name="ComputePathToGreenBox-ToOrigin">
+                        <ComputePathToPose goal="{approach_goal}" path="{approach_path}" planner_id="GridBased"/>
+                        <ClearEntireCostmap name="ClearGlobalCostmap-GreenBox-ToOrigin" service_name="global_costmap/clear_entirely_global_costmap"/>
+                      </RecoveryNode>
                       <Sequence name="ApproachThenResume-ToOrigin">
                         <FollowPath path="{approach_path}" controller_id="FollowPath"/>
+                        <FinalApproachStop scan_topic="/scan"
+                                           cmd_vel_topic="/cmd_vel"
+                                           stop_distance="0.4"
+                                           approach_speed="0.15"
+                                           front_half_angle="0.26"
+                                           scan_loss_timeout="0.5"
+                                           time_allowance="30.0"
+                                           pose_topic="green_box/pose"
+                                           global_frame="map"
+                                           robot_base_frame="base_link"
+                                           stop_center_distance="0.55"/>
 
                         <PlaceObject arm_action_name="/arm_controller/follow_joint_trajectory"
                                      gripper_action_name="/gripper_controller/gripper_cmd"
@@ -306,7 +316,7 @@
                                          step_timeout="15.0"/>
 
                         <WaitForObstacleClearance topic="/obstacle/still_present"
-                                                  timeout="0.0"
+                                                  timeout="10.0"
                                                   clear_on_stale="true"
                                                   message_timeout="3.0"/>
                         <ClearEntireCostmap name="ClearLocalCostmap-Resume-ToOrigin"
