@@ -27,7 +27,10 @@
            - FollowPath {path}, only while goal_blocked == false: normal
              driving, including the bend around a green box that leaves room.
            - HoldWhileBlocked: blocked but no confirmed green box yet - stay
-             put (RUNNING) until one of the two branches above can run. L5:
+             put (RUNNING) until one of the two branches above can run, for
+             at most 15 s; then FAILURE hands over to the recovery below
+             (first: clear both costmaps), so a phantom block cannot park the
+             robot forever. L5:
              the lidar saw the box from the start, the first plan failed, and
              FollowPath on the empty {path} failed straight into a recovery
              Spin; L3: after a failed approach FollowPath drove the stale
@@ -136,9 +139,9 @@
                 <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
               </RecoveryNode>
             </Sequence>
-            <KeepRunningUntilFailure name="HoldWhileBlocked">
-              <Wait wait_duration="1"/>
-            </KeepRunningUntilFailure>
+            <Inverter name="HoldWhileBlocked">
+              <Wait wait_duration="15"/>
+            </Inverter>
           </ReactiveFallback>
         </PipelineSequence>
         <ReactiveFallback name="RecoveryFallback">
