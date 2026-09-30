@@ -115,6 +115,16 @@ namespace custom_nav2_bt_plugins
  * Note for the navigation team: the real TurtleBot3 + manipulator may have
  * the same self-occlusion (arm in front of the LDS), so a lidar-only stop
  * gate is not sufficient on the real robot either.
+ *
+ * g9 (L_corridor sweep, Isaac headless): the lidar stop fired on a single
+ * scan with one forward reading below range_min (clamped to 0 m) while the
+ * box face was still ~0.77 m away, so the sweep ran on empty air. The glitch
+ * never repeated on the following scans. The lidar test therefore only fires
+ * after `lidar_confirm_scans` CONSECUTIVE new scans each satisfy it; a scan
+ * that does not resets the count. While a hit is pending confirmation the
+ * robot holds still (zero Twist) rather than keep creeping, so waiting for
+ * confirmation never costs extra travel toward the box. The pose-based
+ * `stop_center_distance` test is unchanged.
  */
 class FinalApproachStopAction : public BT::StatefulActionNode
 {
@@ -129,6 +139,11 @@ public:
       BT::InputPort<std::string>(
         "cmd_vel_topic", std::string("/cmd_vel"), "Twist topic to publish"),
       BT::InputPort<double>("stop_distance", 0.4, "Stop once min forward range <= this [m]"),
+      BT::InputPort<int>(
+        "lidar_confirm_scans", 3,
+        "The lidar stop needs this many consecutive new scans with min forward range <= "
+        "stop_distance (g9: a single-scan glitch stopped the approach early); the robot "
+        "holds still while a hit is pending"),
       BT::InputPort<double>("approach_speed", 0.15, "Forward creep speed [m/s]"),
       BT::InputPort<double>(
         "front_half_angle", 0.26, "Half-angle [rad] of the forward cone (0=full width)"),
@@ -200,6 +215,12 @@ private:
   double max_angular_speed_ {0.8};
   double heading_gain_ {1.5};
   double stop_center_distance_ {0.55};
+  int lidar_confirm_scans_ {3};
+
+  // g9: consecutive new scans that satisfied the lidar stop test, and the
+  // scan last counted (so one scan is never counted twice across ticks).
+  int lidar_hits_ {0};
+  sensor_msgs::msg::LaserScan::SharedPtr last_counted_scan_;
 
   sensor_msgs::msg::LaserScan::SharedPtr latest_scan_;
   rclcpp::Time latest_scan_time_;

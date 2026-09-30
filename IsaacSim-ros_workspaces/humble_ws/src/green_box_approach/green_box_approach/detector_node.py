@@ -37,7 +37,9 @@ Two ranging paths, per the Session 11 contract:
     transformed into ``camera_frame``, then ``geometry.select_points_in_
     column_window`` keeps the ones in front of the camera that project into
     the blob's pixel columns (+/- ``bearing_margin_px``); ``geometry.
-    nearest_by_range`` picks the closest of those as the box's front face.
+    contiguous_cluster_centroid`` takes the contiguous surface around the
+    closest of those (``cluster_gap_m``) and uses its centroid as the box's
+    front face.
   * camera-fallback path - used only when the lidar path finds nothing in
     view (lidar plane above/below the box - see README limits). Depth comes
     from the known box height and the blob's pixel height via
@@ -57,12 +59,15 @@ every image, as before - it is just ``False`` more often now.
 """
 
 from collections import deque
+import threading
 
 import cv2
 import numpy as np
 
 import rclpy
+from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from rclpy.duration import Duration
+from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, qos_profile_system_default
 from rclpy.time import Time
@@ -78,10 +83,10 @@ from green_box_approach.geometry import (
     bbox_touches_vertical_border,
     box_center_from_front,
     confirm_window_mean,
+    contiguous_cluster_centroid,
     fallback_point_from_height,
     hsv_mask_to_blob,
     is_bbox_wide_enough,
-    nearest_by_range,
     scan_points_xyz,
     select_points_in_column_window,
     transform_point,
@@ -139,6 +144,9 @@ class GreenBoxDetector(Node):
         # Pixel margin (not radians, see Session 11 R2) widening the blob's
         # bbox columns before matching projected scan points against them.
         self.bearing_margin_px = self.declare_parameter("bearing_margin_px", 20.0).value
+        # Max spacing [m] between consecutive scan points of one surface -
+        # see geometry.contiguous_cluster_centroid.
+        self.cluster_gap_m = self.declare_parameter("cluster_gap_m", 0.05).value
         self.range_min = self.declare_parameter("range_min", 0.05).value
         self.range_max = self.declare_parameter("range_max", 8.0).value
 
@@ -150,11 +158,27 @@ class GreenBoxDetector(Node):
         self.box_depth_m = self.declare_parameter("box_depth_m", 0.30).value
 
         self.tf_timeout = self.declare_parameter("tf_timeout", 0.2).value
+        # Stamp-exact fusion (L_corridor position tests: while the robot
+        # turned, the old code projected the image with a TF seconds out of
+        # date and the box estimate swung around the robot by up to ~0.4 m).
+        # Scan points are moved into `fixed_frame` at the SCAN stamp and back
+        # into the camera at the IMAGE stamp, so robot motion between the two
+        # captures cancels. `fixed_frame` must be smooth over a second or so
+        # (odom, not map). A scan further than `max_scan_image_dt` from the
+        # image, or a missing TF at either stamp, drops the frame - there is
+        # no fallback to the latest TF any more.
+        self.fixed_frame = self.declare_parameter("fixed_frame", "odom").value
+        self.max_scan_image_dt = self.declare_parameter("max_scan_image_dt", 0.1).value
 
         self.bridge = CvBridge()
         self.intrinsics = None          # (fx, fy, cx, cy)
-        self.last_scan = None           # sensor_msgs/LaserScan
+        self._scans = deque(maxlen=20)  # recent sensor_msgs/LaserScan, oldest first
+        self._scans_lock = threading.Lock()
 
+        # TF callbacks live in the listener's reentrant group; with the
+        # MultiThreadedExecutor in main() they keep filling the buffer while
+        # an image callback waits in lookup_transform (the single-threaded
+        # executor used to starve them, so every stamped lookup timed out).
         self.tf_buffer = Buffer(cache_time=Duration(seconds=10.0))
         self.tf_listener = TransformListener(self.tf_buffer, self)
 
@@ -163,10 +187,15 @@ class GreenBoxDetector(Node):
             reliability=ReliabilityPolicy.BEST_EFFORT,
             history=HistoryPolicy.KEEP_LAST,
         )
-        self.create_subscription(Image, self.image_topic, self._on_image, sensor_qos)
+        image_group = MutuallyExclusiveCallbackGroup()
+        scan_group = MutuallyExclusiveCallbackGroup()
         self.create_subscription(
-            CameraInfo, self.camera_info_topic, self._on_camera_info, sensor_qos)
-        self.create_subscription(LaserScan, self.scan_topic, self._on_scan, sensor_qos)
+            Image, self.image_topic, self._on_image, sensor_qos, callback_group=image_group)
+        self.create_subscription(
+            CameraInfo, self.camera_info_topic, self._on_camera_info, sensor_qos,
+            callback_group=scan_group)
+        self.create_subscription(
+            LaserScan, self.scan_topic, self._on_scan, sensor_qos, callback_group=scan_group)
 
         self.pose_pub = self.create_publisher(
             PoseStamped, "green_box/pose", qos_profile_system_default)
@@ -190,7 +219,18 @@ class GreenBoxDetector(Node):
                 self.intrinsics)
 
     def _on_scan(self, msg):
-        self.last_scan = msg
+        with self._scans_lock:
+            self._scans.append(msg)
+
+    def _scan_nearest_to(self, stamp):
+        """Buffered scan whose stamp is closest to ``stamp`` and the gap in
+        seconds, or ``(None, None)`` if no scan has arrived yet."""
+        t = Time.from_msg(stamp).nanoseconds
+        with self._scans_lock:
+            if not self._scans:
+                return None, None
+            scan = min(self._scans, key=lambda s: abs(Time.from_msg(s.header.stamp).nanoseconds - t))
+        return scan, abs(Time.from_msg(scan.header.stamp).nanoseconds - t) * 1e-9
 
     def _on_image(self, msg):
         if self.intrinsics is None:
@@ -226,8 +266,14 @@ class GreenBoxDetector(Node):
             pose_xy, source = self._resolve_front(
                 msg.header, bbox, fx, fy, cx, cy, bgr.shape[0])
             if pose_xy is None:
-                reason = "clipped" if source == "clipped" else "no-range"
-                self._confirm_window.clear()
+                reason = source if source in ("clipped", "unsynced", "no-tf") else "no-range"
+                # A frame dropped for missing data (no scan close enough in
+                # time, no TF at the stamp) says nothing about the box, so it
+                # must not reset the confirmation run the way a rejected
+                # measurement does - otherwise every drop opens a gap in
+                # green_box/pose and FinalApproachStop's pose wait times out.
+                if source not in ("unsynced", "no-tf"):
+                    self._confirm_window.clear()
             else:
                 self._confirm_window.append(pose_xy)
                 if len(self._confirm_window) < self.confirm_frames:
@@ -248,7 +294,11 @@ class GreenBoxDetector(Node):
 
         if detected:
             self._publish_pose(msg.header, pose_xy)
-        self.detected_pub.publish(Bool(data=detected))
+        # Same reasoning as the confirmation window above: a dropped frame is
+        # "no measurement", not "no box", so green_box/detected keeps its
+        # last value instead of flickering to False.
+        if reason not in ("unsynced", "no-tf"):
+            self.detected_pub.publish(Bool(data=detected))
         self._publish_debug_image(bgr, mask, bbox, detected, source, reason)
 
     # ------------------------------------------------------------------
@@ -270,20 +320,26 @@ class GreenBoxDetector(Node):
 
         front_cam = None
         source = "none"
-        scan = self.last_scan
+        scan, scan_dt = self._scan_nearest_to(image_header.stamp)
         if scan is not None:
-            tf_sc = self._lookup_transform(
-                camera_frame, scan.header.frame_id, scan.header.stamp, "scan->camera")
-            if tf_sc is not None:
-                translation, quat = tf_sc
-                scan_pts = scan_points_xyz(
-                    scan.ranges, scan.angle_min, scan.angle_increment,
-                    self.range_min, self.range_max)
-                cam_pts = transform_points(scan_pts, translation, quat)
-                kept = select_points_in_column_window(cam_pts, fx, cx, u_lo, u_hi)
-                front_cam = nearest_by_range(kept)
-                if front_cam is not None:
-                    source = "lidar"
+            if scan_dt > self.max_scan_image_dt:
+                return None, "unsynced"
+            # scan -> fixed_frame at the scan stamp, fixed_frame -> camera at
+            # the image stamp: robot motion between the captures cancels.
+            tf_sf = self._lookup_transform(
+                self.fixed_frame, scan.header.frame_id, scan.header.stamp, "scan->fixed")
+            tf_fc = self._lookup_transform(
+                camera_frame, self.fixed_frame, image_header.stamp, "fixed->camera")
+            if tf_sf is None or tf_fc is None:
+                return None, "no-tf"
+            scan_pts = scan_points_xyz(
+                scan.ranges, scan.angle_min, scan.angle_increment,
+                self.range_min, self.range_max)
+            cam_pts = transform_points(transform_points(scan_pts, *tf_sf), *tf_fc)
+            kept = select_points_in_column_window(cam_pts, fx, cx, u_lo, u_hi)
+            front_cam = contiguous_cluster_centroid(kept, self.cluster_gap_m)
+            if front_cam is not None:
+                source = "lidar"
 
         if front_cam is None:
             # R7b: lidar found nothing under the blob (this branch), and the
@@ -307,7 +363,7 @@ class GreenBoxDetector(Node):
         tf_co = self._lookup_transform(
             self.output_frame, camera_frame, image_header.stamp, "camera->output")
         if tf_co is None:
-            return None, source
+            return None, "no-tf"
         translation, quat = tf_co
         front_out = transform_point(front_cam, translation, quat)
         camera_origin_xy = (translation[0], translation[1])
@@ -319,23 +375,22 @@ class GreenBoxDetector(Node):
         return pose_xy, source
 
     def _lookup_transform(self, target_frame, source_frame, stamp, context):
-        """TF lookup with the existing stamp-then-latest fallback pattern,
+        """TF lookup at exactly ``stamp`` (waiting up to ``tf_timeout``),
         returning the full ``((tx, ty, tz), (qx, qy, qz, qw))`` transform (not
         just its yaw) or ``None`` if unavailable - contract requirement: log
-        throttled and skip, never guess.
+        throttled and skip, never guess. The old fallback to the latest TF is
+        gone: while the robot turns, "latest" can be seconds away from the
+        capture and was the source of the swinging box estimates.
         """
         try:
             tf = self.tf_buffer.lookup_transform(
                 target_frame, source_frame, stamp, timeout=Duration(seconds=self.tf_timeout))
-        except TransformException:
-            try:
-                tf = self.tf_buffer.lookup_transform(target_frame, source_frame, Time())
-            except TransformException as exc:
-                self.get_logger().warn(
-                    "green_box_detector: TF %s->%s unavailable (%s): %s" %
-                    (source_frame, target_frame, context, exc),
-                    throttle_duration_sec=2.0)
-                return None
+        except TransformException as exc:
+            self.get_logger().warn(
+                "green_box_detector: TF %s->%s unavailable (%s): %s" %
+                (source_frame, target_frame, context, exc),
+                throttle_duration_sec=2.0)
+            return None
         t = tf.transform.translation
         q = tf.transform.rotation
         return (t.x, t.y, t.z), (q.x, q.y, q.z, q.w)
@@ -383,8 +438,12 @@ class GreenBoxDetector(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = GreenBoxDetector()
+    # Multi-threaded so TF and scan callbacks keep running while an image
+    # callback waits in a stamped lookup_transform (see fixed_frame notes).
+    executor = MultiThreadedExecutor(num_threads=4)
+    executor.add_node(node)
     try:
-        rclpy.spin(node)
+        executor.spin()
     finally:
         node.destroy_node()
         rclpy.shutdown()

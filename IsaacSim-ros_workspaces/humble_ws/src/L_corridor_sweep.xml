@@ -1,7 +1,6 @@
 <!--
   L_corridor green-box scenario with the manipulator-side /sweep action
   instead of the old Place -> PushObstacle -> FixedPickObject posture chain.
-  Same navigation and green-box handling as L_corrider.xml otherwise.
 
   MainTree = Sequence "PickThenNavigate":
     1. RearPickObject - runs ONCE per NavigateToPose goal, before driving:
@@ -11,30 +10,42 @@
        place/re-pick the carried object. If /joint_states already shows
        P_REAR_CARRY (already carrying, e.g. a new goal restarted the tree)
        it returns SUCCESS without moving, so the object is not dropped.
-    2. RecoveryNode(6) "NavigateRecovery":
-       * PipelineSequence replans {path} to {goal} at 1 Hz.
-       * ReactiveFallback "FollowPathOrSweepGreenBox":
-           - HandleGreenBox: CaptureInitialPath, IsGreenBoxDetected,
-             ComputeGreenBoxApproachGoal (0.8 m standoff), plan and
-             FollowPath to it, FinalApproachStop (0.55 m to box centre /
-             0.4 m scan range), then:
-               Wait 1 s          - hold still in front of the obstacle so the
-                                   base has fully settled before the arm moves
-               SweepObstacle     - /sweep action: rear place -> sweep ->
-                                   retreat -> rear re-pick (back at
-                                   P_REAR_CARRY). SUCCESS only on
-                                   result_code == "SUCCESS".
-               clear both costmaps, FollowPath resumes {initial_path}.
-           - otherwise plain FollowPath on {path}.
-       * On failure: RoundRobin recovery (clear costmaps / Spin / Wait /
-         BackUp), up to 6 retries.
+    2. SetBlackboard box_swept = "false" - reset once per goal.
+    3. RecoveryNode(6) "NavigateRecovery" around ReactiveFallback
+       "SweepGreenBoxOrNavigate", whose first child is re-checked every tick:
+       (A) HandleGreenBox, gated by box_swept == "false" and wrapped in
+           ForceFailure: IsGreenBoxDetected, ComputeGreenBoxApproachGoal
+           (0.8 m standoff), plan and FollowPath to it, FinalApproachStop
+           (0.55 m to box centre / 0.4 m scan range), then:
+             Wait 1 s          - hold still in front of the obstacle so the
+                                 base has fully settled before the arm moves
+             SweepObstacle     - /sweep action: rear place -> sweep ->
+                                 retreat -> rear re-pick (back at
+                                 P_REAR_CARRY). SUCCESS only on
+                                 result_code == "SUCCESS".
+             box_swept = "true", clear both costmaps.
+           ForceFailure turns the finished sweep into FAILURE, so the
+           fallback moves straight on to (B) in the same tick and the robot
+           replans to {goal} with the box out of the way.
+       (B) NavigateWithReplanning: replan {path} to {goal} at 1 Hz and
+           FollowPath on it.
+       On failure: RoundRobin recovery (clear costmaps / Spin / Wait /
+       BackUp), up to 6 retries.
+
+  Why (A) sits outside the replanning PipelineSequence: the box blocks the
+  corridor, so ComputePathToPose to {goal} keeps failing until the box is
+  swept. Inside the PipelineSequence that failure halted the approach and
+  the sweep itself (the arm kept moving while recovery spun the base). As
+  the first child of the ReactiveFallback, (A) preempts (B) as soon as the
+  box is detected and is never halted by a failed {goal} plan. Once (A) is
+  RUNNING the Sequence resumes its running child, so a detection dropout
+  mid-sweep does not interrupt it either.
 
   SweepObstacle failure (ERROR / STALL / no server / rejected / timeout):
-  HandleGreenBox fails and the ReactiveFallback falls through to the plain
-  FollowPath on {path}, i.e. the planner routes around the box as a normal
-  obstacle. There is no "mark this box as fixed" latch yet - if the robot
-  backs off far enough to detect the box again it will approach and try to
-  sweep again. On SAFETY_STOP the manipulator side leaves the arm where it
+  box_swept stays "false", (A) fails and (B) tries the plain route, which
+  normally fails too while the box blocks the corridor; recovery then runs
+  and the next retry approaches and sweeps again (bounded by the 6
+  retries). On SAFETY_STOP the manipulator side leaves the arm where it
   stopped (no retreat) - check the arm before letting the robot drive on.
 
   Requires (manipulator side, see "sweep action 연동"; copy of the
@@ -46,7 +57,6 @@
   and plugin_lib_names to include, besides the core nav2 BT nodes:
     custom_rear_pick_object_action_bt_node
     custom_sweep_obstacle_action_bt_node
-    custom_capture_initial_path_action_bt_node
     custom_is_green_box_detected_condition_bt_node
     custom_compute_green_box_approach_goal_action_bt_node
     custom_final_approach_stop_action_bt_node
@@ -69,22 +79,14 @@
                       server_timeout="5.0"
                       step_timeout="15.0"/>
 
+      <SetBlackboard output_key="box_swept" value="false"/>
+
       <RecoveryNode number_of_retries="6" name="NavigateRecovery">
-        <PipelineSequence name="NavigateWithReplanning">
-          <RateController hz="1.0">
-            <RecoveryNode number_of_retries="1" name="ComputePathToPose">
-              <Timeout msec="3000">
-                <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
-              </Timeout>
-              <ClearEntireCostmap name="ClearGlobalCostmap-Context" service_name="global_costmap/clear_entirely_global_costmap"/>
-            </RecoveryNode>
-          </RateController>
-          <RecoveryNode number_of_retries="1" name="FollowPath">
-            <ReactiveFallback name="FollowPathOrSweepGreenBox">
+        <ReactiveFallback name="SweepGreenBoxOrNavigate">
+
+          <ForceFailure>
+            <BlackboardCheckString value_A="{box_swept}" value_B="false" return_on_mismatch="FAILURE">
               <Sequence name="HandleGreenBox">
-                <CaptureInitialPath path="{path}" goal="{goal}"
-                                    goal_change_threshold="0.5"
-                                    initial_path="{initial_path}"/>
                 <IsGreenBoxDetected pose_topic="green_box/pose"
                                     visible_topic="green_box/detected"
                                     max_age="1.0"/>
@@ -98,40 +100,53 @@
                   <ComputePathToPose goal="{approach_goal}" path="{approach_path}" planner_id="GridBased"/>
                   <ClearEntireCostmap name="ClearGlobalCostmap-GreenBox" service_name="global_costmap/clear_entirely_global_costmap"/>
                 </RecoveryNode>
-                <Sequence name="ApproachSweepThenResume">
-                  <FollowPath path="{approach_path}" controller_id="FollowPath"/>
-                  <FinalApproachStop scan_topic="/scan"
-                                     cmd_vel_topic="/cmd_vel"
-                                     stop_distance="0.4"
-                                     approach_speed="0.15"
-                                     front_half_angle="0.26"
-                                     scan_loss_timeout="0.5"
-                                     time_allowance="30.0"
-                                     pose_topic="green_box/pose"
-                                     global_frame="map"
-                                     robot_base_frame="base_link"
-                                     stop_center_distance="0.55"/>
+                <FollowPath path="{approach_path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/>
+                <FinalApproachStop scan_topic="/scan"
+                                   cmd_vel_topic="/cmd_vel"
+                                   stop_distance="0.4"
+                                   lidar_confirm_scans="3"
+                                   approach_speed="0.15"
+                                   front_half_angle="0.26"
+                                   scan_loss_timeout="0.5"
+                                   time_allowance="30.0"
+                                   pose_topic="green_box/pose"
+                                   global_frame="map"
+                                   robot_base_frame="base_link"
+                                   stop_center_distance="0.55"/>
 
-                  <Wait wait_duration="1"/>
+                <Wait wait_duration="1"/>
 
-                  <SweepObstacle action_name="/sweep"
-                                 server_timeout="5.0"
-                                 accept_timeout="5.0"
-                                 sweep_timeout="120.0"
-                                 result_code="{sweep_result}"/>
+                <SweepObstacle action_name="/sweep"
+                               server_timeout="5.0"
+                               accept_timeout="5.0"
+                               sweep_timeout="120.0"
+                               result_code="{sweep_result}"/>
 
-                  <ClearEntireCostmap name="ClearLocalCostmap-Resume"
-                                      service_name="local_costmap/clear_entirely_local_costmap"/>
-                  <ClearEntireCostmap name="ClearGlobalCostmap-Resume"
-                                      service_name="global_costmap/clear_entirely_global_costmap"/>
-                  <FollowPath path="{initial_path}" controller_id="FollowPath"/>
-                </Sequence>
+                <SetBlackboard output_key="box_swept" value="true"/>
+                <ClearEntireCostmap name="ClearLocalCostmap-Resume"
+                                    service_name="local_costmap/clear_entirely_local_costmap"/>
+                <ClearEntireCostmap name="ClearGlobalCostmap-Resume"
+                                    service_name="global_costmap/clear_entirely_global_costmap"/>
               </Sequence>
+            </BlackboardCheckString>
+          </ForceFailure>
+
+          <PipelineSequence name="NavigateWithReplanning">
+            <RateController hz="1.0">
+              <RecoveryNode number_of_retries="1" name="ComputePathToPose">
+                <Timeout msec="3000">
+                  <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+                </Timeout>
+                <ClearEntireCostmap name="ClearGlobalCostmap-Context" service_name="global_costmap/clear_entirely_global_costmap"/>
+              </RecoveryNode>
+            </RateController>
+            <RecoveryNode number_of_retries="1" name="FollowPath">
               <FollowPath path="{path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/>
-            </ReactiveFallback>
-            <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
-          </RecoveryNode>
-        </PipelineSequence>
+              <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
+            </RecoveryNode>
+          </PipelineSequence>
+
+        </ReactiveFallback>
         <ReactiveFallback name="RecoveryFallback">
           <GoalUpdated/>
           <RoundRobin name="RecoveryActions">

@@ -29,6 +29,7 @@ from green_box_approach.geometry import (
     bbox_touches_vertical_border,
     box_center_from_front,
     confirm_window_mean,
+    contiguous_cluster_centroid,
     fallback_point_from_height,
     hsv_mask_to_blob,
     is_bbox_wide_enough,
@@ -177,6 +178,39 @@ def test_nearest_by_range_picks_min_range():
 
 def test_nearest_by_range_empty_returns_none():
     assert nearest_by_range([]) is None
+
+
+def _ranged(points):
+    return [(math.sqrt(x * x + y * y + z * z), (x, y, z)) for x, y, z in points]
+
+
+def test_contiguous_cluster_centroid_face_excludes_wall_behind():
+    # Box face at z=1.0 sampled every 0.02 m from x=-0.1 to 0.1 (centroid
+    # x=0.0), then a wall 0.5 m further back in the same columns.
+    face = [(-0.1 + 0.02 * i, 0.0, 1.0) for i in range(11)]
+    wall = [(0.12 + 0.02 * i, 0.0, 1.5) for i in range(5)]
+    c = contiguous_cluster_centroid(_ranged(face + wall), 0.05)
+    assert c == pytest.approx((0.0, 0.0, 1.0))
+
+
+def test_contiguous_cluster_centroid_is_not_the_nearest_corner():
+    # Face seen off-axis: nearest point is the x=0.0 end, but the centroid
+    # of the face x=0.0..0.2 is x=0.1 (what the old nearest-point rule missed).
+    face = [(0.02 * i, 0.0, 1.0) for i in range(11)]
+    c = contiguous_cluster_centroid(_ranged(face), 0.05)
+    assert c == pytest.approx((0.1, 0.0, 1.0))
+
+
+def test_contiguous_cluster_centroid_stops_at_side_gap():
+    # A side wall 0.1 m to the right of the face edge (gap > 0.05) is not merged.
+    face = [(-0.04, 0.0, 1.0), (-0.02, 0.0, 1.0), (0.0, 0.0, 1.0), (0.02, 0.0, 1.0)]
+    side = [(0.12, 0.0, 1.05), (0.14, 0.0, 1.05)]
+    c = contiguous_cluster_centroid(_ranged(face + side), 0.05)
+    assert c == pytest.approx((-0.01, 0.0, 1.0))
+
+
+def test_contiguous_cluster_centroid_empty_returns_none():
+    assert contiguous_cluster_centroid([], 0.05) is None
 
 
 def test_fallback_point_from_height():

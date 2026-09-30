@@ -150,6 +150,36 @@ def nearest_by_range(ranged_points):
     return min(ranged_points, key=lambda p: p[0])[1]
 
 
+def contiguous_cluster_centroid(ranged_points, gap_m):
+    """Centroid of the contiguous surface around the nearest point, or
+    ``None``.
+
+    ``ranged_points`` is the ``(range, point_xyz)`` list from
+    :func:`select_points_in_column_window`, still in scan order. Starting at
+    the nearest point, the cluster grows left and right while consecutive
+    points are at most ``gap_m`` apart - the lidar spacing along one surface
+    is millimetres at approach range, while a wall behind or beside the box
+    is a jump of tens of centimetres, so it is not absorbed.
+
+    L_corridor position tests: the nearest point alone is the box corner
+    closest to the robot, not the middle of its visible face, so the box
+    centre built from it was off sideways by up to ~0.18 m whenever the box
+    was not dead ahead, and the sweep then missed the box. The centroid of
+    the visible surface sits on the face middle for a square-on view, and
+    near the middle of the two visible faces for a corner-on view.
+    """
+    if not ranged_points:
+        return None
+    points = [np.array(p) for _, p in ranged_points]
+    i0 = min(range(len(ranged_points)), key=lambda i: ranged_points[i][0])
+    lo = hi = i0
+    while lo > 0 and np.linalg.norm(points[lo] - points[lo - 1]) <= gap_m:
+        lo -= 1
+    while hi < len(points) - 1 and np.linalg.norm(points[hi + 1] - points[hi]) <= gap_m:
+        hi += 1
+    return tuple(np.mean(points[lo:hi + 1], axis=0))
+
+
 def fallback_point_from_height(u_c, v_c, pixel_h, real_height_m, fx, fy, cx, cy):
     """3D point (camera optical frame) from a known real-world height and
     its pixel extent, used when the lidar path keeps no points (lidar plane

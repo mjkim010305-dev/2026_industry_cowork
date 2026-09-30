@@ -84,6 +84,8 @@ BT::NodeStatus FinalApproachStopAction::onStart()
   getInput("max_angular_speed", max_angular_speed_);
   getInput("heading_gain", heading_gain_);
   getInput("stop_center_distance", stop_center_distance_);
+  getInput("lidar_confirm_scans", lidar_confirm_scans_);
+  lidar_confirm_scans_ = std::max(1, lidar_confirm_scans_);
 
   if (!cmd_vel_pub_ || cmd_vel_pub_->get_topic_name() != cmd_vel_topic_) {
     cmd_vel_pub_ = node_->create_publisher<geometry_msgs::msg::Twist>(
@@ -114,6 +116,9 @@ BT::NodeStatus FinalApproachStopAction::onStart()
     std::lock_guard<std::mutex> lock(pose_mutex_);
     pose_received_since_start_ = false;
   }
+  // g9: lidar hits from an earlier run of this leaf must not count here.
+  lidar_hits_ = 0;
+  last_counted_scan_.reset();
 
   start_time_ = node_->now();
   RCLCPP_INFO(
@@ -253,12 +258,24 @@ BT::NodeStatus FinalApproachStopAction::onRunning()
     min_range = std::min(min_range, r < scan.range_min ? 0.0 : r);
   }
 
-  if (std::isfinite(min_range) && min_range <= stop_distance_) {
+  // g9: count each new scan once; only consecutive hits confirm the stop.
+  const bool lidar_hit = std::isfinite(min_range) && min_range <= stop_distance_;
+  if (latest_scan_ != last_counted_scan_) {
+    last_counted_scan_ = latest_scan_;
+    lidar_hits_ = lidar_hit ? lidar_hits_ + 1 : 0;
+  }
+  if (lidar_hits_ >= lidar_confirm_scans_) {
     publishZero();
     RCLCPP_INFO(
-      node_->get_logger(), "FinalApproachStop: lidar stop fired, min forward range %.2fm <= %.2fm",
-      min_range, stop_distance_);
+      node_->get_logger(),
+      "FinalApproachStop: lidar stop fired, min forward range %.2fm <= %.2fm (%d consecutive scans)",
+      min_range, stop_distance_, lidar_hits_);
     return BT::NodeStatus::SUCCESS;
+  }
+  if (lidar_hits_ > 0) {
+    // Hit pending confirmation: hold still instead of creeping on.
+    publishZero();
+    return BT::NodeStatus::RUNNING;
   }
 
   const double angular = std::clamp(
