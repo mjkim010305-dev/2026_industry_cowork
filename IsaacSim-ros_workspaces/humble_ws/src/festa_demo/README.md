@@ -30,6 +30,11 @@ ros2 launch festa_demo festa_demo.launch.py mode:=real \
 ros2 launch festa_demo festa_demo.launch.py mode:=sim
 ```
 
+- 목표에 도착하면 출발점으로 되돌아온다(`return_to_start:=true`가 기본).
+- `goal_yaw`는 도착했을 때 바라볼 방향이다. **돌아오는 방향(코스 안쪽)을 바라보게 준다.**
+  그러면 로봇이 목표에서 제자리 회전한다. 진행 방향 그대로 주면 돌아올 때 크게
+  U턴하다가 모퉁이 장애물에 박았다(시뮬 N3·D1).
+
 **주의:** 협업자의 `festa_manipulation/festa_action/sweep_action_server.py`를 동시에
 띄우지 마라. 둘 다 `/sweep`이라는 같은 이름을 쓰지만 액션 타입이 다르다
 (`turtlebot3_msgs/action/Sweep` vs 이 패키지의 `festa_demo/action/Sweep`) — 같은
