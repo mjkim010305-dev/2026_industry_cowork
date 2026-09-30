@@ -4,9 +4,10 @@
 The collaborator's /sweep server (festa_action/sweep_action_server.py) runs
 obstacle_clear_sequence.py `all`: rear place -> sweep -> rear re-pick. With
 nothing carried, this file runs that same server with the sequence swapped
-for one that starts and ends at P_HOME:
+for one that ends at P_HOME:
 
-    P_HOME -> turned right (P_HOME shape) -> P_SIDE_PRE_SWEEP -> P_PRE_SWEEP
+    (current pose; the sim starts at all zeros) -> P_HOME
+    -> turned right (P_HOME shape) -> P_SIDE_PRE_SWEEP -> P_PRE_SWEEP
     -> P_CONTACT -> P_SWEEP_END (safety cutoff) -> P_RETREAT   (run_sweep)
     -> turned left (P_HOME shape) -> P_HOME
 
@@ -45,13 +46,13 @@ def run_sequence():
 
         def run_all(self):
             self.publish_stage('SEQUENCE_START')
-            ok = (self.check_pose(P_HOME, 'P_HOME')
-                  and self.moves([('P_HOME_RIGHT', [ocs.P_SIDE_PRE_SWEEP[0]] + P_HOME[1:]),
-                                  ('P_SIDE_PRE_SWEEP', ocs.P_SIDE_PRE_SWEEP),
-                                  ('P_PRE_SWEEP', ocs.P_PRE_SWEEP)])
+            ok = (self.moves([('P_HOME', P_HOME),
+                              ('P_HOME_RIGHT', [ocs.P_SIDE_PRE_SWEEP[0]] + P_HOME[1:]),
+                              ('P_SIDE_PRE_SWEEP', ocs.P_SIDE_PRE_SWEEP),
+                              ('P_PRE_SWEEP', ocs.P_PRE_SWEEP)])
                   and self.run_sweep()
                   and self.moves([('P_HOME_LEFT', [ocs.P_RETREAT[0]] + P_HOME[1:]),
-                                  ('P_HOME', P_HOME)]))
+                              ('P_HOME', P_HOME)]))
             self.publish_stage('SEQUENCE_COMPLETE' if ok else 'SEQUENCE_FAILED')
             return ok
 
