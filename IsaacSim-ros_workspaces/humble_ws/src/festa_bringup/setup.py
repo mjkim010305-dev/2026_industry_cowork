@@ -15,6 +15,7 @@ setup(
         ('share/' + package_name + '/bt', glob('bt/*.xml')),
         ('share/' + package_name + '/params', glob('params/*.yaml')),
         ('share/' + package_name + '/maps', glob('maps/*')),
+        ('share/' + package_name + '/scripts', glob('scripts/*.py')),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

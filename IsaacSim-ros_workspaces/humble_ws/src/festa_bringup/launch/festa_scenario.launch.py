@@ -11,7 +11,8 @@ Starts, in order:
   3. Nav2 bringup (map + params, BT = bt/festa_l_course.xml).
   4. green_box_approach detector (HSV + lidar) -> green_box/pose, green_box/detected.
   5. festa_action/sweep_action_server.py -> /sweep (safety cutoff on for real,
-     off for sim: Isaac has no joint current).
+     off for sim: Isaac has no joint current). pick:=false (default) runs the
+     same server through scripts/sweep_only.py: no part, sweep from P_HOME.
   6. After goal_delay s: send_goal - initial pose, then one NavigateToPose goal.
 
 The robot bringup itself (Isaac, or hardware.launch.py + lidar + camera on the
@@ -70,12 +71,15 @@ def _launch(context):
     sim = mode == 'sim'
     use_sim_time = 'true' if sim else 'false'
     map_yaml = cfg['map'] if os.path.isabs(cfg['map']) else os.path.join(share, 'maps', cfg['map'])
-    bt_xml = LaunchConfiguration('bt_xml').perform(context) or os.path.join(share, 'bt', 'festa_l_course.xml')
+    pick = LaunchConfiguration('pick').perform(context) == 'true'
+    bt_xml = LaunchConfiguration('bt_xml').perform(context) or os.path.join(
+        share, 'bt', 'festa_l_course.xml' if pick else 'festa_l_course_nopick.xml')
     params = LaunchConfiguration('params_file').perform(context) or os.path.join(share, 'params', 'l_course_nav2.yaml')
     # install/festa_bringup/share/festa_bringup -> <ws>/src
     ws_src = LaunchConfiguration('ws_src').perform(context) or os.path.join(
         os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(share)))), 'src')
-    sweep_server = os.path.join(ws_src, 'festa_manipulation', 'festa_action', 'sweep_action_server.py')
+    festa_action = os.path.join(ws_src, 'festa_manipulation', 'festa_action')
+    sweep_server = os.path.join(festa_action, 'sweep_action_server.py')
     bridge = os.path.join(ws_src, 'moveit_to_isaac_bridge.py')
     for path in [map_yaml, bt_xml, params, sweep_server] + ([bridge] if cfg['isaac_bridge'] == 'true' else []):
         if not os.path.isfile(path):
@@ -120,9 +124,11 @@ def _launch(context):
             'box_height_m': float(LaunchConfiguration('box_height').perform(context)),
         }]))
 
+    server_cmd = (['python3', sweep_server] if pick else
+                  ['python3', os.path.join(share, 'scripts', 'sweep_only.py'), 'server', festa_action])
     actions.append(ExecuteProcess(
         name='sweep_action_server', output='screen',
-        cmd=['python3', sweep_server, '--ros-args', '-p', f"safety_monitor:={cfg['safety_monitor']}"]))
+        cmd=server_cmd + ['--ros-args', '-p', f"safety_monitor:={cfg['safety_monitor']}"]))
 
     actions.append(TimerAction(
         period=float(LaunchConfiguration('goal_delay').perform(context)),
@@ -143,7 +149,12 @@ def _launch(context):
 def generate_launch_description():
     decl = [
         DeclareLaunchArgument('mode', default_value='sim', description="'sim' (Isaac) or 'real' (robot)"),
-        DeclareLaunchArgument('bt_xml', default_value='', description='BT xml (default: bt/festa_l_course.xml)'),
+        DeclareLaunchArgument('pick', default_value='false',
+                              description='true: carry the part (rear pick, place + re-pick around the sweep); '
+                                          'false: sweep only'),
+        DeclareLaunchArgument('bt_xml', default_value='',
+                              description='BT xml (default: bt/festa_l_course.xml, or festa_l_course_nopick.xml '
+                                          'when pick:=false)'),
         DeclareLaunchArgument('params_file', default_value='',
                               description='Nav2 params (default: params/l_course_nav2.yaml)'),
         DeclareLaunchArgument('ws_src', default_value='',
