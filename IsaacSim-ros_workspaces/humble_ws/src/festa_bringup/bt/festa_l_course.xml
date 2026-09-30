@@ -24,8 +24,14 @@
              FollowPath, FinalApproachStop, Wait 2 s, SweepObstacle (/sweep:
              place behind -> sweep -> retreat -> re-pick), box_swept = true,
              clear both costmaps. ForceFailure hands the tick to FollowPath.
-           - FollowPath {path}: normal driving, including the bend around a
-             green box that leaves enough room.
+           - FollowPath {path}, only while goal_blocked == false: normal
+             driving, including the bend around a green box that leaves room.
+           - HoldWhileBlocked: blocked but no confirmed green box yet - stay
+             put (RUNNING) until one of the two branches above can run. L5:
+             the lidar saw the box from the start, the first plan failed, and
+             FollowPath on the empty {path} failed straight into a recovery
+             Spin; L3: after a failed approach FollowPath drove the stale
+             path through the box.
     On failure: clear costmaps / Spin / Wait / BackUp (RoundRobin), 6 retries.
 
   FinalApproachStop distances: the robot's /sweep poses (obstacle_clear_
@@ -120,10 +126,19 @@
                 </Sequence>
               </BlackboardCheckString>
             </ForceFailure>
-            <RecoveryNode number_of_retries="1" name="FollowPath">
-              <FollowPath path="{path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/>
-              <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
-            </RecoveryNode>
+            <Sequence name="FollowIfReachable">
+              <BlackboardCheckString name="IsGoalReachable" value_A="{goal_blocked}" value_B="false"
+                                     return_on_mismatch="FAILURE">
+                <AlwaysSuccess/>
+              </BlackboardCheckString>
+              <RecoveryNode number_of_retries="1" name="FollowPath">
+                <FollowPath path="{path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/>
+                <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
+              </RecoveryNode>
+            </Sequence>
+            <KeepRunningUntilFailure name="HoldWhileBlocked">
+              <Wait wait_duration="1"/>
+            </KeepRunningUntilFailure>
           </ReactiveFallback>
         </PipelineSequence>
         <ReactiveFallback name="RecoveryFallback">
