@@ -1,0 +1,138 @@
+<!--
+  AI Festa L-course scenario (festa_bringup). Based on the collaborator's
+  L_corridor_sweep.xml (origin/main 23e4745); the one behavioural change is
+  that the green box is swept only when it BLOCKS the way to the goal.
+
+  MainTree = Sequence "PickThenNavigate":
+    1. RearPickObject - front pick, stow the part at P_REAR_CARRY (once per
+       goal; skipped if the arm is already there).
+    2. box_swept = false, goal_blocked = false.
+    3. RecoveryNode(6) around PipelineSequence "NavigateWithReplanning":
+       (a) 1 Hz ComputePathToPose to {goal}. The global costmap has a lidar
+           obstacle layer, so the green box is in it once seen. A plan that
+           succeeds sets goal_blocked = false (it may bend around the box);
+           a plan that fails sets goal_blocked = true and keeps the last
+           {path}. The Fallback absorbs the failure, so a blocked corridor
+           does not fail the pipeline (in L_corridor_sweep.xml it did, which
+           is why its sweep branch had to sit outside the pipeline).
+       (b) ReactiveFallback "SweepIfBlockedOrFollow":
+           - HandleGreenBox (only while box_swept == false, ForceFailure):
+             starts only if a green box is detected AND goal_blocked == true.
+             Both are the first children of a plain Sequence, so they are
+             checked once when it starts; a plan that succeeds mid-approach
+             or mid-sweep does not halt the arm. Then: standoff goal 0.8 m,
+             FollowPath, FinalApproachStop, Wait 1 s, SweepObstacle (/sweep:
+             place behind -> sweep -> retreat -> re-pick), box_swept = true,
+             clear both costmaps. ForceFailure hands the tick to FollowPath.
+           - FollowPath {path}: normal driving, including the bend around a
+             green box that leaves enough room.
+    On failure: clear costmaps / Spin / Wait / BackUp (RoundRobin), 6 retries.
+
+  FinalApproachStop distances: the robot's /sweep poses (obstacle_clear_
+  sequence.py) sweep the gripper through about 0.16-0.26 m ahead of
+  base_footprint (FK of P_CONTACT / P_SWEEP_END; lab g3 cleared a box whose
+  centre stood 0.21 m ahead). The lidar sits 0.024 m behind base_link, so a
+  0.17 m range puts the near face ~0.15 m ahead. stop_center_distance is a
+  backstop only (the detector pose can be ~0.1 m off).
+-->
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <Sequence name="PickThenNavigate">
+      <RearPickObject arm_action_name="/arm_controller/follow_joint_trajectory"
+                      gripper_action_name="/gripper_controller/gripper_cmd"
+                      arm_joint_names="joint1;joint2;joint3;joint4"
+                      joint_states_topic="/joint_states"
+                      arm_move_time="4.0"
+                      open_position="0.02501155674647538"
+                      grasp_position="0.002"
+                      max_effort="0.0002"
+                      grasp_settle_time="1.0"
+                      carry_tolerance="0.12"
+                      joint_state_timeout="2.0"
+                      server_timeout="5.0"
+                      step_timeout="15.0"/>
+      <SetBlackboard output_key="box_swept" value="false"/>
+      <SetBlackboard output_key="goal_blocked" value="false"/>
+      <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+        <PipelineSequence name="NavigateWithReplanning">
+          <RateController hz="1.0">
+            <Fallback name="PlanOrMarkBlocked">
+              <Sequence name="PlanToGoal">
+                <Timeout msec="3000">
+                  <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+                </Timeout>
+                <SetBlackboard output_key="goal_blocked" value="false"/>
+              </Sequence>
+              <SetBlackboard output_key="goal_blocked" value="true"/>
+            </Fallback>
+          </RateController>
+          <ReactiveFallback name="SweepIfBlockedOrFollow">
+            <ForceFailure>
+              <BlackboardCheckString value_A="{box_swept}" value_B="false" return_on_mismatch="FAILURE">
+                <Sequence name="HandleGreenBox">
+                  <IsGreenBoxDetected pose_topic="green_box/pose"
+                                      visible_topic="green_box/detected"
+                                      max_age="1.0"/>
+                  <BlackboardCheckString name="IsGoalBlocked" value_A="{goal_blocked}" value_B="true"
+                                         return_on_mismatch="FAILURE">
+                    <AlwaysSuccess/>
+                  </BlackboardCheckString>
+                  <ComputeGreenBoxApproachGoal pose_topic="green_box/pose"
+                                               global_frame="map"
+                                               robot_base_frame="base_link"
+                                               standoff_distance="0.8"
+                                               max_age="1.0"
+                                               approach_goal="{approach_goal}"/>
+                  <RecoveryNode number_of_retries="1" name="ComputePathToGreenBox">
+                    <ComputePathToPose goal="{approach_goal}" path="{approach_path}" planner_id="GridBased"/>
+                    <ClearEntireCostmap name="ClearGlobalCostmap-GreenBox" service_name="global_costmap/clear_entirely_global_costmap"/>
+                  </RecoveryNode>
+                  <FollowPath path="{approach_path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/>
+                  <FinalApproachStop scan_topic="/scan"
+                                     cmd_vel_topic="/cmd_vel"
+                                     stop_distance="0.17"
+                                     lidar_confirm_scans="3"
+                                     approach_speed="0.08"
+                                     front_half_angle="0.26"
+                                     scan_loss_timeout="0.5"
+                                     time_allowance="30.0"
+                                     pose_topic="green_box/pose"
+                                     global_frame="map"
+                                     robot_base_frame="base_link"
+                                     stop_center_distance="0.15"/>
+                  <Wait wait_duration="1"/>
+                  <SweepObstacle action_name="/sweep"
+                                 server_timeout="5.0"
+                                 accept_timeout="5.0"
+                                 sweep_timeout="180.0"
+                                 result_code="{sweep_result}"/>
+                  <SetBlackboard output_key="box_swept" value="true"/>
+                  <ClearEntireCostmap name="ClearLocalCostmap-Resume"
+                                      service_name="local_costmap/clear_entirely_local_costmap"/>
+                  <ClearEntireCostmap name="ClearGlobalCostmap-Resume"
+                                      service_name="global_costmap/clear_entirely_global_costmap"/>
+                </Sequence>
+              </BlackboardCheckString>
+            </ForceFailure>
+            <RecoveryNode number_of_retries="1" name="FollowPath">
+              <FollowPath path="{path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/>
+              <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
+            </RecoveryNode>
+          </ReactiveFallback>
+        </PipelineSequence>
+        <ReactiveFallback name="RecoveryFallback">
+          <GoalUpdated/>
+          <RoundRobin name="RecoveryActions">
+            <Sequence name="ClearingActions">
+              <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
+              <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
+            </Sequence>
+            <Spin spin_dist="3.14"/>
+            <Wait wait_duration="5"/>
+            <BackUp backup_dist="0.30" backup_speed="0.05"/>
+          </RoundRobin>
+        </ReactiveFallback>
+      </RecoveryNode>
+    </Sequence>
+  </BehaviorTree>
+</root>

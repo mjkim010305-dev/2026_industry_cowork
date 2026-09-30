@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>festa_bringup</name>
+  <version>0.1.0</version>
+  <description>
+    One-shot bringup for the AI Festa L-course scenario: carry a part at the back,
+    and when a green box blocks the way, put the part down, sweep the box aside
+    with the arm, pick the part up again and drive on to the goal.
+  </description>
+
+  <maintainer email="yhc122833@gmail.com">mona</maintainer>
+  <license>Apache-2.0</license>
+
+  <exec_depend>rclpy</exec_depend>
+  <exec_depend>geometry_msgs</exec_depend>
+  <exec_depend>nav2_msgs</exec_depend>
+  <exec_depend>nav2_bringup</exec_depend>
+  <exec_depend>nav2_common</exec_depend>
+  <exec_depend>tf2_ros</exec_depend>
+  <exec_depend>green_box_approach</exec_depend>
+  <exec_depend>custom_nav2_bt_plugins</exec_depend>
+  <exec_depend>turtlebot3_msgs</exec_depend>
+
+  <export>
+    <build_type>ament_python</build_type>
+  </export>
+</package>
