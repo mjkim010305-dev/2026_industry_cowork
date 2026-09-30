@@ -47,6 +47,7 @@
 
   <!-- launch: nav2_bringup, tf2_ros static_transform_publisher -->
   <exec_depend>nav2_bringup</exec_depend>
+  <exec_depend>nav2_rotation_shim_controller</exec_depend>
   <exec_depend>nav2_common</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>

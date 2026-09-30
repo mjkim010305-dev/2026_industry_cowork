@@ -48,11 +48,9 @@ MODE_DEFAULTS = {
         'publish_camera_tf': 'true',
         'safety_monitor': 'false',
         'isaac_bridge': 'true',
-        # Arrive facing back up the corridor: with return_to_start the robot then
-        # turns in place at the goal. Facing down (-1.5708), the way back began
-        # with a wide forward U-turn that ended under the corner obstacle and
-        # drove into it (N3, D1).
-        'goal_x': '1.75', 'goal_y': '-1.75', 'goal_yaw': '1.5708',
+        # Arrive facing the direction of travel (no big turn at the goal); the
+        # 180 deg turn for the way back is done in place by the rotation shim.
+        'goal_x': '1.75', 'goal_y': '-1.75', 'goal_yaw': '-1.5708',
     },
     'real': {
         'map': 'l_course_real.yaml',

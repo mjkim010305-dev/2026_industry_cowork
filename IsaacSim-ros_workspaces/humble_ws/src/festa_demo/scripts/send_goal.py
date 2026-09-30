@@ -107,7 +107,9 @@ def main():
     ok = node.send(p['goal_x'], p['goal_y'], p['goal_yaw'])
     if ok and p['return_to_start']:
         node.get_logger().info('returning to the start')
-        node.send(p['initial_x'], p['initial_y'], p['initial_yaw'])
+        # Arrive back facing the way it came (initial_yaw + pi), so there is no
+        # 180 deg turn next to the start-area walls (D2 drove into the stub there).
+        node.send(p['initial_x'], p['initial_y'], p['initial_yaw'] + math.pi)
     node.get_logger().info('send_goal done')
     node.destroy_node()
     rclpy.shutdown()

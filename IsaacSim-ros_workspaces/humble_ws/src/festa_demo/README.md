@@ -5,7 +5,8 @@
 `turtlebot3_msgs`)도, 이 워크스페이스의 `src/` 레이아웃도 없이 **`/opt/ros/humble`
 (+ nav2, cv_bridge, control_msgs, behaviortree_cpp_v3)만으로 빌드·실행**되는
 독립 패키지다. 부품을 싣지 않고, 초록 박스가 막으면 접근해 팔로 쓸어(sweep) 치우고
-목표까지 간다(`festa_bringup`의 pick:=false, return_to_start:=true와 동일 동작).
+목표까지 갔다가 출발점으로 돌아온다(`festa_bringup`의 pick:=false, return_to_start:=true에서
+출발. 다른 점: 컨트롤러를 rotation shim으로 감쌈, 도착 방향 — 아래 "실행" 참고).
 
 ## 실기 배포
 
@@ -31,9 +32,12 @@ ros2 launch festa_demo festa_demo.launch.py mode:=sim
 ```
 
 - 목표에 도착하면 출발점으로 되돌아온다(`return_to_start:=true`가 기본).
-- `goal_yaw`는 도착했을 때 바라볼 방향이다. **돌아오는 방향(코스 안쪽)을 바라보게 준다.**
-  그러면 로봇이 목표에서 제자리 회전한다. 진행 방향 그대로 주면 돌아올 때 크게
-  U턴하다가 모퉁이 장애물에 박았다(시뮬 N3·D1).
+- `goal_yaw`는 도착했을 때 바라볼 방향이다. **진행 방향 그대로 준다.** 돌아올 때의
+  180° 회전은 Nav2 rotation shim이 제자리에서 한다. 출발점에는 출발 방향의 반대
+  (`initial_yaw + π`)를 바라보며 도착한다.
+- DWB만 쓰면 큰 방향 전환을 크게 전진 호를 그리며 해서 모퉁이 장애물·벽에 박았다
+  (시뮬 N3·D1·D2). 그래서 컨트롤러를 `nav2_rotation_shim_controller`(DWB 설정 그대로)로
+  감쌌다. **실기에서 `ros2 pkg prefix nav2_rotation_shim_controller`로 설치 여부를 먼저 확인.**
 
 **주의:** 협업자의 `festa_manipulation/festa_action/sweep_action_server.py`를 동시에
 띄우지 마라. 둘 다 `/sweep`이라는 같은 이름을 쓰지만 액션 타입이 다르다
@@ -51,10 +55,10 @@ ros2 launch festa_demo festa_demo.launch.py mode:=sim
 | `scripts/obstacle_clear_sequence.py` | `festa_manipulation/festa_action/obstacle_clear_sequence.py` (그대로) |
 | `scripts/sweep_only.py` | `festa_bringup/scripts/sweep_only.py`의 `run_sequence()` 부분 — `FESTA_ACTION_DIR`/`server` 모드 없이 같은 폴더에서 `obstacle_clear_sequence`를 import, `P_HOME`은 `festa_manipulation/festa_action/rear_pick.py`에서 복사한 상수 |
 | `scripts/sweep_action_server.py` | `festa_manipulation/festa_action/sweep_action_server.py` — `from turtlebot3_msgs.action import Sweep` → `from festa_demo.action import Sweep`, `SEQUENCE_SCRIPT`가 같은 폴더의 `sweep_only.py`를 가리키도록만 변경 |
-| `scripts/send_goal.py` | `festa_bringup/festa_bringup/send_goal.py` (그대로) |
+| `scripts/send_goal.py` | `festa_bringup/festa_bringup/send_goal.py` — 복귀 goal의 방향만 `initial_yaw + π`로 변경 |
 | `scripts/moveit_to_isaac_bridge.py` | `moveit_to_isaac_bridge.py` (그대로, 시뮬 전용) |
 | `bt/festa_demo.xml` | `festa_bringup/bt/festa_l_course_nopick.xml` (트리는 동일, 헤더 코멘트만 변경) |
-| `params/festa_demo_nav2.yaml` | `festa_bringup/params/l_course_nav2.yaml` — `plugin_lib_names`에서 `custom_*` 라이브러리를 모두 빼고 `festa_demo_*` 4개로 교체 |
+| `params/festa_demo_nav2.yaml` | `festa_bringup/params/l_course_nav2.yaml` — `plugin_lib_names`에서 `custom_*` 라이브러리를 모두 빼고 `festa_demo_*` 4개로 교체, `FollowPath`를 rotation shim(DWB 설정 그대로)으로 감쌈 |
 | `maps/*` | `festa_bringup/maps/*` (그대로) |
 | `launch/festa_demo.launch.py` | `festa_bringup/launch/festa_scenario.launch.py`에서 파생 — `pick` 인자 없음, `ws_src` 인자 없음(bridge/sweep server/detector/send_goal 전부 이 패키지에서 실행) |
 

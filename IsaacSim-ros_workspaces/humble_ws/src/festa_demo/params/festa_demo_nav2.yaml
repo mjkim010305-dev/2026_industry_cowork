@@ -218,7 +218,18 @@ controller_server:
       yaw_goal_tolerance: 0.5
     # DWB parameters
     FollowPath:
-      plugin: "dwb_core::DWBLocalPlanner"
+      # festa_demo: Nav2's rotation shim in front of the same DWB settings. When
+      # the path starts more than 45 deg off the robot's heading (the start of
+      # each leg: the way back begins with a 180 deg turn), the robot turns in
+      # place first; DWB alone turned in wide forward arcs and drove into the
+      # corner obstacle / wall stub (sim N3, D1, D2).
+      plugin: "nav2_rotation_shim_controller::RotationShimController"
+      primary_controller: "dwb_core::DWBLocalPlanner"
+      angular_dist_threshold: 0.785
+      forward_sampling_distance: 0.5
+      rotate_to_heading_angular_vel: 0.8
+      max_angular_accel: 3.2
+      simulate_ahead_time: 1.0
       debug_trajectory_details: True
       min_vel_x: 0.0
       min_vel_y: 0.0
