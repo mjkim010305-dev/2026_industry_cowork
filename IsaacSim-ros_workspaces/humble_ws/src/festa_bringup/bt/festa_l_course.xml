@@ -31,9 +31,13 @@
   FinalApproachStop distances: the robot's /sweep poses (obstacle_clear_
   sequence.py) sweep the gripper through about 0.16-0.26 m ahead of
   base_footprint (FK of P_CONTACT / P_SWEEP_END; lab g3 cleared a box whose
-  centre stood 0.21 m ahead). The lidar sits 0.024 m behind base_link, so a
-  0.17 m range puts the near face ~0.15 m ahead. stop_center_distance is a
-  backstop only (the detector pose can be ~0.1 m off).
+  centre stood 0.21 m ahead). The stop is on the detector's box-centre pose:
+  0.24 m puts the near face of the 0.185 m box ~0.15 m ahead, clear of the
+  chassis front (~0.08 m). L2 stopped at 0.15 m: the chassis pushed the box
+  0.19 m and the base was still rolling and turning while the part was put
+  down, so the re-pick missed it. The 0.17 m lidar test is a backstop (it did
+  not fire in L2 - the face is at the edge of the scan's usable range there).
+  Wait 2 s so the base has settled before the arm moves.
 -->
 <root main_tree_to_execute="MainTree">
   <BehaviorTree ID="MainTree">
@@ -92,15 +96,15 @@
                                      cmd_vel_topic="/cmd_vel"
                                      stop_distance="0.17"
                                      lidar_confirm_scans="3"
-                                     approach_speed="0.08"
+                                     approach_speed="0.05"
                                      front_half_angle="0.26"
                                      scan_loss_timeout="0.5"
                                      time_allowance="30.0"
                                      pose_topic="green_box/pose"
                                      global_frame="map"
                                      robot_base_frame="base_link"
-                                     stop_center_distance="0.15"/>
-                  <Wait wait_duration="1"/>
+                                     stop_center_distance="0.24"/>
+                  <Wait wait_duration="2"/>
                   <SweepObstacle action_name="/sweep"
                                  server_timeout="5.0"
                                  accept_timeout="5.0"
