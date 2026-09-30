@@ -21,7 +21,7 @@
              Both are the first children of a plain Sequence, so they are
              checked once when it starts; a plan that succeeds mid-approach
              or mid-sweep does not halt the arm. Then: standoff goal 0.8 m,
-             FollowPath, FinalApproachStop, Wait 1 s, SweepObstacle (/sweep:
+             FollowPath, FinalApproachStop, Wait 2 s, SweepObstacle (/sweep:
              place behind -> sweep -> retreat -> re-pick), box_swept = true,
              clear both costmaps. ForceFailure hands the tick to FollowPath.
            - FollowPath {path}: normal driving, including the bend around a
@@ -37,7 +37,9 @@
   0.19 m and the base was still rolling and turning while the part was put
   down, so the re-pick missed it. The 0.17 m lidar test is a backstop (it did
   not fire in L2 - the face is at the edge of the scan's usable range there).
-  Wait 2 s so the base has settled before the arm moves.
+  Wait 2 s so the base has settled before the arm moves. Creep 0.08 m/s with
+  90 s allowance: L3 crept at 0.05 m/s (the sim base made ~0.03 m/s) and ran
+  out of the 30 s allowance before the stop.
 -->
 <root main_tree_to_execute="MainTree">
   <BehaviorTree ID="MainTree">
@@ -96,10 +98,10 @@
                                      cmd_vel_topic="/cmd_vel"
                                      stop_distance="0.17"
                                      lidar_confirm_scans="3"
-                                     approach_speed="0.05"
+                                     approach_speed="0.08"
                                      front_half_angle="0.26"
                                      scan_loss_timeout="0.5"
-                                     time_allowance="30.0"
+                                     time_allowance="90.0"
                                      pose_topic="green_box/pose"
                                      global_frame="map"
                                      robot_base_frame="base_link"
