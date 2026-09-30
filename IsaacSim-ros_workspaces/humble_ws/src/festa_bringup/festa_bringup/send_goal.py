@@ -4,7 +4,9 @@
 1. If set_initial_pose, publish /initialpose until AMCL answers on /amcl_pose.
 2. Wait for /navigate_to_pose and send the goal. bt_navigator rejects goals
    until its lifecycle is active, so a rejected goal is retried.
-3. Log the result and exit (the rest of the launch keeps running).
+3. If return_to_start and the goal succeeded, send a second goal back to the
+   initial pose (the box is swept only if it still blocks the way back).
+4. Log each result and exit (the rest of the launch keeps running).
 """
 import math
 
@@ -31,7 +33,7 @@ class SendGoal(Node):
         p = {n: self.declare_parameter(n, d).value for n, d in (
             ('goal_x', 0.0), ('goal_y', 0.0), ('goal_yaw', 0.0),
             ('set_initial_pose', True), ('initial_x', 0.0), ('initial_y', 0.0), ('initial_yaw', 0.0),
-            ('frame_id', 'map'), ('goal_retries', 30))}
+            ('return_to_start', True), ('frame_id', 'map'), ('goal_retries', 30))}
         self.p = p
         self.amcl_seen = False
         self.create_subscription(PoseWithCovarianceStamped, 'amcl_pose', self._on_amcl,
@@ -69,13 +71,13 @@ class SendGoal(Node):
         self.get_logger().error('AMCL never published amcl_pose; sending the goal anyway')
         return False
 
-    def send(self):
+    def send(self, x, y, yaw):
         goal = NavigateToPose.Goal()
         goal.pose = PoseStamped()
         goal.pose.header.frame_id = self.p['frame_id']
-        goal.pose.pose.position.x = float(self.p['goal_x'])
-        goal.pose.pose.position.y = float(self.p['goal_y'])
-        goal.pose.pose.orientation.z, goal.pose.pose.orientation.w = quat_z(float(self.p['goal_yaw']))
+        goal.pose.pose.position.x = float(x)
+        goal.pose.pose.position.y = float(y)
+        goal.pose.pose.orientation.z, goal.pose.pose.orientation.w = quat_z(float(yaw))
         self.get_logger().info('waiting for navigate_to_pose')
         self.nav.wait_for_server()
         for attempt in range(int(self.p['goal_retries'])):
@@ -84,8 +86,7 @@ class SendGoal(Node):
             rclpy.spin_until_future_complete(self, fut)
             handle = fut.result()
             if handle is not None and handle.accepted:
-                self.get_logger().info(
-                    f"goal ({self.p['goal_x']:.2f}, {self.p['goal_y']:.2f}, {self.p['goal_yaw']:.2f}) accepted")
+                self.get_logger().info(f'goal ({x:.2f}, {y:.2f}, {yaw:.2f}) accepted')
                 res = handle.get_result_async()
                 rclpy.spin_until_future_complete(self, res)
                 status = res.result().status
@@ -102,7 +103,12 @@ def main():
     node = SendGoal()
     if node.p['set_initial_pose']:
         node.set_initial_pose()
-    node.send()
+    p = node.p
+    ok = node.send(p['goal_x'], p['goal_y'], p['goal_yaw'])
+    if ok and p['return_to_start']:
+        node.get_logger().info('returning to the start')
+        node.send(p['initial_x'], p['initial_y'], p['initial_yaw'])
+    node.get_logger().info('send_goal done')
     node.destroy_node()
     rclpy.shutdown()
 

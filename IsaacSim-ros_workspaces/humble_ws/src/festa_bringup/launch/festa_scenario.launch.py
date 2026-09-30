@@ -13,7 +13,8 @@ Starts, in order:
   5. festa_action/sweep_action_server.py -> /sweep (safety cutoff on for real,
      off for sim: Isaac has no joint current). pick:=false (default) runs the
      same server through scripts/sweep_only.py: no part, sweep from P_HOME.
-  6. After goal_delay s: send_goal - initial pose, then one NavigateToPose goal.
+  6. After goal_delay s: send_goal - initial pose, the goal, then (return_to_start)
+     back to the initial pose.
 
 The robot bringup itself (Isaac, or hardware.launch.py + lidar + camera on the
 robot) is NOT part of this launch.
@@ -139,6 +140,7 @@ def _launch(context):
                 'goal_x': float(cfg['goal_x']), 'goal_y': float(cfg['goal_y']),
                 'goal_yaw': float(cfg['goal_yaw']),
                 'set_initial_pose': LaunchConfiguration('set_initial_pose').perform(context) == 'true',
+                'return_to_start': LaunchConfiguration('return_to_start').perform(context) == 'true',
                 'initial_x': float(LaunchConfiguration('initial_x').perform(context)),
                 'initial_y': float(LaunchConfiguration('initial_y').perform(context)),
                 'initial_yaw': float(LaunchConfiguration('initial_yaw').perform(context)),
@@ -162,6 +164,8 @@ def generate_launch_description():
         DeclareLaunchArgument('box_depth', default_value='0.185', description='green box depth [m] (detector)'),
         DeclareLaunchArgument('box_height', default_value='0.12', description='green box height [m] (detector)'),
         DeclareLaunchArgument('set_initial_pose', default_value='true'),
+        DeclareLaunchArgument('return_to_start', default_value='true',
+                              description='after reaching the goal, drive back to initial_x/y/yaw'),
         DeclareLaunchArgument('initial_x', default_value='0.0'),
         DeclareLaunchArgument('initial_y', default_value='0.0'),
         DeclareLaunchArgument('initial_yaw', default_value='0.0'),
