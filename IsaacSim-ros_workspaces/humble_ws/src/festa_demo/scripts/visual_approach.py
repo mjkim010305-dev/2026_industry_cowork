@@ -8,8 +8,11 @@ SweepObstacle BT node, same festa_demo/action/Sweep type, result "SUCCESS" or
 User rule (real robot, 2026-10-01): the sweep works when the box sits in the
 middle of the camera image and fills almost the whole frame (82.9 % green in
 the reference view); a box off to one side does not get swept. So:
-    - steer the whole way to keep the box centroid in the middle of the image
-      (turn in place while it is more than align_tol off, creep otherwise);
+    - steer the whole way to keep the box centroid in the middle of the image;
+    - far (green < near_fill of the frame): drive at far_speed with proportional
+      steering, turn in place only beyond far_align_tol (user, 2026-10-01: the
+      3 deg stop-and-turn zigzagged slowly all the way in);
+    - near: approach_speed, turn in place while more than align_tol off;
     - stop once green covers fill_stop of the frame and the box is centred.
 No range estimate, TF or odometry. A forward lidar cone (backstop_dist) still
 stops the robot.
@@ -41,7 +44,8 @@ class VisualApproach(Node):
         super().__init__('visual_approach')
         p = {n: self.declare_parameter(n, d).value for n, d in (
             ('fill_stop', 0.80), ('align_tol', 0.05), ('kp', 1.5), ('max_w', 0.6), ('min_w', 0.15),
-            ('approach_speed', 0.06), ('image_timeout', 1.0), ('lost_timeout', 3.0),
+            ('approach_speed', 0.05), ('far_speed', 0.12), ('near_fill', 0.30),
+            ('far_align_tol', 0.26), ('image_timeout', 1.0), ('lost_timeout', 3.0),
             ('backstop_dist', 0.10), ('front_half_angle', 0.26), ('time_allowance', 60.0))}
         self.p = p
         cb = ReentrantCallbackGroup()
@@ -125,8 +129,10 @@ class VisualApproach(Node):
                 continue
             last_seen = now
             bearing = -math.atan(target[1])            # + = box left of the image centre
-            filled = fill is not None and now - fill[0] <= p['image_timeout'] and fill[1] >= p['fill_stop']
-            if abs(bearing) > p['align_tol']:
+            fill_now = fill[1] if fill is not None and now - fill[0] <= p['image_timeout'] else 0.0
+            near = fill_now >= p['near_fill']
+            filled = fill_now >= p['fill_stop']
+            if abs(bearing) > (p['align_tol'] if near else p['far_align_tol']):
                 w = max(-p['max_w'], min(p['max_w'], p['kp'] * bearing))
                 self._cmd(0.0, math.copysign(max(abs(w), p['min_w']), w))
                 fb.state = f'CENTRE bearing={math.degrees(bearing):.1f}deg'
@@ -137,8 +143,9 @@ class VisualApproach(Node):
                 code = 'SUCCESS'
                 break
             else:
-                self._cmd(p['approach_speed'], p['kp'] * bearing)
-                fb.state = (f'APPROACH fill={100 * (fill[1] if fill else 0):.0f}% '
+                w = max(-p['max_w'], min(p['max_w'], p['kp'] * bearing))
+                self._cmd(p['approach_speed'] if near else p['far_speed'], w)
+                fb.state = (f'APPROACH{"" if near else "-FAR"} fill={100 * fill_now:.0f}% '
                             f'bearing={math.degrees(bearing):.1f}deg')
             goal.publish_feedback(fb)
         self._cmd(0, 0)
