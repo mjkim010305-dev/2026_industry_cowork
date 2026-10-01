@@ -35,7 +35,7 @@ amcl:
     # max_beams evenly across the full scan, so most of the 60 picked beams were
     # landing in the blind arc and contributing no real correction information.
     # Raising the count compensates so enough beams still land in the valid ~205 degrees.
-    max_beams: 200
+    max_beams: 100   # festa_demo: Pi load 13 / 4 cores, 2026-10-01 (x1000 particles); was 200
     max_particles: 1000  # festa_demo: 500 (Pi load, R2/R13) let AMCL collapse in R17; was 2000
     min_particles: 200   # was 500
     odom_frame_id: "odom"
@@ -235,7 +235,7 @@ controller_server:
       rotate_to_heading_angular_vel: 0.8
       max_angular_accel: 3.2
       simulate_ahead_time: 1.0
-      debug_trajectory_details: True
+      debug_trajectory_details: False   # festa_demo: Pi load 13 / 4 cores, 2026-10-01; was True
       min_vel_x: 0.0
       min_vel_y: 0.0
       max_vel_x: 0.26
@@ -252,9 +252,9 @@ controller_server:
       decel_lim_x: -2.5
       decel_lim_y: 0.0
       decel_lim_theta: -3.2
-      vx_samples: 20
+      vx_samples: 10   # festa_demo: Pi load 13 / 4 cores, 2026-10-01; was 20
       vy_samples: 5
-      vtheta_samples: 20
+      vtheta_samples: 15   # festa_demo: Pi load 13 / 4 cores, 2026-10-01; was 20
       sim_time: 1.7
       linear_granularity: 0.05
       angular_granularity: 0.025
@@ -284,7 +284,7 @@ controller_server:
     # Reverse-only variant of FollowPath above - see controller_plugins comment.
     FollowPathReverse:
       plugin: "dwb_core::DWBLocalPlanner"
-      debug_trajectory_details: True
+      debug_trajectory_details: False   # festa_demo: Pi load 13 / 4 cores, 2026-10-01; was True
       min_vel_x: -0.15
       min_vel_y: 0.0
       max_vel_x: 0.0
@@ -299,9 +299,9 @@ controller_server:
       decel_lim_x: -2.5
       decel_lim_y: 0.0
       decel_lim_theta: -3.2
-      vx_samples: 20
+      vx_samples: 10   # festa_demo: Pi load 13 / 4 cores, 2026-10-01; was 20
       vy_samples: 5
-      vtheta_samples: 20
+      vtheta_samples: 15   # festa_demo: Pi load 13 / 4 cores, 2026-10-01; was 20
       sim_time: 1.7
       linear_granularity: 0.05
       angular_granularity: 0.025
@@ -366,20 +366,15 @@ local_costmap:
       height: 3
       resolution: 0.05
       robot_radius: 0.20   # festa_demo: user, obstacle margin too wide (2026-10-01); was 0.22
-      plugins: ["voxel_layer", "inflation_layer"]
+      # festa_demo: 2D lidar only, a voxel grid adds nothing (Pi load 13 / 4 cores, 2026-10-01); was voxel_layer
+      plugins: ["obstacle_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 5.0   # festa_demo: narrower margin (2026-10-01); was 3.0
         inflation_radius: 0.3 #원래 0.55
-      voxel_layer:
-        plugin: "nav2_costmap_2d::VoxelLayer"
+      obstacle_layer:
+        plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
-        publish_voxel_map: True
-        origin_z: 0.0
-        z_resolution: 0.05
-        z_voxels: 16
-        max_obstacle_height: 2.0
-        mark_threshold: 0
         observation_sources: scan
         scan:
           topic: /scan
@@ -394,7 +389,7 @@ local_costmap:
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: True
-      always_send_full_costmap: True
+      always_send_full_costmap: False   # festa_demo: Pi load 13 / 4 cores, 2026-10-01; was True
 
 global_costmap:
   global_costmap:
@@ -430,7 +425,7 @@ global_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 5.0   # festa_demo: narrower margin (2026-10-01); was 3.0
         inflation_radius: 0.35   # festa_demo: narrower margin (2026-10-01); was 0.55
-      always_send_full_costmap: True
+      always_send_full_costmap: False   # festa_demo: Pi load 13 / 4 cores, 2026-10-01; was True
 
 map_server:
   ros__parameters:
