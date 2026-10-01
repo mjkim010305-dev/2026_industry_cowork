@@ -33,18 +33,17 @@ class PushThrough(Node):
         self.p = {n: self.declare_parameter(n, d).value for n, d in (
             ('distance', 0.35), ('speed', 0.08), ('wall_stop', 0.15),
             ('front_half_angle', 0.26), ('time_allowance', 15.0))}
-        cb = ReentrantCallbackGroup()
+        self.cb = ReentrantCallbackGroup()
         self.lock = threading.Lock()
         self.odom_xy = None
         self.front_min = None
+        self._goal_gen = 0  # festa_demo: preemption, 2026-10-01 - only the newest goal may drive
         self._cone_cache = None  # (angle_min, angle_increment, n, indices) - festa_demo: Pi load, 2026-10-01
-        self.create_subscription(Odometry, 'odom', self._on_odom, 10, callback_group=cb)
-        self.create_subscription(LaserScan, 'scan', self._on_scan,
-                                 QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT),
-                                 callback_group=cb)
+        self.odom_sub = None  # festa_demo: idle CPU, 2026-10-01 - live only while a goal is executing
+        self.scan_sub = None
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel', 10)
         ActionServer(self, Sweep, 'push_through', execute_callback=self._execute,
-                     cancel_callback=lambda _g: CancelResponse.ACCEPT, callback_group=cb)
+                     cancel_callback=lambda _g: CancelResponse.ACCEPT, callback_group=self.cb)
         self.get_logger().info('push_through ready')
 
     def _on_odom(self, m):
@@ -81,39 +80,67 @@ class PushThrough(Node):
         start = time.monotonic()
         odom0 = None
         code = 'ERROR'
-        while rclpy.ok():
-            time.sleep(0.05)
-            if goal.is_cancel_requested:
-                self._cmd(0)
-                goal.canceled()
-                result.result_code = 'ERROR'
-                return result
-            if time.monotonic() - start > p['time_allowance']:
-                self.get_logger().error('push_through: time allowance exceeded')
-                break
-            with self.lock:
-                odom_xy, front_min = self.odom_xy, self.front_min
-            if odom_xy is None:
-                continue
-            if odom0 is None:
-                odom0 = odom_xy
-            done = math.hypot(odom_xy[0] - odom0[0], odom_xy[1] - odom0[1])
-            if front_min is not None and front_min <= p['wall_stop']:
-                self.get_logger().info(f'push_through: wall at {front_min:.2f} m after {done:.2f} m - stopped')
-                code = 'SUCCESS'
-                break
-            if done >= p['distance']:
-                self.get_logger().info(f'push_through: pushed {done:.2f} m - done')
-                code = 'SUCCESS'
-                break
-            self._cmd(p['speed'])
-        self._cmd(0)
-        result.result_code = code
-        if code == 'SUCCESS':
-            goal.succeed()
-        else:
-            goal.abort()
-        return result
+        with self.lock:
+            self.odom_xy = None
+            self.front_min = None
+            self._goal_gen += 1
+            my = self._goal_gen
+        # festa_demo: idle CPU, 2026-10-01 - measured 33% of a core idle, mostly
+        # /odom at ~49 Hz; only subscribe while a goal is actually running.
+        self.odom_sub = self.create_subscription(Odometry, 'odom', self._on_odom, 10,
+                                                   callback_group=self.cb)
+        self.scan_sub = self.create_subscription(
+            LaserScan, 'scan', self._on_scan,
+            QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT),
+            callback_group=self.cb)
+        try:
+            while rclpy.ok():
+                time.sleep(0.05)
+                with self.lock:
+                    preempted = self._goal_gen != my
+                if preempted:
+                    # festa_demo: preemption, 2026-10-01 - a newer goal owns the
+                    # base now; do not touch cmd_vel, just drop out.
+                    self.get_logger().warn('push_through: preempted by a newer goal')
+                    goal.abort()
+                    result.result_code = 'ERROR'
+                    return result
+                if goal.is_cancel_requested:
+                    self._cmd(0)
+                    goal.canceled()
+                    result.result_code = 'ERROR'
+                    return result
+                if time.monotonic() - start > p['time_allowance']:
+                    self.get_logger().error('push_through: time allowance exceeded')
+                    break
+                with self.lock:
+                    odom_xy, front_min = self.odom_xy, self.front_min
+                if odom_xy is None:
+                    continue
+                if odom0 is None:
+                    odom0 = odom_xy
+                done = math.hypot(odom_xy[0] - odom0[0], odom_xy[1] - odom0[1])
+                if front_min is not None and front_min <= p['wall_stop']:
+                    self.get_logger().info(f'push_through: wall at {front_min:.2f} m after {done:.2f} m - stopped')
+                    code = 'SUCCESS'
+                    break
+                if done >= p['distance']:
+                    self.get_logger().info(f'push_through: pushed {done:.2f} m - done')
+                    code = 'SUCCESS'
+                    break
+                self._cmd(p['speed'])
+            self._cmd(0)
+            result.result_code = code
+            if code == 'SUCCESS':
+                goal.succeed()
+            else:
+                goal.abort()
+            return result
+        finally:
+            self.destroy_subscription(self.odom_sub)
+            self.destroy_subscription(self.scan_sub)
+            self.odom_sub = None
+            self.scan_sub = None
 
 
 def main():
