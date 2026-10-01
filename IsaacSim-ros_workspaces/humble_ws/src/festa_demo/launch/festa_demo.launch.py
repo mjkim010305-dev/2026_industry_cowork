@@ -148,6 +148,11 @@ def _launch(context):
              '-p', 'max_rate_hz:=5.0']))
 
     actions.append(ExecuteProcess(
+        name='push_through', output='screen',
+        cmd=['python3', os.path.join(lib, 'push_through.py'), '--ros-args',
+             '-p', f'use_sim_time:={str(sim).lower()}']))
+
+    actions.append(ExecuteProcess(
         name='box_on_path', output='screen',
         cmd=['python3', os.path.join(lib, 'box_on_path.py'), '--ros-args',
              '-p', f'use_sim_time:={str(sim).lower()}']))

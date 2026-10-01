@@ -112,6 +112,7 @@ install(PROGRAMS
   scripts/visual_approach.py
   scripts/box_on_path.py
   scripts/rear_pick.py
+  scripts/push_through.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

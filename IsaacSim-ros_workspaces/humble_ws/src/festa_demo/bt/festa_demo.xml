@@ -66,6 +66,11 @@
                                  accept_timeout="5.0"
                                  sweep_timeout="180.0"
                                  result_code="{sweep_result}"/>
+                  <!-- festa_demo: drive 0.35 m straight after the sweep so the body shoves the
+                       partly swept box aside (scripts/push_through.py, user 2026-10-01). -->
+                  <SweepObstacle name="PushThrough" action_name="/push_through"
+                                 server_timeout="5.0" accept_timeout="5.0" sweep_timeout="30.0"
+                                 result_code="{push_result}"/>
                   <SetBlackboard output_key="box_swept" value="true"/>
                   <ClearEntireCostmap name="ClearLocalCostmap-Resume"
                                       service_name="local_costmap/clear_entirely_local_costmap"/>
