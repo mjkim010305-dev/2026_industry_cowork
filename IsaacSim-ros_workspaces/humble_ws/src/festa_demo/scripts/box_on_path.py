@@ -20,7 +20,12 @@ on  when d <= trigger_dist and |s| <= lateral_tol      (robot and box touch with
     ~0.24 m sideways: half widths 0.15 + 0.09; 0.30 leaves a little margin);
 off when d > release_dist or |s| > release_lateral, or no image for image_timeout s.
 A bbox cut by both borders (z = 3) is wider than the view: right in front. A bbox cut
-by one border has an unreliable centre and width: keep the previous decision.
+by one border has an unreliable centre and width, but its inner edge is real: the box
+reaches into the robot's way when that edge is within lateral_tol - box_half_m of the
+centre line (on; off beyond release_lateral - box_half_m). Distance from the bbox height
+when it touches neither top nor bottom, else the box is close (clip_close_dist).
+(festa_demo 2026-10-02, sim S24_R4: "keep the previous decision" latched on for a box
+pushed against a wall right after it was handled, and the robot went for it again.)
 Not while turning (|odom angular z| > max_turn_rate in the last turn_hold s): mid-corner
 the robot faces a different way than it will drive (sim S1m: on the way back it aimed
 at a box swept against the wall, 0.44 m off the route); judge again once straight.
@@ -51,8 +56,9 @@ class BoxOnPath(Node):
             ('edge_margin_px', 3), ('median_n', 5), ('camera_y', -0.0115), ('trigger_dist', 1.0),
             ('lateral_tol', 0.30), ('release_dist', 1.2), ('release_lateral', 0.35),
             ('image_timeout', 1.0), ('max_turn_rate', 0.2), ('turn_hold', 0.5),
-            ('turn_gate_dist', 0.6))}
+            ('turn_gate_dist', 0.6), ('box_half_m', 0.09), ('clip_close_dist', 0.3))}
         self.target = None          # (monotonic time, d, s, clip) of the newest bbox
+                                    # (clip 1/2: s = lateral position of the inner edge)
         self.recent = []            # (monotonic time, d, s) of unclipped bboxes, for the median
         self.intrinsics = None      # (fx, fy, cx, cy)
         self.on = False
@@ -77,12 +83,16 @@ class BoxOnPath(Node):
         fx, fy, cx, _ = self.intrinsics
         p, now = self.p, time.monotonic()
         m_px = p['edge_margin_px']
-        if y > m_px and y + h < img_h - m_px and h > 0.0:
+        clip = int(round(clip))
+        vertical_ok = y > m_px and y + h < img_h - m_px and h > 0.0
+        if vertical_ok:
             d = p['box_height_m'] * fy / h
+        elif clip:
+            d = p['clip_close_dist']        # cut at a side and at top/bottom: right at the robot
         else:
             d = p['box_face_width_m'] * fx / w
-        s = ((x + w / 2.0) - cx) / fx * d - p['camera_y']
-        clip = int(round(clip))
+        u = x + w / 2.0 if clip == 0 else (x + w if clip == 1 else x)   # clip 1: right edge, 2: left edge
+        s = (u - cx) / fx * d - p['camera_y']
         self.target = (now, d, s, clip)
         if clip == 0:
             self.recent = [r for r in self.recent if now - r[0] <= p['image_timeout']][-(p['median_n'] - 1):]
@@ -91,6 +101,15 @@ class BoxOnPath(Node):
     def _on_odom(self, m):
         if abs(m.twist.twist.angular.z) > self.p['max_turn_rate']:
             self.last_turn = time.monotonic()
+
+    def _judge(self, d, off, on_tol, off_tol):
+        p = self.p
+        turning = (time.monotonic() - self.last_turn < p['turn_hold']
+                   and d > p['turn_gate_dist'])
+        if d <= p['trigger_dist'] and off <= on_tol and not turning:
+            self.on = True
+        elif d > p['release_dist'] or off > off_tol:
+            self.on = False
 
     def _tick(self):
         p, t = self.p, self.target
@@ -103,12 +122,14 @@ class BoxOnPath(Node):
             ds = sorted(r[1] for r in self.recent)
             ss = sorted(r[2] for r in self.recent)
             d, s = ds[len(ds) // 2], ss[len(ss) // 2]
-            turning = (time.monotonic() - self.last_turn < p['turn_hold']
-                       and d > p['turn_gate_dist'])
-            if d <= p['trigger_dist'] and abs(s) <= p['lateral_tol'] and not turning:
-                self.on = True
-            elif d > p['release_dist'] or abs(s) > p['release_lateral']:
-                self.on = False
+            self._judge(d, abs(s), p['lateral_tol'], p['release_lateral'])
+            self.front = (d, s)
+        elif t[3] in (1, 2):
+            # inner edge s (right-positive): clip 1 = box to the left of s, clip 2 = to the right
+            d, s = t[1], t[2]
+            reach = -s if t[3] == 1 else s     # how far the box stays away from the centre line
+            self._judge(d, max(reach, 0.0), p['lateral_tol'] - p['box_half_m'],
+                        p['release_lateral'] - p['box_half_m'])
             self.front = (d, s)
         if self.on != was:
             self.get_logger().info(
