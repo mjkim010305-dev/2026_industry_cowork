@@ -3,10 +3,11 @@
   (itself festa_l_course.xml WITHOUT the part, minus RearPickObject: the arm
   stays at P_HOME while driving). /sweep is this package's scripts/sweep_only.py
   (P_HOME -> sweep -> P_HOME, no rear place / re-pick). Tree as in the source
-  file except FinalApproachStop align_threshold 0.05 (default 0.26): on the real
-  robot (2026-10-01 R7) the stop fired with the box up to 15 deg off the robot's
-  heading and the sweep arc ran into the wall beside it; the robot now turns in
-  place until the box centre is within 3 deg of straight ahead before it stops.
+  file except the final approach: FinalApproachStop (map-frame box pose, stamped
+  TF) is replaced by /visual_approach (scripts/visual_approach.py: camera image
+  only, then a straight odometry creep). On the real robot (2026-10-01 R7-R9) the
+  TF-based stop left the box up to 15 deg off the robot's heading and the sweep
+  arc ran into the wall beside it.
 -->
 <root main_tree_to_execute="MainTree">
   <BehaviorTree ID="MainTree">
@@ -48,19 +49,11 @@
                     <ClearEntireCostmap name="ClearGlobalCostmap-GreenBox" service_name="global_costmap/clear_entirely_global_costmap"/>
                   </RecoveryNode>
                   <FollowPath path="{approach_path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/>
-                  <FinalApproachStop scan_topic="/scan"
-                                     cmd_vel_topic="/cmd_vel"
-                                     stop_distance="0.17"
-                                     lidar_confirm_scans="3"
-                                     approach_speed="0.08"
-                                     front_half_angle="0.26"
-                                     scan_loss_timeout="0.5"
-                                     time_allowance="90.0"
-                                     pose_topic="green_box/pose"
-                                     global_frame="map"
-                                     robot_base_frame="base_link"
-                                     stop_center_distance="0.24"
-                                     align_threshold="0.05"/>
+                  <!-- festa_demo: image-only final approach (scripts/visual_approach.py) instead of
+                       FinalApproachStop, through the SweepObstacle client (same Sweep action type). -->
+                  <SweepObstacle name="VisualApproach" action_name="/visual_approach"
+                                 server_timeout="5.0" accept_timeout="5.0" sweep_timeout="90.0"
+                                 result_code="{approach_result}"/>
                   <Wait wait_duration="2"/>
                   <SweepObstacle action_name="/sweep"
                                  server_timeout="5.0"

@@ -109,6 +109,7 @@ install(PROGRAMS
   scripts/sweep_action_server.py
   scripts/send_goal.py
   scripts/moveit_to_isaac_bridge.py
+  scripts/visual_approach.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

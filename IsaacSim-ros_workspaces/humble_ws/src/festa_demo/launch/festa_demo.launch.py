@@ -134,6 +134,14 @@ def _launch(context):
              '-p', f"stamp_on_receive:={cfg['stamp_on_receive']}"]))
 
     actions.append(ExecuteProcess(
+        name='visual_approach', output='screen',
+        cmd=['python3', os.path.join(lib, 'visual_approach.py'), '--ros-args',
+             '-p', f'use_sim_time:={str(sim).lower()}',
+             '-p', f"camera_frame:={cfg['camera_frame']}",
+             '-p', f"box_width:={LaunchConfiguration('box_depth').perform(context)}",
+             '-p', f"box_depth:={LaunchConfiguration('box_depth').perform(context)}"]))
+
+    actions.append(ExecuteProcess(
         name='sweep_action_server', output='screen',
         cmd=['python3', sweep_server, '--ros-args', '-p', f"safety_monitor:={cfg['safety_monitor']}"]))
 

@@ -74,7 +74,7 @@ from rclpy.time import Time
 
 from cv_bridge import CvBridge
 
-from geometry_msgs.msg import PoseStamped
+from geometry_msgs.msg import PointStamped, PoseStamped
 from sensor_msgs.msg import CameraInfo, Image, LaserScan
 from std_msgs.msg import Bool
 from tf2_ros import Buffer, TransformListener, TransformException
@@ -211,6 +211,13 @@ class GreenBoxDetector(Node):
         self.detected_pub = self.create_publisher(
             Bool, "green_box/detected", qos_profile_system_default)
         self.debug_image_pub = self.create_publisher(Image, "green_box/debug_image", sensor_qos)
+        # festa_demo: image-only measurement for visual_approach.py, published for
+        # every frame with a wide-enough green blob, before any TF/lidar use.
+        # x = (bbox centre column - cx) / fx  (tan of the bearing, + = right)
+        # y = bbox width / fx                 (angular width of the box)
+        # z = 1.0 if the bbox touches the left/right image border (width clipped)
+        self.image_target_pub = self.create_publisher(
+            PointStamped, "green_box/image_target", sensor_qos)
 
         self.get_logger().info(
             "green_box_detector: image='%s' scan='%s' -> green_box/pose,green_box/detected "
@@ -274,6 +281,14 @@ class GreenBoxDetector(Node):
             reason = "narrow"
             self._confirm_window.clear()
         else:
+            bx, _, bw, _ = bbox
+            target = PointStamped()
+            target.header = msg.header
+            target.point.x = ((bx + bw / 2.0) - cx) / fx
+            target.point.y = bw / fx
+            target.point.z = 1.0 if (bx <= self.edge_margin_px or
+                                     bx + bw >= bgr.shape[1] - self.edge_margin_px) else 0.0
+            self.image_target_pub.publish(target)
             pose_xy, source = self._resolve_front(
                 msg.header, bbox, fx, fy, cx, cy, bgr.shape[0])
             if pose_xy is None:
