@@ -20,9 +20,10 @@ festa_demo (2026-10-01, R21 wobble): turning in place is a pulse (about 80 % of
 the angle, at most turn_pulse_max s) followed by a stop until an image newer
 than stop + settle_s arrives, so camera/detection delay cannot make it
 overshoot back and forth. Once the bbox touches a left/right image border
-(image_target z != 0) its centre is no longer the box centre: no more
-steering, creep straight at approach_speed and stop on fill_stop (a box wider
-than the view, z = 3, counts as centred). Feedback goes out only when the
+(image_target z != 0) its centre is no longer the box centre: a box wider than
+the view (z = 3) counts as centred (creep straight, stop on fill_stop); with one
+border cut, lean toward that side while creeping and, once filled, turn toward
+it in pulses until both borders are cut. Feedback goes out only when the
 state changes (the 20 Hz feedback starved the BT's accept/result replies).
 No range estimate, TF or odometry. A forward lidar cone (backstop_dist) still
 stops the robot.
@@ -114,10 +115,20 @@ class VisualApproach(Node):
     def _decide(p, bearing, clip, fill_now):
         """festa_demo (2026-10-01): one control decision -> (action, v, w, state);
         action is 'stop', 'turn' (pulse in place) or 'drive'."""
-        if clip:
+        if clip == 3:                                  # wider than the view: centred enough
             if fill_now >= p['fill_stop']:
-                return 'stop', 0.0, 0.0, f'STOP clip={clip}'
-            return 'drive', p['approach_speed'], 0.0, f'CREEP clip={clip} fill={100 * fill_now:.0f}%'
+                return 'stop', 0.0, 0.0, 'STOP clip=3'
+            return 'drive', p['approach_speed'], 0.0, f'CREEP clip=3 fill={100 * fill_now:.0f}%'
+        if clip:
+            # One border cut: the box centre lies further toward that border than the
+            # visible bbox says (S1e: stopped at -24 deg with only the right edge cut).
+            # Lean toward the cut side; once filled, turn there in pulses until both
+            # edges are cut or the whole box is back in view.
+            side = 1.0 if clip == 1 else -1.0          # + = turn left
+            if fill_now >= p['fill_stop']:
+                return 'turn', 0.0, side * p['min_w'], f'CENTRE clip={clip}'
+            return 'drive', p['approach_speed'], side * 0.5 * p['max_drive_w'], \
+                f'CREEP clip={clip} fill={100 * fill_now:.0f}%'
         near = fill_now >= p['near_fill']
         if abs(bearing) > (p['align_tol'] if near else p['far_align_tol']):
             w = max(-p['max_w'], min(p['max_w'], p['kp'] * bearing))
@@ -195,7 +206,8 @@ class VisualApproach(Node):
                 break
             self._cmd(v, w)
             if action == 'turn':
-                turn_until = now + min(p['turn_pulse_max'], 0.8 * abs(bearing) / abs(w))
+                turn_until = now + (min(p['turn_pulse_max'], 0.8 * abs(bearing) / abs(w))
+                                    if not target[2] else p['turn_pulse_max'])
             if state != fb.state:
                 fb.state = state
                 goal.publish_feedback(fb)
