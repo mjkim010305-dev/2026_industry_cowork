@@ -735,7 +735,10 @@ class ObstacleClearSequence(Node):
                 f"{label}: Goal 전송 시간 초과"
             )
 
-            return "failed"
+            # festa_demo (2026-10-02, sim S25_V3): the arm server ran the goal but its
+            # "accepted" reply was lost (DDS: this process's reply reader not yet matched;
+            # the C++ arm_controller also only warns and executes). Judge by /joint_states.
+            return self.reached_after_lost_reply(pose, label)
 
         goal_handle = send_future.result()
 
@@ -821,6 +824,36 @@ class ObstacleClearSequence(Node):
         )
 
         return "ok"
+
+    # festa_demo (2026-10-02, sim S25_V3): goal reply lost - did the arm get there anyway?
+    def reached_after_lost_reply(self, pose, label, wait_s=15.0):
+
+        end = time.monotonic() + wait_s
+        last = None
+
+        while rclpy.ok() and time.monotonic() < end:
+
+            self.current_pose = None
+            rclpy.spin_once(self, timeout_sec=0.2)
+            cur = self.current_pose
+
+            if cur is not None:
+                near = max(abs(c - t) for c, t in zip(cur, pose)) <= START_TOLERANCE
+                still = last is not None and max(abs(c - l) for c, l in zip(cur, last)) < 0.01
+                if near and still:
+                    self.get_logger().warning(
+                        f"{label}: Goal 응답은 못 받았지만 팔이 목표 자세에 도착 - 계속 진행"
+                    )
+                    return "ok"
+                last = cur
+
+            time.sleep(0.3)
+
+        self.get_logger().error(
+            f"{label}: Goal 응답 없음, 목표 자세 도착도 확인 못 함"
+        )
+
+        return "failed"
 
     # 그리퍼 열기 또는 닫기
     def move_gripper(self, position, label):
@@ -1059,7 +1092,15 @@ class ObstacleClearSequence(Node):
             P_REAR_CARRY,
             "P_REAR_CARRY",
         ):
-            return False
+            # festa_demo (2026-10-02, sim S25_V3): an earlier run stopped with the arm at
+            # P_REAR_PLACE (= P_REAR_PICK) and every later sweep failed here. From that known
+            # pose, re-pick (G_GRASP -> P_REAR_CARRY) and carry on; any other pose still fails.
+            cur = self.current_pose
+            if cur is None or max(abs(c - t) for c, t in zip(cur, P_REAR_PICK)) > START_TOLERANCE:
+                return False
+            self.get_logger().warning("팔이 P_REAR_PICK 자세 - 재파지 후 P_REAR_CARRY에서 시작")
+            if not self.run_rear_repick():
+                return False
 
         if not self.run_rear_place():
             return False
