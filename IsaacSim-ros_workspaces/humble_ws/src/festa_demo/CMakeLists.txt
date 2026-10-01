@@ -111,6 +111,7 @@ install(PROGRAMS
   scripts/moveit_to_isaac_bridge.py
   scripts/visual_approach.py
   scripts/box_on_path.py
+  scripts/rear_pick.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

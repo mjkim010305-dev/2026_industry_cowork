@@ -79,6 +79,7 @@ ARGS = ['map', 'image_topic', 'camera_info_topic', 'camera_frame', 'publish_came
 
 def _launch(context):
     share = get_package_share_directory(PKG)
+    pick = LaunchConfiguration('pick').perform(context) == 'true'
     mode = LaunchConfiguration('mode').perform(context)
     if mode not in MODE_DEFAULTS:
         raise RuntimeError(f"mode must be 'sim' or 'real', got '{mode}'")
@@ -154,7 +155,8 @@ def _launch(context):
 
     actions.append(ExecuteProcess(
         name='sweep_action_server', output='screen',
-        cmd=['python3', sweep_server, '--ros-args', '-p', f"safety_monitor:={cfg['safety_monitor']}"]))
+        cmd=['python3', sweep_server, '--ros-args', '-p', f"safety_monitor:={cfg['safety_monitor']}",
+             '-p', 'sequence:=' + ('obstacle_clear_sequence' if pick else 'sweep_only')]))
 
     actions.append(TimerAction(
         period=float(LaunchConfiguration('goal_delay').perform(context)),
@@ -166,6 +168,7 @@ def _launch(context):
                  '-p', f"goal_yaw:={cfg['goal_yaw']}",
                  '-p', f"set_initial_pose:={LaunchConfiguration('set_initial_pose').perform(context)}",
                  '-p', f"return_to_start:={LaunchConfiguration('return_to_start').perform(context)}",
+                 '-p', f"pick_first:={str(pick).lower()}",
                  '-p', f"initial_x:={LaunchConfiguration('initial_x').perform(context)}",
                  '-p', f"initial_y:={LaunchConfiguration('initial_y').perform(context)}",
                  '-p', f"initial_yaw:={LaunchConfiguration('initial_yaw').perform(context)}"])]))
@@ -181,6 +184,10 @@ def generate_launch_description():
                               description='Nav2 params (default: params/festa_demo_nav2.yaml)'),
         DeclareLaunchArgument('box_depth', default_value='0.185', description='green box depth [m] (detector)'),
         DeclareLaunchArgument('box_height', default_value='0.12', description='green box height [m] (detector)'),
+        DeclareLaunchArgument('pick', default_value='true',
+                              description="true: load the part first (robot's rear_pick.py) and run the "
+                                          "manipulation team's obstacle_clear_sequence.py at the box "
+                                          "(put down behind -> sweep -> pick up again); false: sweep only"),
         DeclareLaunchArgument('box_face_width', default_value='0.24',
                               description='apparent box width in the image [m] for image ranging '
                                           '(real upright box 2026-10-01: 0.185 m face looked ~0.24 m)'),

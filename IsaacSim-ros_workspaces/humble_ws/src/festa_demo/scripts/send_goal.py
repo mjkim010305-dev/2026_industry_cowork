@@ -9,6 +9,9 @@
 4. Log each result and exit (the rest of the launch keeps running).
 """
 import math
+import os
+import subprocess
+import sys
 
 import rclpy
 from rclpy.action import ActionClient
@@ -18,6 +21,7 @@ from action_msgs.msg import GoalStatus
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 from nav2_msgs.action import NavigateToPose
 from nav2_msgs.srv import ClearEntireCostmap
+from sensor_msgs.msg import JointState
 from std_srvs.srv import Trigger
 
 STATUS = {GoalStatus.STATUS_SUCCEEDED: 'SUCCEEDED', GoalStatus.STATUS_ABORTED: 'ABORTED',
@@ -35,7 +39,8 @@ class SendGoal(Node):
         p = {n: self.declare_parameter(n, d).value for n, d in (
             ('goal_x', 0.0), ('goal_y', 0.0), ('goal_yaw', 0.0),
             ('set_initial_pose', True), ('initial_x', 0.0), ('initial_y', 0.0), ('initial_yaw', 0.0),
-            ('return_to_start', True), ('frame_id', 'map'), ('goal_retries', 30))}
+            ('return_to_start', True), ('frame_id', 'map'), ('goal_retries', 30),
+            ('pick_first', False))}
         self.p = p
         self.amcl_seen = False
         self.create_subscription(PoseWithCovarianceStamped, 'amcl_pose', self._on_amcl,
@@ -133,10 +138,40 @@ class SendGoal(Node):
         return False
 
 
+def pick_part(node):
+    """festa_demo pick mode: arm to P_HOME, then the robot's rear_pick.py
+    (front pick -> P_REAR_CARRY), so the sweep's obstacle_clear_sequence.py
+    can put the part down behind and pick it up again."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    home = ('{trajectory: {joint_names: [joint1, joint2, joint3, joint4], points: '
+            '[{positions: [-0.0015339807878856412, -1.0461748973380072, 1.0753205323078345, '
+            '0.009203884727313847], time_from_start: {sec: 4}}]}}')
+    node.get_logger().info('pick mode: arm to P_HOME')
+    subprocess.run(['ros2', 'action', 'send_goal', '/arm_controller/follow_joint_trajectory',
+                    'control_msgs/action/FollowJointTrajectory', home], timeout=30)
+    node.get_logger().info('pick mode: rear_pick.py pick')
+    subprocess.run([sys.executable, os.path.join(here, 'rear_pick.py'), 'pick'], timeout=120)
+    # rear_pick.py exits 0 even when it fails, so check that the arm reached
+    # P_REAR_CARRY (joint1 -3.0235), which obstacle_clear_sequence.py requires.
+    js = {}
+    sub = node.create_subscription(JointState, 'joint_states',
+                                   lambda m: js.update(zip(m.name, m.position)), 10)
+    node.spin_for(1.0)
+    node.destroy_subscription(sub)
+    ok = 'joint1' in js and abs(js['joint1'] - (-3.0234761329225988)) < 0.15
+    node.get_logger().info(f"pick mode: joint1={js.get('joint1')} -> {'P_REAR_CARRY' if ok else 'NOT at P_REAR_CARRY'}")
+    return ok
+
+
 def main():
     rclpy.init()
     node = SendGoal()
     node.wait_nav2_active()
+    if node.p['pick_first'] and not pick_part(node):
+        node.get_logger().error('pick failed - not sending the goal')
+        node.destroy_node()
+        rclpy.shutdown()
+        return
     if node.p['set_initial_pose']:
         node.set_initial_pose()
         node.clear_costmaps()

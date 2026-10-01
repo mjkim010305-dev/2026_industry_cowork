@@ -17,11 +17,7 @@ from festa_demo.action import Sweep  # festa_demo: was turtlebot3_msgs.action.Sw
 
 
 # 기존 장애물 제거 시퀀스 (이 파일과 같은 폴더의 복사본을 실행)
-# festa_demo: sweep_only.py (부품 없이 P_HOME -> sweep -> P_HOME), was obstacle_clear_sequence.py
-SEQUENCE_SCRIPT = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "sweep_only.py",
-)
+# festa_demo: 어느 스크립트인지는 파라미터 "sequence"로 고른다 (__init__ 참고)
 
 
 class SweepActionServer(Node):
@@ -33,6 +29,13 @@ class SweepActionServer(Node):
         # (Isaac Sim처럼 전류 토픽이 없는 환경. 실제 로봇은 기본값 True 유지)
         self.safety_monitor = bool(
             self.declare_parameter("safety_monitor", True).value
+        )
+
+        # festa_demo: "sweep_only" (부품 없이) 또는 "obstacle_clear_sequence"
+        # (매니퓰레이션 팀 원본: 뒤에 내려놓기 -> sweep -> 다시 집기)
+        self.sequence_script = os.path.join(
+            os.path.dirname(os.path.abspath(__file__)),
+            str(self.declare_parameter("sequence", "sweep_only").value) + ".py",
         )
 
         # Action 실행 중에도 /sweep_stage 콜백을 받을 수 있도록 설정
@@ -175,15 +178,15 @@ class SweepActionServer(Node):
         try:
 
             # 실행 파일 존재 확인
-            if not os.path.isfile(SEQUENCE_SCRIPT):
+            if not os.path.isfile(self.sequence_script):
                 raise FileNotFoundError(
-                    f"파일을 찾을 수 없습니다: {SEQUENCE_SCRIPT}"
+                    f"파일을 찾을 수 없습니다: {self.sequence_script}"
                 )
 
             # 기존 검증된 전체 장애물 제거 시퀀스 실행
             command = [
                 sys.executable,
-                SEQUENCE_SCRIPT,
+                self.sequence_script,
                 "all",
             ]
 
