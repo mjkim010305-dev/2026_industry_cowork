@@ -24,6 +24,8 @@ by one border has an unreliable centre and width: keep the previous decision.
 Not while turning (|odom angular z| > max_turn_rate in the last turn_hold s): mid-corner
 the robot faces a different way than it will drive (sim S1m: on the way back it aimed
 at a box swept against the wall, 0.44 m off the route); judge again once straight.
+Except for a box nearer than turn_gate_dist: sim R2 curved through a corner straight
+into a box just past it, still turning, and never triggered.
 
 No map, AMCL or camera TF involved. Published at 5 Hz: green_box/on_path (Bool) and,
 while on, green_box/front (PoseStamped in base_link: x = d, y = s), which
@@ -48,7 +50,8 @@ class BoxOnPath(Node):
             ('box_face_width_m', 0.24), ('box_height_m', 0.12), ('camera_info_topic', 'camera_info'),
             ('edge_margin_px', 3), ('median_n', 5), ('camera_y', -0.0115), ('trigger_dist', 1.0),
             ('lateral_tol', 0.30), ('release_dist', 1.2), ('release_lateral', 0.35),
-            ('image_timeout', 1.0), ('max_turn_rate', 0.2), ('turn_hold', 0.5))}
+            ('image_timeout', 1.0), ('max_turn_rate', 0.2), ('turn_hold', 0.5),
+            ('turn_gate_dist', 0.6))}
         self.target = None          # (monotonic time, d, s, clip) of the newest bbox
         self.recent = []            # (monotonic time, d, s) of unclipped bboxes, for the median
         self.intrinsics = None      # (fx, fy, cx, cy)
@@ -100,7 +103,8 @@ class BoxOnPath(Node):
             ds = sorted(r[1] for r in self.recent)
             ss = sorted(r[2] for r in self.recent)
             d, s = ds[len(ds) // 2], ss[len(ss) // 2]
-            turning = time.monotonic() - self.last_turn < p['turn_hold']
+            turning = (time.monotonic() - self.last_turn < p['turn_hold']
+                       and d > p['turn_gate_dist'])
             if d <= p['trigger_dist'] and abs(s) <= p['lateral_tol'] and not turning:
                 self.on = True
             elif d > p['release_dist'] or abs(s) > p['release_lateral']:
