@@ -138,7 +138,11 @@ def _launch(context):
              '-p', f"box_height_m:={LaunchConfiguration('box_height').perform(context)}",
              '-p', f"stamp_on_receive:={cfg['stamp_on_receive']}",
              '-p', f"range_from_image:={cfg['range_from_image']}",
-             '-p', f"box_face_width_m:={LaunchConfiguration('box_face_width').perform(context)}"]))
+             '-p', f"box_face_width_m:={LaunchConfiguration('box_face_width').perform(context)}",
+             # One frame is enough (user, 2026-10-01: detection is accurate; on the
+             # loaded Pi three agreeing frames took long and image ranging while
+             # turning kept resetting the window as "unstable").
+             '-p', 'confirm_frames:=1']))
 
     actions.append(ExecuteProcess(
         name='box_on_path', output='screen',
