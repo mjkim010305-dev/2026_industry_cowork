@@ -50,6 +50,7 @@ class VisualApproach(Node):
         self.target = None          # (time, x_tan)
         self.fill = None            # (time, fraction)
         self.front_min = None
+        self._cone_cache = None  # (angle_min, angle_increment, n, indices) - festa_demo: Pi load, 2026-10-01
         self.create_subscription(PointStamped, 'green_box/image_target', self._on_target,
                                  best_effort, callback_group=cb)
         self.create_subscription(Float32, 'green_box/image_fill', self._on_fill,
@@ -69,11 +70,20 @@ class VisualApproach(Node):
             self.fill = (time.monotonic(), m.data)
 
     def _on_scan(self, m):
+        # festa_demo: Pi load, 2026-10-01 - the set of beam indices inside the
+        # front cone only depends on the scan geometry, not the ranges, so
+        # cache it instead of recomputing atan2(sin, cos) per beam per message.
+        key = (m.angle_min, m.angle_increment, len(m.ranges))
+        if self._cone_cache is None or self._cone_cache[0] != key:
+            half = self.p['front_half_angle']
+            indices = [i for i in range(len(m.ranges))
+                       if abs(math.atan2(math.sin(m.angle_min + i * m.angle_increment),
+                                        math.cos(m.angle_min + i * m.angle_increment))) <= half]
+            self._cone_cache = (key, indices)
         best = None
-        for i, r in enumerate(m.ranges):
-            a = math.atan2(math.sin(m.angle_min + i * m.angle_increment),
-                           math.cos(m.angle_min + i * m.angle_increment))
-            if abs(a) <= self.p['front_half_angle'] and math.isfinite(r) and r > 0.0:
+        for i in self._cone_cache[1]:
+            r = m.ranges[i]
+            if math.isfinite(r) and r > 0.0:
                 best = r if best is None else min(best, r)
         with self.lock:
             self.front_min = best

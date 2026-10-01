@@ -37,6 +37,7 @@ class PushThrough(Node):
         self.lock = threading.Lock()
         self.odom_xy = None
         self.front_min = None
+        self._cone_cache = None  # (angle_min, angle_increment, n, indices) - festa_demo: Pi load, 2026-10-01
         self.create_subscription(Odometry, 'odom', self._on_odom, 10, callback_group=cb)
         self.create_subscription(LaserScan, 'scan', self._on_scan,
                                  QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT),
@@ -51,11 +52,20 @@ class PushThrough(Node):
             self.odom_xy = (m.pose.pose.position.x, m.pose.pose.position.y)
 
     def _on_scan(self, m):
+        # festa_demo: Pi load, 2026-10-01 - the set of beam indices inside the
+        # front cone only depends on the scan geometry, not the ranges, so
+        # cache it instead of recomputing atan2(sin, cos) per beam per message.
+        key = (m.angle_min, m.angle_increment, len(m.ranges))
+        if self._cone_cache is None or self._cone_cache[0] != key:
+            half = self.p['front_half_angle']
+            indices = [i for i in range(len(m.ranges))
+                       if abs(math.atan2(math.sin(m.angle_min + i * m.angle_increment),
+                                        math.cos(m.angle_min + i * m.angle_increment))) <= half]
+            self._cone_cache = (key, indices)
         best = None
-        for i, r in enumerate(m.ranges):
-            a = math.atan2(math.sin(m.angle_min + i * m.angle_increment),
-                           math.cos(m.angle_min + i * m.angle_increment))
-            if abs(a) <= self.p['front_half_angle'] and math.isfinite(r) and r > 0.0:
+        for i in self._cone_cache[1]:
+            r = m.ranges[i]
+            if math.isfinite(r) and r > 0.0:
                 best = r if best is None else min(best, r)
         with self.lock:
             self.front_min = best
