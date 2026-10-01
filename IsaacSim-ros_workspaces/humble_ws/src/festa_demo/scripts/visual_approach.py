@@ -101,7 +101,7 @@ class VisualApproach(Node):
         best = None
         for i in self._cone_cache[1]:
             r = m.ranges[i]
-            if math.isfinite(r) and m.range_min <= r <= m.range_max:  # festa_demo: S1e 0.02 m glitch < range_min 0.12
+            if math.isfinite(r) and r > 0.0 and m.range_min <= r <= m.range_max:  # festa_demo: S1e 0.02 m glitch < range_min 0.12 (real LDS-02 reports range_min 0.0)
                 best = r if best is None else min(best, r)
         with self.lock:
             self.front_min = best
