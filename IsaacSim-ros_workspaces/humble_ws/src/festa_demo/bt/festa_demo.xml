@@ -88,6 +88,14 @@
                                    server_timeout="5.0" accept_timeout="15.0" sweep_timeout="30.0"
                                    result_code="{push_result}"/>
                   </ForceSuccess>
+                  <!-- festa_demo (2026-10-02, sim S25_V5): approach and push ignore Nav2's costmap; if they
+                       left the robot within 0.25 m of a wall, Nav2 rejects every motion as in collision.
+                       /escape (push_through.py) moves it clear first, without a costmap check. -->
+                  <ForceSuccess>
+                    <SweepObstacle name="EscapeAfterPush" action_name="/escape"
+                                   server_timeout="5.0" accept_timeout="15.0" sweep_timeout="30.0"
+                                   result_code="{escape_result}"/>
+                  </ForceSuccess>
                   <!-- festa_demo (2026-10-02): no box_swept latch any more - the next box (or the
                        same one put back) is handled again; a box swept aside is not in front. -->
                   <ClearEntireCostmap name="ClearLocalCostmap-Resume"
@@ -121,11 +129,14 @@
         </PipelineSequence>
         <ReactiveFallback name="RecoveryFallback">
           <GoalUpdated/>
-          <!-- festa_demo (2026-10-02, sim S25_V1, S25_V4): BackUp first. Both times the robot was
+          <!-- festa_demo (2026-10-02, sim S25_V5): /escape first - inside 0.20 m of a wall BackUp and
+               Spin fail at once ("Collision Ahead"). Then (sim S25_V1, S25_V4) BackUp. Both times the robot was
                wedged nose-first (pillar, inner corner of the L); clearing does not free it and a
                Spin hits the same wall. 0.15 m: the arm at P_REAR_CARRY sticks out behind the
                0.20 m footprint the behavior server checks. -->
           <RoundRobin name="RecoveryActions">
+            <SweepObstacle name="Escape" action_name="/escape" server_timeout="5.0" accept_timeout="15.0"
+                           sweep_timeout="30.0" result_code="{escape_result}"/>
             <BackUp backup_dist="0.15" backup_speed="0.05"/>
             <Sequence name="ClearingActions">
               <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
