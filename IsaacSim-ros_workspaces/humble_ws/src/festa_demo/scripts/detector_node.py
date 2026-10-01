@@ -232,8 +232,12 @@ class GreenBoxDetector(Node):
         self.create_subscription(
             CameraInfo, self.camera_info_topic, self._on_camera_info, sensor_qos,
             callback_group=scan_group)
-        self.create_subscription(
-            LaserScan, self.scan_topic, self._on_scan, sensor_qos, callback_group=scan_group)
+        # festa_demo: Pi load, 2026-10-01 - range_from_image never calls
+        # _resolve_front's lidar branch (it returns from _resolve_from_image
+        # first), so the scan subscription/buffer would just burn CPU unused.
+        if not self.range_from_image:
+            self.create_subscription(
+                LaserScan, self.scan_topic, self._on_scan, sensor_qos, callback_group=scan_group)
 
         self.pose_pub = self.create_publisher(
             PoseStamped, "green_box/pose", qos_profile_system_default)
@@ -550,6 +554,10 @@ class GreenBoxDetector(Node):
         self.pose_pub.publish(pose)
 
     def _publish_debug_image(self, bgr, mask, bbox, detected, source, reason):
+        # festa_demo: Pi load, 2026-10-01 - nothing on the robot subscribes to
+        # green_box/debug_image; skip the copy/draw/convert when no one's listening.
+        if self.debug_image_pub.get_subscription_count() == 0:
+            return
         debug = bgr.copy()
         outline = cv2.bitwise_and(bgr, bgr, mask=mask)
         debug = cv2.addWeighted(debug, 0.6, outline, 0.4, 0)
@@ -581,7 +589,9 @@ def main(args=None):
     node = GreenBoxDetector()
     # Multi-threaded so TF and scan callbacks keep running while an image
     # callback waits in a stamped lookup_transform (see fixed_frame notes).
-    executor = MultiThreadedExecutor(num_threads=4)
+    # festa_demo: Pi load, 2026-10-01 - fewer threads than callback groups is fine,
+    # they just take turns; 4 was oversubscribing the Pi's CPU for no benefit.
+    executor = MultiThreadedExecutor(num_threads=2)
     executor.add_node(node)
     try:
         executor.spin()
