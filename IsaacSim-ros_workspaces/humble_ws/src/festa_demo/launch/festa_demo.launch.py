@@ -136,7 +136,8 @@ def _launch(context):
              '-p', f"box_depth_m:={LaunchConfiguration('box_depth').perform(context)}",
              '-p', f"box_height_m:={LaunchConfiguration('box_height').perform(context)}",
              '-p', f"stamp_on_receive:={cfg['stamp_on_receive']}",
-             '-p', f"range_from_image:={cfg['range_from_image']}"]))
+             '-p', f"range_from_image:={cfg['range_from_image']}",
+             '-p', f"box_face_width_m:={LaunchConfiguration('box_face_width').perform(context)}"]))
 
     actions.append(ExecuteProcess(
         name='box_on_path', output='screen',
@@ -148,7 +149,7 @@ def _launch(context):
         cmd=['python3', os.path.join(lib, 'visual_approach.py'), '--ros-args',
              '-p', f'use_sim_time:={str(sim).lower()}',
              '-p', f"camera_frame:={cfg['camera_frame']}",
-             '-p', f"box_width:={LaunchConfiguration('box_depth').perform(context)}",
+             '-p', f"box_width:={LaunchConfiguration('box_face_width').perform(context)}",
              '-p', f"box_depth:={LaunchConfiguration('box_depth').perform(context)}"]))
 
     actions.append(ExecuteProcess(
@@ -180,6 +181,9 @@ def generate_launch_description():
                               description='Nav2 params (default: params/festa_demo_nav2.yaml)'),
         DeclareLaunchArgument('box_depth', default_value='0.185', description='green box depth [m] (detector)'),
         DeclareLaunchArgument('box_height', default_value='0.12', description='green box height [m] (detector)'),
+        DeclareLaunchArgument('box_face_width', default_value='0.24',
+                              description='apparent box width in the image [m] for image ranging '
+                                          '(real upright box 2026-10-01: 0.185 m face looked ~0.24 m)'),
         DeclareLaunchArgument('set_initial_pose', default_value='true'),
         DeclareLaunchArgument('return_to_start', default_value='true',
                               description='after reaching the goal, drive back to initial_x/y/yaw'),

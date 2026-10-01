@@ -24,8 +24,14 @@ Phases:
        forward while still steering, until the box centre is handoff_dist
        away (the box is still well inside the frame there; at the sweep
        stop its face is ~7 cm from the lens and does not fit).
-    2. final: drive straight by odometry for the remaining
-       (distance - stop_dist), no camera.
+    2. final: drive forward, still steering by the image while the whole box
+       is in the frame (straight once it is cut off), until the lidar's forward cone sees
+       the box face at face_stop_dist, or odometry has covered
+       (distance - stop_dist) + final_extra, whichever first. Real robot R10/R11
+       (2026-10-01): the upright box looked ~1.3x wider than its 0.185 m face,
+       so the range read short and the odometry-only stop left the box 0.37 m
+       ahead, outside the sweep (0.16-0.26 m); box_width is set to that
+       effective width and the lidar face check closes the rest.
     A forward lidar cone (backstop_dist) stops either phase.
 """
 import math
@@ -56,7 +62,8 @@ class VisualApproach(Node):
             ('stop_dist', 0.24), ('handoff_dist', 0.45),
             ('align_tol', 0.035), ('kp', 1.5), ('max_w', 0.6), ('min_w', 0.15),
             ('approach_speed', 0.08), ('image_timeout', 1.0), ('lost_timeout', 3.0),
-            ('backstop_dist', 0.10), ('front_half_angle', 0.26), ('time_allowance', 60.0))}
+            ('backstop_dist', 0.10), ('front_half_angle', 0.26), ('time_allowance', 60.0),
+            ('face_stop_dist', 0.16), ('final_extra', 0.10))}
         self.p = p
         cb = ReentrantCallbackGroup()
         best_effort = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT)
@@ -152,11 +159,25 @@ class VisualApproach(Node):
                 if odom0 is None:
                     odom0 = odom_xy
                 done = math.hypot(odom_xy[0] - odom0[0], odom_xy[1] - odom0[1])
-                if done >= remaining:
-                    self.get_logger().info(f'visual_approach: final {done:.2f}/{remaining:.2f} m - stopped')
+                if front_min is not None and front_min <= p['face_stop_dist']:
+                    self.get_logger().info(
+                        f'visual_approach: box face at {front_min:.2f} m after {done:.2f} m - stopped')
                     code = 'SUCCESS'
                     break
-                self._cmd(p['approach_speed'], 0.0)
+                if done >= remaining + p['final_extra']:
+                    self.get_logger().info(
+                        f'visual_approach: final {done:.2f} m (odometry cap {remaining:.2f}+'
+                        f'{p["final_extra"]:.2f}) - stopped')
+                    code = 'SUCCESS'
+                    break
+                # Keep centring on the image while the whole box is still in
+                # the frame (user, R11: close enough, but not centred); once
+                # the bbox is cut by the frame edge, hold the heading.
+                w = 0.0
+                if target is not None and now - target[0] <= p['image_timeout'] and not target[3]:
+                    bx, by = self._box_in_base(target[1], target[2])
+                    w = max(-p['max_w'], min(p['max_w'], p['kp'] * math.atan2(by, bx)))
+                self._cmd(p['approach_speed'], w)
                 continue
             if self._camera_offset() is None:
                 self._cmd(0, 0)

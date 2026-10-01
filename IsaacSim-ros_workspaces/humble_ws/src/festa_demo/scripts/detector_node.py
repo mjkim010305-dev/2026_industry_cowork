@@ -183,6 +183,7 @@ class GreenBoxDetector(Node):
         # output <- camera transform; no lidar, no stamped TF. User decision
         # 2026-10-01: lidar for walls/obstacles only, the box from the image.
         self.range_from_image = bool(self.declare_parameter("range_from_image", False).value)
+        self.box_face_width_m = float(self.declare_parameter("box_face_width_m", 0.185).value)
 
         self.bridge = CvBridge()
         self.intrinsics = None          # (fx, fy, cx, cy)
@@ -454,7 +455,7 @@ class GreenBoxDetector(Node):
         x, _, w, _ = bbox
         if x <= self.edge_margin_px or x + w >= 2.0 * cx - self.edge_margin_px:
             return None, "clipped"
-        face = self.box_depth_m * fx / float(w)
+        face = self.box_face_width_m * fx / float(w)
         centre_cam = (((x + w / 2.0) - cx) / fx * face, 0.0, face + self.box_depth_m / 2.0)
         tf_oc = self._lookup_slow_transform(
             self.output_frame, camera_frame, image_header.stamp, "camera->output")
