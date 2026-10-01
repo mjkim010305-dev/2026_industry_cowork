@@ -169,7 +169,9 @@ class VisualApproach(Node):
         turn_until = 0.0            # festa_demo: end of the current turn pulse
         look_after = None           # festa_demo: wait for an image received after this
         contact = False             # festa_demo (S24_R4): touching the box
-        ref = None                  # (odom_dist, fill) at the start of the current forward drive
+        ref = None                  # (odom_dist, fill, cmd_travel) at the start of the current forward drive
+        cmd_travel = 0.0            # festa_demo (S25_V4): distance commanded forward (ROS clock)
+        last_drive = None           # (ROS time s, v) of the previous loop's forward command
         with self.lock:
             self._goal_gen += 1
             my = self._goal_gen
@@ -201,12 +203,14 @@ class VisualApproach(Node):
                 break
             if target is None or now - target[0] > p['image_timeout']:
                 self._cmd(0, 0)
+                last_drive = None
                 if now - last_seen > p['lost_timeout']:
                     self.get_logger().error('visual_approach: box not in view')
                     break
                 continue
             last_seen = now
             if now < turn_until:
+                last_drive = None
                 continue                               # keep the pulse's turn command
             if turn_until:
                 self._cmd(0, 0)                        # pulse over: stop, then look
@@ -214,25 +218,35 @@ class VisualApproach(Node):
                 turn_until = 0.0
             if look_after is not None:
                 if target[0] < look_after:
+                    last_drive = None
                     continue
                 look_after = None
             bearing = -math.atan(target[1])            # + = box left of the image centre
             fill_now = fill[1] if fill is not None and now - fill[0] <= p['image_timeout'] else 0.0
             action, v, w, state = self._decide(p, bearing, target[2], fill_now, contact)
+            # festa_demo (2026-10-02, sim S25_V4): travel = max(odometry, commanded). Wedged with
+            # the wheels stalled, odometry stood still too and the check never fired (50 sim s).
+            t_ros = self.get_clock().now().nanoseconds * 1e-9
+            if action == 'drive' and last_drive is not None:
+                cmd_travel += last_drive[1] * max(0.0, t_ros - last_drive[0])
             if action == 'drive' and fill_now >= p['near_fill'] and not contact:
                 if ref is None:
-                    ref = (odom_dist, fill_now)
-                elif odom_dist - ref[0] >= p['contact_travel']:
-                    if fill_now - ref[1] < p['contact_fill_gain']:
-                        contact = True
-                        self.get_logger().warn(
-                            f'visual_approach: drove {odom_dist - ref[0]:.2f} m but the fill only went '
-                            f'{100 * ref[1]:.0f}% -> {100 * fill_now:.0f}% - touching the box, counts as filled')
-                        action, v, w, state = self._decide(p, bearing, target[2], fill_now, contact)
-                    else:
-                        ref = (odom_dist, fill_now)
+                    ref = (odom_dist, fill_now, cmd_travel)
+                else:
+                    travel = max(odom_dist - ref[0], cmd_travel - ref[2])
+                    if travel >= p['contact_travel']:
+                        if fill_now - ref[1] < p['contact_fill_gain']:
+                            contact = True
+                            self.get_logger().warn(
+                                f'visual_approach: drove {travel:.2f} m (odometry {odom_dist - ref[0]:.2f} m) '
+                                f'but the fill only went {100 * ref[1]:.0f}% -> {100 * fill_now:.0f}% '
+                                f'- touching the box, counts as filled')
+                            action, v, w, state = self._decide(p, bearing, target[2], fill_now, contact)
+                        else:
+                            ref = (odom_dist, fill_now, cmd_travel)
             elif action != 'drive':
                 ref = None
+            last_drive = (t_ros, v) if action == 'drive' else None
             if action == 'stop':
                 self.get_logger().info(
                     f'visual_approach: box fills {100 * fill_now:.0f}% of the frame, '
