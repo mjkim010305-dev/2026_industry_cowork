@@ -80,7 +80,7 @@ from cv_bridge import CvBridge
 from geometry_msgs.msg import PointStamped, PoseStamped, PoseWithCovarianceStamped
 from tf2_msgs.msg import TFMessage
 from sensor_msgs.msg import CameraInfo, Image, LaserScan
-from std_msgs.msg import Bool, Float32
+from std_msgs.msg import Bool, Float32, Float32MultiArray
 from tf2_ros import Buffer, TransformListener, TransformException
 
 # festa_demo: was `from green_box_approach.geometry import (` (script-dir import)
@@ -243,12 +243,19 @@ class GreenBoxDetector(Node):
             PoseStamped, "green_box/pose", qos_profile_system_default)
         self.detected_pub = self.create_publisher(
             Bool, "green_box/detected", qos_profile_system_default)
-        self.debug_image_pub = self.create_publisher(Image, "green_box/debug_image", sensor_qos)
+        # festa_demo (2026-10-01, user): no debug image drawn on the Pi any more. Instead
+        # the raw bbox numbers go out every processed frame and a viewer on the server
+        # draws them over the camera image (mona-scenes real_bbox_view):
+        # data = [x, y, w, h, image_w, image_h, clip, fill]  (pixels; w = 0: no blob;
+        # clip as in image_target z; fill = green fraction of the frame)
+        self.bbox_pub = self.create_publisher(Float32MultiArray, "green_box/bbox", sensor_qos)
         # festa_demo: image-only measurement for visual_approach.py, published for
         # every frame with a wide-enough green blob, before any TF/lidar use.
         # x = (bbox centre column - cx) / fx  (tan of the bearing, + = right)
         # y = bbox width / fx                 (angular width of the box)
-        # z = 1.0 if the bbox touches the left/right image border (width clipped)
+        # z = which left/right image border the bbox touches: 0 none, 1 left only,
+        #     2 right only, 3 both (box wider than the view) - festa_demo 2026-10-01: a
+        #     clipped bbox centre is not the box centre, visual_approach stops steering on it
         # festa_demo: fraction of the frame that is green (0..1), every processed
         # frame; visual_approach stops when the box fills the frame (user,
         # 2026-10-01: "the box should fill almost the whole frame, like now").
@@ -315,8 +322,16 @@ class GreenBoxDetector(Node):
             kernel = np.ones((self.morph_kernel, self.morph_kernel), np.uint8)
             mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
 
-        self.image_fill_pub.publish(Float32(data=float(np.count_nonzero(mask)) / mask.size))
+        fill = float(np.count_nonzero(mask)) / mask.size
+        self.image_fill_pub.publish(Float32(data=fill))
         bbox = hsv_mask_to_blob(mask, self.min_area)
+        clip = 0
+        if bbox is not None:
+            clip = ((1 if bbox[0] <= self.edge_margin_px else 0) |
+                    (2 if bbox[0] + bbox[2] >= bgr.shape[1] - self.edge_margin_px else 0))
+        self.bbox_pub.publish(Float32MultiArray(data=[
+            float(v) for v in (bbox if bbox is not None else (0, 0, 0, 0))] +
+            [float(bgr.shape[1]), float(bgr.shape[0]), float(clip), fill]))
         detected = False
         source = "none"
         pose_xy = None
@@ -336,8 +351,7 @@ class GreenBoxDetector(Node):
             target.header = msg.header
             target.point.x = ((bx + bw / 2.0) - cx) / fx
             target.point.y = bw / fx
-            target.point.z = 1.0 if (bx <= self.edge_margin_px or
-                                     bx + bw >= bgr.shape[1] - self.edge_margin_px) else 0.0
+            target.point.z = float(clip)
             self.image_target_pub.publish(target)
             pose_xy, source = self._resolve_front(
                 msg.header, bbox, fx, fy, cx, cy, bgr.shape[0])
@@ -375,7 +389,6 @@ class GreenBoxDetector(Node):
         # last value instead of flickering to False.
         if reason not in ("unsynced", "no-tf"):
             self.detected_pub.publish(Bool(data=detected))
-        self._publish_debug_image(bgr, mask, bbox, detected, source, reason)
 
     # ------------------------------------------------------------------
     # ranging
@@ -552,36 +565,6 @@ class GreenBoxDetector(Node):
         pose.pose.position.z = 0.0
         pose.pose.orientation.w = 1.0
         self.pose_pub.publish(pose)
-
-    def _publish_debug_image(self, bgr, mask, bbox, detected, source, reason):
-        # festa_demo: Pi load, 2026-10-01 - nothing on the robot subscribes to
-        # green_box/debug_image; skip the copy/draw/convert when no one's listening.
-        if self.debug_image_pub.get_subscription_count() == 0:
-            return
-        debug = bgr.copy()
-        outline = cv2.bitwise_and(bgr, bgr, mask=mask)
-        debug = cv2.addWeighted(debug, 0.6, outline, 0.4, 0)
-        if bbox is not None:
-            x, y, w, h = bbox
-            # Green + "MOVABLE" once confirmed (what the BT acts on), yellow
-            # with the reason while it is still confirming or was rejected.
-            colour = (0, 200, 0) if detected else (0, 200, 255)
-            tag = "MOVABLE: green box" if detected else reason
-            cv2.rectangle(debug, (x, y), (x + w, y + h), colour, 3)
-            (tw, th), _ = cv2.getTextSize(tag, cv2.FONT_HERSHEY_SIMPLEX, 0.8, 2)
-            ty = max(th + 8, y)
-            cv2.rectangle(debug, (x, ty - th - 8), (x + tw + 10, ty), colour, -1)
-            cv2.putText(debug, tag, (x + 5, ty - 5), cv2.FONT_HERSHEY_SIMPLEX, 0.8,
-                        (20, 20, 20), 2, cv2.LINE_AA)
-        text = "detected=%s source=%s reason=%s" % (detected, source, reason)
-        cv2.putText(debug, text, (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5,
-                    (0, 0, 255), 1, cv2.LINE_AA)
-        try:
-            msg = self.bridge.cv2_to_imgmsg(debug, encoding="bgr8")
-        except Exception as exc:                      # noqa: BLE001 - log and drop
-            self.get_logger().warn("green_box_detector: debug image convert failed: %s" % exc)
-            return
-        self.debug_image_pub.publish(msg)
 
 
 def main(args=None):
