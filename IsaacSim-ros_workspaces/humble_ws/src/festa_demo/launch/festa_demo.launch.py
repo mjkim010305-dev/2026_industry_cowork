@@ -142,7 +142,8 @@ def _launch(context):
              # One frame is enough (user, 2026-10-01: detection is accurate; on the
              # loaded Pi three agreeing frames took long and image ranging while
              # turning kept resetting the window as "unstable").
-             '-p', 'confirm_frames:=1']))
+             '-p', 'confirm_frames:=1',
+             '-p', 'max_rate_hz:=5.0']))
 
     actions.append(ExecuteProcess(
         name='box_on_path', output='screen',

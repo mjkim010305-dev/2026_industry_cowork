@@ -36,8 +36,8 @@ amcl:
     # landing in the blind arc and contributing no real correction information.
     # Raising the count compensates so enough beams still land in the valid ~205 degrees.
     max_beams: 200
-    max_particles: 2000
-    min_particles: 500
+    max_particles: 500   # festa_demo: Pi load 6.6-11.6 / 4 cores (2026-10-01 R2, R13); was 2000
+    min_particles: 200   # was 500
     odom_frame_id: "odom"
     pf_err: 0.05
     pf_z: 0.99
@@ -157,7 +157,7 @@ bt_navigator_navigate_to_pose_rclcpp_node:
 controller_server:
   ros__parameters:
     use_sim_time: True
-    controller_frequency: 20.0
+    controller_frequency: 10.0   # festa_demo: Pi load 6.6-11.6 / 4 cores (2026-10-01 R2, R13); was 20
     min_x_velocity_threshold: 0.001
     min_y_velocity_threshold: 0.5
     min_theta_velocity_threshold: 0.001
@@ -354,8 +354,8 @@ local_costmap:
       # compared the robot with an empty pose at the odom origin - where the
       # robot started - and reported "Reached the goal!" after 2 s.
       transform_tolerance: 1.0
-      update_frequency: 5.0
-      publish_frequency: 2.0
+      update_frequency: 3.0   # festa_demo: Pi load 6.6-11.6 / 4 cores (2026-10-01 R2, R13); was 5
+      publish_frequency: 1.0   # was 2
       global_frame: odom
       robot_base_frame: base_link
       use_sim_time: True
@@ -509,7 +509,7 @@ waypoint_follower:
 velocity_smoother:
   ros__parameters:
     use_sim_time: True
-    smoothing_frequency: 20.0
+    smoothing_frequency: 10.0   # festa_demo: Pi load 6.6-11.6 / 4 cores (2026-10-01 R2, R13); was 20
     scale_velocities: False
     feedback: "OPEN_LOOP"
     max_velocity: [0.26, 0.0, 1.0]

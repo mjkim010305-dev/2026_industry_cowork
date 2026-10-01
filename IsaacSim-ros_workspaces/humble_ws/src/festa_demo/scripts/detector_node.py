@@ -60,6 +60,7 @@ every image, as before - it is just ``False`` more often now.
 
 from collections import deque
 import threading
+import time
 
 import cv2
 import numpy as np
@@ -184,6 +185,10 @@ class GreenBoxDetector(Node):
         # 2026-10-01: lidar for walls/obstacles only, the box from the image.
         self.range_from_image = bool(self.declare_parameter("range_from_image", False).value)
         self.box_face_width_m = float(self.declare_parameter("box_face_width_m", 0.185).value)
+        # festa_demo: process at most this many frames per second (0 = all);
+        # the Pi ran at load 6.6-11.6 with the detector taking ~74 % of a core.
+        self.max_rate_hz = float(self.declare_parameter("max_rate_hz", 0.0).value)
+        self._last_processed = None
 
         self.bridge = CvBridge()
         self.intrinsics = None          # (fx, fy, cx, cy)
@@ -257,6 +262,11 @@ class GreenBoxDetector(Node):
     def _on_image(self, msg):
         if self.intrinsics is None:
             return
+        if self.max_rate_hz > 0.0:
+            now = time.monotonic()
+            if self._last_processed is not None and now - self._last_processed < 1.0 / self.max_rate_hz:
+                return
+            self._last_processed = now
         if self.stamp_on_receive:
             msg.header.stamp = self.get_clock().now().to_msg()
         try:
