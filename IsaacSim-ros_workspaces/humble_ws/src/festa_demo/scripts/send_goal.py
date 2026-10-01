@@ -6,6 +6,9 @@
    until its lifecycle is active, so a rejected goal is retried.
 3. If return_to_start and the goal succeeded, send a second goal back to the
    initial pose (the box is swept only if it still blocks the way back).
+   round_trips (festa_demo, 2026-10-02): repeat goal -> start that many times,
+   0 = forever (AI Festa: the robot shuttles while visitors put boxes anywhere,
+   any time). A failed leg is sent again; after 3 failures in a row it stops.
 4. Log each result and exit (the rest of the launch keeps running).
 """
 import math
@@ -41,7 +44,7 @@ class SendGoal(Node):
             ('goal_x', 0.0), ('goal_y', 0.0), ('goal_yaw', 0.0),
             ('set_initial_pose', True), ('initial_x', 0.0), ('initial_y', 0.0), ('initial_yaw', 0.0),
             ('return_to_start', True), ('frame_id', 'map'), ('goal_retries', 30),
-            ('pick_first', False), ('send_goal', True))}
+            ('pick_first', False), ('send_goal', True), ('round_trips', 1))}
         self.p = p
         self.amcl_seen = False
         self.create_subscription(PoseWithCovarianceStamped, 'amcl_pose', self._on_amcl,
@@ -205,12 +208,28 @@ def main():
         node.destroy_node()
         rclpy.shutdown()
         return
-    ok = node.send(p['goal_x'], p['goal_y'], p['goal_yaw'])
-    if ok and p['return_to_start']:
-        node.get_logger().info('returning to the start')
+    if not p['return_to_start']:
+        node.send(p['goal_x'], p['goal_y'], p['goal_yaw'])
+    else:
         # Arrive back facing the way it came (initial_yaw + pi), so there is no
         # 180 deg turn next to the start-area walls (D2 drove into the stub there).
-        node.send(p['initial_x'], p['initial_y'], p['initial_yaw'] + math.pi)
+        legs = [('goal', p['goal_x'], p['goal_y'], p['goal_yaw']),
+                ('the start', p['initial_x'], p['initial_y'], p['initial_yaw'] + math.pi)]
+        trips, leg, fails = int(p['round_trips']), 0, 0
+        while rclpy.ok() and (trips <= 0 or leg < 2 * trips):
+            name, x, y, yaw = legs[leg % 2]
+            node.get_logger().info(f'round trip {leg // 2 + 1}: driving to {name}')
+            if node.send(x, y, yaw):
+                leg, fails = leg + 1, 0
+                if leg % 2 == 0:
+                    node.get_logger().info(f'round trip {leg // 2} done')
+                continue
+            fails += 1
+            if fails >= 3:
+                node.get_logger().error(f'3 failures in a row driving to {name} - stopping')
+                break
+            node.get_logger().warn(f'driving to {name} failed ({fails}/3) - sending it again in 5 s')
+            node.spin_for(5.0)
     node.get_logger().info('send_goal done')
     node.destroy_node()
     rclpy.shutdown()
