@@ -79,8 +79,7 @@ from sensor_msgs.msg import CameraInfo, Image, LaserScan
 from std_msgs.msg import Bool
 from tf2_ros import Buffer, TransformListener, TransformException
 
-# festa_demo: script-dir import (geometry.py installed alongside this file
-# in lib/festa_demo), was `from green_box_approach.geometry import ...`
+# festa_demo: was `from green_box_approach.geometry import (` (script-dir import)
 from geometry import (
     bbox_touches_vertical_border,
     box_center_from_front,
@@ -168,9 +167,12 @@ class GreenBoxDetector(Node):
         # captures cancels. `fixed_frame` must be smooth over a second or so
         # (odom, not map). A scan further than `max_scan_image_dt` from the
         # image, or a missing TF at either stamp, drops the frame - there is
-        # no fallback to the latest TF any more.
+        # no fallback to the latest TF any more. 0.25 s covers half the scan
+        # period of a ~5 Hz LDS plus latency (0.1 s dropped most real-robot
+        # frames as "unsynced"); the gap itself is safe because robot motion
+        # between the two captures is compensated through fixed_frame.
         self.fixed_frame = self.declare_parameter("fixed_frame", "odom").value
-        self.max_scan_image_dt = self.declare_parameter("max_scan_image_dt", 0.1).value
+        self.max_scan_image_dt = self.declare_parameter("max_scan_image_dt", 0.25).value
 
         self.bridge = CvBridge()
         self.intrinsics = None          # (fx, fy, cx, cy)
@@ -362,13 +364,30 @@ class GreenBoxDetector(Node):
                 return None, "camera-fallback"
             source = "camera-fallback"
 
-        tf_co = self._lookup_transform(
-            self.output_frame, camera_frame, image_header.stamp, "camera->output")
-        if tf_co is None:
+        # camera -> output is composed as (output <- fixed) x (fixed <- camera)
+        # instead of one stamped lookup through the whole chain. Headless
+        # measurements: the single camera->map lookup at the image stamp
+        # failed on 5-25 % of frames while driving, although replaying the
+        # same /tf data offline into a tf2 Buffer failed on none - the live
+        # buffer simply had not absorbed the newest ticks yet - and the
+        # odom-side lookup at the same stamp never failed. So only the fast
+        # part (fixed <- camera, follows the robot's motion) is taken at the
+        # exact image stamp; output <- fixed (map <- odom, AMCL's slow
+        # correction) may fall back to its newest value.
+        tf_fc = self._lookup_transform(
+            self.fixed_frame, camera_frame, image_header.stamp, "camera->fixed")
+        if tf_fc is None:
             return None, "no-tf"
-        translation, quat = tf_co
-        front_out = transform_point(front_cam, translation, quat)
-        camera_origin_xy = (translation[0], translation[1])
+        front_out = transform_point(front_cam, *tf_fc)
+        camera_origin = tf_fc[0]
+        if self.output_frame != self.fixed_frame:
+            tf_of = self._lookup_slow_transform(
+                self.output_frame, self.fixed_frame, image_header.stamp, "fixed->output")
+            if tf_of is None:
+                return None, "no-tf"
+            front_out = transform_point(front_out, *tf_of)
+            camera_origin = transform_point(camera_origin, *tf_of)
+        camera_origin_xy = (camera_origin[0], camera_origin[1])
         try:
             pose_xy = box_center_from_front(
                 (front_out[0], front_out[1]), camera_origin_xy, self.box_depth_m)
@@ -391,6 +410,30 @@ class GreenBoxDetector(Node):
             self.get_logger().warn(
                 "green_box_detector: TF %s->%s unavailable (%s): %s" %
                 (source_frame, target_frame, context, exc),
+                throttle_duration_sec=2.0)
+            return None
+        t = tf.transform.translation
+        q = tf.transform.rotation
+        return (t.x, t.y, t.z), (q.x, q.y, q.z, q.w)
+
+    def _lookup_slow_transform(self, target_frame, source_frame, stamp, context):
+        """Lookup for a slowly changing transform (map <- odom): the value at
+        ``stamp`` if the buffer already has it, otherwise the newest one.
+        Unlike :meth:`_lookup_transform` this does not wait - the newest
+        AMCL correction is as good as the stamped one for this purpose.
+        ``None`` (logged, throttled) only if the frames are not connected at
+        all, e.g. before AMCL has published map -> odom.
+        """
+        for when in (stamp, Time()):
+            try:
+                tf = self.tf_buffer.lookup_transform(target_frame, source_frame, when)
+                break
+            except TransformException as exc:
+                err = exc
+        else:
+            self.get_logger().warn(
+                "green_box_detector: TF %s->%s unavailable (%s): %s" %
+                (source_frame, target_frame, context, err),
                 throttle_duration_sec=2.0)
             return None
         t = tf.transform.translation

@@ -60,7 +60,10 @@ MODE_DEFAULTS = {
         'publish_camera_tf': 'false',
         'safety_monitor': 'true',
         'isaac_bridge': 'false',
-        'goal_x': '0.0', 'goal_y': '0.0', 'goal_yaw': '0.0',
+        # Robot's own real.yaml (2026-09-30 mapping): (0,0) is the start at the open
+        # end of the horizontal leg facing +x; the goal is the bottom of the
+        # vertical leg (x 1.15..2.65, floor y -2.05), facing down the leg.
+        'goal_x': '1.9', 'goal_y': '-1.7', 'goal_yaw': '-1.5708',
     },
 }
 ARGS = ['map', 'image_topic', 'camera_info_topic', 'camera_frame', 'publish_camera_tf',

@@ -50,7 +50,7 @@ ros2 launch festa_demo festa_demo.launch.py mode:=sim
 |---|---|
 | `action/Sweep.action` | `festa_manipulation/turtlebot3_msgs/action/Sweep.action` (그대로) |
 | `include/festa_demo/*.hpp`, `src/*.cpp` (4개 BT 플러그인) | `custom_nav2_bt_plugins/{include,src}/.../{final_approach_stop_action,sweep_obstacle_action,is_green_box_detected_condition,compute_green_box_approach_goal_action}.{hpp,cpp}` — namespace `custom_nav2_bt_plugins` → `festa_demo`, 인클루드 경로, SweepObstacle의 액션 타입(`turtlebot3_msgs::action::Sweep` → `festa_demo::action::Sweep`)만 변경. BT 노드 이름(`FinalApproachStop`/`SweepObstacle`/`IsGreenBoxDetected`/`ComputeGreenBoxApproachGoal`)과 포트/동작은 동일 |
-| `scripts/detector_node.py` | `green_box_approach/green_box_approach/detector_node.py` — `from green_box_approach.geometry import ...` → `from geometry import ...`만 변경 |
+| `scripts/detector_node.py` | **로봇** `~/turtlebot3_ws/src/green_box_approach/green_box_approach/detector_node.py`(2026-10-01, 실기 튜닝판: max_scan_image_dt 0.25, camera→map을 odom 경유로 합성) — import 한 줄만 변경 |
 | `scripts/geometry.py` | `green_box_approach/green_box_approach/geometry.py` (그대로) |
 | `scripts/obstacle_clear_sequence.py` | `festa_manipulation/festa_action/obstacle_clear_sequence.py` (그대로) |
 | `scripts/sweep_only.py` | `festa_bringup/scripts/sweep_only.py`의 `run_sequence()` 부분 — `FESTA_ACTION_DIR`/`server` 모드 없이 같은 폴더에서 `obstacle_clear_sequence`를 import, `P_HOME`은 `festa_manipulation/festa_action/rear_pick.py`에서 복사한 상수 |
@@ -59,7 +59,8 @@ ros2 launch festa_demo festa_demo.launch.py mode:=sim
 | `scripts/moveit_to_isaac_bridge.py` | `moveit_to_isaac_bridge.py` (그대로, 시뮬 전용) |
 | `bt/festa_demo.xml` | `festa_bringup/bt/festa_l_course_nopick.xml` (트리는 동일, 헤더 코멘트만 변경) |
 | `params/festa_demo_nav2.yaml` | `festa_bringup/params/l_course_nav2.yaml` — `plugin_lib_names`에서 `custom_*` 라이브러리를 모두 빼고 `festa_demo_*` 4개로 교체, `FollowPath`를 rotation shim(DWB 설정 그대로)으로 감쌈 |
-| `maps/*` | `festa_bringup/maps/*` (그대로) |
+| `maps/l_course_sim.*` | `festa_bringup/maps/l_course_sim.*` (그대로) |
+| `maps/l_course_real.*` | **로봇** `~/turtlebot3_ws/src/real.{pgm,yaml}`(2026-09-30 매핑, origin -2.02,-3.2). real 모드 기본 출발 (0,0,0), 목표 (1.9,-1.7,-π/2) |
 | `launch/festa_demo.launch.py` | `festa_bringup/launch/festa_scenario.launch.py`에서 파생 — `pick` 인자 없음, `ws_src` 인자 없음(bridge/sweep server/detector/send_goal 전부 이 패키지에서 실행) |
 
 ## 참고
