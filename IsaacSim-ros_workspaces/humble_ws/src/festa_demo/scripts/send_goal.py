@@ -12,6 +12,7 @@ import math
 import os
 import subprocess
 import sys
+import time
 
 import rclpy
 from rclpy.action import ActionClient
@@ -174,7 +175,11 @@ def pick_part(node):
     js = {}
     sub = node.create_subscription(JointState, 'joint_states',
                                    lambda m: js.update(zip(m.name, m.position)), 10)
-    node.spin_for(1.0)
+    # festa_demo (2026-10-01, sim S1g): 1 s was not enough for a fresh subscription
+    # in sim (joint1=None); wait up to 10 s (wall clock) for the first message.
+    end = time.monotonic() + 10.0
+    while rclpy.ok() and 'joint1' not in js and time.monotonic() < end:
+        rclpy.spin_once(node, timeout_sec=0.1)
     node.destroy_subscription(sub)
     ok = 'joint1' in js and abs(js['joint1'] - (-3.0234761329225988)) < 0.15
     node.get_logger().info(f"pick mode: joint1={js.get('joint1')} -> {'P_REAR_CARRY' if ok else 'NOT at P_REAR_CARRY'}")
