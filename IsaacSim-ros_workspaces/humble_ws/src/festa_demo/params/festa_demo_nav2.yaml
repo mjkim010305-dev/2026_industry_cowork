@@ -36,7 +36,7 @@ amcl:
     # landing in the blind arc and contributing no real correction information.
     # Raising the count compensates so enough beams still land in the valid ~205 degrees.
     max_beams: 200
-    max_particles: 500   # festa_demo: Pi load 6.6-11.6 / 4 cores (2026-10-01 R2, R13); was 2000
+    max_particles: 1000  # festa_demo: 500 (Pi load, R2/R13) let AMCL collapse in R17; was 2000
     min_particles: 200   # was 500
     odom_frame_id: "odom"
     pf_err: 0.05
@@ -45,8 +45,10 @@ amcl:
     # at 0.0, AMCL has no mechanism to inject random particles when average likelihood
     # drops, so once the filter starts diverging (as observed: covariance climbing
     # across two consecutive /amcl_pose samples) it has no way to recover on its own.
-    recovery_alpha_fast: 0.1
-    recovery_alpha_slow: 0.001
+    # festa_demo (R17, 2026-10-01): random injection teleported the pose 1-2 m on the
+    # real robot (Pi load starves the filter); back to 0.0 / 0.0.
+    recovery_alpha_fast: 0.0
+    recovery_alpha_slow: 0.0
     resample_interval: 1
     robot_model_type: "nav2_amcl::DifferentialMotionModel"
     save_pose_rate: 0.5
