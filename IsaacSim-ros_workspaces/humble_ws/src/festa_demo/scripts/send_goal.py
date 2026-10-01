@@ -97,7 +97,6 @@ class SendGoal(Node):
                     self.get_logger().info('Nav2 is active')
                     return True
             self.spin_for(1.0)
-        self.get_logger().warn('Nav2 not reported active; sending the goal anyway')
         return False
 
     def clear_costmaps(self):
@@ -192,7 +191,15 @@ def pick_part(node):
 def main():
     rclpy.init()
     node = SendGoal()
-    node.wait_nav2_active()
+    if not node.wait_nav2_active():
+        # festa_demo (2026-10-02, sim S24_R3): Nav2's load_node replies were lost in a DDS
+        # discovery race and launch_ros waited forever - no Nav2 node was ever active. Goals
+        # cannot work then; say so plainly so the launch can be restarted.
+        node.get_logger().error('NAV2_NEVER_ACTIVE: Nav2 is not active after 180 s - not sending '
+                                'goals; restart the launch')
+        node.destroy_node()
+        rclpy.shutdown()
+        sys.exit(2)
     if node.p['pick_first'] and not pick_part(node):
         node.get_logger().error('pick failed - not sending the goal')
         node.destroy_node()
