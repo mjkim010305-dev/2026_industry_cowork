@@ -43,8 +43,7 @@ JOINT_NAMES = [
 # 동작 설정
 ARM_MOVE_TIME = 2.0
 WAIT_AFTER_GRIP = 1.0
-# festa_demo: 4.0 -> 6.0 (60도까지 쓸 때 joint1 추종 오차가 컷오프 0.045를 살짝 넘음, 사용자: 6초로)
-SWEEP_MOVE_TIME = 6.0
+SWEEP_MOVE_TIME = 4.0
 
 GRIPPER_MAX_EFFORT = 0.0
 
