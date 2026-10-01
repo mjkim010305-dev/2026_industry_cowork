@@ -34,7 +34,9 @@ the AMCL pose.
     off  when along > release_dist or lat > release_lateral, no image for image_timeout s,
          or no route (plan older than plan_timeout s, no AMCL yet)
 Published at 5 Hz: green_box/on_path (Bool) and, while on, green_box/front (PoseStamped,
-base_link, the box position), which bt/festa_demo.xml's IsGreenBoxDetected uses for freshness.
+base_link, the box position), which bt/festa_demo.xml's IsGreenBoxDetected uses for freshness;
+and green_box/map_pose (PoseStamped, map: the robot, AMCL * odometry) for push_through.py's
+wall checks and /escape (sim S25_V5), so no other node needs a TF listener.
 """
 import bisect
 import math
@@ -112,6 +114,7 @@ class BoxOnPath(Node):
         self.create_subscription(Path, 'plan', self._on_plan, 10)
         self.pub = self.create_publisher(Bool, 'green_box/on_path', 10)
         self.front_pub = self.create_publisher(PoseStamped, 'green_box/front', 10)
+        self.pose_pub = self.create_publisher(PoseStamped, 'green_box/map_pose', 10)
         self.create_timer(0.2, self._tick)
 
     def _now(self):
@@ -191,9 +194,21 @@ class BoxOnPath(Node):
                 break
         return route if len(route) >= 2 else None
 
+    def _publish_map_pose(self):
+        if self.map_odom is None or not self.odom_hist:
+            return
+        x, y, yaw = compose(self.map_odom, self.odom_hist[-1][1])
+        m = PoseStamped()
+        m.header.stamp = self.get_clock().now().to_msg()
+        m.header.frame_id = 'map'
+        m.pose.position.x, m.pose.position.y = x, y
+        m.pose.orientation.z, m.pose.orientation.w = math.sin(yaw / 2.0), math.cos(yaw / 2.0)
+        self.pose_pub.publish(m)
+
     def _tick(self):
         p, t = self.p, self.target
         was = self.on
+        self._publish_map_pose()
         route = self._route()
         if t is None or time.monotonic() - t[0] > p['image_timeout']:
             self.on, self.why = False, 'no box in view'
