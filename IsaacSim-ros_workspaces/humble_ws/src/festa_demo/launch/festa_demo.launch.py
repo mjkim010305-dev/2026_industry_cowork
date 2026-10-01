@@ -170,7 +170,10 @@ def _launch(context):
              '-p', f'use_sim_time:={str(sim).lower()}',
              '-p', f"box_face_width_m:={LaunchConfiguration('box_face_width').perform(context)}",
              '-p', f"box_height_m:={LaunchConfiguration('box_height').perform(context)}",
-             '-p', f"camera_info_topic:={cfg['camera_info_topic']}"]))
+             '-p', f"camera_info_topic:={cfg['camera_info_topic']}",
+             # festa_demo (2026-10-02): camera position in base_link for the box position
+             '-p', f"camera_x:={cfg['camera_tf'].split()[0]}",
+             '-p', f"camera_y:={cfg['camera_tf'].split()[1]}"]))
 
     actions.append(ExecuteProcess(
         name='visual_approach', output='screen',
