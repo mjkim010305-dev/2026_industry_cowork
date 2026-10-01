@@ -16,11 +16,20 @@ the reference view); a box off to one side does not get swept. So:
     - stop once green covers fill_stop of the frame and the box is centred;
     - while driving forward (far or near), steering w is clamped to
       max_drive_w, not max_w (max_w/min_w are for the turn-in-place case).
+festa_demo (2026-10-01, R21 wobble): turning in place is a pulse (about 80 % of
+the angle, at most turn_pulse_max s) followed by a stop until an image newer
+than stop + settle_s arrives, so camera/detection delay cannot make it
+overshoot back and forth. Once the bbox touches a left/right image border
+(image_target z != 0) its centre is no longer the box centre: no more
+steering, creep straight at approach_speed and stop on fill_stop (a box wider
+than the view, z = 3, counts as centred). Feedback goes out only when the
+state changes (the 20 Hz feedback starved the BT's accept/result replies).
 No range estimate, TF or odometry. A forward lidar cone (backstop_dist) still
 stops the robot.
 
 Inputs from detector_node.py:
-    green_box/image_target  x = (bbox centre column - cx) / fx  (tan, + = right)
+    green_box/image_target  x = (bbox centre column - cx) / fx  (tan, + = right),
+                            z = clip: 0 none, 1 left, 2 right, 3 both borders
     green_box/image_fill    green pixels / frame pixels
 """
 import math
@@ -45,7 +54,8 @@ class VisualApproach(Node):
     def __init__(self):
         super().__init__('visual_approach')
         p = {n: self.declare_parameter(n, d).value for n, d in (
-            ('fill_stop', 0.90), ('align_tol', 0.05), ('kp', 1.5), ('max_w', 0.6), ('min_w', 0.15),
+            ('fill_stop', 0.90), ('align_tol', 0.087), ('kp', 1.5), ('max_w', 0.4), ('min_w', 0.12),
+            ('settle_s', 0.3), ('turn_pulse_max', 0.5),
             ('max_drive_w', 0.25), ('approach_speed', 0.05), ('far_speed', 0.10), ('near_fill', 0.15),
             ('far_align_tol', 0.26), ('image_timeout', 1.0), ('lost_timeout', 3.0),
             ('backstop_dist', 0.10), ('front_half_angle', 0.26), ('time_allowance', 60.0))}
@@ -53,7 +63,7 @@ class VisualApproach(Node):
         cb = ReentrantCallbackGroup()
         best_effort = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT)
         self.lock = threading.Lock()
-        self.target = None          # (time, x_tan)
+        self.target = None          # (time, x_tan, clip)
         self.fill = None            # (time, fraction)
         self.front_min = None
         self._goal_gen = 0  # festa_demo: preemption, 2026-10-01 - only the newest goal may drive
@@ -70,7 +80,7 @@ class VisualApproach(Node):
 
     def _on_target(self, m):
         with self.lock:
-            self.target = (time.monotonic(), m.point.x)
+            self.target = (time.monotonic(), m.point.x, int(round(m.point.z)))
 
     def _on_fill(self, m):
         with self.lock:
@@ -100,6 +110,25 @@ class VisualApproach(Node):
         t.linear.x, t.angular.z = float(v), float(w)
         self.cmd_pub.publish(t)
 
+    @staticmethod
+    def _decide(p, bearing, clip, fill_now):
+        """festa_demo (2026-10-01): one control decision -> (action, v, w, state);
+        action is 'stop', 'turn' (pulse in place) or 'drive'."""
+        if clip:
+            if fill_now >= p['fill_stop']:
+                return 'stop', 0.0, 0.0, f'STOP clip={clip}'
+            return 'drive', p['approach_speed'], 0.0, f'CREEP clip={clip} fill={100 * fill_now:.0f}%'
+        near = fill_now >= p['near_fill']
+        if abs(bearing) > (p['align_tol'] if near else p['far_align_tol']):
+            w = max(-p['max_w'], min(p['max_w'], p['kp'] * bearing))
+            return 'turn', 0.0, math.copysign(max(abs(w), p['min_w']), w), \
+                f'CENTRE bearing={math.degrees(bearing):.0f}deg'
+        if fill_now >= p['fill_stop']:
+            return 'stop', 0.0, 0.0, 'STOP centred'
+        w = max(-p['max_drive_w'], min(p['max_drive_w'], p['kp'] * bearing))
+        return 'drive', p['approach_speed'] if near else p['far_speed'], w, \
+            f'APPROACH{"" if near else "-FAR"} fill={100 * fill_now:.0f}%'
+
     def _execute(self, goal):
         p = self.p
         fb = Sweep.Feedback()
@@ -107,6 +136,8 @@ class VisualApproach(Node):
         start = time.monotonic()
         last_seen = start
         code = 'ERROR'
+        turn_until = 0.0            # festa_demo: end of the current turn pulse
+        look_after = None           # festa_demo: wait for an image received after this
         with self.lock:
             self._goal_gen += 1
             my = self._goal_gen
@@ -143,26 +174,31 @@ class VisualApproach(Node):
                     break
                 continue
             last_seen = now
+            if now < turn_until:
+                continue                               # keep the pulse's turn command
+            if turn_until:
+                self._cmd(0, 0)                        # pulse over: stop, then look
+                look_after = now + p['settle_s']
+                turn_until = 0.0
+            if look_after is not None:
+                if target[0] < look_after:
+                    continue
+                look_after = None
             bearing = -math.atan(target[1])            # + = box left of the image centre
             fill_now = fill[1] if fill is not None and now - fill[0] <= p['image_timeout'] else 0.0
-            near = fill_now >= p['near_fill']
-            filled = fill_now >= p['fill_stop']
-            if abs(bearing) > (p['align_tol'] if near else p['far_align_tol']):
-                w = max(-p['max_w'], min(p['max_w'], p['kp'] * bearing))
-                self._cmd(0.0, math.copysign(max(abs(w), p['min_w']), w))
-                fb.state = f'CENTRE bearing={math.degrees(bearing):.1f}deg'
-            elif filled:
+            action, v, w, state = self._decide(p, bearing, target[2], fill_now)
+            if action == 'stop':
                 self.get_logger().info(
-                    f'visual_approach: box fills {100 * fill[1]:.0f}% of the frame, '
-                    f'centred at {math.degrees(bearing):.1f} deg - stopped')
+                    f'visual_approach: box fills {100 * fill_now:.0f}% of the frame, '
+                    f'bearing {math.degrees(bearing):.1f} deg, clip {target[2]} - stopped')
                 code = 'SUCCESS'
                 break
-            else:
-                w = max(-p['max_drive_w'], min(p['max_drive_w'], p['kp'] * bearing))
-                self._cmd(p['approach_speed'] if near else p['far_speed'], w)
-                fb.state = (f'APPROACH{"" if near else "-FAR"} fill={100 * fill_now:.0f}% '
-                            f'bearing={math.degrees(bearing):.1f}deg')
-            goal.publish_feedback(fb)
+            self._cmd(v, w)
+            if action == 'turn':
+                turn_until = now + min(p['turn_pulse_max'], 0.8 * abs(bearing) / abs(w))
+            if state != fb.state:
+                fb.state = state
+                goal.publish_feedback(fb)
         self._cmd(0, 0)
         result.result_code = code
         if code == 'SUCCESS':
