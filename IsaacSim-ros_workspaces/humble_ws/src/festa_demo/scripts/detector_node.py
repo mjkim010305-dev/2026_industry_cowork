@@ -59,6 +59,7 @@ every image, as before - it is just ``False`` more often now.
 """
 
 from collections import deque
+import math
 import threading
 import time
 
@@ -70,12 +71,14 @@ from rclpy.callback_groups import MutuallyExclusiveCallbackGroup
 from rclpy.duration import Duration
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
-from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, qos_profile_system_default
+from rclpy.qos import (DurabilityPolicy, QoSProfile, ReliabilityPolicy, HistoryPolicy,
+                       qos_profile_system_default)
 from rclpy.time import Time
 
 from cv_bridge import CvBridge
 
-from geometry_msgs.msg import PointStamped, PoseStamped
+from geometry_msgs.msg import PointStamped, PoseStamped, PoseWithCovarianceStamped
+from tf2_msgs.msg import TFMessage
 from sensor_msgs.msg import CameraInfo, Image, LaserScan
 from std_msgs.msg import Bool
 from tf2_ros import Buffer, TransformListener, TransformException
@@ -200,7 +203,22 @@ class GreenBoxDetector(Node):
         # an image callback waits in lookup_transform (the single-threaded
         # executor used to starve them, so every stamped lookup timed out).
         self.tf_buffer = Buffer(cache_time=Duration(seconds=10.0))
-        self.tf_listener = TransformListener(self.tf_buffer, self)
+        if self.range_from_image:
+            # festa_demo: a Python TransformListener on the robot's /tf (arm joints
+            # at 80 Hz, odom at 50 Hz) cost most of a Pi core. Image ranging only
+            # needs the static base_link -> camera chain (/tf_static) and the
+            # robot's map pose (/amcl_pose).
+            self.amcl_pose = None
+            self.create_subscription(
+                TFMessage, "/tf_static", self._on_tf_static,
+                QoSProfile(depth=100, durability=DurabilityPolicy.TRANSIENT_LOCAL,
+                           reliability=ReliabilityPolicy.RELIABLE))
+            self.create_subscription(
+                PoseWithCovarianceStamped, "amcl_pose", self._on_amcl,
+                QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL,
+                           reliability=ReliabilityPolicy.RELIABLE))
+        else:
+            self.tf_listener = TransformListener(self.tf_buffer, self)
 
         sensor_qos = QoSProfile(
             depth=1,
@@ -236,6 +254,13 @@ class GreenBoxDetector(Node):
 
     # ------------------------------------------------------------------
     # subscriptions
+
+    def _on_tf_static(self, msg):
+        for t in msg.transforms:
+            self.tf_buffer.set_transform_static(t, "tf_static")
+
+    def _on_amcl(self, msg):
+        self.amcl_pose = msg.pose.pose
 
     def _on_camera_info(self, msg):
         if self.intrinsics is None:
@@ -467,12 +492,20 @@ class GreenBoxDetector(Node):
             return None, "clipped"
         face = self.box_face_width_m * fx / float(w)
         centre_cam = (((x + w / 2.0) - cx) / fx * face, 0.0, face + self.box_depth_m / 2.0)
-        tf_oc = self._lookup_slow_transform(
-            self.output_frame, camera_frame, image_header.stamp, "camera->output")
-        if tf_oc is None:
+        try:
+            tf_bc = self.tf_buffer.lookup_transform("base_link", camera_frame, Time())
+        except TransformException as exc:
+            self.get_logger().warn("green_box_detector: static base_link<-camera: %s" % exc,
+                                   throttle_duration_sec=2.0)
             return None, "no-tf"
-        out = transform_point(centre_cam, *tf_oc)
-        return (out[0], out[1]), "image"
+        if self.amcl_pose is None:
+            return None, "no-tf"
+        t, q = tf_bc.transform.translation, tf_bc.transform.rotation
+        bx, by, _ = transform_point(centre_cam, (t.x, t.y, t.z), (q.x, q.y, q.z, q.w))
+        p, o = self.amcl_pose.position, self.amcl_pose.orientation
+        yaw = math.atan2(2.0 * (o.w * o.z + o.x * o.y), 1.0 - 2.0 * (o.y * o.y + o.z * o.z))
+        return (p.x + math.cos(yaw) * bx - math.sin(yaw) * by,
+                p.y + math.sin(yaw) * bx + math.cos(yaw) * by), "image"
 
     def _lookup_slow_transform(self, target_frame, source_frame, stamp, context):
         """Lookup for a slowly changing transform (map <- odom): the value at

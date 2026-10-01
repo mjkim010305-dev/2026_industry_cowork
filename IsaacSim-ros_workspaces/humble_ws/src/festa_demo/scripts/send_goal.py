@@ -49,8 +49,9 @@ class SendGoal(Node):
         self.init_pub = self.create_publisher(PoseWithCovarianceStamped, 'initialpose', 10)
         self.nav = ActionClient(self, NavigateToPose, 'navigate_to_pose')
 
-    def _on_amcl(self, _msg):
+    def _on_amcl(self, msg):
         self.amcl_seen = True
+        self.amcl_xy = (msg.pose.pose.position.x, msg.pose.pose.position.y)
 
     def spin_for(self, seconds):
         end = self.get_clock().now().nanoseconds + int(seconds * 1e9)
@@ -112,6 +113,23 @@ class SendGoal(Node):
         self.spin_for(3.0)   # let a few scans refill them at the right pose
 
     def send(self, x, y, yaw):
+        # festa_demo: on the robot's Pi Nav2 reported "Reached the goal!" with the
+        # robot metres away (R1, R2, R13, R14), so a SUCCEEDED is checked against
+        # AMCL and the goal re-sent (up to 3 times) when the robot is not there.
+        for check in range(4):
+            ok = self._send_once(x, y, yaw)
+            if not ok:
+                return False
+            self.spin_for(1.0)
+            xy = getattr(self, 'amcl_xy', None)
+            off = math.hypot(xy[0] - x, xy[1] - y) if xy else 0.0
+            if off <= 0.6:
+                return True
+            self.get_logger().warn(
+                f'SUCCEEDED but the robot is {off:.2f} m from the goal - re-sending ({check + 1}/3)')
+        return False
+
+    def _send_once(self, x, y, yaw):
         goal = NavigateToPose.Goal()
         goal.pose = PoseStamped()
         goal.pose.header.frame_id = self.p['frame_id']

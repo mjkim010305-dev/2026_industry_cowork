@@ -47,7 +47,9 @@ from rclpy.qos import QoSProfile, ReliabilityPolicy
 from geometry_msgs.msg import PointStamped, Twist
 from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
-from tf2_ros import Buffer, TransformListener
+from rclpy.qos import DurabilityPolicy
+from tf2_msgs.msg import TFMessage
+from tf2_ros import Buffer
 
 from festa_demo.action import Sweep
 
@@ -76,8 +78,14 @@ class VisualApproach(Node):
         self.create_subscription(Odometry, 'odom', self._on_odom, 10, callback_group=cb)
         self.create_subscription(LaserScan, 'scan', self._on_scan, best_effort, callback_group=cb)
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel', 10)
+        # Only the static base_link -> camera chain is needed: a Python
+        # TransformListener on the robot's 130 Hz /tf cost ~half a Pi core.
         self.tf_buffer = Buffer()
-        self.tf_listener = TransformListener(self.tf_buffer, self)
+        self.create_subscription(
+            TFMessage, '/tf_static',
+            lambda m: [self.tf_buffer.set_transform_static(t, 'tf_static') for t in m.transforms],
+            QoSProfile(depth=100, durability=DurabilityPolicy.TRANSIENT_LOCAL,
+                       reliability=ReliabilityPolicy.RELIABLE), callback_group=cb)
         self.cam = None
         ActionServer(self, Sweep, 'visual_approach', execute_callback=self._execute,
                      cancel_callback=lambda _g: CancelResponse.ACCEPT, callback_group=cb)
