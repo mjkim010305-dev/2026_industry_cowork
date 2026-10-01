@@ -8,7 +8,7 @@
    initial pose (the box is swept only if it still blocks the way back).
    round_trips (festa_demo, 2026-10-02): repeat goal -> start that many times,
    0 = forever (AI Festa: the robot shuttles while visitors put boxes anywhere,
-   any time). A failed leg is sent again; after 3 failures in a row it stops.
+   any time). A failed leg is sent again, after 10/20/30 s, without limit.
 4. Log each result and exit (the rest of the launch keeps running).
 """
 import math
@@ -224,12 +224,12 @@ def main():
                 if leg % 2 == 0:
                     node.get_logger().info(f'round trip {leg // 2} done')
                 continue
+            # festa_demo (2026-10-02, sim S25_V5): never give up on the shuttle; wait 10 s, then
+            # 20 s, then 30 s between attempts (the BT's own recoveries run inside each attempt).
             fails += 1
-            if fails >= 3:
-                node.get_logger().error(f'3 failures in a row driving to {name} - stopping')
-                break
-            node.get_logger().warn(f'driving to {name} failed ({fails}/3) - sending it again in 5 s')
-            node.spin_for(5.0)
+            wait = min(10.0 * fails, 30.0)
+            node.get_logger().warn(f'driving to {name} failed ({fails} in a row) - sending it again in {wait:.0f} s')
+            node.spin_for(wait)
     node.get_logger().info('send_goal done')
     node.destroy_node()
     rclpy.shutdown()
