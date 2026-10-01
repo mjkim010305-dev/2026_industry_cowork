@@ -46,9 +46,10 @@ MODE_DEFAULTS = {
         'camera_info_topic': '/front_camera_info',
         'camera_frame': 'camera_optical',
         'publish_camera_tf': 'true',
-        # Measured base_link -> optical transform of the simulated TB3 camera
-        # (same values as festa_scenario.launch.py).
-        'camera_tf': '0.017 0.0 0.4609 -0.524453 0.547077 -0.460846 0.461819',
+        # base_link -> front_camera as Isaac itself publishes it (/tf: base_link -> rsd455
+        # (0.073, -0.0007, 0.0947), rsd455 -> front_camera (0, -0.0115, 0), level), measured
+        # 2026-10-01. The old festa_scenario value (0.017, 0, 0.461, 8.6 deg down) was wrong.
+        'camera_tf': '0.073 -0.0122 0.0947 -0.5 0.5 -0.5 0.5',
         'safety_monitor': 'false',
         'isaac_bridge': 'true',
         'stamp_on_receive': 'false',
@@ -172,10 +173,7 @@ def _launch(context):
         name='visual_approach', output='screen',
         cmd=['python3', os.path.join(lib, 'visual_approach.py'), '--ros-args',
              '-p', f'use_sim_time:={str(sim).lower()}'] +
-        # festa_demo (2026-10-01, sim S1h): the sim camera sees at most ~19 % green (peak
-        # ~0.15 m from the box, then the box drops out of view); stop on that peak in sim.
-        (['-p', 'time_allowance:=240.0', '-p', 'fill_stop:=0.17', '-p', 'near_fill:=0.10']
-         if sim else [])))
+        (['-p', 'time_allowance:=240.0'] if sim else [])))
 
     actions.append(ExecuteProcess(
         name='sweep_action_server', output='screen',
