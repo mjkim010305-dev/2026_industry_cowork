@@ -57,19 +57,32 @@
                   <FollowPath path="{approach_path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/>
                   <!-- festa_demo: image-only final approach (scripts/visual_approach.py) instead of
                        FinalApproachStop, through the SweepObstacle client (same Sweep action type). -->
-                  <SweepObstacle name="VisualApproach" action_name="/visual_approach"
-                                 server_timeout="5.0" accept_timeout="5.0" sweep_timeout="90.0"
-                                 result_code="{approach_result}"/>
-                  <Wait wait_duration="2"/>
-                  <SweepObstacle action_name="/sweep"
-                                 server_timeout="5.0"
-                                 accept_timeout="5.0"
-                                 sweep_timeout="180.0"
-                                 result_code="{sweep_result}"/>
+                  <!-- festa_demo: accept_timeout 15 s on every SweepObstacle: under Pi load the
+                       "goal accepted" reply took 4-5 s (R20b). At most 2 approach+sweep attempts. A failed sweep used to
+                       re-run this whole branch forever (real robot 2026-10-01: 12 retries); after
+                       2 failures mark the box handled and fall through to following the path. -->
+                  <Fallback name="SweepOrGiveUp">
+                    <RetryUntilSuccessful num_attempts="2">
+                      <Sequence name="ApproachAndSweep">
+                        <SweepObstacle name="VisualApproach" action_name="/visual_approach"
+                                       server_timeout="5.0" accept_timeout="15.0" sweep_timeout="90.0"
+                                       result_code="{approach_result}"/>
+                        <Wait wait_duration="2"/>
+                        <SweepObstacle action_name="/sweep"
+                                       server_timeout="5.0"
+                                       accept_timeout="15.0"
+                                       sweep_timeout="180.0"
+                                       result_code="{sweep_result}"/>
+                      </Sequence>
+                    </RetryUntilSuccessful>
+                    <ForceFailure>
+                      <SetBlackboard output_key="box_swept" value="true"/>
+                    </ForceFailure>
+                  </Fallback>
                   <!-- festa_demo: drive 0.35 m straight after the sweep so the body shoves the
                        partly swept box aside (scripts/push_through.py, user 2026-10-01). -->
                   <SweepObstacle name="PushThrough" action_name="/push_through"
-                                 server_timeout="5.0" accept_timeout="5.0" sweep_timeout="30.0"
+                                 server_timeout="5.0" accept_timeout="15.0" sweep_timeout="30.0"
                                  result_code="{push_result}"/>
                   <SetBlackboard output_key="box_swept" value="true"/>
                   <ClearEntireCostmap name="ClearLocalCostmap-Resume"
