@@ -80,6 +80,8 @@ ARGS = ['map', 'image_topic', 'camera_info_topic', 'camera_frame', 'publish_came
 def _launch(context):
     share = get_package_share_directory(PKG)
     pick = LaunchConfiguration('pick').perform(context) == 'true'
+    # pick_first:=false - the part is already on the robot's back (P_REAR_CARRY).
+    pick_first = pick and LaunchConfiguration('pick_first').perform(context) != 'false'
     mode = LaunchConfiguration('mode').perform(context)
     if mode not in MODE_DEFAULTS:
         raise RuntimeError(f"mode must be 'sim' or 'real', got '{mode}'")
@@ -173,7 +175,7 @@ def _launch(context):
                  '-p', f"goal_yaw:={cfg['goal_yaw']}",
                  '-p', f"set_initial_pose:={LaunchConfiguration('set_initial_pose').perform(context)}",
                  '-p', f"return_to_start:={LaunchConfiguration('return_to_start').perform(context)}",
-                 '-p', f"pick_first:={str(pick).lower()}",
+                 '-p', f"pick_first:={str(pick_first).lower()}",
                  '-p', f"initial_x:={LaunchConfiguration('initial_x').perform(context)}",
                  '-p', f"initial_y:={LaunchConfiguration('initial_y').perform(context)}",
                  '-p', f"initial_yaw:={LaunchConfiguration('initial_yaw').perform(context)}"])]))
@@ -193,6 +195,9 @@ def generate_launch_description():
                               description="true: load the part first (robot's rear_pick.py) and run the "
                                           "manipulation team's obstacle_clear_sequence.py at the box "
                                           "(put down behind -> sweep -> pick up again); false: sweep only"),
+        DeclareLaunchArgument('pick_first', default_value='true',
+                              description='with pick:=true, false skips the initial rear_pick.py '
+                                          '(part already at P_REAR_CARRY)'),
         DeclareLaunchArgument('box_face_width', default_value='0.24',
                               description='apparent box width in the image [m] for image ranging '
                                           '(real upright box 2026-10-01: 0.185 m face looked ~0.24 m)'),
