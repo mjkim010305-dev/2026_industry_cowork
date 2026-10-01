@@ -121,14 +121,18 @@
         </PipelineSequence>
         <ReactiveFallback name="RecoveryFallback">
           <GoalUpdated/>
+          <!-- festa_demo (2026-10-02, sim S25_V1, S25_V4): BackUp first. Both times the robot was
+               wedged nose-first (pillar, inner corner of the L); clearing does not free it and a
+               Spin hits the same wall. 0.15 m: the arm at P_REAR_CARRY sticks out behind the
+               0.20 m footprint the behavior server checks. -->
           <RoundRobin name="RecoveryActions">
+            <BackUp backup_dist="0.15" backup_speed="0.05"/>
             <Sequence name="ClearingActions">
               <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
               <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
             </Sequence>
             <Spin spin_dist="3.14"/>
             <Wait wait_duration="5"/>
-            <BackUp backup_dist="0.30" backup_speed="0.05"/>
           </RoundRobin>
         </ReactiveFallback>
       </RecoveryNode>
