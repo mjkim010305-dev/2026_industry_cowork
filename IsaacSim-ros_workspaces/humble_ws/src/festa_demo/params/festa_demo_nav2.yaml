@@ -140,12 +140,12 @@ bt_navigator:
       - nav2_is_battery_charging_condition_bt_node
       # festa_demo: green-box perception gate + approach-and-stop, and the
       # /sweep action client (this package's own Sweep.action) - the only
-      # four BT plugins bt/festa_demo.xml (pick:=false) uses. Every other
+      # BT plugins bt/festa_demo.xml uses (FinalApproachStop dropped 2026-10-01:
+      # replaced by /visual_approach). Every other
       # custom_* library from l_course_nav2.yaml (custom_nav2_bt_plugins,
       # not part of this self-contained package) is dropped.
       - festa_demo_is_green_box_detected_bt_node
       - festa_demo_compute_green_box_approach_goal_bt_node
-      - festa_demo_final_approach_stop_bt_node
       - festa_demo_sweep_obstacle_bt_node
 
 bt_navigator_navigate_through_poses_rclcpp_node:
@@ -165,22 +165,10 @@ controller_server:
     min_theta_velocity_threshold: 0.001
     failure_tolerance: 0.3
     progress_checker_plugin: "progress_checker"
-    # return_goal_checker: tighter xy tolerance than general_goal_checker,
-    # used ONLY for the PlaceOnCommand Leg 2 return leg (demo.xml,
-    # FollowPathReverse's goal_checker_id) - general_goal_checker's 0.35m
-    # was loosened for Leg 1's approach (see its comment below), but that
-    # same looseness let the return leg call "arrived" up to 0.35m short of
-    # spot A, too far off for FixedPickObject's fixed-joint pick to reach.
-    goal_checker_plugins: ["general_goal_checker", "return_goal_checker"] # "precise_goal_checker"
-    # FollowPathReverse: same DWB config as FollowPath but reverse-only
-    # (min_vel_x negative, max_vel_x 0.0) - used ONLY for the PlaceOnCommand
-    # Leg 2 return-to-spot-A leg (demo.xml), whose path keeps the robot
-    # facing the same yaw it arrived at spot A with (so FixedPickObject's
-    # fixed-joint pick sees the object in front of it, not behind) - which
-    # geometrically requires backing up to it, not turning around and
-    # driving forward. FollowPath itself stays forward-only for every other
-    # leg (Leg 1/3, normal navigation) so ordinary driving never reverses.
-    controller_plugins: ["FollowPath", "FollowPathReverse"]
+    # festa_demo: festa_demo.xml uses only FollowPath + general_goal_checker; the reverse
+    # controller and return_goal_checker (PlaceOnCommand return leg) were dropped (2026-10-01).
+    goal_checker_plugins: ["general_goal_checker"] # "precise_goal_checker"
+    controller_plugins: ["FollowPath"]
 
     # Progress checker parameters
     progress_checker:
@@ -200,11 +188,6 @@ controller_server:
     #  xy_goal_tolerance: 0.25
     #  yaw_goal_tolerance: 0.25
     #  stateful: True
-    return_goal_checker:
-      stateful: True
-      plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.1
-      yaw_goal_tolerance: 0.05
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
@@ -280,72 +263,6 @@ controller_server:
       # instead of completing within the time window.
       RotateToGoal.slowing_factor: 1.5
       RotateToGoal.lookahead_time: -1.0
-
-    # Reverse-only variant of FollowPath above - see controller_plugins comment.
-    FollowPathReverse:
-      plugin: "dwb_core::DWBLocalPlanner"
-      debug_trajectory_details: False   # festa_demo: Pi load 13 / 4 cores, 2026-10-01; was True
-      min_vel_x: -0.15
-      min_vel_y: 0.0
-      max_vel_x: 0.0
-      max_vel_y: 0.0
-      max_vel_theta: 1.0
-      min_speed_xy: 0.0
-      max_speed_xy: 0.15
-      min_speed_theta: 0.0
-      acc_lim_x: 2.5
-      acc_lim_y: 0.0
-      acc_lim_theta: 3.2
-      decel_lim_x: -2.5
-      decel_lim_y: 0.0
-      decel_lim_theta: -3.2
-      vx_samples: 10   # festa_demo: Pi load 13 / 4 cores, 2026-10-01; was 20
-      vy_samples: 5
-      vtheta_samples: 15   # festa_demo: Pi load 13 / 4 cores, 2026-10-01; was 20
-      sim_time: 1.7
-      linear_granularity: 0.05
-      angular_granularity: 0.025
-      transform_tolerance: 0.5   # festa_demo: was 0.2 (Pi TF lag)
-      # was 0.25 (copied from FollowPath) -> tightened to 0.08: this is the
-      # radius at which RotateToGoal zeroes translation and switches to
-      # rotate-only. Since the path already keeps yaw matched to the goal
-      # throughout (no turning needed), RotateToGoal had nothing to correct
-      # and the robot just stopped translating at 0.25m out - short of
-      # return_goal_checker's 0.1m arrival radius, so it sat there stuck.
-      # Must stay <= return_goal_checker.xy_goal_tolerance.
-      xy_goal_tolerance: 0.08
-      trans_stopped_velocity: 0.25
-      short_circuit_trajectory_evaluation: True
-      stateful: True
-      # RotateToGoal removed (was in FollowPath's list, copied here at
-      # first): with an asymmetric reverse-only velocity range
-      # (min_vel_x=-0.15, max_vel_x=0.0), DWB's trajectory sampling doesn't
-      # reliably produce an exact vx=0 sample once inside xy_goal_tolerance,
-      # so EVERY sampled trajectory reads as "translating" to RotateToGoal
-      # and gets rejected - "No valid trajectories out of 420!" / "1.00:
-      # RotateToGoal/Nonrotation command near goal." on every cycle, so the
-      # robot could never actually finish arriving. Not needed anyway: the
-      # path already keeps yaw matched to the goal the whole way (no
-      # in-place rotation to do at the end), so GoalAlign/PathAlign already
-      # cover orientation.
-      critics: ["Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
-      # was 0.02 (same as FollowPath) -> 0.0: the last leg of the return is
-      # a short (~0.3m) approach directly to spot A, where the just-placed
-      # object sits - even this low a weight seemed to be enough cost to
-      # keep the robot crawling/dithering near it and never actually
-      # closing the gap (39s of silence then "Failed to make progress",
-      # no "No valid trajectories" so it wasn't a hard refusal, just never
-      # enough net progress). Zeroing it removes obstacle-avoidance cost
-      # entirely for this controller instance - acceptable here since
-      # approaching this specific, known, self-placed object on purpose is
-      # the whole point of this leg.
-      BaseObstacle.scale: 0.0
-      PathAlign.scale: 32.0
-      PathAlign.forward_point_distance: 0.1
-      GoalAlign.scale: 24.0
-      GoalAlign.forward_point_distance: 0.1
-      PathDist.scale: 32.0
-      GoalDist.scale: 24.0
 
 local_costmap:
   local_costmap:
