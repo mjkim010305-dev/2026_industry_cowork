@@ -110,7 +110,18 @@ BT::NodeStatus SweepObstacleAction::onRunning()
         phase_start_time_ = node_->now();
         RCLCPP_INFO(node_->get_logger(), "SweepObstacle: goal accepted, sweeping");
       } else if (phase_age > accept_timeout_) {
+        // festa_demo: 2026-10-01 - under Pi load the "accepted" reply can
+        // arrive well after we give up; the server may already have
+        // accepted and started executing. Ask it to cancel everything (no
+        // goal handle exists yet, so cancelActive() has nothing to act on)
+        // and drop the future so a late reply is ignored.
         RCLCPP_ERROR(node_->get_logger(), "SweepObstacle: timed out waiting for goal acceptance");
+        client_->async_cancel_all_goals();
+        callback_group_executor_.spin_some();
+        goal_future_ = std::shared_future<SweepGoalHandle::SharedPtr>();
+        RCLCPP_WARN(
+          node_->get_logger(),
+          "SweepObstacle: sent cancel-all in case the server accepted after all");
         return finish("TIMEOUT", false);
       }
       return BT::NodeStatus::RUNNING;
