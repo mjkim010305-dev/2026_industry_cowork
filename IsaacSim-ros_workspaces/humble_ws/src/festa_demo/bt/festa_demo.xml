@@ -107,9 +107,16 @@
                 <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
               </RecoveryNode>
             </Sequence>
-            <Inverter name="HoldWhileBlocked">
-              <Wait wait_duration="15"/>
-            </Inverter>
+            <!-- festa_demo (2026-10-02, sim S25_V1): hold only when the planner marked the goal
+                 blocked. A plain FollowPath failure (robot wedged) used to land here too; the
+                 next tick restarted FollowPath and cancelled this wait, so the pipeline never
+                 failed and Spin/BackUp never ran (stuck 10 min at a pillar). -->
+            <BlackboardCheckString name="IsGoalBlocked" value_A="{goal_blocked}" value_B="true"
+                                   return_on_mismatch="FAILURE">
+              <Inverter name="HoldWhileBlocked">
+                <Wait wait_duration="15"/>
+              </Inverter>
+            </BlackboardCheckString>
           </ReactiveFallback>
         </PipelineSequence>
         <ReactiveFallback name="RecoveryFallback">
