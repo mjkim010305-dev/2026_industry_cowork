@@ -18,6 +18,9 @@ on  when d <= trigger_dist and |s| <= lateral_tol      (robot and box touch with
 off when d > release_dist or |s| > release_lateral, or no image for image_timeout s.
 A bbox cut by both borders (z = 3) is wider than the view: right in front. A bbox cut
 by one border has an unreliable centre and width: keep the previous decision.
+Not while turning (|odom angular z| > max_turn_rate in the last turn_hold s): mid-corner
+the robot faces a different way than it will drive (sim S1m: on the way back it aimed
+at a box swept against the wall, 0.44 m off the route); judge again once straight.
 
 No map, AMCL or camera TF involved. Published at 5 Hz: green_box/on_path (Bool) and,
 while on, green_box/front (PoseStamped in base_link: x = d, y = s), which
@@ -29,6 +32,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 from geometry_msgs.msg import PointStamped, PoseStamped
+from nav_msgs.msg import Odometry
 from std_msgs.msg import Bool
 
 
@@ -39,18 +43,24 @@ class BoxOnPath(Node):
         self.p = {n: self.declare_parameter(n, d).value for n, d in (
             ('box_face_width_m', 0.24), ('camera_y', -0.0115), ('trigger_dist', 1.0),
             ('lateral_tol', 0.30), ('release_dist', 1.2), ('release_lateral', 0.35),
-            ('image_timeout', 1.0))}
+            ('image_timeout', 1.0), ('max_turn_rate', 0.2), ('turn_hold', 0.5))}
         self.target = None          # (monotonic time, x_tan, w_tan, clip)
         self.on = False
         self.front = (0.0, 0.0)
+        self.last_turn = 0.0        # monotonic time the base last turned faster than max_turn_rate
         self.create_subscription(PointStamped, 'green_box/image_target', self._on_target,
                                  QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT))
+        self.create_subscription(Odometry, 'odom', self._on_odom, 10)
         self.pub = self.create_publisher(Bool, 'green_box/on_path', 10)
         self.front_pub = self.create_publisher(PoseStamped, 'green_box/front', 10)
         self.create_timer(0.2, self._tick)
 
     def _on_target(self, m):
         self.target = (time.monotonic(), m.point.x, m.point.y, int(round(m.point.z)))
+
+    def _on_odom(self, m):
+        if abs(m.twist.twist.angular.z) > self.p['max_turn_rate']:
+            self.last_turn = time.monotonic()
 
     def _tick(self):
         p, t = self.p, self.target
@@ -62,7 +72,8 @@ class BoxOnPath(Node):
         elif t[3] == 0 and t[2] > 0.0:
             d = p['box_face_width_m'] / t[2]
             s = t[1] * d - p['camera_y']
-            if d <= p['trigger_dist'] and abs(s) <= p['lateral_tol']:
+            turning = time.monotonic() - self.last_turn < p['turn_hold']
+            if d <= p['trigger_dist'] and abs(s) <= p['lateral_tol'] and not turning:
                 self.on = True
             elif d > p['release_dist'] or abs(s) > p['release_lateral']:
                 self.on = False
