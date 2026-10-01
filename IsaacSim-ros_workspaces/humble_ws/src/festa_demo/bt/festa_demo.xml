@@ -44,17 +44,11 @@
                     <IsGreenBoxDetected name="IsBoxOnPath" pose_topic="green_box/pose"
                                         visible_topic="green_box/on_path" max_age="1.0"/>
                   </Fallback>
-                  <ComputeGreenBoxApproachGoal pose_topic="green_box/pose"
-                                               global_frame="map"
-                                               robot_base_frame="base_link"
-                                               standoff_distance="0.8"
-                                               max_age="1.0"
-                                               approach_goal="{approach_goal}"/>
-                  <RecoveryNode number_of_retries="1" name="ComputePathToGreenBox">
-                    <ComputePathToPose goal="{approach_goal}" path="{approach_path}" planner_id="GridBased"/>
-                    <ClearEntireCostmap name="ClearGlobalCostmap-GreenBox" service_name="global_costmap/clear_entirely_global_costmap"/>
-                  </RecoveryNode>
-                  <FollowPath path="{approach_path}" controller_id="FollowPath" goal_checker_id="general_goal_checker"/>
+                  <!-- festa_demo (2026-10-01, user: Nav2 and the approach mixed oddly): no Nav2 leg
+                       to a 0.8 m standoff pose any more (it turned to that pose's yaw, then the
+                       approach turned again). Entering this branch halts FollowPath (Nav2 stops
+                       the base); wait 1 s standing still, then the camera approach takes over. -->
+                  <Wait name="HandOverToApproach" wait_duration="1"/>
                   <!-- festa_demo: image-only final approach (scripts/visual_approach.py) instead of
                        FinalApproachStop, through the SweepObstacle client (same Sweep action type). -->
                   <!-- festa_demo: accept_timeout 15 s on every SweepObstacle: under Pi load the
