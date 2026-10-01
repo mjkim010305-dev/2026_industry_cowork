@@ -31,19 +31,12 @@
             <ForceFailure>
               <BlackboardCheckString value_A="{box_swept}" value_B="false" return_on_mismatch="FAILURE">
                 <Sequence name="HandleGreenBox">
-                  <IsGreenBoxDetected pose_topic="green_box/pose"
-                                      visible_topic="green_box/detected"
-                                      max_age="1.0"/>
-                  <!-- festa_demo: sweep when the box blocks the way OR lies on the planned path
-                       (scripts/box_on_path.py; the real course is too wide for one box to block). -->
-                  <Fallback name="BlockedOrOnPath">
-                    <BlackboardCheckString name="IsGoalBlocked" value_A="{goal_blocked}" value_B="true"
-                                           return_on_mismatch="FAILURE">
-                      <AlwaysSuccess/>
-                    </BlackboardCheckString>
-                    <IsGreenBoxDetected name="IsBoxOnPath" pose_topic="green_box/pose"
-                                        visible_topic="green_box/on_path" max_age="1.0"/>
-                  </Fallback>
+                  <!-- festa_demo (2026-10-02, user: dynamic scenes - a box put back, a new box,
+                       one right after a corner): enter only when the box is right in front, judged
+                       from the image alone by scripts/box_on_path.py (within 1 m, within 0.30 m of
+                       the centre line). No map pose, no "blocked" path, every box judged afresh. -->
+                  <IsGreenBoxDetected name="IsBoxInFront" pose_topic="green_box/front"
+                                      visible_topic="green_box/on_path" max_age="1.0"/>
                   <!-- festa_demo (2026-10-01, user: Nav2 and the approach mixed oddly): no Nav2 leg
                        to a 0.8 m standoff pose any more (it turned to that pose's yaw, then the
                        approach turned again). Entering this branch halts FollowPath (Nav2 stops
@@ -69,8 +62,10 @@
                                        result_code="{sweep_result}"/>
                       </Sequence>
                     </RetryUntilSuccessful>
+                    <!-- festa_demo (2026-10-02): after 2 failures stand still 10 s, then judge
+                         again (no latch: the box may have been taken away, or is still there). -->
                     <ForceFailure>
-                      <SetBlackboard output_key="box_swept" value="true"/>
+                      <Wait name="WaitAfterGiveUp" wait_duration="10"/>
                     </ForceFailure>
                   </Fallback>
                   <!-- festa_demo: drive 0.35 m straight after the sweep so the body shoves the
@@ -82,7 +77,8 @@
                                    server_timeout="5.0" accept_timeout="15.0" sweep_timeout="30.0"
                                    result_code="{push_result}"/>
                   </ForceSuccess>
-                  <SetBlackboard output_key="box_swept" value="true"/>
+                  <!-- festa_demo (2026-10-02): no box_swept latch any more - the next box (or the
+                       same one put back) is handled again; a box swept aside is not in front. -->
                   <ClearEntireCostmap name="ClearLocalCostmap-Resume"
                                       service_name="local_costmap/clear_entirely_local_costmap"/>
                   <ClearEntireCostmap name="ClearGlobalCostmap-Resume"
