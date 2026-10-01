@@ -365,11 +365,11 @@ local_costmap:
       width: 3
       height: 3
       resolution: 0.05
-      robot_radius: 0.22
+      robot_radius: 0.20   # festa_demo: user, obstacle margin too wide (2026-10-01); was 0.22
       plugins: ["voxel_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.0
+        cost_scaling_factor: 5.0   # festa_demo: narrower margin (2026-10-01); was 3.0
         inflation_radius: 0.3 #원래 0.55
       voxel_layer:
         plugin: "nav2_costmap_2d::VoxelLayer"
@@ -405,7 +405,7 @@ global_costmap:
       global_frame: map
       robot_base_frame: base_link
       use_sim_time: True
-      robot_radius: 0.22
+      robot_radius: 0.20   # festa_demo: user, obstacle margin too wide (2026-10-01); was 0.22
       resolution: 0.05
       track_unknown_space: true
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
@@ -428,8 +428,8 @@ global_costmap:
         map_subscribe_transient_local: True
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 3.0
-        inflation_radius: 0.55
+        cost_scaling_factor: 5.0   # festa_demo: narrower margin (2026-10-01); was 3.0
+        inflation_radius: 0.35   # festa_demo: narrower margin (2026-10-01); was 0.55
       always_send_full_costmap: True
 
 map_server:
