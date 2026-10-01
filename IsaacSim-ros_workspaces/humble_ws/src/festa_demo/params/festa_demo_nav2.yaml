@@ -77,8 +77,11 @@ bt_navigator:
     global_frame: map
     robot_base_frame: base_link
     odom_topic: /odom
-    bt_loop_duration: 10
-    default_server_timeout: 20
+    # festa_demo: on the robot's Pi (load 6.6 / 4 cores, 2026-10-01) the BT could
+    # not hold 100 Hz and 20 ms was too short for action servers to acknowledge
+    # goals ("Timed out while waiting for action server to acknowledge goal").
+    bt_loop_duration: 50
+    default_server_timeout: 1000
     wait_for_service_timeout: 1000
     # 'default_nav_through_poses_bt_xml' and 'default_nav_to_pose_bt_xml' are use defaults:
     # nav2_bt_navigator/navigate_to_pose_w_replanning_and_recovery.xml

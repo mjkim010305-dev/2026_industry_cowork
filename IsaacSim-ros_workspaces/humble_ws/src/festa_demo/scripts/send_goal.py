@@ -17,6 +17,7 @@ from rclpy.qos import QoSDurabilityPolicy, QoSProfile, QoSReliabilityPolicy
 from action_msgs.msg import GoalStatus
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 from nav2_msgs.action import NavigateToPose
+from nav2_msgs.srv import ClearEntireCostmap
 from std_srvs.srv import Trigger
 
 STATUS = {GoalStatus.STATUS_SUCCEEDED: 'SUCCEEDED', GoalStatus.STATUS_ABORTED: 'ABORTED',
@@ -89,6 +90,22 @@ class SendGoal(Node):
         self.get_logger().warn('Nav2 not reported active; sending the goal anyway')
         return False
 
+    def clear_costmaps(self):
+        # festa_demo: until AMCL has the initial pose it assumes (0, 0, 0), so on
+        # the robot every scan in the first ~30 s was marked rotated and shifted
+        # into both costmaps (2026-10-01 R5: the whole horizontal leg lethal, the
+        # planner failed in 3 ms, which the tree read as a blocked corridor).
+        for name in ('global_costmap/clear_entirely_global_costmap',
+                     'local_costmap/clear_entirely_local_costmap'):
+            cli = self.create_client(ClearEntireCostmap, name)
+            if not cli.wait_for_service(timeout_sec=5.0):
+                self.get_logger().warn(f'{name} not available')
+                continue
+            fut = cli.call_async(ClearEntireCostmap.Request())
+            rclpy.spin_until_future_complete(self, fut, timeout_sec=5.0)
+        self.get_logger().info('costmaps cleared after the initial pose')
+        self.spin_for(3.0)   # let a few scans refill them at the right pose
+
     def send(self, x, y, yaw):
         goal = NavigateToPose.Goal()
         goal.pose = PoseStamped()
@@ -122,6 +139,7 @@ def main():
     node.wait_nav2_active()
     if node.p['set_initial_pose']:
         node.set_initial_pose()
+        node.clear_costmaps()
     p = node.p
     ok = node.send(p['goal_x'], p['goal_y'], p['goal_yaw'])
     if ok and p['return_to_start']:
