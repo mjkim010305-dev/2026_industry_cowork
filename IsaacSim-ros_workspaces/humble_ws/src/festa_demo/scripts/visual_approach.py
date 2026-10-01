@@ -13,7 +13,9 @@ the reference view); a box off to one side does not get swept. So:
       steering, turn in place only beyond far_align_tol (user, 2026-10-01: the
       3 deg stop-and-turn zigzagged slowly all the way in);
     - near: approach_speed, turn in place while more than align_tol off;
-    - stop once green covers fill_stop of the frame and the box is centred.
+    - stop once green covers fill_stop of the frame and the box is centred;
+    - while driving forward (far or near), steering w is clamped to
+      max_drive_w, not max_w (max_w/min_w are for the turn-in-place case).
 No range estimate, TF or odometry. A forward lidar cone (backstop_dist) still
 stops the robot.
 
@@ -43,8 +45,8 @@ class VisualApproach(Node):
     def __init__(self):
         super().__init__('visual_approach')
         p = {n: self.declare_parameter(n, d).value for n, d in (
-            ('fill_stop', 0.80), ('align_tol', 0.05), ('kp', 1.5), ('max_w', 0.6), ('min_w', 0.15),
-            ('approach_speed', 0.05), ('far_speed', 0.12), ('near_fill', 0.30),
+            ('fill_stop', 0.90), ('align_tol', 0.05), ('kp', 1.5), ('max_w', 0.6), ('min_w', 0.15),
+            ('max_drive_w', 0.25), ('approach_speed', 0.05), ('far_speed', 0.10), ('near_fill', 0.15),
             ('far_align_tol', 0.26), ('image_timeout', 1.0), ('lost_timeout', 3.0),
             ('backstop_dist', 0.10), ('front_half_angle', 0.26), ('time_allowance', 60.0))}
         self.p = p
@@ -54,6 +56,7 @@ class VisualApproach(Node):
         self.target = None          # (time, x_tan)
         self.fill = None            # (time, fraction)
         self.front_min = None
+        self._goal_gen = 0  # festa_demo: preemption, 2026-10-01 - only the newest goal may drive
         self._cone_cache = None  # (angle_min, angle_increment, n, indices) - festa_demo: Pi load, 2026-10-01
         self.create_subscription(PointStamped, 'green_box/image_target', self._on_target,
                                  best_effort, callback_group=cb)
@@ -104,9 +107,21 @@ class VisualApproach(Node):
         start = time.monotonic()
         last_seen = start
         code = 'ERROR'
+        with self.lock:
+            self._goal_gen += 1
+            my = self._goal_gen
         while rclpy.ok():
             time.sleep(0.05)
             now = time.monotonic()
+            with self.lock:
+                preempted = self._goal_gen != my
+            if preempted:
+                # festa_demo: preemption, 2026-10-01 - a newer goal owns the
+                # base now; do not touch cmd_vel, just drop out.
+                self.get_logger().warn('visual_approach: preempted by a newer goal')
+                goal.abort()
+                result.result_code = 'ERROR'
+                return result
             if goal.is_cancel_requested:
                 self._cmd(0, 0)
                 goal.canceled()
@@ -143,7 +158,7 @@ class VisualApproach(Node):
                 code = 'SUCCESS'
                 break
             else:
-                w = max(-p['max_w'], min(p['max_w'], p['kp'] * bearing))
+                w = max(-p['max_drive_w'], min(p['max_drive_w'], p['kp'] * bearing))
                 self._cmd(p['approach_speed'] if near else p['far_speed'], w)
                 fb.state = (f'APPROACH{"" if near else "-FAR"} fill={100 * fill_now:.0f}% '
                             f'bearing={math.degrees(bearing):.1f}deg')
