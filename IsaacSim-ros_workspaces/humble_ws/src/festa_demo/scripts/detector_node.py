@@ -80,7 +80,7 @@ from cv_bridge import CvBridge
 from geometry_msgs.msg import PointStamped, PoseStamped, PoseWithCovarianceStamped
 from tf2_msgs.msg import TFMessage
 from sensor_msgs.msg import CameraInfo, Image, LaserScan
-from std_msgs.msg import Bool
+from std_msgs.msg import Bool, Float32
 from tf2_ros import Buffer, TransformListener, TransformException
 
 # festa_demo: was `from green_box_approach.geometry import (` (script-dir import)
@@ -245,6 +245,10 @@ class GreenBoxDetector(Node):
         # x = (bbox centre column - cx) / fx  (tan of the bearing, + = right)
         # y = bbox width / fx                 (angular width of the box)
         # z = 1.0 if the bbox touches the left/right image border (width clipped)
+        # festa_demo: fraction of the frame that is green (0..1), every processed
+        # frame; visual_approach stops when the box fills the frame (user,
+        # 2026-10-01: "the box should fill almost the whole frame, like now").
+        self.image_fill_pub = self.create_publisher(Float32, "green_box/image_fill", sensor_qos)
         self.image_target_pub = self.create_publisher(
             PointStamped, "green_box/image_target", sensor_qos)
 
@@ -307,6 +311,7 @@ class GreenBoxDetector(Node):
             kernel = np.ones((self.morph_kernel, self.morph_kernel), np.uint8)
             mask = cv2.morphologyEx(mask, cv2.MORPH_OPEN, kernel)
 
+        self.image_fill_pub.publish(Float32(data=float(np.count_nonzero(mask)) / mask.size))
         bbox = hsv_mask_to_blob(mask, self.min_area)
         detected = False
         source = "none"
