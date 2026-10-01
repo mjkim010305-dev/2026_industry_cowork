@@ -46,6 +46,9 @@ MODE_DEFAULTS = {
         'camera_info_topic': '/front_camera_info',
         'camera_frame': 'camera_optical',
         'publish_camera_tf': 'true',
+        # Measured base_link -> optical transform of the simulated TB3 camera
+        # (same values as festa_scenario.launch.py).
+        'camera_tf': '0.017 0.0 0.4609 -0.524453 0.547077 -0.460846 0.461819',
         'safety_monitor': 'false',
         'isaac_bridge': 'true',
         'stamp_on_receive': 'false',
@@ -58,8 +61,15 @@ MODE_DEFAULTS = {
         'map': 'l_course_real.yaml',
         'image_topic': '/camera/camera/color/image_raw',
         'camera_info_topic': '/camera/camera/color/camera_info',
-        'camera_frame': 'camera_color_optical_frame',
-        'publish_camera_tf': 'false',
+        # festa_demo (2026-10-01): the RealSense node hangs its colour frame off the URDF's
+        # TB3 R200 camera_link, i.e. (0.073, -0.070, 0.084) - not where the D555 is. Use our
+        # own optical frame at the D555 colour sensor instead: the team URDF's d555_link
+        # (0.1205, 0.0475, 0.0624; 0.0475 = D4xx mount centre -> camera_link) plus the
+        # camera's own camera_link -> colour offset (0, -0.059, 0) = 1.2 cm right of the
+        # centre line (user measured ~19 cm from the body centre, ~5 cm above the floor).
+        'camera_frame': 'festa_color_optical',
+        'publish_camera_tf': 'true',
+        'camera_tf': '0.1205 -0.0115 0.0624 -0.5 0.5 -0.5 0.5',
         'safety_monitor': 'true',
         'isaac_bridge': 'false',
         # The robot's RealSense image stamps drift away from the system clock.
@@ -72,7 +82,7 @@ MODE_DEFAULTS = {
         'goal_x': '1.9', 'goal_y': '-1.7', 'goal_yaw': '-1.5708',
     },
 }
-ARGS = ['map', 'image_topic', 'camera_info_topic', 'camera_frame', 'publish_camera_tf',
+ARGS = ['map', 'image_topic', 'camera_info_topic', 'camera_frame', 'publish_camera_tf', 'camera_tf',
         'safety_monitor', 'isaac_bridge', 'goal_x', 'goal_y', 'goal_yaw', 'stamp_on_receive',
         'range_from_image']
 
@@ -110,12 +120,10 @@ def _launch(context):
                  '-p', 'relay_joint_states:=false', '-p', 'isaac_state_topic:=/joint_states',
                  '-p', 'isaac_command_topic:=/joint_commands']))
     if cfg['publish_camera_tf'] == 'true':
-        # Measured base_link -> optical transform of the simulated TB3 camera
-        # (same values as festa_scenario.launch.py).
+        x, y, z, qx, qy, qz, qw = cfg['camera_tf'].split()
         actions.append(Node(
             package='tf2_ros', executable='static_transform_publisher', name='camera_optical_tf',
-            arguments=['--x', '0.017', '--y', '0.0', '--z', '0.4609',
-                       '--qx', '-0.524453', '--qy', '0.547077', '--qz', '-0.460846', '--qw', '0.461819',
+            arguments=['--x', x, '--y', y, '--z', z, '--qx', qx, '--qy', qy, '--qz', qz, '--qw', qw,
                        '--frame-id', 'base_link', '--child-frame-id', cfg['camera_frame']],
             parameters=[{'use_sim_time': sim}]))
 
