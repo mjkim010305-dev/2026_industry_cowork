@@ -5,7 +5,7 @@ The real course (2026-10-01) is 1.45 m wide, so one 18.5 cm box never blocks
 it and "sweep only when blocked" would just drive around the box. User
 decision: also sweep when the box is on the path. The global plan already
 bends around the box (inflation), so "on the path" means the next
-`lookahead` metres of `plan` pass within `on_path_dist` of the box centre
+`lookahead` metres of `plan` pass within `on_path_dist` (0.4 m) of the box centre
 (both in the map frame). Published at 5 Hz; bt/festa_demo.xml reads it
 through IsGreenBoxDetected(visible_topic="green_box/on_path"), which also
 requires a fresh green_box/pose.
@@ -23,7 +23,9 @@ class BoxOnPath(Node):
 
     def __init__(self):
         super().__init__('box_on_path')
-        self.on_path_dist = float(self.declare_parameter('on_path_dist', 0.6).value)
+        # festa_demo (2026-10-01, user "0.4로 해"): 0.6 -> 0.4. The robot only touches the box
+        # within ~0.24 m (half widths 0.15 + 0.09); +0.16 m for the image-width range error.
+        self.on_path_dist = float(self.declare_parameter('on_path_dist', 0.4).value)
         self.lookahead = float(self.declare_parameter('lookahead', 2.0).value)
         self.path = None
         self.box = None
