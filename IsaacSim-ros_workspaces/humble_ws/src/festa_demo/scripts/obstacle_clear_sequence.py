@@ -110,25 +110,26 @@ P_PRE_SWEEP = [
 
 
 # 기존 FESTA Sweep 접촉 자세
-# festa_demo (2026-10-01, 사용자: 17 cm에서 시작해 15 cm로 끝나게): 손끝 높이 21.8 -> 17.0 cm.
-# joint1·도달거리·그리퍼 각도는 원래 그대로, joint2~4만 로봇 URDF 역기구학으로 조정.
+# festa_demo (2026-10-01, 사용자: 17 cm에서 시작해 15 cm로 끝나게, 팔을 더 빼서): 손끝 높이
+# 21.8 -> 17.0 cm, 도달거리 +2 cm(이 높이에서 joint3 한계 안 최대). joint1·그리퍼 각도는
+# 원래 그대로, joint2~4만 로봇 URDF 역기구학으로 조정.
 # 원래 값 [-0.4632621979, 0.7669903939, -0.4601942364, -0.3282718886]
 P_CONTACT = [
     -0.4632621979,
-     0.9557316077,
-    -0.4090550822,
-    -0.5681522566,
+     1.1569699208,
+    -0.8310496882,
+    -0.3473959637,
 ]
 
 
 # 기존 FESTA Sweep 종료 자세
-# festa_demo: 손끝 높이 15.9 -> 15.0 cm (위와 같은 방법). 박스 중심(옆 위치 0)에서 약 16.3 cm.
+# festa_demo: 손끝 높이 15.9 -> 15.0 cm, 도달거리 +2 cm (위와 같은 방법).
 # 원래 값 [0.7056311624, 0.7501166053, -0.1580000212, -0.3819612162]
 P_SWEEP_END = [
      0.7056311624,
-     0.7938267674,
-    -0.1559037154,
-    -0.4277676841,
+     0.9419997321,
+    -0.4635389616,
+    -0.2683054026,
 ]
 
 
@@ -139,6 +140,15 @@ P_RETREAT = [
     -0.1027767128,
     -0.3681553891,
 ]
+
+
+# festa_demo (2026-10-01, 사용자: 뒤에서 앞으로·앞에서 뒤로 갈 때 팔이 바깥으로 빠져 벽에 닿음,
+# 인코스로): 팔을 P_HOME 모양(접힌 자세, rear_pick.py의 P_HOME joint2~4)으로 접은 채
+# joint1만 돌리고, 도착한 쪽에서 편다.
+ARM_FOLD = [-1.0461748973380072, 1.0753205323078345, 0.009203884727313847]
+P_REAR_FOLD = [P_REAR_CARRY[0]] + ARM_FOLD
+P_PRE_SWEEP_FOLD = [P_PRE_SWEEP[0]] + ARM_FOLD
+P_RETREAT_FOLD = [P_RETREAT[0]] + ARM_FOLD
 
 
 class ObstacleClearSequence(Node):
@@ -895,6 +905,8 @@ class ObstacleClearSequence(Node):
 
         steps = [
             ("P_REAR_PRE_SWEEP", P_REAR_PRE_SWEEP),
+            ("P_REAR_FOLD", P_REAR_FOLD),            # festa_demo: 접고
+            ("P_PRE_SWEEP_FOLD", P_PRE_SWEEP_FOLD),  # festa_demo: 접은 채 앞으로 회전
             ("P_PRE_SWEEP", P_PRE_SWEEP),
         ]
 
@@ -970,7 +982,8 @@ class ObstacleClearSequence(Node):
     def run_prepare_repick(self):
 
         steps = [
-            ("P_PRE_SWEEP", P_PRE_SWEEP),
+            ("P_RETREAT_FOLD", P_RETREAT_FOLD),      # festa_demo: 접고 (원래 P_PRE_SWEEP)
+            ("P_REAR_FOLD", P_REAR_FOLD),            # festa_demo: 접은 채 뒤로 회전
             ("P_REAR_PRE_SWEEP", P_REAR_PRE_SWEEP),
             ("P_REAR_PICK", P_REAR_PICK),
         ]
