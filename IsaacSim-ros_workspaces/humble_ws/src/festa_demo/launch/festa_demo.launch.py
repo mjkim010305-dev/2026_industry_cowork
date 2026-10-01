@@ -168,7 +168,9 @@ def _launch(context):
         name='box_on_path', output='screen',
         cmd=['python3', os.path.join(lib, 'box_on_path.py'), '--ros-args',
              '-p', f'use_sim_time:={str(sim).lower()}',
-             '-p', f"box_face_width_m:={LaunchConfiguration('box_face_width').perform(context)}"]))
+             '-p', f"box_face_width_m:={LaunchConfiguration('box_face_width').perform(context)}",
+             '-p', f"box_height_m:={LaunchConfiguration('box_height').perform(context)}",
+             '-p', f"camera_info_topic:={cfg['camera_info_topic']}"]))
 
     actions.append(ExecuteProcess(
         name='visual_approach', output='screen',
