@@ -31,7 +31,9 @@ class PushThrough(Node):
     def __init__(self):
         super().__init__('push_through')
         self.p = {n: self.declare_parameter(n, d).value for n, d in (
-            ('distance', 0.35), ('speed', 0.08), ('wall_stop', 0.15),
+            # festa_demo (2026-10-02, sim S1m): wall_stop is lidar range; the bumper is ~0.10 m ahead
+            # of base_scan, so 0.15 left ~5 cm and the robot pushed into a wall for 60 s. Now 0.25.
+            ('distance', 0.35), ('speed', 0.08), ('wall_stop', 0.25),
             ('front_half_angle', 0.26), ('time_allowance', 15.0))}
         self.cb = ReentrantCallbackGroup()
         self.lock = threading.Lock()
