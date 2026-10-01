@@ -34,7 +34,8 @@ class PushThrough(Node):
             # festa_demo (2026-10-02, sim S1m): wall_stop is lidar range; the bumper is ~0.10 m ahead
             # of base_scan, so 0.15 left ~5 cm and the robot pushed into a wall for 60 s. Now 0.25.
             ('distance', 0.35), ('speed', 0.08), ('wall_stop', 0.25),
-            ('front_half_angle', 0.26), ('time_allowance', 15.0))}
+            ('front_half_angle', 0.26), ('time_allowance', 15.0),
+            ('stall_s', 3.0), ('stall_dist', 0.02))}
         self.cb = ReentrantCallbackGroup()
         self.lock = threading.Lock()
         self.odom_xy = None
@@ -82,6 +83,7 @@ class PushThrough(Node):
         start = time.monotonic()
         odom0 = None
         code = 'ERROR'
+        progress = (start, 0.0)     # festa_demo (S25_V1): (time, distance) of the last 2 cm gained
         with self.lock:
             self.odom_xy = None
             self.front_min = None
@@ -129,6 +131,14 @@ class PushThrough(Node):
                 if done >= p['distance']:
                     self.get_logger().info(f'push_through: pushed {done:.2f} m - done')
                     code = 'SUCCESS'
+                    break
+                # festa_demo (2026-10-02, sim S25_V1): wedged against a pillar, the push drove
+                # 60 s for 1 cm. Stop when stall_dist is not gained within stall_s.
+                if done - progress[1] >= p['stall_dist']:
+                    progress = (time.monotonic(), done)
+                elif time.monotonic() - progress[0] > p['stall_s']:
+                    self.get_logger().warn(f'push_through: no progress for {p["stall_s"]:.0f} s after '
+                                           f'{done:.2f} m - stopped')
                     break
                 self._cmd(p['speed'])
             self._cmd(0)
