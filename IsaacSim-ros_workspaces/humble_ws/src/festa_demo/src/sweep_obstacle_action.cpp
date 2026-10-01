@@ -39,16 +39,23 @@ SweepObstacleAction::SweepObstacleAction(
     rclcpp::CallbackGroupType::MutuallyExclusive, false);
   callback_group_executor_.add_callback_group(
     callback_group_, node_->get_node_base_interface());
+  // festa_demo (2026-10-01, R21): create the client when the tree is built, not in
+  // the first onStart(); the goal was sent in the same tick the client was created.
+  if (getInput("action_name", action_name_)) {
+    client_ = rclcpp_action::create_client<Sweep>(node_, action_name_, callback_group_);
+  }
 }
 
 BT::NodeStatus SweepObstacleAction::onStart()
 {
-  getInput("action_name", action_name_);
+  std::string action_name;
+  getInput("action_name", action_name);
   getInput("server_timeout", server_timeout_);
   getInput("accept_timeout", accept_timeout_);
   getInput("sweep_timeout", sweep_timeout_);
 
-  if (!client_) {
+  if (!client_ || action_name != action_name_) {
+    action_name_ = action_name;
     client_ = rclcpp_action::create_client<Sweep>(node_, action_name_, callback_group_);
   }
 
@@ -65,7 +72,10 @@ BT::NodeStatus SweepObstacleAction::onStart()
 
 BT::NodeStatus SweepObstacleAction::onRunning()
 {
-  callback_group_executor_.spin_some();
+  // festa_demo (2026-10-01, R21): drain everything that is ready. spin_some() runs one
+  // executable and the action client takes one message per run, feedback first; with
+  // 20 Hz feedback and a 10 Hz tree the accept/result replies were starved for 4-90 s.
+  callback_group_executor_.spin_all(std::chrono::milliseconds(20));
 
   const double phase_age = (node_->now() - phase_start_time_).seconds();
 
@@ -117,7 +127,7 @@ BT::NodeStatus SweepObstacleAction::onRunning()
         // and drop the future so a late reply is ignored.
         RCLCPP_ERROR(node_->get_logger(), "SweepObstacle: timed out waiting for goal acceptance");
         client_->async_cancel_all_goals();
-        callback_group_executor_.spin_some();
+        callback_group_executor_.spin_all(std::chrono::milliseconds(20));
         goal_future_ = std::shared_future<SweepGoalHandle::SharedPtr>();
         RCLCPP_WARN(
           node_->get_logger(),
@@ -181,7 +191,7 @@ void SweepObstacleAction::cancelActive()
     client_->async_cancel_goal(goal_handle_);
     goal_handle_.reset();
   }
-  callback_group_executor_.spin_some();
+  callback_group_executor_.spin_all(std::chrono::milliseconds(20));
 }
 
 }  // namespace festa_demo
