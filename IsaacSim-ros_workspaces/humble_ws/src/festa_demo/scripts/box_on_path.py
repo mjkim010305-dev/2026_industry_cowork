@@ -29,8 +29,10 @@ pushed against a wall right after it was handled, and the robot went for it agai
 Not while turning (|odom angular z| > max_turn_rate in the last turn_hold s): mid-corner
 the robot faces a different way than it will drive (sim S1m: on the way back it aimed
 at a box swept against the wall, 0.44 m off the route); judge again once straight.
-Except for a box nearer than turn_gate_dist: sim R2 curved through a corner straight
-into a box just past it, still turning, and never triggered.
+Except for a box nearer than turn_gate_dist while driving through a curve: sim R2 curved
+through a corner straight into a box just past it, still turning, and never triggered.
+Turning in place (|v| < spin_max_v) always holds the trigger, near or far: sim S25_V1
+turned 180 deg at the start and took a box 0.375 m off the route mid-turn.
 
 No map, AMCL or camera TF involved. Published at 5 Hz: green_box/on_path (Bool) and,
 while on, green_box/front (PoseStamped in base_link: x = d, y = s), which
@@ -56,7 +58,8 @@ class BoxOnPath(Node):
             ('edge_margin_px', 3), ('median_n', 5), ('camera_y', -0.0115), ('trigger_dist', 1.0),
             ('lateral_tol', 0.30), ('release_dist', 1.2), ('release_lateral', 0.35),
             ('image_timeout', 1.0), ('max_turn_rate', 0.2), ('turn_hold', 0.5),
-            ('turn_gate_dist', 0.6), ('box_half_m', 0.09), ('clip_close_dist', 0.3))}
+            ('turn_gate_dist', 0.6), ('box_half_m', 0.09), ('clip_close_dist', 0.3),
+            ('spin_max_v', 0.03))}
         self.target = None          # (monotonic time, d, s, clip) of the newest bbox
                                     # (clip 1/2: s = lateral position of the inner edge)
         self.recent = []            # (monotonic time, d, s) of unclipped bboxes, for the median
@@ -64,6 +67,7 @@ class BoxOnPath(Node):
         self.on = False
         self.front = (0.0, 0.0)
         self.last_turn = 0.0        # monotonic time the base last turned faster than max_turn_rate
+        self.last_spin = 0.0        # ... and at the same time hardly moved forward (in place)
         best_effort = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT)
         self.create_subscription(Float32MultiArray, 'green_box/bbox', self._on_bbox, best_effort)
         self.create_subscription(CameraInfo, self.p['camera_info_topic'], self._on_info, best_effort)
@@ -101,11 +105,14 @@ class BoxOnPath(Node):
     def _on_odom(self, m):
         if abs(m.twist.twist.angular.z) > self.p['max_turn_rate']:
             self.last_turn = time.monotonic()
+            if abs(m.twist.twist.linear.x) < self.p['spin_max_v']:
+                self.last_spin = self.last_turn
 
     def _judge(self, d, off, on_tol, off_tol):
         p = self.p
-        turning = (time.monotonic() - self.last_turn < p['turn_hold']
-                   and d > p['turn_gate_dist'])
+        now = time.monotonic()
+        turning = ((now - self.last_turn < p['turn_hold'] and d > p['turn_gate_dist'])
+                   or now - self.last_spin < p['turn_hold'])
         if d <= p['trigger_dist'] and off <= on_tol and not turning:
             self.on = True
         elif d > p['release_dist'] or off > off_tol:
