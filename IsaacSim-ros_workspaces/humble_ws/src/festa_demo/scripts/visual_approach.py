@@ -25,8 +25,13 @@ the view (z = 3) counts as centred (creep straight, stop on fill_stop); with one
 border cut, lean toward that side while creeping and, once filled, turn toward
 it in pulses until both borders are cut. Feedback goes out only when the
 state changes (the 20 Hz feedback starved the BT's accept/result replies).
-No range estimate, TF or odometry. A forward lidar cone (backstop_dist) still
-stops the robot.
+No range estimate or TF. A forward lidar cone (backstop_dist) still stops the
+robot. Contact (festa_demo, 2026-10-02, sim S24_R4): the 12 cm box is below the lidar,
+and at a diagonal approach the fill stayed at 79-80 % while the robot pushed the box
+0.71 m into a wall. So while driving near the box, if odometry says the base moved
+contact_travel m but the fill grew less than contact_fill_gain, the robot is touching
+(or pushing) the box: from then on it counts as filled - stop when centred or both
+borders cut, else turn in pulses toward the cut side as at fill_stop.
 
 Inputs from detector_node.py:
     green_box/image_target  x = (bbox centre column - cx) / fx  (tan, + = right),
@@ -44,6 +49,7 @@ from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 from geometry_msgs.msg import PointStamped, Twist
+from nav_msgs.msg import Odometry
 from sensor_msgs.msg import LaserScan
 from std_msgs.msg import Float32
 
@@ -59,7 +65,8 @@ class VisualApproach(Node):
             ('settle_s', 0.3), ('turn_pulse_max', 0.5),
             ('max_drive_w', 0.25), ('approach_speed', 0.05), ('far_speed', 0.10), ('near_fill', 0.15),
             ('far_align_tol', 0.26), ('image_timeout', 1.0), ('lost_timeout', 3.0),
-            ('backstop_dist', 0.10), ('front_half_angle', 0.26), ('time_allowance', 60.0))}
+            ('backstop_dist', 0.10), ('front_half_angle', 0.26), ('time_allowance', 60.0),
+            ('contact_travel', 0.05), ('contact_fill_gain', 0.02))}
         self.p = p
         cb = ReentrantCallbackGroup()
         best_effort = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT)
@@ -67,6 +74,8 @@ class VisualApproach(Node):
         self.target = None          # (time, x_tan, clip)
         self.fill = None            # (time, fraction)
         self.front_min = None
+        self.odom_dist = 0.0        # path length driven (odometry), for the contact check
+        self._odom_xy = None
         self._goal_gen = 0  # festa_demo: preemption, 2026-10-01 - only the newest goal may drive
         self._cone_cache = None  # (angle_min, angle_increment, n, indices) - festa_demo: Pi load, 2026-10-01
         self.create_subscription(PointStamped, 'green_box/image_target', self._on_target,
@@ -74,6 +83,7 @@ class VisualApproach(Node):
         self.create_subscription(Float32, 'green_box/image_fill', self._on_fill,
                                  best_effort, callback_group=cb)
         self.create_subscription(LaserScan, 'scan', self._on_scan, best_effort, callback_group=cb)
+        self.create_subscription(Odometry, 'odom', self._on_odom, 10, callback_group=cb)
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel', 10)
         ActionServer(self, Sweep, 'visual_approach', execute_callback=self._execute,
                      cancel_callback=lambda _g: CancelResponse.ACCEPT, callback_group=cb)
@@ -86,6 +96,13 @@ class VisualApproach(Node):
     def _on_fill(self, m):
         with self.lock:
             self.fill = (time.monotonic(), m.data)
+
+    def _on_odom(self, m):
+        xy = (m.pose.pose.position.x, m.pose.pose.position.y)
+        with self.lock:
+            if self._odom_xy is not None:
+                self.odom_dist += math.hypot(xy[0] - self._odom_xy[0], xy[1] - self._odom_xy[1])
+            self._odom_xy = xy
 
     def _on_scan(self, m):
         # festa_demo: Pi load, 2026-10-01 - the set of beam indices inside the
@@ -112,11 +129,13 @@ class VisualApproach(Node):
         self.cmd_pub.publish(t)
 
     @staticmethod
-    def _decide(p, bearing, clip, fill_now):
+    def _decide(p, bearing, clip, fill_now, contact=False):
         """festa_demo (2026-10-01): one control decision -> (action, v, w, state);
-        action is 'stop', 'turn' (pulse in place) or 'drive'."""
+        action is 'stop', 'turn' (pulse in place) or 'drive'. contact: the robot is
+        touching the box (fill stopped growing while driving) - counts as filled."""
+        filled = fill_now >= p['fill_stop'] or contact
         if clip == 3:                                  # wider than the view: centred enough
-            if fill_now >= p['fill_stop']:
+            if filled:
                 return 'stop', 0.0, 0.0, 'STOP clip=3'
             return 'drive', p['approach_speed'], 0.0, f'CREEP clip=3 fill={100 * fill_now:.0f}%'
         if clip:
@@ -125,7 +144,7 @@ class VisualApproach(Node):
             # Lean toward the cut side; once filled, turn there in pulses until both
             # edges are cut or the whole box is back in view.
             side = 1.0 if clip == 1 else -1.0          # + = turn left
-            if fill_now >= p['fill_stop']:
+            if filled:
                 return 'turn', 0.0, side * p['min_w'], f'CENTRE clip={clip}'
             return 'drive', p['approach_speed'], side * 0.5 * p['max_drive_w'], \
                 f'CREEP clip={clip} fill={100 * fill_now:.0f}%'
@@ -134,7 +153,7 @@ class VisualApproach(Node):
             w = max(-p['max_w'], min(p['max_w'], p['kp'] * bearing))
             return 'turn', 0.0, math.copysign(max(abs(w), p['min_w']), w), \
                 f'CENTRE bearing={math.degrees(bearing):.0f}deg'
-        if fill_now >= p['fill_stop']:
+        if filled:
             return 'stop', 0.0, 0.0, 'STOP centred'
         w = max(-p['max_drive_w'], min(p['max_drive_w'], p['kp'] * bearing))
         return 'drive', p['approach_speed'] if near else p['far_speed'], w, \
@@ -149,6 +168,8 @@ class VisualApproach(Node):
         code = 'ERROR'
         turn_until = 0.0            # festa_demo: end of the current turn pulse
         look_after = None           # festa_demo: wait for an image received after this
+        contact = False             # festa_demo (S24_R4): touching the box
+        ref = None                  # (odom_dist, fill) at the start of the current forward drive
         with self.lock:
             self._goal_gen += 1
             my = self._goal_gen
@@ -173,7 +194,7 @@ class VisualApproach(Node):
                 self.get_logger().error('visual_approach: time allowance exceeded')
                 break
             with self.lock:
-                target, fill, front_min = self.target, self.fill, self.front_min
+                target, fill, front_min, odom_dist = self.target, self.fill, self.front_min, self.odom_dist
             if front_min is not None and front_min <= p['backstop_dist']:
                 self.get_logger().info(f'visual_approach: lidar backstop at {front_min:.2f} m')
                 code = 'SUCCESS'
@@ -197,11 +218,26 @@ class VisualApproach(Node):
                 look_after = None
             bearing = -math.atan(target[1])            # + = box left of the image centre
             fill_now = fill[1] if fill is not None and now - fill[0] <= p['image_timeout'] else 0.0
-            action, v, w, state = self._decide(p, bearing, target[2], fill_now)
+            action, v, w, state = self._decide(p, bearing, target[2], fill_now, contact)
+            if action == 'drive' and fill_now >= p['near_fill'] and not contact:
+                if ref is None:
+                    ref = (odom_dist, fill_now)
+                elif odom_dist - ref[0] >= p['contact_travel']:
+                    if fill_now - ref[1] < p['contact_fill_gain']:
+                        contact = True
+                        self.get_logger().warn(
+                            f'visual_approach: drove {odom_dist - ref[0]:.2f} m but the fill only went '
+                            f'{100 * ref[1]:.0f}% -> {100 * fill_now:.0f}% - touching the box, counts as filled')
+                        action, v, w, state = self._decide(p, bearing, target[2], fill_now, contact)
+                    else:
+                        ref = (odom_dist, fill_now)
+            elif action != 'drive':
+                ref = None
             if action == 'stop':
                 self.get_logger().info(
                     f'visual_approach: box fills {100 * fill_now:.0f}% of the frame, '
-                    f'bearing {math.degrees(bearing):.1f} deg, clip {target[2]} - stopped')
+                    f'bearing {math.degrees(bearing):.1f} deg, clip {target[2]}'
+                    f'{" (contact)" if contact else ""} - stopped')
                 code = 'SUCCESS'
                 break
             self._cmd(v, w)
