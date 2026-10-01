@@ -61,7 +61,7 @@
                        re-run this whole branch forever (real robot 2026-10-01: 12 retries); after
                        2 failures mark the box handled and fall through to following the path. -->
                   <Fallback name="SweepOrGiveUp">
-                    <RetryUntilSuccesful num_attempts="2">
+                    <RetryUntilSuccessful num_attempts="2">
                       <Sequence name="ApproachAndSweep">
                         <SweepObstacle name="VisualApproach" action_name="/visual_approach"
                                        server_timeout="5.0" accept_timeout="5.0" sweep_timeout="90.0"
@@ -73,7 +73,7 @@
                                        sweep_timeout="180.0"
                                        result_code="{sweep_result}"/>
                       </Sequence>
-                    </RetryUntilSuccesful>
+                    </RetryUntilSuccessful>
                     <ForceFailure>
                       <SetBlackboard output_key="box_swept" value="true"/>
                     </ForceFailure>
