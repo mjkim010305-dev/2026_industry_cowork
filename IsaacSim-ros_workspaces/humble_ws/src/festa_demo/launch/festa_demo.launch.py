@@ -164,7 +164,10 @@ def _launch(context):
         name='visual_approach', output='screen',
         cmd=['python3', os.path.join(lib, 'visual_approach.py'), '--ros-args',
              '-p', f'use_sim_time:={str(sim).lower()}'] +
-        (['-p', 'time_allowance:=240.0'] if sim else [])))
+        # festa_demo (2026-10-01, sim S1h): the sim camera sees at most ~19 % green (peak
+        # ~0.15 m from the box, then the box drops out of view); stop on that peak in sim.
+        (['-p', 'time_allowance:=240.0', '-p', 'fill_stop:=0.17', '-p', 'near_fill:=0.10']
+         if sim else [])))
 
     actions.append(ExecuteProcess(
         name='sweep_action_server', output='screen',
