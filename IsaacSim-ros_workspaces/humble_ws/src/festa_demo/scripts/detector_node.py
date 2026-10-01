@@ -178,6 +178,11 @@ class GreenBoxDetector(Node):
         # global time on, 49 -> 57 s within 6 s with it off), so every stamped TF
         # lookup failed. True = use the arrival time instead (latency < 0.1 s).
         self.stamp_on_receive = bool(self.declare_parameter("stamp_on_receive", False).value)
+        # festa_demo: True = range the box from its image width alone (box_depth_m
+        # taken as the face width, square box) and place it with the newest
+        # output <- camera transform; no lidar, no stamped TF. User decision
+        # 2026-10-01: lidar for walls/obstacles only, the box from the image.
+        self.range_from_image = bool(self.declare_parameter("range_from_image", False).value)
 
         self.bridge = CvBridge()
         self.intrinsics = None          # (fx, fy, cx, cy)
@@ -341,6 +346,8 @@ class GreenBoxDetector(Node):
         """
         x, y, w, h = bbox
         camera_frame = self.camera_frame or image_header.frame_id
+        if self.range_from_image:
+            return self._resolve_from_image(image_header, bbox, fx, cx, camera_frame)
         u_lo = x - self.bearing_margin_px
         u_hi = x + w + self.bearing_margin_px
 
@@ -437,6 +444,24 @@ class GreenBoxDetector(Node):
         t = tf.transform.translation
         q = tf.transform.rotation
         return (t.x, t.y, t.z), (q.x, q.y, q.z, q.w)
+
+    def _resolve_from_image(self, image_header, bbox, fx, cx, camera_frame):
+        """festa_demo: box centre in ``output_frame`` from the bbox alone.
+        Optical frame: z forward, x right. The face (width ``box_depth_m``)
+        spans ``w / fx`` in tan units, so it is ``box_depth_m * fx / w`` away;
+        the centre is half a box deeper. A bbox cut by the left/right image
+        border has a wrong width -> ``"clipped"``."""
+        x, _, w, _ = bbox
+        if x <= self.edge_margin_px or x + w >= 2.0 * cx - self.edge_margin_px:
+            return None, "clipped"
+        face = self.box_depth_m * fx / float(w)
+        centre_cam = (((x + w / 2.0) - cx) / fx * face, 0.0, face + self.box_depth_m / 2.0)
+        tf_oc = self._lookup_slow_transform(
+            self.output_frame, camera_frame, image_header.stamp, "camera->output")
+        if tf_oc is None:
+            return None, "no-tf"
+        out = transform_point(centre_cam, *tf_oc)
+        return (out[0], out[1]), "image"
 
     def _lookup_slow_transform(self, target_frame, source_frame, stamp, context):
         """Lookup for a slowly changing transform (map <- odom): the value at
