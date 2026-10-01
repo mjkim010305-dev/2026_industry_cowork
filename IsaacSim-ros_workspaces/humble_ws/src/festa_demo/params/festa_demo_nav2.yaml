@@ -253,7 +253,7 @@ controller_server:
       sim_time: 1.7
       linear_granularity: 0.05
       angular_granularity: 0.025
-      transform_tolerance: 0.2
+      transform_tolerance: 0.5   # festa_demo: was 0.2 (Pi TF lag)
       xy_goal_tolerance: 0.25
       trans_stopped_velocity: 0.25
       short_circuit_trajectory_evaluation: True
@@ -300,7 +300,7 @@ controller_server:
       sim_time: 1.7
       linear_granularity: 0.05
       angular_granularity: 0.025
-      transform_tolerance: 0.2
+      transform_tolerance: 0.5   # festa_demo: was 0.2 (Pi TF lag)
       # was 0.25 (copied from FollowPath) -> tightened to 0.08: this is the
       # radius at which RotateToGoal zeroes translation and switches to
       # rotate-only. Since the path already keeps yaw matched to the goal
@@ -345,6 +345,12 @@ controller_server:
 local_costmap:
   local_costmap:
     ros__parameters:
+      # festa_demo: on the robot's Pi the TF chain lagged 0.6-1.6 s behind
+      # (2026-10-01). The controller's goal check transforms the goal with the
+      # local costmap's tolerance (default 0.3 s); when that failed, Nav2 Humble
+      # compared the robot with an empty pose at the odom origin - where the
+      # robot started - and reported "Reached the goal!" after 2 s.
+      transform_tolerance: 1.0
       update_frequency: 5.0
       publish_frequency: 2.0
       global_frame: odom
@@ -388,6 +394,7 @@ local_costmap:
 global_costmap:
   global_costmap:
     ros__parameters:
+      transform_tolerance: 1.0   # festa_demo: see local_costmap
       update_frequency: 1.0
       publish_frequency: 1.0
       global_frame: map
@@ -474,7 +481,7 @@ behavior_server:
       plugin: "nav2_behaviors/AssistedTeleop"
     global_frame: odom
     robot_base_frame: base_link
-    transform_tolerance: 0.1
+    transform_tolerance: 0.5   # festa_demo: was 0.1 (Pi TF lag)
     use_sim_time: true
     simulate_ahead_time: 2.0
     max_rotational_vel: 1.0

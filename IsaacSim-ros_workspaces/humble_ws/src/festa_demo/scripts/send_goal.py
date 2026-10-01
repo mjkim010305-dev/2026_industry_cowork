@@ -17,6 +17,7 @@ from rclpy.qos import QoSDurabilityPolicy, QoSProfile, QoSReliabilityPolicy
 from action_msgs.msg import GoalStatus
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 from nav2_msgs.action import NavigateToPose
+from std_srvs.srv import Trigger
 
 STATUS = {GoalStatus.STATUS_SUCCEEDED: 'SUCCEEDED', GoalStatus.STATUS_ABORTED: 'ABORTED',
           GoalStatus.STATUS_CANCELED: 'CANCELED'}
@@ -71,6 +72,23 @@ class SendGoal(Node):
         self.get_logger().error('AMCL never published amcl_pose; sending the goal anyway')
         return False
 
+    def wait_nav2_active(self, timeout_s=180.0):
+        # festa_demo: bt_navigator accepts goals before the lifecycle manager has
+        # activated the rest of Nav2 (on the robot's Pi the velocity smoother came
+        # up 1 s after the first goal). Ask the manager itself.
+        cli = self.create_client(Trigger, 'lifecycle_manager_navigation/is_active')
+        end = self.get_clock().now().nanoseconds + int(timeout_s * 1e9)
+        while rclpy.ok() and self.get_clock().now().nanoseconds < end:
+            if cli.wait_for_service(timeout_sec=1.0):
+                fut = cli.call_async(Trigger.Request())
+                rclpy.spin_until_future_complete(self, fut, timeout_sec=2.0)
+                if fut.result() is not None and fut.result().success:
+                    self.get_logger().info('Nav2 is active')
+                    return True
+            self.spin_for(1.0)
+        self.get_logger().warn('Nav2 not reported active; sending the goal anyway')
+        return False
+
     def send(self, x, y, yaw):
         goal = NavigateToPose.Goal()
         goal.pose = PoseStamped()
@@ -101,6 +119,7 @@ class SendGoal(Node):
 def main():
     rclpy.init()
     node = SendGoal()
+    node.wait_nav2_active()
     if node.p['set_initial_pose']:
         node.set_initial_pose()
     p = node.p

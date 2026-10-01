@@ -48,6 +48,7 @@ MODE_DEFAULTS = {
         'publish_camera_tf': 'true',
         'safety_monitor': 'false',
         'isaac_bridge': 'true',
+        'stamp_on_receive': 'false',
         # Arrive facing the direction of travel (no big turn at the goal); the
         # 180 deg turn for the way back is done in place by the rotation shim.
         'goal_x': '1.75', 'goal_y': '-1.75', 'goal_yaw': '-1.5708',
@@ -60,6 +61,8 @@ MODE_DEFAULTS = {
         'publish_camera_tf': 'false',
         'safety_monitor': 'true',
         'isaac_bridge': 'false',
+        # The robot's RealSense image stamps drift away from the system clock.
+        'stamp_on_receive': 'true',
         # Robot's own real.yaml (2026-09-30 mapping): (0,0) is the start at the open
         # end of the horizontal leg facing +x; the goal is the bottom of the
         # vertical leg (x 1.15..2.65, floor y -2.05), facing down the leg.
@@ -67,7 +70,7 @@ MODE_DEFAULTS = {
     },
 }
 ARGS = ['map', 'image_topic', 'camera_info_topic', 'camera_frame', 'publish_camera_tf',
-        'safety_monitor', 'isaac_bridge', 'goal_x', 'goal_y', 'goal_yaw']
+        'safety_monitor', 'isaac_bridge', 'goal_x', 'goal_y', 'goal_yaw', 'stamp_on_receive']
 
 
 def _launch(context):
@@ -127,7 +130,8 @@ def _launch(context):
              '-p', f"camera_frame:={cfg['camera_frame']}",
              '-p', 'output_frame:=map',
              '-p', f"box_depth_m:={LaunchConfiguration('box_depth').perform(context)}",
-             '-p', f"box_height_m:={LaunchConfiguration('box_height').perform(context)}"]))
+             '-p', f"box_height_m:={LaunchConfiguration('box_height').perform(context)}",
+             '-p', f"stamp_on_receive:={cfg['stamp_on_receive']}"]))
 
     actions.append(ExecuteProcess(
         name='sweep_action_server', output='screen',

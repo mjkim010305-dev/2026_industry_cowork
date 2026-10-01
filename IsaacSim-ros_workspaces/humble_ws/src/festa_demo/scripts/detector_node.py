@@ -173,6 +173,11 @@ class GreenBoxDetector(Node):
         # between the two captures is compensated through fixed_frame.
         self.fixed_frame = self.declare_parameter("fixed_frame", "odom").value
         self.max_scan_image_dt = self.declare_parameter("max_scan_image_dt", 0.25).value
+        # festa_demo: the robot's RealSense D555 published image stamps that fell
+        # further behind the system clock every second (2026-10-01: ~600 s with
+        # global time on, 49 -> 57 s within 6 s with it off), so every stamped TF
+        # lookup failed. True = use the arrival time instead (latency < 0.1 s).
+        self.stamp_on_receive = bool(self.declare_parameter("stamp_on_receive", False).value)
 
         self.bridge = CvBridge()
         self.intrinsics = None          # (fx, fy, cx, cy)
@@ -239,6 +244,8 @@ class GreenBoxDetector(Node):
     def _on_image(self, msg):
         if self.intrinsics is None:
             return
+        if self.stamp_on_receive:
+            msg.header.stamp = self.get_clock().now().to_msg()
         try:
             bgr = self.bridge.imgmsg_to_cv2(msg, desired_encoding="bgr8")
         except Exception as exc:                      # noqa: BLE001 - log and drop
