@@ -957,9 +957,14 @@ class ObstacleClearSequence(Node):
                 f"중단 원인: {self.safety_reason}"
             )
 
-            self.get_logger().error(
-                "자동 후퇴 및 후방 재파지는 실행하지 않습니다."
-            )
+            # festa_demo (2026-10-02, 사용자 "B 정도만"): 컷오프 뒤 팔이 펴진 채 남지 않도록
+            # 자동 회수 - 그 자리에서 접고(낮은 자세에서 박스·벽을 다시 쓸지 않게 joint1은 그대로),
+            # 접은 채 뒤로 돌아 부품을 다시 집어 P_REAR_CARRY. 성공하면 BT가 sweep을 한 번 더
+            # 시도할 수 있다(팀 시퀀스는 P_REAR_CARRY에서 시작). 결과는 그래도 실패로 보고.
+            if self.recover_after_cutoff():
+                self.get_logger().warning("컷오프 후 자동 회수 완료: P_REAR_CARRY")
+            else:
+                self.get_logger().error("컷오프 후 자동 회수 실패")
 
             return False
 
@@ -981,6 +986,29 @@ class ObstacleClearSequence(Node):
         self.publish_stage("SWEEP_COMPLETE")
 
         return True
+
+    # festa_demo (2026-10-02): 안전 컷오프 뒤 자동 회수 (R20b에서 손으로 한 순서)
+    def recover_after_cutoff(self):
+
+        self.publish_stage("CUTOFF_RECOVER")
+
+        joint1 = self.current_pose[0] if self.current_pose is not None else P_PRE_SWEEP[0]
+
+        steps = [
+            ("FOLD_IN_PLACE", [joint1] + ARM_FOLD),   # 들어 올려 접기, joint1 그대로
+            ("P_REAR_FOLD", P_REAR_FOLD),             # 접은 채 뒤로 회전
+            ("P_REAR_PRE_SWEEP", P_REAR_PRE_SWEEP),
+            ("P_REAR_PICK", P_REAR_PICK),
+        ]
+
+        for label, pose in steps:
+
+            self.publish_stage(label)
+
+            if self.move_arm(pose, label) != "ok":
+                return False
+
+        return self.run_rear_repick()
 
     # 전방 Sweep 이후 후방 Pick 자세로 이동
     def run_prepare_repick(self):
