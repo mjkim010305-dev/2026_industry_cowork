@@ -40,7 +40,7 @@ class SendGoal(Node):
             ('goal_x', 0.0), ('goal_y', 0.0), ('goal_yaw', 0.0),
             ('set_initial_pose', True), ('initial_x', 0.0), ('initial_y', 0.0), ('initial_yaw', 0.0),
             ('return_to_start', True), ('frame_id', 'map'), ('goal_retries', 30),
-            ('pick_first', False))}
+            ('pick_first', False), ('send_goal', True))}
         self.p = p
         self.amcl_seen = False
         self.create_subscription(PoseWithCovarianceStamped, 'amcl_pose', self._on_amcl,
@@ -194,6 +194,12 @@ def main():
         node.set_initial_pose()
         node.clear_costmaps()
     p = node.p
+    if not p['send_goal']:
+        # festa_demo: localization only (Nav2 up, initial pose set) - e.g. to watch RViz.
+        node.get_logger().info('send_goal:=false - initial pose set, no goal')
+        node.destroy_node()
+        rclpy.shutdown()
+        return
     ok = node.send(p['goal_x'], p['goal_y'], p['goal_yaw'])
     if ok and p['return_to_start']:
         node.get_logger().info('returning to the start')

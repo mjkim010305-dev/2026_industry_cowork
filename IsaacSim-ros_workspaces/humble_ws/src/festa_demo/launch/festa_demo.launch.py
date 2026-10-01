@@ -178,6 +178,7 @@ def _launch(context):
                  '-p', f"set_initial_pose:={LaunchConfiguration('set_initial_pose').perform(context)}",
                  '-p', f"return_to_start:={LaunchConfiguration('return_to_start').perform(context)}",
                  '-p', f"pick_first:={str(pick_first).lower()}",
+                 '-p', f"send_goal:={LaunchConfiguration('send_goal').perform(context)}",
                  '-p', f"initial_x:={LaunchConfiguration('initial_x').perform(context)}",
                  '-p', f"initial_y:={LaunchConfiguration('initial_y').perform(context)}",
                  '-p', f"initial_yaw:={LaunchConfiguration('initial_yaw').perform(context)}"])]))
@@ -197,6 +198,8 @@ def generate_launch_description():
                               description="true: load the part first (robot's rear_pick.py) and run the "
                                           "manipulation team's obstacle_clear_sequence.py at the box "
                                           "(put down behind -> sweep -> pick up again); false: sweep only"),
+        DeclareLaunchArgument('send_goal', default_value='true',
+                              description='false: start Nav2 and set the initial pose only (no pick, no goal)'),
         DeclareLaunchArgument('pick_first', default_value='true',
                               description='with pick:=true, false skips the initial rear_pick.py '
                                           '(part already at P_REAR_CARRY)'),
