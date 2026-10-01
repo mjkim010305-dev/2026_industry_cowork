@@ -134,6 +134,11 @@ def _launch(context):
              '-p', f"stamp_on_receive:={cfg['stamp_on_receive']}"]))
 
     actions.append(ExecuteProcess(
+        name='box_on_path', output='screen',
+        cmd=['python3', os.path.join(lib, 'box_on_path.py'), '--ros-args',
+             '-p', f'use_sim_time:={str(sim).lower()}']))
+
+    actions.append(ExecuteProcess(
         name='visual_approach', output='screen',
         cmd=['python3', os.path.join(lib, 'visual_approach.py'), '--ros-args',
              '-p', f'use_sim_time:={str(sim).lower()}',

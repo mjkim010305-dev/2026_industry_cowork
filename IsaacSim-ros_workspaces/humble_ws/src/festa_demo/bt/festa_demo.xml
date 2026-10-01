@@ -34,10 +34,16 @@
                   <IsGreenBoxDetected pose_topic="green_box/pose"
                                       visible_topic="green_box/detected"
                                       max_age="1.0"/>
-                  <BlackboardCheckString name="IsGoalBlocked" value_A="{goal_blocked}" value_B="true"
-                                         return_on_mismatch="FAILURE">
-                    <AlwaysSuccess/>
-                  </BlackboardCheckString>
+                  <!-- festa_demo: sweep when the box blocks the way OR lies on the planned path
+                       (scripts/box_on_path.py; the real course is too wide for one box to block). -->
+                  <Fallback name="BlockedOrOnPath">
+                    <BlackboardCheckString name="IsGoalBlocked" value_A="{goal_blocked}" value_B="true"
+                                           return_on_mismatch="FAILURE">
+                      <AlwaysSuccess/>
+                    </BlackboardCheckString>
+                    <IsGreenBoxDetected name="IsBoxOnPath" pose_topic="green_box/pose"
+                                        visible_topic="green_box/on_path" max_age="1.0"/>
+                  </Fallback>
                   <ComputeGreenBoxApproachGoal pose_topic="green_box/pose"
                                                global_frame="map"
                                                robot_base_frame="base_link"
