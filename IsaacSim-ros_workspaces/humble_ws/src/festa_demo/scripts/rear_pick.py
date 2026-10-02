@@ -385,11 +385,35 @@ class RearPick(Node):
 
         return True
 
+    # festa_demo (2026-10-02, user: shuttle - put the part down in front at each end, then
+    # pick it up again there): run_pick in reverse, P_REAR_CARRY -> ... -> P_PICK -> open -> P_HOME.
+    def run_place(self):
+
+        self.get_logger().info("===== FRONT PLACE START =====")
+
+        for pose, label in ((P_SIDE_CARRY, "P_SIDE_CARRY"), (P_LIFT_FOLD, "P_LIFT_FOLD"),
+                            (P_LIFT, "P_LIFT"), (P_PRE_PICK, "P_PRE_PICK"), (P_PICK, "P_PICK")):
+            if not self.move_arm(pose, label):
+                return False
+
+        if not self.move_gripper(G_OPEN, "G_OPEN"):
+            return False
+
+        time.sleep(WAIT_AFTER_GRIP)
+
+        for pose, label in ((P_PRE_PICK, "P_PRE_PICK"), (P_HOME, "P_HOME")):
+            if not self.move_arm(pose, label):
+                return False
+
+        self.get_logger().info("===== FRONT PLACE COMPLETE =====")
+
+        return True
+
 
 def main():
 
-    if len(sys.argv) != 2 or sys.argv[1] != "pick":
-        print("사용법: python3 rear_pick.py pick")
+    if len(sys.argv) != 2 or sys.argv[1] not in ("pick", "place"):
+        print("사용법: python3 rear_pick.py pick|place")
         return
 
     rclpy.init()
@@ -401,7 +425,10 @@ def main():
         if not node.wait_servers():
             return
 
-        if not node.run_pick():
+        if sys.argv[1] == "place":
+            if not node.run_place():
+                node.get_logger().error("FRONT PLACE 실패")
+        elif not node.run_pick():
             node.get_logger().error(
                 "REAR PICK 실패"
             )
