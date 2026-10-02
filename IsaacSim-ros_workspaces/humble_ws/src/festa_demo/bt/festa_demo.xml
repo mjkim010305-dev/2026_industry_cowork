@@ -42,33 +42,24 @@
                        approach turned again). Entering this branch halts FollowPath (Nav2 stops
                        the base); wait 1 s standing still, then the camera approach takes over. -->
                   <Wait name="HandOverToApproach" wait_duration="1"/>
-                  <!-- festa_demo: image-only final approach (scripts/visual_approach.py) instead of
-                       FinalApproachStop, through the SweepObstacle client (same Sweep action type). -->
-                  <!-- festa_demo: accept_timeout 15 s on every SweepObstacle: under Pi load the
-                       "goal accepted" reply took 4-5 s (R20b). At most 2 approach+sweep attempts. A failed sweep used to
-                       re-run this whole branch forever (real robot 2026-10-01: 12 retries); after
-                       2 failures mark the box handled and fall through to following the path. -->
-                  <Fallback name="SweepOrGiveUp">
+                  <!-- festa_demo (2026-10-02, user): one call does the whole box - /handle_box
+                       (scripts/handle_box.py: camera approach -> arm sweep -> body push -> escape from a
+                       wall, one result). It replaces four actions called one by one (/visual_approach,
+                       /sweep, /push_through, /escape): lost accept replies between nodes, a node dying
+                       on per-goal subscriptions (real R22) and a new process per sweep came from that split.
+                       accept_timeout 15 s: under Pi load the accept reply took 4-5 s (R20b). At most 2
+                       attempts, each only while the box is still in front (sim S24_R4); then stand
+                       10 s unless the box is gone, and judge again (no latch). -->
+                  <Fallback name="HandleOrGiveUp">
                     <RetryUntilSuccessful num_attempts="2">
-                      <Sequence name="ApproachAndSweep">
-                        <!-- festa_demo (2026-10-02, sim S24_R4): every attempt needs the box still in
-                             front; the 2nd attempt there started 190 s after on_path went False. -->
+                      <Sequence name="HandleBoxAttempt">
                         <IsGreenBoxDetected name="StillInFront" pose_topic="green_box/front"
                                             visible_topic="green_box/on_path" max_age="1.0"/>
-                        <SweepObstacle name="VisualApproach" action_name="/visual_approach"
-                                       server_timeout="5.0" accept_timeout="15.0" sweep_timeout="90.0"
-                                       result_code="{approach_result}"/>
-                        <Wait wait_duration="2"/>
-                        <SweepObstacle action_name="/sweep"
-                                       server_timeout="5.0"
-                                       accept_timeout="15.0"
-                                       sweep_timeout="180.0"
-                                       result_code="{sweep_result}"/>
+                        <SweepObstacle name="HandleBox" action_name="/handle_box"
+                                       server_timeout="5.0" accept_timeout="15.0" sweep_timeout="600.0"
+                                       result_code="{handle_result}"/>
                       </Sequence>
                     </RetryUntilSuccessful>
-                    <!-- festa_demo (2026-10-02): after 2 failures stand still 10 s, then judge
-                         again (no latch: the box may have been taken away, or is still there). -->
-                    <!-- festa_demo (2026-10-02): no wait when the box is no longer in front. -->
                     <ForceFailure>
                       <Fallback name="GoneOrWait">
                         <Inverter>
@@ -79,23 +70,6 @@
                       </Fallback>
                     </ForceFailure>
                   </Fallback>
-                  <!-- festa_demo: drive 0.35 m straight after the sweep so the body shoves the
-                       partly swept box aside (scripts/push_through.py, user 2026-10-01). -->
-                  <!-- festa_demo: the push is best effort; a failed push no longer restarts the
-                       whole green-box branch (sim S1e looped approach-sweep-push). -->
-                  <ForceSuccess>
-                    <SweepObstacle name="PushThrough" action_name="/push_through"
-                                   server_timeout="5.0" accept_timeout="15.0" sweep_timeout="30.0"
-                                   result_code="{push_result}"/>
-                  </ForceSuccess>
-                  <!-- festa_demo (2026-10-02, sim S25_V5): approach and push ignore Nav2's costmap; if they
-                       left the robot within 0.25 m of a wall, Nav2 rejects every motion as in collision.
-                       /escape (push_through.py) moves it clear first, without a costmap check. -->
-                  <ForceSuccess>
-                    <SweepObstacle name="EscapeAfterPush" action_name="/escape"
-                                   server_timeout="5.0" accept_timeout="15.0" sweep_timeout="30.0"
-                                   result_code="{escape_result}"/>
-                  </ForceSuccess>
                   <!-- festa_demo (2026-10-02): no box_swept latch any more - the next box (or the
                        same one put back) is handled again; a box swept aside is not in front. -->
                   <ClearEntireCostmap name="ClearLocalCostmap-Resume"

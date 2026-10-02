@@ -105,7 +105,7 @@ def _launch(context):
         share, 'params', 'festa_demo_nav2.yaml')
     lib = os.path.join(get_package_prefix(PKG), 'lib', PKG)
     detector = os.path.join(lib, 'detector_node.py')
-    sweep_server = os.path.join(lib, 'sweep_action_server.py')
+    sweep_server = os.path.join(lib, 'handle_box.py')
     send_goal = os.path.join(lib, 'send_goal.py')
     bridge = os.path.join(lib, 'moveit_to_isaac_bridge.py')
     for path in [map_yaml, bt_xml, params, detector, sweep_server, send_goal] + (
@@ -157,14 +157,6 @@ def _launch(context):
              '-p', 'max_rate_hz:=5.0']))
 
     actions.append(ExecuteProcess(
-        name='push_through', output='screen',
-        cmd=['python3', os.path.join(lib, 'push_through.py'), '--ros-args',
-             '-p', f'use_sim_time:={str(sim).lower()}'] +
-        # festa_demo (2026-10-01, sim S1e): the time allowances are wall-clock and Isaac
-        # runs at ~1/3 real time, so a 15 s push got ~5 sim-seconds.
-        (['-p', 'time_allowance:=60.0'] if sim else [])))
-
-    actions.append(ExecuteProcess(
         name='box_on_path', output='screen',
         cmd=['python3', os.path.join(lib, 'box_on_path.py'), '--ros-args',
              '-p', f'use_sim_time:={str(sim).lower()}',
@@ -175,16 +167,17 @@ def _launch(context):
              '-p', f"camera_x:={cfg['camera_tf'].split()[0]}",
              '-p', f"camera_y:={cfg['camera_tf'].split()[1]}"]))
 
+    # festa_demo (2026-10-02, user): one node for the whole box - approach, sweep (the arm
+    # sequence in-process), push, escape - instead of visual_approach.py, sweep_action_server.py
+    # (a new obstacle_clear_sequence.py process per sweep) and push_through.py.
     actions.append(ExecuteProcess(
-        name='visual_approach', output='screen',
-        cmd=['python3', os.path.join(lib, 'visual_approach.py'), '--ros-args',
-             '-p', f'use_sim_time:={str(sim).lower()}'] +
-        (['-p', 'time_allowance:=240.0'] if sim else [])))
-
-    actions.append(ExecuteProcess(
-        name='sweep_action_server', output='screen',
-        cmd=['python3', sweep_server, '--ros-args', '-p', f"safety_monitor:={cfg['safety_monitor']}",
-             '-p', 'sequence:=' + ('obstacle_clear_sequence' if pick else 'sweep_only')]))
+        name='handle_box', output='screen',
+        cmd=['python3', os.path.join(lib, 'handle_box.py'), '--ros-args',
+             '-p', f'use_sim_time:={str(sim).lower()}',
+             '-p', f"safety_monitor:={cfg['safety_monitor']}",
+             '-p', 'sequence:=' + ('obstacle_clear_sequence' if pick else 'sweep_only')] +
+        # the time allowances are wall-clock and Isaac runs at ~1/3 real time (sim S1e)
+        (['-p', 'approach_allowance:=240.0', '-p', 'push_allowance:=60.0'] if sim else [])))
 
     actions.append(TimerAction(
         period=float(LaunchConfiguration('goal_delay').perform(context)),
