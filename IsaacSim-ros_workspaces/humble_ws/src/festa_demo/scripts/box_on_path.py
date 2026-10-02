@@ -13,8 +13,9 @@ by the event) is under the lidar, so Nav2 planned straight through it. Now:
     (taken away, or swept elsewhere - then the new spot is remembered);
   - green_box/on_path = a box in front (x <= trigger_dist, |y| <= lateral_tol in base_link);
     the BT clears it only when the planner also failed (goal blocked), so the range is wide.
-  (2026-10-02, later: the event box may stand on its side - 18.5 cm - where the lidar sees it
-  and Nav2's own obstacle layer does all this; box_map stays off then.)
+  (2026-10-02, later: standing on its side - 18.5 cm - the lidar sees the box, but AMCL then
+  fitted the unmapped box to walls and the pose jumped (real R26-R29); the box lies flat
+  again and box_map is on.)
 
 Box position in base_link from detector_node.py's green_box/bbox ([x, y, w, h, image_w,
 image_h, clip, fill]; clip 0 none, 1 left, 2 right, 3 both borders) and the intrinsics
@@ -70,7 +71,7 @@ class BoxOnPath(Node):
             ('clip_close_dist', 0.25), ('box_centre_off', 0.11),
             ('side_edge_from', 0.12), ('box_half_face', 0.0925),
             ('trigger_dist', 1.8), ('lateral_tol', 0.50), ('release_dist', 2.0), ('release_lateral', 0.60),
-            ('box_map', False),
+            ('box_map', True),
             ('box_radius', 0.13), ('merge_dist', 0.35), ('forget_min', 0.35), ('forget_max', 1.3),
             ('forget_bearing', 0.6), ('forget_s', 1.5), ('odom_keep', 5.0), ('odom_every', 5))}
         self.target = None          # (monotonic time, clip, (x, y) box in base_link)
@@ -261,10 +262,12 @@ class BoxOnPath(Node):
                 box = (xs[len(xs) // 2], ys[len(ys) // 2])
             else:
                 box = t[2]
-        if robot is not None and p['box_map']:
-            if box is not None:
-                self._remember(robot, box, t[1], now)
-            self._forget(robot, box, now)
+        if p['box_map']:
+            if robot is not None:
+                if box is not None:
+                    self._remember(robot, box, t[1], now)
+                self._forget(robot, box, now)
+            # also before AMCL has a pose: the costmaps' box_layer waits for a first (empty) map
             self._publish_box_map()
         if box is None:
             self.on, self.why = False, 'no box in view'
