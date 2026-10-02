@@ -34,9 +34,8 @@ P_HOME = [
 ]
 
 
-def run_sequence():
-    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-    import obstacle_clear_sequence as ocs
+def make_class(ocs):
+    """festa_demo (2026-10-02): the sweep-only sequence class, also used in-process by handle_box.py."""
 
     class SweepOnly(ocs.ObstacleClearSequence):
 
@@ -59,8 +58,15 @@ def run_sequence():
             self.publish_stage('SEQUENCE_COMPLETE' if ok else 'SEQUENCE_FAILED')
             return ok
 
+    return SweepOnly
+
+
+def run_sequence():
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    import obstacle_clear_sequence as ocs
+
     # ocs.main() builds the node from this module-level name.
-    ocs.ObstacleClearSequence = SweepOnly
+    ocs.ObstacleClearSequence = make_class(ocs)
     ocs.main()
 
 
