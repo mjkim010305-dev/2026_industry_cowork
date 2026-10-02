@@ -9,6 +9,9 @@
    round_trips (festa_demo, 2026-10-02): repeat goal -> start that many times,
    0 = forever (AI Festa: the robot shuttles while visitors put boxes anywhere,
    any time). A failed leg is sent again, after 10/20/30 s, without limit.
+   shuttle (festa_demo, 2026-10-02, user): at each end put the part down in front and
+   pick it up again (rear_pick.py place, pick) before the next leg; each end is reached
+   facing the next leg (no room in front at the real goal: wall 0.31 m ahead).
 4. Log each result and exit (the rest of the launch keeps running).
 """
 import math
@@ -44,7 +47,7 @@ class SendGoal(Node):
             ('goal_x', 0.0), ('goal_y', 0.0), ('goal_yaw', 0.0),
             ('set_initial_pose', True), ('initial_x', 0.0), ('initial_y', 0.0), ('initial_yaw', 0.0),
             ('return_to_start', True), ('frame_id', 'map'), ('goal_retries', 30),
-            ('pick_first', False), ('send_goal', True), ('round_trips', 1))}
+            ('pick_first', False), ('send_goal', True), ('round_trips', 1), ('shuttle', False))}
         self.p = p
         self.amcl_seen = False
         self.create_subscription(PoseWithCovarianceStamped, 'amcl_pose', self._on_amcl,
@@ -169,21 +172,7 @@ class SendGoal(Node):
         return False
 
 
-def pick_part(node):
-    """festa_demo pick mode: arm to P_HOME, then the robot's rear_pick.py
-    (front pick -> P_REAR_CARRY), so the sweep's obstacle_clear_sequence.py
-    can put the part down behind and pick it up again."""
-    here = os.path.dirname(os.path.abspath(__file__))
-    home = ('{trajectory: {joint_names: [joint1, joint2, joint3, joint4], points: '
-            '[{positions: [-0.0015339807878856412, -1.0461748973380072, 1.0753205323078345, '
-            '0.009203884727313847], time_from_start: {sec: 4}}]}}')
-    node.get_logger().info('pick mode: arm to P_HOME')
-    subprocess.run(['ros2', 'action', 'send_goal', '/arm_controller/follow_joint_trajectory',
-                    'control_msgs/action/FollowJointTrajectory', home], timeout=30)
-    node.get_logger().info('pick mode: rear_pick.py pick')
-    subprocess.run([sys.executable, os.path.join(here, 'rear_pick.py'), 'pick'], timeout=120)
-    # rear_pick.py exits 0 even when it fails, so check that the arm reached
-    # P_REAR_CARRY (joint1 -3.0235), which obstacle_clear_sequence.py requires.
+def read_joints(node):
     js = {}
     sub = node.create_subscription(JointState, 'joint_states',
                                    lambda m: js.update(zip(m.name, m.position)), 10)
@@ -193,6 +182,49 @@ def pick_part(node):
     while rclpy.ok() and 'joint1' not in js and time.monotonic() < end:
         rclpy.spin_once(node, timeout_sec=0.1)
     node.destroy_subscription(sub)
+    return js
+
+
+def place_part(node):
+    """festa_demo shuttle: rear_pick.py place (P_REAR_CARRY -> part down in front -> P_HOME).
+    rear_pick.py exits 0 even when it fails, so check that the arm reached P_HOME."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    node.get_logger().info('shuttle: rear_pick.py place')
+    try:
+        subprocess.run([sys.executable, os.path.join(here, 'rear_pick.py'), 'place'], timeout=150)
+    except subprocess.TimeoutExpired:
+        node.get_logger().error('shuttle: rear_pick.py place timed out')
+    js = read_joints(node)
+    ok = 'joint1' in js and abs(js['joint1']) < 0.15 and abs(js['joint2'] - (-1.0461748973380072)) < 0.15
+    node.get_logger().info(f"shuttle: joint1={js.get('joint1')} joint2={js.get('joint2')} -> "
+                           f"{'P_HOME' if ok else 'NOT at P_HOME'}")
+    return ok
+
+
+def pick_part(node):
+    """festa_demo pick mode: arm to P_HOME, then the robot's rear_pick.py
+    (front pick -> P_REAR_CARRY), so the sweep's obstacle_clear_sequence.py
+    can put the part down behind and pick it up again."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    home = ('{trajectory: {joint_names: [joint1, joint2, joint3, joint4], points: '
+            '[{positions: [-0.0015339807878856412, -1.0461748973380072, 1.0753205323078345, '
+            '0.009203884727313847], time_from_start: {sec: 4}}]}}')
+    node.get_logger().info('pick mode: arm to P_HOME')
+    try:
+        subprocess.run(['ros2', 'action', 'send_goal', '/arm_controller/follow_joint_trajectory',
+                        'control_msgs/action/FollowJointTrajectory', home], timeout=30)
+    except subprocess.TimeoutExpired:
+        # festa_demo (2026-10-02, real R38a): the CLI never got the result and send_goal died;
+        # the arm was at P_HOME. rear_pick.py checks P_HOME itself before it picks.
+        node.get_logger().warn('pick mode: P_HOME command timed out - rear_pick.py checks the pose')
+    node.get_logger().info('pick mode: rear_pick.py pick')
+    try:
+        subprocess.run([sys.executable, os.path.join(here, 'rear_pick.py'), 'pick'], timeout=120)
+    except subprocess.TimeoutExpired:
+        node.get_logger().error('pick mode: rear_pick.py pick timed out')
+    # rear_pick.py exits 0 even when it fails, so check that the arm reached
+    # P_REAR_CARRY (joint1 -3.0235), which obstacle_clear_sequence.py requires.
+    js = read_joints(node)
     ok = 'joint1' in js and abs(js['joint1'] - (-3.0234761329225988)) < 0.15
     node.get_logger().info(f"pick mode: joint1={js.get('joint1')} -> {'P_REAR_CARRY' if ok else 'NOT at P_REAR_CARRY'}")
     return ok
@@ -224,6 +256,10 @@ def main():
         # 180 deg turn next to the start-area walls (D2 drove into the stub there).
         legs = [('goal', p['goal_x'], p['goal_y'], p['goal_yaw']),
                 ('the start', p['initial_x'], p['initial_y'], p['initial_yaw'] + math.pi)]
+        if p['shuttle']:
+            # Face the next leg at each end: the part goes down in front, on the way out.
+            legs = [('goal', p['goal_x'], p['goal_y'], p['goal_yaw'] + math.pi),
+                    ('the start', p['initial_x'], p['initial_y'], p['initial_yaw'])]
         trips, leg, fails = int(p['round_trips']), 0, 0
         while rclpy.ok() and (trips <= 0 or leg < 2 * trips):
             name, x, y, yaw = legs[leg % 2]
@@ -232,6 +268,10 @@ def main():
                 leg, fails = leg + 1, 0
                 if leg % 2 == 0:
                     node.get_logger().info(f'round trip {leg // 2} done')
+                if p['shuttle'] and not (place_part(node) and pick_part(node)):
+                    # The arm is in an unknown pose: stop here, a person sets it up again.
+                    node.get_logger().error(f'shuttle: place/pick at {name} failed - stopping')
+                    break
                 continue
             # festa_demo (2026-10-02, sim S25_V5): never give up on the shuttle; wait 10 s, then
             # 20 s, then 30 s between attempts (the BT's own recoveries run inside each attempt).
