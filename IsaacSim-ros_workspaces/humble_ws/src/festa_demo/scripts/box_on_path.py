@@ -20,7 +20,11 @@ camera intrinsics:
                   (the height does not grow when the box is turned), else W * fx / w
                   (cut at a side as well: clip_close_dist)
     box x = camera_x + d,  box y = camera_y - (u - cx) / fx * d
-    clip 0: u = bbox centre, median of the last median_n frames within image_timeout s
+    clip 0: u = bbox centre, median of the last median_n frames within image_timeout s;
+            a box more than side_edge_from m off the camera axis shows its inner side face
+            too, which pulls the bbox centre toward the robot (real calibration 2026-10-02:
+            2-7 cm), so there u = the outer bbox edge and the centre is box_centre_off
+            further in
     clip 1/2: u = the visible inner edge, box centre box_centre_off m beyond it
     clip 3 (wider than the view): straight ahead at clip_close_dist
 Route in base_link: /plan (map frame) through map->base_link = map->odom (from /amcl_pose
@@ -91,6 +95,7 @@ class BoxOnPath(Node):
             ('camera_x', 0.1205), ('camera_y', -0.0115),
             ('edge_margin_px', 3), ('median_n', 5), ('image_timeout', 1.0),
             ('clip_close_dist', 0.25), ('box_centre_off', 0.11),
+            ('side_edge_from', 0.12), ('box_half_face', 0.0925),
             ('along_min', 0.10), ('trigger_dist', 1.1), ('lateral_tol', 0.30),
             ('release_dist', 1.3), ('release_lateral', 0.40),
             ('route_len', 1.5), ('route_look', 0.4), ('hold_bearing', 0.785),
@@ -165,6 +170,11 @@ class BoxOnPath(Node):
             d = p['box_face_width_m'] * fx / w
         u = x + w / 2.0 if clip == 0 else (x + w if clip == 1 else x)
         by = p['camera_y'] - (u - cx) / fx * d
+        if clip == 0 and abs(by - p['camera_y']) > p['side_edge_from']:
+            # off to one side: outer edge (left edge for a box on the left, +y) minus half a face
+            u_out = x if by > p['camera_y'] else x + w
+            y_out = p['camera_y'] - (u_out - cx) / fx * d
+            by = y_out - math.copysign(p['box_half_face'], y_out - p['camera_y'])
         if clip == 1:                   # cut at the left border: the box reaches further left (+y)
             by += p['box_centre_off']
         elif clip == 2:
