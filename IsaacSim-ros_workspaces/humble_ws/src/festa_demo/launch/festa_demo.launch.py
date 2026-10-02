@@ -190,6 +190,7 @@ def _launch(context):
                  '-p', f"set_initial_pose:={LaunchConfiguration('set_initial_pose').perform(context)}",
                  '-p', f"return_to_start:={LaunchConfiguration('return_to_start').perform(context)}",
                  '-p', f"round_trips:={LaunchConfiguration('round_trips').perform(context)}",
+                 '-p', f"shuttle:={LaunchConfiguration('shuttle').perform(context)}",
                  '-p', f"pick_first:={str(pick_first).lower()}",
                  '-p', f"send_goal:={LaunchConfiguration('send_goal').perform(context)}",
                  '-p', f"initial_x:={LaunchConfiguration('initial_x').perform(context) or ('-0.14' if not sim else '0.0')}",
@@ -225,6 +226,9 @@ def generate_launch_description():
                               description='after reaching the goal, drive back to initial_x/y/yaw'),
         DeclareLaunchArgument('round_trips', default_value='1',
                               description='goal -> start round trips (0 = forever, AI Festa shuttle)'),
+        DeclareLaunchArgument('shuttle', default_value='false',
+                              description='true: at each end put the part down in front and pick it up '
+                                          'again (launch/festa_shuttle.launch.py)'),
         DeclareLaunchArgument('initial_x', default_value='',
                               description='start pose; empty = sim (0, 0, 0) / real start corner -0.14 (user-set start, 2026-10-02)'),
         DeclareLaunchArgument('initial_y', default_value='',
