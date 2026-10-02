@@ -36,6 +36,7 @@ import time
 
 import rclpy
 from rclpy.node import Node
+from rclpy.serialization import deserialize_message
 from rclpy.qos import QoSDurabilityPolicy, QoSProfile, QoSReliabilityPolicy, ReliabilityPolicy
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
 from nav_msgs.msg import OccupancyGrid, Odometry
@@ -71,7 +72,7 @@ class BoxOnPath(Node):
             ('trigger_dist', 1.8), ('lateral_tol', 0.50), ('release_dist', 2.0), ('release_lateral', 0.60),
             ('box_map', False),
             ('box_radius', 0.13), ('merge_dist', 0.35), ('forget_min', 0.35), ('forget_max', 1.3),
-            ('forget_bearing', 0.6), ('forget_s', 1.5), ('odom_keep', 5.0))}
+            ('forget_bearing', 0.6), ('forget_s', 1.5), ('odom_keep', 5.0), ('odom_every', 5))}
         self.target = None          # (monotonic time, clip, (x, y) box in base_link)
         self.recent = []            # (monotonic time, x, y) of unclipped bboxes, for the median
         self.intrinsics = None      # (fx, fy, cx, cy)
@@ -88,7 +89,10 @@ class BoxOnPath(Node):
                              reliability=QoSReliabilityPolicy.RELIABLE)
         self.create_subscription(Float32MultiArray, 'green_box/bbox', self._on_bbox, best_effort)
         self.create_subscription(CameraInfo, self.p['camera_info_topic'], self._on_info, best_effort)
-        self.create_subscription(Odometry, 'odom', self._on_odom, 10)
+        # festa_demo (2026-10-02, real R28): /odom comes at ~49 Hz; decode one in odom_every
+        # (~10 Hz is plenty for the AMCL-stamp match and the robot pose)
+        self._odom_n = 0
+        self.create_subscription(Odometry, 'odom', self._on_odom_raw, 10, raw=True)
         self.create_subscription(PoseWithCovarianceStamped, 'amcl_pose', self._on_amcl, latched)
         self.create_subscription(OccupancyGrid, 'map', self._on_map, latched)
         self.pub = self.create_publisher(Bool, 'green_box/on_path', 10)
@@ -103,6 +107,11 @@ class BoxOnPath(Node):
     def _on_info(self, m):
         if m.k[0] > 0.0:
             self.intrinsics = (m.k[0], m.k[4], m.k[2], m.k[5])
+
+    def _on_odom_raw(self, data):
+        self._odom_n += 1
+        if self._odom_n % self.p['odom_every'] == 0:
+            self._on_odom(deserialize_message(data, Odometry))
 
     def _on_odom(self, m):
         t = m.header.stamp.sec + m.header.stamp.nanosec * 1e-9
