@@ -12,7 +12,10 @@ amcl:
     # (not shrinking) across samples; 0.2 overestimates odom motion noise given the sim
     # bridge's odom is fairly accurate, so particles were spreading faster than the
     # (already weak, see max_beams below) laser correction could pull them back in.
-    alpha1: 0.1
+    # festa_demo (2026-10-02, real R22): alpha1 (rotation noise from rotation) 0.1 -> 0.25.
+    # Turning against the box, the wheels slipped and odometry counted 173 deg for a 46 deg
+    # turn; with 0.1 the particles followed odometry and AMCL ended ~1 m / 96 deg off.
+    alpha1: 0.25
     alpha2: 0.1
     alpha3: 0.1
     alpha4: 0.1
