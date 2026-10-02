@@ -81,7 +81,8 @@ class HandleBox(Node):
             # escape
             ('escape_speed', 0.05), ('escape_max', 0.25), ('escape_front', 0.14),
             ('escape_rear', 0.22), ('escape_edge_clear', 0.08), ('pose_timeout', 1.0),
-            ('back_off', 0.12), ('back_speed', 0.05))}
+            ('back_off', 0.12), ('back_speed', 0.05),
+            ('turn_clear', 0.24), ('rear_reach', 0.22), ('rear_clear', 0.10), ('wall_close_fill', 0.50))}
         self.cb = ReentrantCallbackGroup()
         self.lock = threading.Lock()
         self.target = None          # (monotonic time, x_tan, clip)
@@ -182,6 +183,21 @@ class HandleBox(Node):
             return 0.0
         return float(d[j, i])
 
+    def _wall_block(self, v, w):
+        """festa_demo (2026-10-02, real R29: the approach drove the robot into a wall - it moved
+        on the camera alone): why (v, w) would hit a /map wall, or None. No pose/map: None."""
+        p = self.p
+        pose = self._fresh_pose()
+        if pose is None:
+            return None
+        if v > 0 and self._clear(pose, p['look_ahead']) < p['map_stop_ahead']:
+            return f'wall ahead ({self._clear(pose, p["look_ahead"]):.2f} m)'
+        if v < 0 and self._clear(pose, -p['rear_reach']) < p['rear_clear']:
+            return f'wall behind ({self._clear(pose, -p["rear_reach"]):.2f} m)'
+        if w != 0 and v == 0 and self._clear(pose) < p['turn_clear']:
+            return f'too close to a wall to turn ({self._clear(pose):.2f} m)'
+        return None
+
     def _fresh_pose(self):
         with self.lock:
             pose, ok = self.map_pose, self.dist is not None
@@ -234,7 +250,7 @@ class HandleBox(Node):
                     self.get_logger().info(f'approach: box left the view at {100 * last_fill:.0f}% in front '
                                            f'- close enough, stopped')
                     return True
-                if last_clip in (1, 2) and turned < p['reacquire_max']:
+                if last_clip in (1, 2) and turned < p['reacquire_max'] and not self._wall_block(0.0, 1.0):
                     side = 1.0 if last_clip == 1 else -1.0
                     self._cmd(0, side * p['reacquire_w'])
                     turned += p['reacquire_w'] * (now - t_prev)
@@ -295,6 +311,13 @@ class HandleBox(Node):
                     f'approach: box fills {100 * fill_now:.0f}% of the frame, bearing '
                     f'{math.degrees(bearing):.1f} deg, clip {target[2]}{" (contact)" if contact else ""} - stopped')
                 return True
+            why = self._wall_block(v, w)
+            if why:
+                self._cmd(0)
+                ok = fill_now >= p['wall_close_fill']
+                self.get_logger().warn(f'approach: {why} at fill {100 * fill_now:.0f}% - '
+                                       f'{"close enough, stopped" if ok else "giving up"}')
+                return ok
             self._cmd(v, w)
             if action == 'turn':
                 turn_until = now + (min(p['turn_pulse_max'], 0.8 * abs(bearing) / abs(w))
@@ -389,6 +412,10 @@ class HandleBox(Node):
                 done = math.hypot(odom_xy[0] - odom0[0], odom_xy[1] - odom0[1])
                 if done >= p['back_off']:
                     self.get_logger().info(f'back off: {done:.2f} m - done')
+                    return
+                why = self._wall_block(-p['back_speed'], 0.0)
+                if why:
+                    self.get_logger().warn(f'back off: {why} after {done:.2f} m - stopped')
                     return
                 if done - progress[1] >= p['stall_dist']:
                     progress = (time.monotonic(), done)
