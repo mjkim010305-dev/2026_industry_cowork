@@ -41,6 +41,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import QoSDurabilityPolicy, QoSProfile, QoSReliabilityPolicy, ReliabilityPolicy
+from rclpy.serialization import deserialize_message
 from geometry_msgs.msg import PointStamped, PoseStamped, Twist
 from nav_msgs.msg import OccupancyGrid, Odometry
 from sensor_msgs.msg import LaserScan
@@ -98,10 +99,14 @@ class HandleBox(Node):
                              reliability=QoSReliabilityPolicy.RELIABLE)
         # every subscription once, for the life of the node (real R22: creating and
         # destroying them per goal killed push_through.py)
-        self.create_subscription(PointStamped, 'green_box/image_target', self._on_target, be, callback_group=self.cb)
-        self.create_subscription(Float32, 'green_box/image_fill', self._on_fill, be, callback_group=self.cb)
-        self.create_subscription(LaserScan, 'scan', self._on_scan, be, callback_group=self.cb)
-        self.create_subscription(Odometry, 'odom', self._on_odom, 10, callback_group=self.cb)
+        # festa_demo (2026-10-02, real R28): subscribed for good but raw - while no goal runs the
+        # serialized message is dropped without being decoded (idle CPU was 44 % of a Pi core)
+        self._active = 0
+        for typ, topic, cb, qos in ((PointStamped, 'green_box/image_target', self._on_target, be),
+                                    (Float32, 'green_box/image_fill', self._on_fill, be),
+                                    (LaserScan, 'scan', self._on_scan, be),
+                                    (Odometry, 'odom', self._on_odom, 10)):
+            self.create_subscription(typ, topic, self._gated(typ, cb), qos, callback_group=self.cb, raw=True)
         self.create_subscription(OccupancyGrid, 'map', self._on_map, latched, callback_group=self.cb)
         self.create_subscription(PoseStamped, 'green_box/map_pose', self._on_pose, 10, callback_group=self.cb)
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel', 10)
@@ -113,6 +118,12 @@ class HandleBox(Node):
                                f'safety_monitor {self.p["safety_monitor"]})')
 
     # ---------------------------------------------------------------- inputs
+    def _gated(self, typ, cb):
+        def handle(data):
+            if self._active:
+                cb(deserialize_message(data, typ))
+        return handle
+
     def _on_target(self, m):
         with self.lock:
             self.target = (time.monotonic(), m.point.x, int(round(m.point.z)))
@@ -444,7 +455,14 @@ class HandleBox(Node):
     def _start(self):
         with self.lock:
             self._goal_gen += 1
+            self._active += 1
+            # inputs were not decoded while idle: start from fresh messages only
+            self.target = self.fill = self.front_min = self.odom_xy = None
             return self._goal_gen
+
+    def _stop(self):
+        with self.lock:
+            self._active = max(0, self._active - 1)
 
     def _finish(self, goal, ok):
         result = Sweep.Result()
@@ -457,6 +475,12 @@ class HandleBox(Node):
 
     def _handle(self, goal):
         my = self._start()
+        try:
+            return self._handle_box(goal, my)
+        finally:
+            self._stop()
+
+    def _handle_box(self, goal, my):
         fb = Sweep.Feedback()
         try:
             self._feedback(goal, fb, 'APPROACH')
@@ -494,6 +518,8 @@ class HandleBox(Node):
                 goal.canceled()
                 return Sweep.Result(result_code='ERROR')
             return self._finish(goal, False)
+        finally:
+            self._stop()
 
 
 def main():
