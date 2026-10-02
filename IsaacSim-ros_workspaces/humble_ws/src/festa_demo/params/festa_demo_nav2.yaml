@@ -15,7 +15,10 @@ amcl:
     # festa_demo (2026-10-02, real R22): alpha1 (rotation noise from rotation) 0.1 -> 0.25.
     # Turning against the box, the wheels slipped and odometry counted 173 deg for a 46 deg
     # turn; with 0.1 the particles followed odometry and AMCL ended ~1 m / 96 deg off.
-    alpha1: 0.25
+    # festa_demo (2026-10-02, real R29: pose jumpy and slow): back to 0.15 - odometry now comes from
+    # the wheel encoders (open_loop false), the R22 slip that 0.25 covered is gone, and the wider
+    # cloud made the pose jump.
+    alpha1: 0.15
     alpha2: 0.1
     alpha3: 0.1
     alpha4: 0.1
@@ -39,7 +42,7 @@ amcl:
     # landing in the blind arc and contributing no real correction information.
     # Raising the count compensates so enough beams still land in the valid ~205 degrees.
     max_beams: 100   # festa_demo: Pi load 13 / 4 cores, 2026-10-01 (x1000 particles); was 200
-    max_particles: 1000  # festa_demo: 500 (Pi load, R2/R13) let AMCL collapse in R17; was 2000
+    max_particles: 600   # festa_demo: 500 (Pi load, R2/R13) let AMCL collapse in R17 (open-loop odometry then); 1000 overloaded the Pi (R28/R29, load 8-11); was 2000
     min_particles: 200   # was 500
     odom_frame_id: "odom"
     pf_err: 0.05
