@@ -299,8 +299,8 @@ local_costmap:
       plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 5.0   # festa_demo: narrower margin (2026-10-01); was 3.0
-        inflation_radius: 0.3 #원래 0.55
+        cost_scaling_factor: 8.0   # festa_demo: user 2026-10-02 margin still too wide (a small wobble lost the path); was 5.0, 3.0
+        inflation_radius: 0.25   # festa_demo: user 2026-10-02; was 0.3, originally 0.55
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
@@ -352,8 +352,8 @@ global_costmap:
         map_subscribe_transient_local: True
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 5.0   # festa_demo: narrower margin (2026-10-01); was 3.0
-        inflation_radius: 0.35   # festa_demo: narrower margin (2026-10-01); was 0.55
+        cost_scaling_factor: 8.0   # festa_demo: user 2026-10-02 margin still too wide (a small wobble lost the path); was 5.0, 3.0
+        inflation_radius: 0.28   # festa_demo: user 2026-10-02; was 0.35, originally 0.55
       always_send_full_costmap: False   # festa_demo: Pi load 13 / 4 cores, 2026-10-01; was True
 
 map_server:
