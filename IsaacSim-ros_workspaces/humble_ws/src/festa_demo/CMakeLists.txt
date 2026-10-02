@@ -113,6 +113,7 @@ install(PROGRAMS
   scripts/box_on_path.py
   scripts/rear_pick.py
   scripts/push_through.py
+  scripts/handle_box.py
   DESTINATION lib/${PROJECT_NAME}
 )
 
