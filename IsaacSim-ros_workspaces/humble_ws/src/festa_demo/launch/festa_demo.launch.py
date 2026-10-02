@@ -207,7 +207,7 @@ def generate_launch_description():
                               description='Nav2 params (default: params/festa_demo_nav2.yaml)'),
         DeclareLaunchArgument('box_depth', default_value='0.185', description='green box depth [m] (detector)'),
         DeclareLaunchArgument('box_height', default_value='0.135',
-                              description='green box height [m]: real box lying flat 13.5 cm (2026-10-02; under the lidar - the camera puts it in the costmaps; sim boxes 0.12)'),
+                              description='green box height [m] (real box measured 13.5 cm, 2026-10-02; sim boxes are 0.12)'),
         DeclareLaunchArgument('pick', default_value='true',
                               description="true: load the part first (robot's rear_pick.py) and run the "
                                           "manipulation team's obstacle_clear_sequence.py at the box "

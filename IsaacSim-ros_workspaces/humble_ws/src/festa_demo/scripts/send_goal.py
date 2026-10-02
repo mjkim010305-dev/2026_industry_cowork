@@ -18,7 +18,6 @@ import sys
 import time
 
 import rclpy
-from rclpy.time import Time
 from rclpy.action import ActionClient
 from rclpy.node import Node
 from rclpy.qos import QoSDurabilityPolicy, QoSProfile, QoSReliabilityPolicy
@@ -72,10 +71,7 @@ class SendGoal(Node):
         msg.pose.covariance[0] = msg.pose.covariance[7] = 0.25
         msg.pose.covariance[35] = 0.068
         for i in range(60):
-            # festa_demo (2026-10-02, real R28): stamp 0 = "latest TF". With the current time
-            # AMCL logged "Failed to transform initial pose in time (extrapolation into the
-            # future)" whenever the loaded Pi's TF lagged, and RViz showed a wrong start.
-            msg.header.stamp = Time().to_msg()
+            msg.header.stamp = self.get_clock().now().to_msg()
             self.init_pub.publish(msg)
             self.spin_for(2.0)
             if self.amcl_seen:

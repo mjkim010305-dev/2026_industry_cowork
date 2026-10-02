@@ -41,7 +41,6 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import QoSDurabilityPolicy, QoSProfile, QoSReliabilityPolicy, ReliabilityPolicy
-from rclpy.serialization import deserialize_message
 from geometry_msgs.msg import PointStamped, PoseStamped, Twist
 from nav_msgs.msg import OccupancyGrid, Odometry
 from sensor_msgs.msg import LaserScan
@@ -69,19 +68,16 @@ class HandleBox(Node):
             ('far_align_tol', 0.26), ('image_timeout', 1.0), ('lost_timeout', 3.0),
             ('backstop_dist', 0.10), ('front_half_angle', 0.26), ('approach_allowance', 60.0),
             ('contact_travel', 0.05), ('contact_fill_gain', 0.02),
-            ('reacquire_w', 0.3), ('reacquire_max', 1.05), ('lost_close_fill', 0.70),
             # sweep
             ('sequence', 'obstacle_clear_sequence'), ('safety_monitor', True), ('settle_before_sweep', 2.0),
             # push (push_through.py)
-            # (lidar wall_stop off while the box stood upright in the lidar plane; flat again: on)
             ('distance', 0.35), ('speed', 0.08), ('wall_stop', 0.25), ('push_allowance', 15.0),
             ('stall_s', 3.0), ('stall_dist', 0.02),
             ('map_stop', 0.21), ('escape_target', 0.25), ('look_ahead', 0.15), ('map_stop_ahead', 0.20),
             # escape
             ('escape_speed', 0.05), ('escape_max', 0.25), ('escape_front', 0.14),
             ('escape_rear', 0.22), ('escape_edge_clear', 0.08), ('pose_timeout', 1.0),
-            ('back_off', 0.12), ('back_speed', 0.05),
-            ('turn_clear', 0.24), ('rear_reach', 0.22), ('rear_clear', 0.10), ('wall_close_fill', 0.50))}
+            ('back_off', 0.12), ('back_speed', 0.05))}
         self.cb = ReentrantCallbackGroup()
         self.lock = threading.Lock()
         self.target = None          # (monotonic time, x_tan, clip)
@@ -99,14 +95,10 @@ class HandleBox(Node):
                              reliability=QoSReliabilityPolicy.RELIABLE)
         # every subscription once, for the life of the node (real R22: creating and
         # destroying them per goal killed push_through.py)
-        # festa_demo (2026-10-02, real R28): subscribed for good but raw - while no goal runs the
-        # serialized message is dropped without being decoded (idle CPU was 44 % of a Pi core)
-        self._active = 0
-        for typ, topic, cb, qos in ((PointStamped, 'green_box/image_target', self._on_target, be),
-                                    (Float32, 'green_box/image_fill', self._on_fill, be),
-                                    (LaserScan, 'scan', self._on_scan, be),
-                                    (Odometry, 'odom', self._on_odom, 10)):
-            self.create_subscription(typ, topic, self._gated(typ, cb), qos, callback_group=self.cb, raw=True)
+        self.create_subscription(PointStamped, 'green_box/image_target', self._on_target, be, callback_group=self.cb)
+        self.create_subscription(Float32, 'green_box/image_fill', self._on_fill, be, callback_group=self.cb)
+        self.create_subscription(LaserScan, 'scan', self._on_scan, be, callback_group=self.cb)
+        self.create_subscription(Odometry, 'odom', self._on_odom, 10, callback_group=self.cb)
         self.create_subscription(OccupancyGrid, 'map', self._on_map, latched, callback_group=self.cb)
         self.create_subscription(PoseStamped, 'green_box/map_pose', self._on_pose, 10, callback_group=self.cb)
         self.cmd_pub = self.create_publisher(Twist, 'cmd_vel', 10)
@@ -118,12 +110,6 @@ class HandleBox(Node):
                                f'safety_monitor {self.p["safety_monitor"]})')
 
     # ---------------------------------------------------------------- inputs
-    def _gated(self, typ, cb):
-        def handle(data):
-            if self._active:
-                cb(deserialize_message(data, typ))
-        return handle
-
     def _on_target(self, m):
         with self.lock:
             self.target = (time.monotonic(), m.point.x, int(round(m.point.z)))
@@ -182,21 +168,6 @@ class HandleBox(Node):
             return 0.0
         return float(d[j, i])
 
-    def _wall_block(self, v, w):
-        """festa_demo (2026-10-02, real R29: the approach drove the robot into a wall - it moved
-        on the camera alone): why (v, w) would hit a /map wall, or None. No pose/map: None."""
-        p = self.p
-        pose = self._fresh_pose()
-        if pose is None:
-            return None
-        if v > 0 and self._clear(pose, p['look_ahead']) < p['map_stop_ahead']:
-            return f'wall ahead ({self._clear(pose, p["look_ahead"]):.2f} m)'
-        if v < 0 and self._clear(pose, -p['rear_reach']) < p['rear_clear']:
-            return f'wall behind ({self._clear(pose, -p["rear_reach"]):.2f} m)'
-        if w != 0 and v == 0 and self._clear(pose) < p['turn_clear']:
-            return f'too close to a wall to turn ({self._clear(pose):.2f} m)'
-        return None
-
     def _fresh_pose(self):
         with self.lock:
             pose, ok = self.map_pose, self.dist is not None
@@ -226,7 +197,6 @@ class HandleBox(Node):
         last_seen = start
         turn_until, look_after = 0.0, None
         contact, ref, cmd_travel, last_drive = False, None, 0.0, None
-        last_clip, last_fill, turned, t_prev = None, 0.0, 0.0, start
         while rclpy.ok():
             time.sleep(0.05)
             self._check(goal, my)
@@ -240,34 +210,13 @@ class HandleBox(Node):
                 self.get_logger().info(f'approach: lidar backstop at {front_min:.2f} m')
                 return True
             if target is None or now - target[0] > p['image_timeout']:
-                last_drive = None
-                # festa_demo (2026-10-02, real R27): the box slid out of the frame at close
-                # range. Last seen in front and big -> it is right there, within sweep reach;
-                # last seen cut at a side -> turn toward that side (up to reacquire_max rad).
-                if last_clip in (0, 3) and last_fill >= p['lost_close_fill']:
-                    self._cmd(0)
-                    self.get_logger().info(f'approach: box left the view at {100 * last_fill:.0f}% in front '
-                                           f'- close enough, stopped')
-                    return True
-                if last_clip in (1, 2) and turned < p['reacquire_max'] and not self._wall_block(0.0, 1.0):
-                    side = 1.0 if last_clip == 1 else -1.0
-                    self._cmd(0, side * p['reacquire_w'])
-                    turned += p['reacquire_w'] * (now - t_prev)
-                    t_prev = now
-                    last_seen = now
-                    continue
                 self._cmd(0)
+                last_drive = None
                 if now - last_seen > p['lost_timeout']:
                     self.get_logger().error('approach: box not in view')
                     return False
                 continue
             last_seen = now
-            t_prev = now
-            with self.lock:
-                fill_seen = self.fill
-            last_clip = target[2]
-            if fill_seen is not None and now - fill_seen[0] <= p['image_timeout']:
-                last_fill = fill_seen[1]
             if now < turn_until:
                 last_drive = None
                 continue
@@ -310,13 +259,6 @@ class HandleBox(Node):
                     f'approach: box fills {100 * fill_now:.0f}% of the frame, bearing '
                     f'{math.degrees(bearing):.1f} deg, clip {target[2]}{" (contact)" if contact else ""} - stopped')
                 return True
-            why = self._wall_block(v, w)
-            if why:
-                self._cmd(0)
-                ok = fill_now >= p['wall_close_fill']
-                self.get_logger().warn(f'approach: {why} at fill {100 * fill_now:.0f}% - '
-                                       f'{"close enough, stopped" if ok else "giving up"}')
-                return ok
             self._cmd(v, w)
             if action == 'turn':
                 turn_until = now + (min(p['turn_pulse_max'], 0.8 * abs(bearing) / abs(w))
@@ -412,10 +354,6 @@ class HandleBox(Node):
                 if done >= p['back_off']:
                     self.get_logger().info(f'back off: {done:.2f} m - done')
                     return
-                why = self._wall_block(-p['back_speed'], 0.0)
-                if why:
-                    self.get_logger().warn(f'back off: {why} after {done:.2f} m - stopped')
-                    return
                 if done - progress[1] >= p['stall_dist']:
                     progress = (time.monotonic(), done)
                 elif time.monotonic() - progress[0] > p['stall_s']:
@@ -481,14 +419,7 @@ class HandleBox(Node):
     def _start(self):
         with self.lock:
             self._goal_gen += 1
-            self._active += 1
-            # inputs were not decoded while idle: start from fresh messages only
-            self.target = self.fill = self.front_min = self.odom_xy = None
             return self._goal_gen
-
-    def _stop(self):
-        with self.lock:
-            self._active = max(0, self._active - 1)
 
     def _finish(self, goal, ok):
         result = Sweep.Result()
@@ -501,12 +432,6 @@ class HandleBox(Node):
 
     def _handle(self, goal):
         my = self._start()
-        try:
-            return self._handle_box(goal, my)
-        finally:
-            self._stop()
-
-    def _handle_box(self, goal, my):
         fb = Sweep.Feedback()
         try:
             self._feedback(goal, fb, 'APPROACH')
@@ -544,8 +469,6 @@ class HandleBox(Node):
                 goal.canceled()
                 return Sweep.Result(result_code='ERROR')
             return self._finish(goal, False)
-        finally:
-            self._stop()
 
 
 def main():

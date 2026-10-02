@@ -144,12 +144,10 @@ class VisualApproach(Node):
             # Lean toward the cut side; once filled, turn there in pulses until both
             # edges are cut or the whole box is back in view.
             side = 1.0 if clip == 1 else -1.0          # + = turn left
-            # festa_demo (2026-10-02, real R27): creeping forward with a lean let a box that
-            # started ~50 deg off to the side slide out of the frame (fill 74 -> 0 %). Turn
-            # toward the cut side first, fast while the box is small, and let the bearing
-            # control take over once the whole box is back in view.
-            return 'turn', 0.0, side * (p['min_w'] if filled or fill_now >= p['near_fill'] else p['max_w']), \
-                f'CENTRE clip={clip} fill={100 * fill_now:.0f}%'
+            if filled:
+                return 'turn', 0.0, side * p['min_w'], f'CENTRE clip={clip}'
+            return 'drive', p['approach_speed'], side * 0.5 * p['max_drive_w'], \
+                f'CREEP clip={clip} fill={100 * fill_now:.0f}%'
         near = fill_now >= p['near_fill']
         if abs(bearing) > (p['align_tol'] if near else p['far_align_tol']):
             w = max(-p['max_w'], min(p['max_w'], p['kp'] * bearing))

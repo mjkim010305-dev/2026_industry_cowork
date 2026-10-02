@@ -15,10 +15,7 @@ amcl:
     # festa_demo (2026-10-02, real R22): alpha1 (rotation noise from rotation) 0.1 -> 0.25.
     # Turning against the box, the wheels slipped and odometry counted 173 deg for a 46 deg
     # turn; with 0.1 the particles followed odometry and AMCL ended ~1 m / 96 deg off.
-    # festa_demo (2026-10-02, real R29: pose jumpy and slow): back to 0.15 - odometry now comes from
-    # the wheel encoders (open_loop false), the R22 slip that 0.25 covered is gone, and the wider
-    # cloud made the pose jump.
-    alpha1: 0.15
+    alpha1: 0.25
     alpha2: 0.1
     alpha3: 0.1
     alpha4: 0.1
@@ -42,7 +39,7 @@ amcl:
     # landing in the blind arc and contributing no real correction information.
     # Raising the count compensates so enough beams still land in the valid ~205 degrees.
     max_beams: 100   # festa_demo: Pi load 13 / 4 cores, 2026-10-01 (x1000 particles); was 200
-    max_particles: 600   # festa_demo: 500 (Pi load, R2/R13) let AMCL collapse in R17 (open-loop odometry then); 1000 overloaded the Pi (R28/R29, load 8-11); was 2000
+    max_particles: 1000  # festa_demo: 500 (Pi load, R2/R13) let AMCL collapse in R17; was 2000
     min_particles: 200   # was 500
     odom_frame_id: "odom"
     pf_err: 0.05
@@ -299,16 +296,7 @@ local_costmap:
       # festa_demo (2026-10-02, sim S25_V4): + static_layer. With lidar only, the wall corner
       # inside the 0.20 m footprint circle was cleared from the local costmap (footprint
       # clearing) and DWB drove the robot onto the inner corner of the L at 0.26 m/s.
-      plugins: ["static_layer", "box_layer", "obstacle_layer", "inflation_layer"]
-      # festa_demo (2026-10-02, user): green boxes seen by the camera (scripts/box_on_path.py,
-      # green_box/box_map on /map's grid) - the 13.5 cm box is under the lidar; Nav2 plans
-      # around it when it can, the BT clears it only when the goal is blocked.
-      box_layer:
-        plugin: "nav2_costmap_2d::StaticLayer"
-        map_topic: /green_box/box_map
-        map_subscribe_transient_local: True
-        subscribe_to_updates: False
-        use_maximum: True
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 5.0   # festa_demo: narrower margin (2026-10-01); was 3.0
@@ -344,16 +332,7 @@ global_costmap:
       robot_radius: 0.20   # festa_demo: user, obstacle margin too wide (2026-10-01); was 0.22
       resolution: 0.05
       track_unknown_space: true
-      plugins: ["static_layer", "box_layer", "obstacle_layer", "inflation_layer"]
-      # festa_demo (2026-10-02, user): green boxes seen by the camera (scripts/box_on_path.py,
-      # green_box/box_map on /map's grid) - the 13.5 cm box is under the lidar; Nav2 plans
-      # around it when it can, the BT clears it only when the goal is blocked.
-      box_layer:
-        plugin: "nav2_costmap_2d::StaticLayer"
-        map_topic: /green_box/box_map
-        map_subscribe_transient_local: True
-        subscribe_to_updates: False
-        use_maximum: True
+      plugins: ["static_layer", "obstacle_layer", "inflation_layer"]
       obstacle_layer:
         plugin: "nav2_costmap_2d::ObstacleLayer"
         enabled: True
