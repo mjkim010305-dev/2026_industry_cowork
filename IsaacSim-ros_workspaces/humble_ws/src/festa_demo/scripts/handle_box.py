@@ -235,7 +235,9 @@ class HandleBox(Node):
             t_ros = self.get_clock().now().nanoseconds * 1e-9
             if action == 'drive' and last_drive is not None:
                 cmd_travel += last_drive[1] * max(0.0, t_ros - last_drive[0])
-            if action == 'drive' and fill_now >= p['near_fill'] and not contact:
+            # contact check only on an unclipped box (real R23: a box cut at the image edge slides
+            # out of view while driving, its fill shrank 20 -> 17 % and read as contact)
+            if action == 'drive' and fill_now >= p['near_fill'] and not contact and target[2] == 0:
                 if ref is None:
                     ref = (odom_dist, fill_now, cmd_travel)
                 else:
