@@ -192,9 +192,9 @@ def _launch(context):
                  '-p', f"round_trips:={LaunchConfiguration('round_trips').perform(context)}",
                  '-p', f"pick_first:={str(pick_first).lower()}",
                  '-p', f"send_goal:={LaunchConfiguration('send_goal').perform(context)}",
-                 '-p', f"initial_x:={LaunchConfiguration('initial_x').perform(context)}",
-                 '-p', f"initial_y:={LaunchConfiguration('initial_y').perform(context)}",
-                 '-p', f"initial_yaw:={LaunchConfiguration('initial_yaw').perform(context)}"])]))
+                 '-p', f"initial_x:={LaunchConfiguration('initial_x').perform(context) or ('-0.14' if not sim else '0.0')}",
+                 '-p', f"initial_y:={LaunchConfiguration('initial_y').perform(context) or ('0.50' if not sim else '0.0')}",
+                 '-p', f"initial_yaw:={LaunchConfiguration('initial_yaw').perform(context) or ('-1.536' if not sim else '0.0')}"])]))
     return actions
 
 
@@ -225,9 +225,12 @@ def generate_launch_description():
                               description='after reaching the goal, drive back to initial_x/y/yaw'),
         DeclareLaunchArgument('round_trips', default_value='1',
                               description='goal -> start round trips (0 = forever, AI Festa shuttle)'),
-        DeclareLaunchArgument('initial_x', default_value='0.0'),
-        DeclareLaunchArgument('initial_y', default_value='0.0'),
-        DeclareLaunchArgument('initial_yaw', default_value='0.0'),
+        DeclareLaunchArgument('initial_x', default_value='',
+                              description='start pose; empty = sim (0, 0, 0) / real start corner -0.14 (user-set start, 2026-10-02)'),
+        DeclareLaunchArgument('initial_y', default_value='',
+                              description='start pose; empty = sim (0, 0, 0) / real start corner 0.50 (user-set start, 2026-10-02)'),
+        DeclareLaunchArgument('initial_yaw', default_value='',
+                              description='start pose; empty = sim (0, 0, 0) / real start corner -1.536 (user-set start, 2026-10-02)'),
         DeclareLaunchArgument('goal_delay', default_value='20.0',
                               description='seconds before the initial pose / goal are sent'),
     ] + [DeclareLaunchArgument(k, default_value='', description=f'per-mode default: {MODE_DEFAULTS["sim"][k]} (sim) / '
