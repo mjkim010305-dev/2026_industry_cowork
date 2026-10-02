@@ -72,11 +72,14 @@ P_REAR_CARRY = [
 
 
 # 후방 Pick 및 Place 공통 자세
+# festa_demo (2026-10-02, user: level, as rear_pick.py's front pick): same gripper tip point
+# (0.305 m out, 0.055 m below joint2), pitch 0 instead of 40 deg (OpenManipulator-X planar
+# IK). Measured pose was [-3.0235, 0.6796, -0.1963, 0.2194].
 P_REAR_PICK = [
     -3.0234761329225988,
-     0.679553489033339,
-    -0.19634954084936207,
-     0.2193592526676467,
+     0.9600,
+     0.1013,
+    -1.0613,
 ]
 
 P_REAR_PLACE = P_REAR_PICK
