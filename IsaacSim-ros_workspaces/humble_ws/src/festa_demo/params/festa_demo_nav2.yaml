@@ -228,11 +228,13 @@ controller_server:
       debug_trajectory_details: False   # festa_demo: Pi load 13 / 4 cores, 2026-10-01; was True
       min_vel_x: 0.0
       min_vel_y: 0.0
-      max_vel_x: 0.26
+      # festa_demo (2026-10-02, real R22): 0.26 m/s while turning asked the outer wheel for ~0.34 m/s;
+      # it could not, and the (then open-loop) odometry counted 122 deg too much. v + w*0.1435 <= ~0.22.
+      max_vel_x: 0.15
       max_vel_y: 0.0
-      max_vel_theta: 1.0
+      max_vel_theta: 0.5
       min_speed_xy: 0.0
-      max_speed_xy: 0.26
+      max_speed_xy: 0.15
       min_speed_theta: 0.0
       # Add high threshold velocity for turtlebot 3 issue.
       # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
@@ -436,8 +438,8 @@ velocity_smoother:
     smoothing_frequency: 10.0   # festa_demo: Pi load 6.6-11.6 / 4 cores (2026-10-01 R2, R13); was 20
     scale_velocities: False
     feedback: "OPEN_LOOP"
-    max_velocity: [0.26, 0.0, 1.0]
-    min_velocity: [-0.26, 0.0, -1.0]
+    max_velocity: [0.15, 0.0, 0.5]   # festa_demo (real R22): wheel limit, see FollowPath
+    min_velocity: [-0.15, 0.0, -0.5]
     max_accel: [2.5, 0.0, 3.2]
     max_decel: [-2.5, 0.0, -3.2]
     odom_topic: "odom"
