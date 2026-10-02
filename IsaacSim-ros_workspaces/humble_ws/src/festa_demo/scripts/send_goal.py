@@ -56,6 +56,8 @@ class SendGoal(Node):
     def _on_amcl(self, msg):
         self.amcl_seen = True
         self.amcl_xy = (msg.pose.pose.position.x, msg.pose.pose.position.y)
+        q = msg.pose.pose.orientation
+        self.amcl_yaw = math.atan2(2.0 * (q.w * q.z + q.x * q.y), 1.0 - 2.0 * (q.y * q.y + q.z * q.z))
 
     def spin_for(self, seconds):
         end = self.get_clock().now().nanoseconds + int(seconds * 1e9)
@@ -74,7 +76,14 @@ class SendGoal(Node):
             msg.header.stamp = self.get_clock().now().to_msg()
             self.init_pub.publish(msg)
             self.spin_for(2.0)
-            if self.amcl_seen:
+            # festa_demo (2026-10-02, real R33): any amcl_pose used to count, and AMCL's own
+            # default (0, 0, 0) did while this message was lost - the robot started 90 deg off.
+            # Only a pose that matches the one sent counts.
+            xy, yaw = getattr(self, 'amcl_xy', None), getattr(self, 'amcl_yaw', None)
+            d_yaw = abs(math.atan2(math.sin(yaw - float(self.p['initial_yaw'])),
+                                   math.cos(yaw - float(self.p['initial_yaw'])))) if yaw is not None else 9.0
+            if xy and math.hypot(xy[0] - float(self.p['initial_x']), xy[1] - float(self.p['initial_y'])) < 0.3 \
+                    and d_yaw < 0.35:
                 self.get_logger().info(
                     f"initial pose ({self.p['initial_x']:.2f}, {self.p['initial_y']:.2f}, "
                     f"{self.p['initial_yaw']:.2f}) accepted by AMCL")
