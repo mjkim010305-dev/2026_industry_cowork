@@ -55,7 +55,7 @@ START_TOLERANCE = 0.12
 
 # 기존 실험의 임시 안전 컷오프
 TEMP_CURRENT_CUTOFF_RAW = 90.0
-TEMP_ERROR_CUTOFF_RAD = 0.045
+TEMP_ERROR_CUTOFF_RAD = 0.07   # festa_demo 2026-10-02: 0.045 tripped mid-sweep on every real run (0.045-0.050 while pushing the box); a jammed arm goes well past 0.07
 TEMP_PERSISTENCE_SEC = 0.15
 
 # 센서 데이터 수신 상태 확인
