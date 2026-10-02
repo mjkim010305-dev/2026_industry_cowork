@@ -68,6 +68,7 @@ class HandleBox(Node):
             ('far_align_tol', 0.26), ('image_timeout', 1.0), ('lost_timeout', 3.0),
             ('backstop_dist', 0.10), ('front_half_angle', 0.26), ('approach_allowance', 60.0),
             ('contact_travel', 0.05), ('contact_fill_gain', 0.02),
+            ('reacquire_w', 0.3), ('reacquire_max', 1.05), ('lost_close_fill', 0.70),
             # sweep
             ('sequence', 'obstacle_clear_sequence'), ('safety_monitor', True), ('settle_before_sweep', 2.0),
             # push (push_through.py)
@@ -199,6 +200,7 @@ class HandleBox(Node):
         last_seen = start
         turn_until, look_after = 0.0, None
         contact, ref, cmd_travel, last_drive = False, None, 0.0, None
+        last_clip, last_fill, turned, t_prev = None, 0.0, 0.0, start
         while rclpy.ok():
             time.sleep(0.05)
             self._check(goal, my)
@@ -212,13 +214,34 @@ class HandleBox(Node):
                 self.get_logger().info(f'approach: lidar backstop at {front_min:.2f} m')
                 return True
             if target is None or now - target[0] > p['image_timeout']:
-                self._cmd(0)
                 last_drive = None
+                # festa_demo (2026-10-02, real R27): the box slid out of the frame at close
+                # range. Last seen in front and big -> it is right there, within sweep reach;
+                # last seen cut at a side -> turn toward that side (up to reacquire_max rad).
+                if last_clip in (0, 3) and last_fill >= p['lost_close_fill']:
+                    self._cmd(0)
+                    self.get_logger().info(f'approach: box left the view at {100 * last_fill:.0f}% in front '
+                                           f'- close enough, stopped')
+                    return True
+                if last_clip in (1, 2) and turned < p['reacquire_max']:
+                    side = 1.0 if last_clip == 1 else -1.0
+                    self._cmd(0, side * p['reacquire_w'])
+                    turned += p['reacquire_w'] * (now - t_prev)
+                    t_prev = now
+                    last_seen = now
+                    continue
+                self._cmd(0)
                 if now - last_seen > p['lost_timeout']:
                     self.get_logger().error('approach: box not in view')
                     return False
                 continue
             last_seen = now
+            t_prev = now
+            with self.lock:
+                fill_seen = self.fill
+            last_clip = target[2]
+            if fill_seen is not None and now - fill_seen[0] <= p['image_timeout']:
+                last_fill = fill_seen[1]
             if now < turn_until:
                 last_drive = None
                 continue
