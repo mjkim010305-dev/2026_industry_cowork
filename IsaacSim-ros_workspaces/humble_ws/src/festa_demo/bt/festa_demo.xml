@@ -31,10 +31,14 @@
             <ForceFailure>
               <BlackboardCheckString value_A="{box_swept}" value_B="false" return_on_mismatch="FAILURE">
                 <Sequence name="HandleGreenBox">
-                  <!-- festa_demo (2026-10-02, user: dynamic scenes - a box put back, a new box,
-                       one right after a corner): enter only when the box is right in front, judged
-                       from the image alone by scripts/box_on_path.py (within 1 m, within 0.30 m of
-                       the centre line). No map pose, no "blocked" path, every box judged afresh. -->
+                  <!-- festa_demo (2026-10-02, user): the box stands upright (18.5 cm) so the lidar
+                       sees it and Nav2 drives around it when it can. Clear it only when there is no
+                       way around - the planner failed (goal_blocked) - and the camera sees the green
+                       box in front (scripts/box_on_path.py). Every box judged afresh. -->
+                  <BlackboardCheckString name="IsGoalBlocked-Box" value_A="{goal_blocked}" value_B="true"
+                                         return_on_mismatch="FAILURE">
+                    <AlwaysSuccess/>
+                  </BlackboardCheckString>
                   <IsGreenBoxDetected name="IsBoxInFront" pose_topic="green_box/front"
                                       visible_topic="green_box/on_path" max_age="1.0"/>
                   <!-- festa_demo (2026-10-01, user: Nav2 and the approach mixed oddly): no Nav2 leg
