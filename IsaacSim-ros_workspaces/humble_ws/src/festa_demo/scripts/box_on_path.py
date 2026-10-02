@@ -96,8 +96,8 @@ class BoxOnPath(Node):
             ('edge_margin_px', 3), ('median_n', 5), ('image_timeout', 1.0),
             ('clip_close_dist', 0.25), ('box_centre_off', 0.11),
             ('side_edge_from', 0.12), ('box_half_face', 0.0925),
-            ('along_min', 0.10), ('trigger_dist', 1.1), ('lateral_tol', 0.30),
-            ('release_dist', 1.3), ('release_lateral', 0.40),
+            ('along_min', 0.10), ('trigger_dist', 1.1), ('lateral_tol', 0.20),
+            ('release_dist', 1.3), ('release_lateral', 0.30),
             ('route_len', 1.5), ('route_look', 0.4), ('hold_bearing', 0.785),
             ('plan_timeout', 3.0), ('odom_keep', 5.0))}
         self.target = None          # (monotonic time, clip, (x, y) box in base_link)

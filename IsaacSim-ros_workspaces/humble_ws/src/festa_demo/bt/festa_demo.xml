@@ -33,7 +33,7 @@
                 <Sequence name="HandleGreenBox">
                   <!-- festa_demo (2026-10-02, user: dynamic scenes - a box put back, a new box,
                        one right after a corner): enter only when the box is right in front, judged
-                       from the image alone by scripts/box_on_path.py (within 1 m, within 0.30 m of
+                       from the image alone by scripts/box_on_path.py (within 1 m, within 0.20 m of
                        the centre line). No map pose, no "blocked" path, every box judged afresh. -->
                   <IsGreenBoxDetected name="IsBoxInFront" pose_topic="green_box/front"
                                       visible_topic="green_box/on_path" max_age="1.0"/>
