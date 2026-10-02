@@ -19,6 +19,9 @@ Steps (the logic of the replaced nodes, unchanged unless noted):
      sweep_only.py's version (sequence "sweep_only"), in-process.
   3. push - push_through.py: straight distance m; stops on the lidar front cone, on
      /map walls (clearance or the point look_ahead m ahead), on no progress.
+  3b. back off - back_off m straight back at back_speed (real R22: Nav2 then turned with the
+     box still at the bumper, the wheels slipped and odometry counted 173 deg for a 46 deg
+     turn; AMCL followed it ~1 m / 96 deg off). Back along the line the push just drove.
   4. escape - if the centre is within map_stop of a /map wall, drive straight to the side
      with more clearance without a costmap check (Nav2 rejects every motion inside its
      footprint). Also served alone as /escape for the BT's recoveries.
@@ -73,7 +76,8 @@ class HandleBox(Node):
             ('map_stop', 0.21), ('escape_target', 0.25), ('look_ahead', 0.15), ('map_stop_ahead', 0.20),
             # escape
             ('escape_speed', 0.05), ('escape_max', 0.25), ('escape_front', 0.14),
-            ('escape_rear', 0.22), ('escape_edge_clear', 0.08), ('pose_timeout', 1.0))}
+            ('escape_rear', 0.22), ('escape_edge_clear', 0.08), ('pose_timeout', 1.0),
+            ('back_off', 0.12), ('back_speed', 0.05))}
         self.cb = ReentrantCallbackGroup()
         self.lock = threading.Lock()
         self.target = None          # (monotonic time, x_tan, clip)
@@ -328,6 +332,35 @@ class HandleBox(Node):
         finally:
             self._cmd(0)
 
+    # ---------------------------------------------------------------- 3b. back off
+    def _back_off(self, goal, my):
+        p = self.p
+        start = time.monotonic()
+        with self.lock:
+            odom0 = self.odom_xy
+        progress = (start, 0.0)
+        try:
+            while rclpy.ok():
+                time.sleep(0.05)
+                self._check(goal, my)
+                with self.lock:
+                    odom_xy = self.odom_xy
+                if odom_xy is None or odom0 is None:
+                    odom0 = odom_xy
+                    continue
+                done = math.hypot(odom_xy[0] - odom0[0], odom_xy[1] - odom0[1])
+                if done >= p['back_off']:
+                    self.get_logger().info(f'back off: {done:.2f} m - done')
+                    return
+                if done - progress[1] >= p['stall_dist']:
+                    progress = (time.monotonic(), done)
+                elif time.monotonic() - progress[0] > p['stall_s']:
+                    self.get_logger().warn(f'back off: no progress after {done:.2f} m')
+                    return
+                self._cmd(-p['back_speed'])
+        finally:
+            self._cmd(0)
+
     # ---------------------------------------------------------------- 4. escape
     def _escape(self, goal, my):
         """True when clear of the walls (or already was)."""
@@ -412,6 +445,8 @@ class HandleBox(Node):
             self._check(goal, my)
             self._feedback(goal, fb, 'PUSH')
             self._push(goal, my)
+            self._feedback(goal, fb, 'BACK_OFF')
+            self._back_off(goal, my)
             self._feedback(goal, fb, 'ESCAPE')
             self._escape(goal, my)
             self.get_logger().info('handle_box: done')
