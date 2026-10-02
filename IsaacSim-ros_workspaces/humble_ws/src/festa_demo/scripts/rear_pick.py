@@ -1,5 +1,5 @@
 # G_OPEN → P_HOME -> P_PRE_PICK → P_PICK -> G_GRASP → P_LIFT 
-# -> P_SIDE_CARRY -> P_REAR_CARRY
+# -> P_LIFT_FOLD -> P_SIDE_CARRY -> P_REAR_CARRY
 
 
 
@@ -52,20 +52,25 @@ P_HOME = [
 
 
 # 새로 측정한 전방 Pick 준비 자세
+# festa_demo (2026-10-02, user: grasp level, not tilted): same gripper tip point as the
+# measured pose (0.334 m ahead, 0.011 m below joint2), gripper pitch 0 instead of 29 deg
+# (OpenManipulator-X planar IK). Measured pose was [-0.00307, 0.7271, -0.4801, 0.2562].
 P_PRE_PICK = [
     -0.0030679615757712823,
-     0.7271068934577939,
-    -0.48013598660820567,
-     0.2561747915769021,
+     0.8443,
+    -0.1591,
+    -0.6852,
 ]
 
 
 # 새로 측정한 전방 Pick 자세
+# festa_demo (2026-10-02, user): level grasp, same tip point (0.336 m ahead, 0.057 m below
+# joint2), pitch 0 instead of 35 deg. Measured pose was [-0.00307, 0.9235, -0.5706, 0.2577].
 P_PICK = [
     -0.0030679615757712823,
-     0.923456434307156,
-    -0.5706408530934585,
-     0.25770877236478773,
+     1.1229,
+    -0.3009,
+    -0.8220,
 ]
 
 
@@ -78,12 +83,24 @@ P_LIFT = [
 ]
 
 
-# 새로 측정한 측면 Carry 자세
+# festa_demo (2026-10-02, user: the turn to the rear swung too wide): fold the arm to the
+# rear-carry shape while still facing forward, then turn joint1 only. Tip reach during the
+# turn 0.14 m instead of 0.27 m (P_LIFT).
+P_LIFT_FOLD = [
+    -0.0030679615757712823,
+    -0.9802137234589247,
+     0.5016117176386047,
+     0.2193592526676467,
+]
+
+
+# 새로 측정한 측면 Carry 자세 (festa_demo: folded as P_REAR_CARRY; measured pose was
+# [-1.5907, -0.0353, -0.1396, 0.2945])
 P_SIDE_CARRY = [
     -1.59073807703741,
-    -0.035281558121369745,
-    -0.13959225169759334,
-     0.2945243112740431,
+    -0.9802137234589247,
+     0.5016117176386047,
+     0.2193592526676467,
 ]
 
 
@@ -353,7 +370,10 @@ class RearPick(Node):
         if not self.move_arm(P_LIFT, "P_LIFT"):
             return False
 
-        # STEP 4. 측면 Carry 자세로 이동
+        # STEP 4. 접은 뒤 측면 Carry 자세로 이동
+        if not self.move_arm(P_LIFT_FOLD, "P_LIFT_FOLD"):
+            return False
+
         if not self.move_arm(P_SIDE_CARRY, "P_SIDE_CARRY"):
             return False
 
