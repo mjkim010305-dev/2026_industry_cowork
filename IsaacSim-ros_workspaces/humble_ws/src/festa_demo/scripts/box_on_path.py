@@ -1,46 +1,34 @@
 #!/usr/bin/env python3
-"""green_box/on_path: is the green box in the robot's way, close enough to clear?
+"""Green boxes seen by the camera -> Nav2's costmaps; green_box/on_path for the BT.
 
-The box is measured from the camera image only (the 12 cm box is under the lidar);
-"in the way" is judged against the route Nav2 is about to drive (/plan), not the
-camera axis.
+festa_demo (2026-10-02, user, real R24/R25c): the robot went to clear boxes that were only
+near its route ("it does not think about the path it will drive"). The box (13.5 cm, fixed
+by the event) is under the lidar, so Nav2 planned straight through it. Now:
+  - every box the camera sees is remembered in the map frame and drawn into
+    green_box/box_map (OccupancyGrid on /map's grid, lethal disc of box_radius m),
+    which a StaticLayer ("box_layer") adds to the global and local costmaps: Nav2
+    plans around the box when it can;
+  - a remembered box is forgotten when its spot is in clear view (forget_min..forget_max
+    m ahead, within forget_bearing) and no box is seen near it for forget_s s
+    (taken away, or swept elsewhere - then the new spot is remembered);
+  - green_box/on_path = a box in front (x <= trigger_dist, |y| <= lateral_tol in base_link);
+    the BT clears it only when the planner also failed (goal blocked), so the range is wide.
+  (2026-10-02, later: the event box may stand on its side - 18.5 cm - where the lidar sees it
+  and Nav2's own obstacle layer does all this; box_map stays off then.)
 
-History (festa_demo): user 2026-10-02 "a small bbox -> keep going; once the box takes up
-a lot of the frame -> handle it", dynamic scenes, every box judged afresh. The first image
-trigger judged against the camera axis; that went wrong three times in sim: S24_R4 re-took
-a box pinned against a wall next to the robot right after handling it, S25_V1 took a box
-0.375 m off the route mid-turn and jammed it into a pillar corner, S25_V3 cycled 10+ times
-on a box between its nose and a wall in the goal pocket while the route back led away.
-The camera points wherever a stall, approach or push left it.
-
-Box position in base_link, from detector_node.py's green_box/bbox ([x, y, w, h, image_w,
-image_h, clip, fill], pixels; clip: 0 none, 1 left, 2 right, 3 both borders) and the
-camera intrinsics:
-    distance d  = H * fy / h while the bbox touches neither the top nor the bottom border
-                  (the height does not grow when the box is turned), else W * fx / w
-                  (cut at a side as well: clip_close_dist)
+Box position in base_link from detector_node.py's green_box/bbox ([x, y, w, h, image_w,
+image_h, clip, fill]; clip 0 none, 1 left, 2 right, 3 both borders) and the intrinsics
+(real calibration 2026-10-02, 19 placements: mean 1.8 cm in distance, 1.0 cm sideways):
+    distance d  = H * fy / h while the bbox touches neither top nor bottom (else W * fx / w;
+                  cut at a side as well: clip_close_dist)
     box x = camera_x + d,  box y = camera_y - (u - cx) / fx * d
-    clip 0: u = bbox centre, median of the last median_n frames within image_timeout s;
-            a box more than side_edge_from m off the camera axis shows its inner side face
-            too, which pulls the bbox centre toward the robot (real calibration 2026-10-02:
-            2-7 cm), so there u = the outer bbox edge and the centre is box_centre_off
-            further in
-    clip 1/2: u = the visible inner edge, box centre box_centre_off m beyond it
-    clip 3 (wider than the view): straight ahead at clip_close_dist
-Route in base_link: /plan (map frame) through map->base_link = map->odom (from /amcl_pose
-and the odometry sample at its stamp) * odom->base_link (latest /odom). Only these two
-topics, no TF listener (Pi load). AMCL's absolute error mostly cancels: the plan starts at
-the AMCL pose.
-    along, lat = projection of the box onto the next route_len m of the route
-    on   when along_min <= along <= trigger_dist and lat <= lateral_tol, unless the route
-         turns away first (route point route_look m ahead more than hold_bearing off the
-         nose: Nav2 turns in place before driving, the box ahead is not in the way yet)
-    off  when along > release_dist or lat > release_lateral, no image for image_timeout s,
-         or no route (plan older than plan_timeout s, no AMCL yet)
-Published at 5 Hz: green_box/on_path (Bool) and, while on, green_box/front (PoseStamped,
-base_link, the box position), which bt/festa_demo.xml's IsGreenBoxDetected uses for freshness;
-and green_box/map_pose (PoseStamped, map: the robot, AMCL * odometry) for push_through.py's
-wall checks and /escape (sim S25_V5), so no other node needs a TF listener.
+    clip 0: u = bbox centre; more than side_edge_from m to a side, the outer edge minus half
+            a face (the inner side face pulls the centre in); median of median_n frames
+    clip 1/2: u = the visible inner edge, centre box_centre_off m beyond it
+    clip 3: straight ahead at clip_close_dist
+Robot pose in the map = map->odom (amcl_pose + the odometry at its stamp) * latest odom; no
+TF listener (Pi load). Also published: green_box/front (box in base_link while on) and
+green_box/map_pose (robot in the map, for handle_box.py).
 """
 import bisect
 import math
@@ -50,7 +38,7 @@ import rclpy
 from rclpy.node import Node
 from rclpy.qos import QoSDurabilityPolicy, QoSProfile, QoSReliabilityPolicy, ReliabilityPolicy
 from geometry_msgs.msg import PoseStamped, PoseWithCovarianceStamped
-from nav_msgs.msg import Odometry, Path
+from nav_msgs.msg import OccupancyGrid, Odometry
 from sensor_msgs.msg import CameraInfo
 from std_msgs.msg import Bool, Float32MultiArray
 
@@ -70,22 +58,6 @@ def inverse(a):
     return (-c * a[0] - s * a[1], s * a[0] - c * a[1], -a[2])
 
 
-def project(pt, route):
-    """(along, lat) of pt on the polyline route (list of (x, y), starting at the robot)."""
-    best, acc = None, 0.0
-    for (ax, ay), (bx, by) in zip(route, route[1:]):
-        dx, dy = bx - ax, by - ay
-        seg = math.hypot(dx, dy)
-        if seg < 1e-6:
-            continue
-        t = max(0.0, min(1.0, ((pt[0] - ax) * dx + (pt[1] - ay) * dy) / (seg * seg)))
-        lat = math.hypot(pt[0] - ax - t * dx, pt[1] - ay - t * dy)
-        if best is None or lat < best[1]:
-            best = (acc + t * seg, lat)
-        acc += seg
-    return best if best is not None else (0.0, math.hypot(*pt))
-
-
 class BoxOnPath(Node):
 
     def __init__(self):
@@ -96,10 +68,10 @@ class BoxOnPath(Node):
             ('edge_margin_px', 3), ('median_n', 5), ('image_timeout', 1.0),
             ('clip_close_dist', 0.25), ('box_centre_off', 0.11),
             ('side_edge_from', 0.12), ('box_half_face', 0.0925),
-            ('along_min', 0.10), ('trigger_dist', 1.1), ('lateral_tol', 0.30),
-            ('release_dist', 1.3), ('release_lateral', 0.40),
-            ('route_len', 1.5), ('route_look', 0.4), ('hold_bearing', 0.785),
-            ('plan_timeout', 3.0), ('odom_keep', 5.0))}
+            ('trigger_dist', 1.8), ('lateral_tol', 0.50), ('release_dist', 2.0), ('release_lateral', 0.60),
+            ('box_map', False),
+            ('box_radius', 0.13), ('merge_dist', 0.35), ('forget_min', 0.35), ('forget_max', 1.3),
+            ('forget_bearing', 0.6), ('forget_s', 1.5), ('odom_keep', 5.0))}
         self.target = None          # (monotonic time, clip, (x, y) box in base_link)
         self.recent = []            # (monotonic time, x, y) of unclipped bboxes, for the median
         self.intrinsics = None      # (fx, fy, cx, cy)
@@ -107,7 +79,9 @@ class BoxOnPath(Node):
         self.front = (0.0, 0.0)     # box (x, y) in base_link
         self.odom_hist = []         # (stamp s, (x, y, yaw)) for map->odom at the AMCL stamp
         self.map_odom = None
-        self.plan = None            # (node clock s when received, [(x, y)] in map)
+        self.boxes = []             # remembered boxes: [x, y, last seen (monotonic), unseen since or None]
+        self.grid_info = None       # /map's MapMetaData
+        self.box_cells = None       # cells drawn last time (to republish only on change)
         self.why = ''
         best_effort = QoSProfile(depth=1, reliability=ReliabilityPolicy.BEST_EFFORT)
         latched = QoSProfile(depth=1, durability=QoSDurabilityPolicy.TRANSIENT_LOCAL,
@@ -116,10 +90,11 @@ class BoxOnPath(Node):
         self.create_subscription(CameraInfo, self.p['camera_info_topic'], self._on_info, best_effort)
         self.create_subscription(Odometry, 'odom', self._on_odom, 10)
         self.create_subscription(PoseWithCovarianceStamped, 'amcl_pose', self._on_amcl, latched)
-        self.create_subscription(Path, 'plan', self._on_plan, 10)
+        self.create_subscription(OccupancyGrid, 'map', self._on_map, latched)
         self.pub = self.create_publisher(Bool, 'green_box/on_path', 10)
         self.front_pub = self.create_publisher(PoseStamped, 'green_box/front', 10)
         self.pose_pub = self.create_publisher(PoseStamped, 'green_box/map_pose', 10)
+        self.map_pub = self.create_publisher(OccupancyGrid, 'green_box/box_map', latched)
         self.create_timer(0.2, self._tick)
 
     def _now(self):
@@ -148,8 +123,9 @@ class BoxOnPath(Node):
         amcl = (m.pose.pose.position.x, m.pose.pose.position.y, yaw_of(m.pose.pose.orientation))
         self.map_odom = compose(amcl, inverse(self.odom_hist[j][1]))
 
-    def _on_plan(self, m):
-        self.plan = (self._now(), [(ps.pose.position.x, ps.pose.position.y) for ps in m.poses])
+    def _on_map(self, m):
+        self.grid_info = m.info
+        self.box_cells = None       # draw (an empty) box map on the new grid
 
     def _on_bbox(self, m):
         if self.intrinsics is None or len(m.data) < 8 or m.data[2] <= 0.0:
@@ -185,25 +161,6 @@ class BoxOnPath(Node):
             self.recent = [r for r in self.recent if now - r[0] <= p['image_timeout']][-(p['median_n'] - 1):]
             self.recent.append((now, bx, by))
 
-    def _route(self):
-        """Next route_len m of the plan in base_link, from the point nearest the robot; None if unknown."""
-        p = self.p
-        if self.plan is None or self.map_odom is None or not self.odom_hist:
-            return None
-        if self._now() - self.plan[0] > p['plan_timeout'] or len(self.plan[1]) < 2:
-            return None
-        base = inverse(compose(self.map_odom, self.odom_hist[-1][1]))
-        c, s = math.cos(base[2]), math.sin(base[2])
-        pts = [(base[0] + c * x - s * y, base[1] + s * x + c * y) for x, y in self.plan[1]]
-        i0 = min(range(len(pts)), key=lambda i: math.hypot(*pts[i]))
-        route, acc = [pts[i0]], 0.0
-        for q in pts[i0 + 1:]:
-            acc += math.hypot(q[0] - route[-1][0], q[1] - route[-1][1])
-            route.append(q)
-            if acc >= p['route_len']:
-                break
-        return route if len(route) >= 2 else None
-
     def _publish_map_pose(self):
         if self.map_odom is None or not self.odom_hist:
             return
@@ -215,37 +172,101 @@ class BoxOnPath(Node):
         m.pose.orientation.z, m.pose.orientation.w = math.sin(yaw / 2.0), math.cos(yaw / 2.0)
         self.pose_pub.publish(m)
 
+    def _robot(self):
+        if self.map_odom is None or not self.odom_hist:
+            return None
+        return compose(self.map_odom, self.odom_hist[-1][1])
+
+    def _remember(self, robot, box, clip, now):
+        """Update the box memory with one measurement (box in base_link)."""
+        p = self.p
+        bx, by, _ = compose(robot, (box[0], box[1], 0.0))
+        near = [b for b in self.boxes if math.hypot(b[0] - bx, b[1] - by) < p['merge_dist']]
+        if near:
+            b = min(near, key=lambda b: math.hypot(b[0] - bx, b[1] - by))
+            if clip == 0:           # clipped boxes only refresh, they do not move a box
+                b[0], b[1] = 0.7 * b[0] + 0.3 * bx, 0.7 * b[1] + 0.3 * by
+            b[2], b[3] = now, None
+        elif clip == 0:
+            self.boxes.append([bx, by, now, None])
+            self.get_logger().info(f'box remembered at ({bx:.2f}, {by:.2f}) - {len(self.boxes)} in the costmap')
+
+    def _forget(self, robot, seen, now):
+        """Forget boxes whose spot is in clear view while no box is seen there."""
+        p = self.p
+        inv = inverse(robot)
+        keep = []
+        for b in self.boxes:
+            x, y, _ = compose(inv, (b[0], b[1], 0.0))
+            in_view = p['forget_min'] < x < p['forget_max'] and abs(math.atan2(y, x)) < p['forget_bearing']
+            there = seen is not None and math.hypot(seen[0] - x, seen[1] - y) < p['merge_dist']
+            if in_view and not there:
+                b[3] = b[3] if b[3] is not None else now
+                if now - b[3] > p['forget_s']:
+                    self.get_logger().info(f'box at ({b[0]:.2f}, {b[1]:.2f}) is gone - removed from the costmap')
+                    continue
+            else:
+                b[3] = None
+            keep.append(b)
+        self.boxes = keep
+
+    def _publish_box_map(self):
+        info = self.grid_info
+        if info is None:
+            return
+        res, ox, oy = info.resolution, info.origin.position.x, info.origin.position.y
+        r = int(math.ceil(self.p['box_radius'] / res))
+        cells = set()
+        for b in self.boxes:
+            ci, cj = int((b[0] - ox) / res), int((b[1] - oy) / res)
+            for dj in range(-r, r + 1):
+                for di in range(-r, r + 1):
+                    if (di * di + dj * dj) * res * res <= self.p['box_radius'] ** 2:
+                        i, j = ci + di, cj + dj
+                        if 0 <= i < info.width and 0 <= j < info.height:
+                            cells.add(j * info.width + i)
+        if cells == self.box_cells:
+            return
+        self.box_cells = cells
+        m = OccupancyGrid()
+        m.header.stamp = self.get_clock().now().to_msg()
+        m.header.frame_id = 'map'
+        m.info = info
+        data = [0] * (info.width * info.height)
+        for k in cells:
+            data[k] = 100
+        m.data = data
+        self.map_pub.publish(m)
+
     def _tick(self):
         p, t = self.p, self.target
+        now = time.monotonic()
         was = self.on
         self._publish_map_pose()
-        route = self._route()
-        if t is None or time.monotonic() - t[0] > p['image_timeout']:
-            self.on, self.why = False, 'no box in view'
-        elif route is None:
-            self.on, self.why = False, 'no route'
-        else:
+        robot = self._robot()
+        box = None
+        if t is not None and now - t[0] <= p['image_timeout']:
             if t[1] == 0 and self.recent:
                 xs = sorted(r[1] for r in self.recent)
                 ys = sorted(r[2] for r in self.recent)
                 box = (xs[len(xs) // 2], ys[len(ys) // 2])
             else:
                 box = t[2]
-            along, lat = project(box, route)
-            look, acc = route[-1], 0.0
-            for a, b in zip(route, route[1:]):
-                acc += math.hypot(b[0] - a[0], b[1] - a[1])
-                if acc >= p['route_look']:
-                    look = b
-                    break
-            hold = abs(math.atan2(look[1], look[0])) > p['hold_bearing']
-            if not hold and p['along_min'] <= along <= p['trigger_dist'] and lat <= p['lateral_tol']:
+        if robot is not None and p['box_map']:
+            if box is not None:
+                self._remember(robot, box, t[1], now)
+            self._forget(robot, box, now)
+            self._publish_box_map()
+        if box is None:
+            self.on, self.why = False, 'no box in view'
+        else:
+            x, y = box
+            if x <= p['trigger_dist'] and abs(y) <= p['lateral_tol']:
                 self.on = True
-            elif along > p['release_dist'] or lat > p['release_lateral'] or along < p['along_min'] - 0.05:
+            elif x > p['release_dist'] or abs(y) > p['release_lateral']:
                 self.on = False
             self.front = box
-            self.why = (f'along {along:.2f} m, off route {lat:.2f} m, clip {t[1]}'
-                        + (', route turns away' if hold else ''))
+            self.why = f'clip {t[1]}'
         if self.on != was:
             self.get_logger().info(
                 f'green box in front: {self.on} (box x={self.front[0]:.2f} y={self.front[1]:+.2f} m; {self.why})')
