@@ -73,9 +73,8 @@ class HandleBox(Node):
             # sweep
             ('sequence', 'obstacle_clear_sequence'), ('safety_monitor', True), ('settle_before_sweep', 2.0),
             # push (push_through.py)
-            # wall_stop 0: the upright box is in the lidar plane and would stop the push at once;
-            # the push stops on /map walls instead (map_stop, map_stop_ahead)
-            ('distance', 0.35), ('speed', 0.08), ('wall_stop', 0.0), ('push_allowance', 15.0),
+            # (lidar wall_stop off while the box stood upright in the lidar plane; flat again: on)
+            ('distance', 0.35), ('speed', 0.08), ('wall_stop', 0.25), ('push_allowance', 15.0),
             ('stall_s', 3.0), ('stall_dist', 0.02),
             ('map_stop', 0.21), ('escape_target', 0.25), ('look_ahead', 0.15), ('map_stop_ahead', 0.20),
             # escape
