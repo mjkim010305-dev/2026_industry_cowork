@@ -26,9 +26,10 @@ def test_costmap_margins(params, name):
     cm = costmaps(params)[name]
     infl = cm['inflation_layer']
     assert cm['robot_radius'] == 0.20
-    assert infl['inflation_radius'] == 0.20
+    # 2026-10-03 (sim S27_V2): inflation == robot radius hugged the L corner and locked up
+    assert infl['inflation_radius'] == {'local_costmap': 0.25, 'global_costmap': 0.28}[name]
     assert infl['cost_scaling_factor'] == 5.0
-    assert infl['inflation_radius'] >= cm['robot_radius']
+    assert infl['inflation_radius'] > cm['robot_radius']
 
 
 @pytest.mark.parametrize('name', ['local_costmap', 'global_costmap'])
