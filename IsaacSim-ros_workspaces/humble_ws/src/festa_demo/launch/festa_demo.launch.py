@@ -235,7 +235,7 @@ def generate_launch_description():
                               description='start pose; empty = sim (0, 0, 0) / real start corner 0.50 (user-set start, 2026-10-02)'),
         DeclareLaunchArgument('initial_yaw', default_value='',
                               description='start pose; empty = sim (0, 0, 0) / real start corner -1.536 (user-set start, 2026-10-02)'),
-        DeclareLaunchArgument('goal_delay', default_value='20.0',
+        DeclareLaunchArgument('goal_delay', default_value='5.0',
                               description='seconds before the initial pose / goal are sent'),
     ] + [DeclareLaunchArgument(k, default_value='', description=f'per-mode default: {MODE_DEFAULTS["sim"][k]} (sim) / '
                                f'{MODE_DEFAULTS["real"][k]} (real)') for k in ARGS]
