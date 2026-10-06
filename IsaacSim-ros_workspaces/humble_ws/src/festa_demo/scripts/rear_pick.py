@@ -348,8 +348,11 @@ class RearPick(Node):
         self.get_logger().info("===== REAR PICK START =====")
 
         # STEP 1. Home 자세 확인 및 그리퍼 열기
+        # festa_demo (2026-10-06, user: start sooner): not at P_HOME -> move there here instead
+        # of send_goal's separate `ros2 action send_goal` call (~12 s on the Pi).
         if not self.check_start_pose():
-            return False
+            if not self.move_arm(P_HOME, "P_HOME"):
+                return False
 
         if not self.move_gripper(G_OPEN, "G_OPEN"):
             return False
