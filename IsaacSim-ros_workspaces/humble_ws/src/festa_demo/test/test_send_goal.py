@@ -102,9 +102,9 @@ def test_pick_part_commands(send_goal, node, monkeypatch):
     monkeypatch.setattr(send_goal.subprocess, 'run', lambda cmd, **k: calls.append((cmd, k)))
     monkeypatch.setattr(send_goal, 'read_joints', lambda n: {})
     send_goal.pick_part(node)
-    assert calls[0][0][:3] == ['ros2', 'action', 'send_goal']
-    assert 'positions: [-0.0015339807878856412, -1.0461748973380072' in calls[0][0][-1]
-    assert calls[1][0][-1] == 'pick' and calls[1][0][-2].endswith('rear_pick.py')
+    # 2026-10-06: no separate `ros2 action send_goal` to P_HOME; rear_pick.py moves there itself
+    assert len(calls) == 1
+    assert calls[0][0][-1] == 'pick' and calls[0][0][-2].endswith('rear_pick.py')
 
 
 # ---------------------------------------------------------------- initial pose acceptance
@@ -178,7 +178,7 @@ class FakeNode:
         return self._log
 
     def wait_nav2_active(self):
-        pass
+        self.nav2_at = len(self.events)   # how many events happened before the Nav2 wait
 
     def set_initial_pose(self):
         self.events.append('init')
@@ -297,6 +297,12 @@ def test_pick_first_failure_sends_no_goal(run_main):
 def test_pick_first_then_initial_pose_then_goal(run_main):
     f = run_main({'pick_first': True, 'set_initial_pose': True})
     assert f.events[:3] == ['pick', 'init', 'send']
+
+
+def test_pick_runs_before_the_nav2_wait(run_main):
+    # 2026-10-06: the arm does not need Nav2, so the pick overlaps Nav2 start-up
+    f = run_main({'pick_first': True, 'set_initial_pose': True})
+    assert f.nav2_at == 1 and f.events[0] == 'pick'
 
 
 # ---------------------------------------------------------------- send(): AMCL cross-check

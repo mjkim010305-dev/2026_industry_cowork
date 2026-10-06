@@ -127,10 +127,18 @@ def test_run_pick_step_order(rp):
                                         'P_LIFT_FOLD', 'P_SIDE_CARRY', 'P_REAR_CARRY']
 
 
-def test_run_pick_aborts_if_not_at_home(rp):
+def test_run_pick_moves_home_if_not_at_home(rear_pick, rp):
+    # 2026-10-06: not at P_HOME -> move there (was: abort; send_goal moved it via the CLI)
     rp.check_start_pose = lambda: False
+    assert rp.run_pick() is True
+    assert rp.calls[0] == ('arm', 'P_HOME', rear_pick.P_HOME)
+
+
+def test_run_pick_aborts_if_the_move_home_fails(rp):
+    rp.check_start_pose = lambda: False
+    rp.fail_at = 'P_HOME'
     assert rp.run_pick() is False
-    assert rp.calls == []
+    assert [c[1] for c in rp.calls] == ['P_HOME']
 
 
 def test_check_start_pose_tolerance(rear_pick):
