@@ -202,21 +202,10 @@ def place_part(node):
 
 
 def pick_part(node):
-    """festa_demo pick mode: arm to P_HOME, then the robot's rear_pick.py
-    (front pick -> P_REAR_CARRY), so the sweep's obstacle_clear_sequence.py
-    can put the part down behind and pick it up again."""
+    """festa_demo pick mode: the robot's rear_pick.py (arm to P_HOME if needed, front
+    pick -> P_REAR_CARRY), so the sweep's obstacle_clear_sequence.py can put the part
+    down behind and pick it up again."""
     here = os.path.dirname(os.path.abspath(__file__))
-    home = ('{trajectory: {joint_names: [joint1, joint2, joint3, joint4], points: '
-            '[{positions: [-0.0015339807878856412, -1.0461748973380072, 1.0753205323078345, '
-            '0.009203884727313847], time_from_start: {sec: 4}}]}}')
-    node.get_logger().info('pick mode: arm to P_HOME')
-    try:
-        subprocess.run(['ros2', 'action', 'send_goal', '/arm_controller/follow_joint_trajectory',
-                        'control_msgs/action/FollowJointTrajectory', home], timeout=30)
-    except subprocess.TimeoutExpired:
-        # festa_demo (2026-10-02, real R38a): the CLI never got the result and send_goal died;
-        # the arm was at P_HOME. rear_pick.py checks P_HOME itself before it picks.
-        node.get_logger().warn('pick mode: P_HOME command timed out - rear_pick.py checks the pose')
     node.get_logger().info('pick mode: rear_pick.py pick')
     try:
         subprocess.run([sys.executable, os.path.join(here, 'rear_pick.py'), 'pick'], timeout=120)
@@ -233,12 +222,14 @@ def pick_part(node):
 def main():
     rclpy.init()
     node = SendGoal()
-    node.wait_nav2_active()
+    # festa_demo (2026-10-06, user: start sooner): the arm does not need Nav2, so the pick
+    # runs while Nav2 is still coming up (real R39: driving started 86 s after launch).
     if node.p['pick_first'] and not pick_part(node):
         node.get_logger().error('pick failed - not sending the goal')
         node.destroy_node()
         rclpy.shutdown()
         return
+    node.wait_nav2_active()
     if node.p['set_initial_pose']:
         node.set_initial_pose()
         node.clear_costmaps()
