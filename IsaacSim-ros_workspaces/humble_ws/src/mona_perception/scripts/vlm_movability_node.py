@@ -128,6 +128,11 @@ objects too and must be judged, not dismissed as background.
 
 """
 
+# The on-demand path outlines a SAM mask, not a rectangle; telling the model to
+# look for a rectangle that is not in the image describes a different picture.
+PROMPT_HEAD_CONTOUR = PROMPT_HEAD.replace("by the magenta rectangle",
+                                          "by the magenta contour")
+
 def _same_size(a, b, ratio):
     """Extent may not jump by more than ``ratio`` between the two readings.
 
@@ -1309,7 +1314,8 @@ class VlmMovability(Node):
         if det_label:
             hint += ("A separate detector labelled it \"%s\". Treat that as a hint you may\n"
                      "overrule if the image disagrees.\n\n" % det_label)
-        prompt = PROMPT_HEAD + hint + PROMPT_TAIL
+        head = PROMPT_HEAD_CONTOUR if cand.get("outline") == "contour" else PROMPT_HEAD
+        prompt = head + hint + PROMPT_TAIL
         ok, buf = cv2.imencode(".jpg", highlighted,
                                [int(cv2.IMWRITE_JPEG_QUALITY), self.jpeg_quality])
         if not ok:
@@ -1541,7 +1547,7 @@ class VlmMovability(Node):
         mask = masks[pick]
 
         highlight = _mask_highlight(bgr, mask, self.highlight_dim)
-        cand = {"det_label": None}
+        cand = {"det_label": None, "outline": "contour"}
         try:
             self._ask_image(highlight, cand)
         except Exception as exc:                      # noqa: BLE001 - reported as ERROR
