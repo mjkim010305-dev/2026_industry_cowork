@@ -1,0 +1,60 @@
+<!--
+  Stock navigate_to_pose_w_replanning_and_recovery.xml plus: stop when the local costmap
+  shows a non-static obstacle on the path, judge it once (JudgeObstacle), branch on the
+  verdict. Post-verdict actions are UNDECIDED stubs (AlwaysFailure): every verdict ends in
+  goal ABORTED with zero recoveries. obstacle_verdict stays "none" when nothing is on the
+  path, so the tree then behaves exactly like the stock one (recoveries included).
+-->
+<root main_tree_to_execute="MainTree">
+  <BehaviorTree ID="MainTree">
+    <Sequence name="Root">
+      <SetBlackboard output_key="obstacle_verdict" value="none"/>
+      <RecoveryNode number_of_retries="6" name="NavigateRecovery">
+        <PipelineSequence name="NavigateWithReplanning">
+          <RateController hz="1.0">
+            <RecoveryNode number_of_retries="1" name="ComputePathToPose">
+              <ComputePathToPose goal="{goal}" path="{path}" planner_id="GridBased"/>
+              <ClearEntireCostmap name="ClearGlobalCostmap-Context" service_name="global_costmap/clear_entirely_global_costmap"/>
+            </RecoveryNode>
+          </RateController>
+          <ReactiveFallback name="JudgeOrFollow">
+            <Sequence name="JudgeObstacleOnPath">
+              <PathObstacleDetected topic="/mona/path_obstacle" max_age="1.0" obstacle="{path_obstacle}"/>
+              <SetBlackboard output_key="obstacle_verdict" value="judging"/>
+              <JudgeObstacle server_name="/judge_obstacle" server_timeout="2000" obstacle="{path_obstacle}" verdict="{obstacle_verdict}" label="{obstacle_label}" pushable="{obstacle_pushable}"/>
+              <Fallback name="ActOnVerdict">
+                <BlackboardCheckString value_A="{obstacle_verdict}" value_B="MOVABLE" return_on_mismatch="FAILURE">
+                  <AlwaysFailure name="MovableAction_UNDECIDED"/>
+                </BlackboardCheckString>
+                <BlackboardCheckString value_A="{obstacle_verdict}" value_B="FIXED" return_on_mismatch="FAILURE">
+                  <AlwaysFailure name="FixedAction_UNDECIDED"/>
+                </BlackboardCheckString>
+                <AlwaysFailure name="NoVerdictAction_UNDECIDED"/>
+              </Fallback>
+            </Sequence>
+            <BlackboardCheckString name="NoVerdictYet" value_A="{obstacle_verdict}" value_B="none" return_on_mismatch="FAILURE">
+              <RecoveryNode number_of_retries="1" name="FollowPath">
+                <FollowPath path="{path}" controller_id="FollowPath"/>
+                <ClearEntireCostmap name="ClearLocalCostmap-Context" service_name="local_costmap/clear_entirely_local_costmap"/>
+              </RecoveryNode>
+            </BlackboardCheckString>
+          </ReactiveFallback>
+        </PipelineSequence>
+        <BlackboardCheckString name="RecoverOnlyWithoutVerdict" value_A="{obstacle_verdict}" value_B="none" return_on_mismatch="FAILURE">
+          <ReactiveFallback name="RecoveryFallback">
+            <GoalUpdated/>
+            <RoundRobin name="RecoveryActions">
+              <Sequence name="ClearingActions">
+                <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
+                <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
+              </Sequence>
+              <Spin spin_dist="1.57"/>
+              <Wait wait_duration="5"/>
+              <BackUp backup_dist="0.30" backup_speed="0.05"/>
+            </RoundRobin>
+          </ReactiveFallback>
+        </BlackboardCheckString>
+      </RecoveryNode>
+    </Sequence>
+  </BehaviorTree>
+</root>

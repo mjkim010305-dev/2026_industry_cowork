@@ -9,13 +9,21 @@
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <depend>behaviortree_cpp_v3</depend>
+  <depend>geometry_msgs</depend>
+  <depend>mona_interfaces</depend>
+  <depend>nav2_behavior_tree</depend>
   <depend>nav2_costmap_2d</depend>
+  <depend>nav2_msgs</depend>
   <depend>pluginlib</depend>
   <depend>rclcpp</depend>
+  <depend>rclcpp_action</depend>
   <depend>std_msgs</depend>
   <depend>tf2</depend>
 
   <exec_depend>nav2_bringup</exec_depend>
+  <exec_depend>nav2_common</exec_depend>
+  <exec_depend>rclpy</exec_depend>
 
   <export>
     <build_type>ament_cmake</build_type>
