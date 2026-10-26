@@ -85,6 +85,9 @@ def _launch_setup(context):
     # Already a plain string here, and ParameterValue type-checks plain
     # values instead of converting them, so turn it into a bool directly.
     use_sim_time = arg("use_sim_time").lower() == "true"
+    trigger = LaunchConfiguration("trigger").perform(context)
+    if trigger not in ("periodic", "on_demand"):
+        raise RuntimeError("trigger must be 'periodic' or 'on_demand', got %r" % trigger)
     x, y, z, qx, qy, qz, qw = d["tf"]
 
     vlm_params = {
@@ -109,6 +112,8 @@ def _launch_setup(context):
         "publish_rate": 5.0,
         "latch": ParameterValue(LaunchConfiguration("latch"), value_type=bool),
         "detector_url": LaunchConfiguration("detector_url"),
+        "trigger": trigger,
+        "sam_url": LaunchConfiguration("sam_url"),
         # Segmentation and push-size thresholds are deliberately NOT repeated
         # here: tuned values live in the node next to the reasoning for them;
         # override from the command line when experimenting.
@@ -117,7 +122,7 @@ def _launch_setup(context):
         # sim relies on the node default (camera_optical).
         vlm_params["optical_frame"] = d["optical_frame"]
 
-    return [
+    nodes = [
         Node(
             package="tf2_ros",
             executable="static_transform_publisher",
@@ -137,17 +142,22 @@ def _launch_setup(context):
             output="screen",
             parameters=[vlm_params],
         ),
-        Node(
-            package="mona_perception",
-            executable="movable_obstacle_map_node.py",
-            name="movable_obstacle_map",
-            output="screen",
-            parameters=[{
-                "use_sim_time": use_sim_time,
-                "semantic_map_path": LaunchConfiguration("semantic_map_path"),
-            }],
-        ),
     ]
+    # on_demand judges one obstacle per request; nothing feeds the semantic map.
+    if trigger == "periodic":
+        nodes.append(
+            Node(
+                package="mona_perception",
+                executable="movable_obstacle_map_node.py",
+                name="movable_obstacle_map",
+                output="screen",
+                parameters=[{
+                    "use_sim_time": use_sim_time,
+                    "semantic_map_path": LaunchConfiguration("semantic_map_path"),
+                }],
+            )
+        )
+    return nodes
 
 
 def generate_launch_description():
@@ -177,5 +187,11 @@ def generate_launch_description():
         # Empty = depth-only candidates. See the node docstring: the detector
         # measured on these scenes classified worse than the language model.
         DeclareLaunchArgument("detector_url", default_value=""),
+        # periodic: 2 s VLM loop + semantic map (sim/harness default).
+        # on_demand: JudgeObstacle action server (/judge_obstacle) only, no map node.
+        DeclareLaunchArgument("trigger", default_value="periodic",
+                              description="periodic | on_demand"),
+        DeclareLaunchArgument("sam_url", default_value="http://127.0.0.1:8091",
+                              description="SAM segmentation server (on_demand)"),
         OpaqueFunction(function=_launch_setup),
     ])

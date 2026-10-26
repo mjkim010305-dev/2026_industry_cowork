@@ -102,7 +102,9 @@ import urllib.request
 import numpy as np
 
 import rclpy
+from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.duration import Duration
+from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, qos_profile_system_default
 from rclpy.time import Time
@@ -325,6 +327,187 @@ Answer with ONLY a JSON object, no prose, no markdown fence:
 {"label":"<short name>","movable":true|false,"reason":"<max 8 words>"}"""
 
 
+# ---------------------------------------------------------------------------
+# On-demand JudgeObstacle: pure helpers. No ROS, no node state, so each step of
+# the SAM pipeline is unit-testable (test/test_judge_obstacle.py).
+
+V_MOVABLE, V_FIXED, V_NO_CANDIDATE, V_ERROR = "MOVABLE", "FIXED", "NO_CANDIDATE", "ERROR"
+
+
+class _JudgeFail(Exception):
+    """A judgment that ends in NO_CANDIDATE or ERROR, with the reason."""
+
+    def __init__(self, verdict, detail):
+        super().__init__(detail)
+        self.verdict = verdict
+        self.detail = detail
+
+
+def _valid_points(depth, intr, step, min_r, max_r):
+    """Strided valid depth pixels as optical-frame points (x right, y down,
+    z forward) plus their depth-grid pixel coordinates. Same sampling as
+    ``_depth_candidates``."""
+    fx, fy, cx, cy = intr
+    h, w = depth.shape[:2]
+    vs, us = np.mgrid[0:h:step, 0:w:step]
+    z = depth[0:h:step, 0:w:step]
+    valid = np.isfinite(z) & (z > min_r) & (z < max_r)
+    z = z[valid].astype(np.float32)
+    us = us[valid].astype(np.float32)
+    vs = vs[valid].astype(np.float32)
+    pts = np.stack([(us - cx) * z / fx, (vs - cy) * z / fy, z], axis=1)
+    return pts, us, vs
+
+
+def _project_to_pixel(p_cam, intr, sx, sy, rgb_w, rgb_h):
+    """Optical-frame point -> RGB pixel (u, v), or None if behind the camera
+    or outside the image. ``intr`` belongs to the depth grid; sx/sy scale it
+    to the RGB resolution."""
+    x, y, z = p_cam
+    if z <= 0.0:
+        return None
+    fx, fy, cx, cy = intr
+    u = int(round((fx * x / z + cx) * sx))
+    v = int(round((fy * y / z + cy) * sy))
+    if not (0 <= u < rgb_w and 0 <= v < rgb_h):
+        return None
+    return u, v
+
+
+def _face_samples(face_xy, start_xy, end_xy):
+    """Map-frame (x, y) spots on the front face where prompts are placed: the
+    25/50/75 % cells of the polyline, or the endpoint midpoint if it is short."""
+    n = len(face_xy)
+    if n >= 3:
+        return [face_xy[i] for i in sorted({n // 4, n // 2, (3 * n) // 4})]
+    return [((start_xy[0] + end_xy[0]) / 2.0, (start_xy[1] + end_xy[1]) / 2.0)]
+
+
+def _build_prompts(samples_xy, heights, t, r, intr, depth, sx, sy, rgb_w, rgb_h,
+                   min_r, max_r):
+    """SAM positive point prompts: each face sample at each height (map z),
+    moved into the camera frame by (t, r) and projected. Only points inside
+    the image whose depth pixel is valid are kept."""
+    dh, dw = depth.shape[:2]
+    out = []
+    for x, y in samples_xy:
+        for h in heights:
+            px = _project_to_pixel(_apply_transform((x, y, h), t, r),
+                                   intr, sx, sy, rgb_w, rgb_h)
+            if px is None:
+                continue
+            d = depth[min(dh - 1, int(px[1] * dh / rgb_h)),
+                      min(dw - 1, int(px[0] * dw / rgb_w))]
+            if np.isfinite(d) and min_r < d < max_r:
+                out.append([px[0], px[1]])
+    return out
+
+
+def _region_box(pts, us, vs, height, face_cam, margin, behind, min_h, max_h,
+                min_pts, sx, sy):
+    """SAM box prompt in RGB pixels: bbox of the above-floor depth points inside
+    the face's lateral extent +- margin and from margin in front of the face to
+    ``behind`` past it (the visible face says nothing about the depth behind).
+    None if fewer than ``min_pts`` points fall in."""
+    xs = [p[0] for p in face_cam]
+    zs = [p[2] for p in face_cam]
+    sel = ((height > min_h) & (height < max_h)
+           & (pts[:, 0] >= min(xs) - margin) & (pts[:, 0] <= max(xs) + margin)
+           & (pts[:, 2] >= min(zs) - margin) & (pts[:, 2] <= max(zs) + behind))
+    if int(sel.sum()) < min_pts:
+        return None
+    return [int(us[sel].min() * sx), int(vs[sel].min() * sy),
+            int(np.ceil(us[sel].max() * sx)), int(np.ceil(vs[sel].max() * sy))]
+
+
+def _mask_valid(mask, depth, min_r, max_r):
+    """(ys, xs, z) of the valid depth pixels under a mask (depth-grid coords)."""
+    if mask.shape != depth.shape[:2]:
+        mask = cv2.resize(mask.astype(np.uint8), (depth.shape[1], depth.shape[0]),
+                          interpolation=cv2.INTER_NEAREST).astype(bool)
+    ok = mask & np.isfinite(depth) & (depth > min_r) & (depth < max_r)
+    ys, xs = np.nonzero(ok)
+    return ys, xs, depth[ys, xs].astype(np.float32)
+
+
+def _select_mask(masks, scores, depth, face_z, tol, min_r, max_r, min_px):
+    """Index of the highest-scoring mask whose median depth is within ``tol`` of
+    the face distance (and that has >= ``min_px`` valid depth pixels), else None.
+    A mask that grabbed the wall or the floor fails the depth test."""
+    best = None
+    for i, mask in enumerate(masks):
+        _, _, z = _mask_valid(mask, depth, min_r, max_r)
+        if z.size < min_px or abs(float(np.median(z)) - face_z) > tol:
+            continue
+        if best is None or scores[i] > scores[best]:
+            best = i
+    return best
+
+
+def _mask_highlight(bgr, mask, dim):
+    """The mask-prompted version of ``_draw_highlight``: everything outside the
+    mask is dimmed, the inside is untouched, and the outline is magenta."""
+    img = (bgr * dim).astype(np.uint8)
+    img[mask] = bgr[mask]
+    contours, _ = cv2.findContours(mask.astype(np.uint8), cv2.RETR_EXTERNAL,
+                                   cv2.CHAIN_APPROX_SIMPLE)
+    cv2.drawContours(img, contours, -1, (255, 0, 255), 3)
+    return img
+
+
+def _floor_from_face(face_cam, up_cam):
+    """Floor plane (normal pointing up, offset) in the camera frame from the
+    face points, which lie on the map floor, and the camera-frame up vector.
+    Used for the mask size when the depth image has no usable floor fit."""
+    n = np.asarray(up_cam, dtype=np.float64)
+    n = n / np.linalg.norm(n)
+    return n, -float(n @ np.mean(np.asarray(face_cam, dtype=np.float64), axis=0))
+
+
+def _mask_size(pts, plane):
+    """(width_m, height_m) of the masked depth points: lateral extent (1-99 %)
+    and the 98th percentile height above the floor plane."""
+    normal, offset = plane
+    width = float(np.percentile(pts[:, 0], 99) - np.percentile(pts[:, 0], 1))
+    height = float(np.percentile(pts @ normal + offset, 98))
+    return width, height
+
+
+def _judge_verdict(raws, k, ratio):
+    """MOVABLE only if the vote gate passes AND the last raw call is movable
+    (the periodic path's H1 rule); every other outcome is FIXED."""
+    return V_MOVABLE if raws and raws[-1] and _vote(raws, k, ratio) else V_FIXED
+
+
+def _assemble_verdict(raws, labels, width_m, height_m, k, ratio, push_h, push_w,
+                      detail=""):
+    """The JudgeObstacle result fields (as a dict) from k raw VLM calls and the
+    mask size. ``pushable`` is the size gate and is independent of the verdict."""
+    return {
+        "verdict": _judge_verdict(raws, k, ratio),
+        "label": _majority_label(labels) or "",
+        "pushable": bool(height_m <= push_h and width_m <= push_w),
+        "votes_n": len(raws), "votes_movable": sum(1 for v in raws if v),
+        "detail": detail,
+    }
+
+
+def _failure_result(verdict, detail):
+    return {"verdict": verdict, "label": "", "pushable": False,
+            "votes_n": 0, "votes_movable": 0, "detail": detail}
+
+
+def _face_from_obstacle(obstacle):
+    """PathObstacle msg -> the map-frame face geometry ``_judge`` works on:
+    ``pts`` (endpoints + polyline, for the depth region and face distance) and
+    ``samples`` (prompt spots)."""
+    poly = [(p.x, p.y, p.z) for p in obstacle.face]
+    s, e = obstacle.face_start, obstacle.face_end
+    return {"pts": [(s.x, s.y, s.z), (e.x, e.y, e.z)] + poly,
+            "samples": _face_samples([(p[0], p[1]) for p in poly],
+                                     (s.x, s.y), (e.x, e.y))}
+
+
 class VlmMovability(Node):
 
     def __init__(self):
@@ -464,6 +647,26 @@ class VlmMovability(Node):
         self.det_min_score = self.declare_parameter("detector_min_score", 0.35).value
         self.det_timeout = self.declare_parameter("detector_timeout", 15.0).value
 
+        # --- on-demand judge (JudgeObstacle action, SAM masks) --------------
+        # periodic: the 2 s query loop above. on_demand: that loop is off and
+        # only the /judge_obstacle action server judges one given obstacle.
+        self.trigger = self.declare_parameter("trigger", "periodic").value
+        if self.trigger not in ("periodic", "on_demand"):
+            raise ValueError("trigger must be periodic|on_demand, got %r" % self.trigger)
+        self.sam_url = self.declare_parameter("sam_url", "http://127.0.0.1:8091").value
+        self.sam_timeout = self.declare_parameter("sam_timeout", 30.0).value
+        # Decision 9: k=1 on the on-demand path (the periodic k stays 2).
+        self.judge_k = int(self.declare_parameter("judge_vote_k", 1).value)
+        # Prompt heights above the map floor: the lidar plane and mid-box.
+        self.prompt_heights = list(self.declare_parameter(
+            "prompt_heights", [0.15, 0.30]).value)
+        self.region_margin = self.declare_parameter("region_margin", 0.15).value
+        # Depth behind the face is unobservable to the lidar; this is a guess.
+        self.region_depth = self.declare_parameter("region_depth", 1.0).value
+        self.mask_depth_tol = self.declare_parameter("mask_depth_tol", 0.3).value
+        self.mask_min_px = int(self.declare_parameter("mask_min_px", 50).value)
+        self.judge_frame_timeout = self.declare_parameter("judge_frame_timeout", 5.0).value
+
         # --- state --------------------------------------------------------
         self.bridge = CvBridge()
         self.last_frame = None          # (header, bgr ndarray)
@@ -487,6 +690,8 @@ class VlmMovability(Node):
         self.carry = None
         self._reacquire_after = 0.0
         self.vote_history = []          # per-candidate independent-trial vote log
+        self._judge_busy = False        # on_demand: one JudgeObstacle goal at a time
+        self._judge_mutex = threading.Lock()
         # Bumped on every /vlm/reset. A query round started before a reset
         # can still be in flight (network call) when it lands - checked
         # against this before the round is allowed to write vote_history, so
@@ -531,14 +736,17 @@ class VlmMovability(Node):
         self.candidates_pub = self.create_publisher(String, "/vlm/candidates", 10)
         self.create_timer(1.0 / max(1.0, self.publish_rate), self._publish_tick)
         self.create_timer(0.25, self._query_tick)
+        if self.trigger == "on_demand":
+            self._init_judge_server()
 
         self.get_logger().info(
             "vlm_movability: rgb='%s' model='%s' -> '%s' / '%s' "
-            "(query %.1fs, publish %.1f Hz, latch=%s, vote k=%d ratio=%.2f frame=%s)" % (
+            "(query %.1fs, publish %.1f Hz, latch=%s, vote k=%d ratio=%.2f frame=%s, "
+            "trigger=%s)" % (
                 self.rgb_topic, self.model, self.movable_topic,
                 self.roi_out_topic, self.query_period, self.publish_rate,
                 self.latch, self.movable_vote_k, self.movable_vote_ratio,
-                self.vote_frame))
+                self.vote_frame, self.trigger))
 
     # ------------------------------------------------------------------
     # subscriptions
@@ -589,6 +797,8 @@ class VlmMovability(Node):
     # querying
 
     def _query_tick(self):
+        if self.trigger == "on_demand":
+            return
         if self.busy:
             return
         if self.latched is not None and self.latch:
@@ -1082,6 +1292,9 @@ class VlmMovability(Node):
         return total, "".join(raw_all)
 
     def _ask_one(self, bgr, cand):
+        return self._ask_image(self._draw_highlight(bgr, cand["bbox_px"]), cand)
+
+    def _ask_image(self, highlighted, cand):
         # The detector's class name goes in as a hint, not as the answer: the
         # movable/fixed call stays with the model, which is the part of this
         # pipeline that has to generalise beyond a fixed class list.
@@ -1097,7 +1310,6 @@ class VlmMovability(Node):
             hint += ("A separate detector labelled it \"%s\". Treat that as a hint you may\n"
                      "overrule if the image disagrees.\n\n" % det_label)
         prompt = PROMPT_HEAD + hint + PROMPT_TAIL
-        highlighted = self._draw_highlight(bgr, cand["bbox_px"])
         ok, buf = cv2.imencode(".jpg", highlighted,
                                [int(cv2.IMWRITE_JPEG_QUALITY), self.jpeg_quality])
         if not ok:
@@ -1177,6 +1389,217 @@ class VlmMovability(Node):
             "movable": bool(data.get("movable")),
             "reason": str(data.get("reason", "")),
         }
+
+    # ------------------------------------------------------------------
+    # on-demand: JudgeObstacle action, SAM mask pipeline
+
+    def _init_judge_server(self):
+        # Imported here so the periodic path never needs mona_interfaces.
+        from rclpy.action import ActionServer, CancelResponse, GoalResponse
+        from mona_interfaces.action import JudgeObstacle
+        self._JudgeObstacle = JudgeObstacle
+        self._GoalResponse, self._CancelResponse = GoalResponse, CancelResponse
+        self._judge_server = ActionServer(
+            self, JudgeObstacle, "judge_obstacle",
+            execute_callback=self._execute_judge,
+            goal_callback=self._on_judge_goal,
+            cancel_callback=lambda _goal: CancelResponse.ACCEPT,
+            callback_group=ReentrantCallbackGroup())
+
+    def _on_judge_goal(self, _goal):
+        with self._judge_mutex:
+            if self._judge_busy:
+                self.get_logger().warn("vlm_movability: JudgeObstacle goal rejected (busy)")
+                return self._GoalResponse.REJECT
+            self._judge_busy = True
+        return self._GoalResponse.ACCEPT
+
+    def _execute_judge(self, goal_handle):
+        t0 = time.time()
+        obstacle = goal_handle.request.obstacle
+        debug = {}
+        try:
+            if not obstacle.present:
+                result = _failure_result(V_ERROR, "goal obstacle.present is false")
+            else:
+                result, debug = self._judge(
+                    _face_from_obstacle(obstacle),
+                    lambda prev: self._next_frame(obstacle.header.frame_id, prev),
+                    lambda: goal_handle.is_cancel_requested)
+        finally:
+            with self._judge_mutex:
+                self._judge_busy = False
+        result["latency_s"] = time.time() - t0
+        self._publish_judge(obstacle, result, debug)
+        self.get_logger().info("vlm_movability: JudgeObstacle %s '%s' pushable=%s "
+                               "votes %d/%d (%.1fs) %s" % (
+                                   result["verdict"], result["label"], result["pushable"],
+                                   result["votes_movable"], result["votes_n"],
+                                   result["latency_s"], result["detail"]))
+        msg = self._JudgeObstacle.Result()
+        for key, value in result.items():
+            setattr(msg, key, value)
+        if goal_handle.is_cancel_requested:
+            goal_handle.canceled()
+        else:
+            goal_handle.succeed()
+        return msg
+
+    def _next_frame(self, map_frame, prev_stamp):
+        """(header, bgr, depth, t, r) of a frame newer than ``prev_stamp``, with
+        the optical <- map transform at that frame's stamp (t, r)."""
+        deadline = time.time() + self.judge_frame_timeout
+        while True:
+            with self.frame_lock:
+                if self.last_frame is not None and self.last_depth is not None:
+                    header, bgr = self.last_frame
+                    if (header.stamp.sec, header.stamp.nanosec) != prev_stamp:
+                        bgr, depth = bgr.copy(), self.last_depth.copy()
+                        break
+            if time.time() > deadline:
+                raise _JudgeFail(V_ERROR, "no new camera frame within %.1fs"
+                                 % self.judge_frame_timeout)
+            time.sleep(0.05)
+        stamp = Time.from_msg(header.stamp)
+        try:
+            tf = self.tf_buffer.lookup_transform(
+                self.optical_frame, map_frame,
+                stamp if stamp.nanoseconds else Time(),
+                timeout=Duration(seconds=2.0))
+        except TransformException as exc:
+            raise _JudgeFail(V_ERROR, "no TF %s <- %s: %s" % (
+                self.optical_frame, map_frame, exc))
+        t, r = tf.transform.translation, tf.transform.rotation
+        return header, bgr, depth, (t.x, t.y, t.z), (r.x, r.y, r.z, r.w)
+
+    def _judge(self, face, next_frame, cancelled=lambda: False):
+        """k votes, each on a fresh frame: SAM mask -> mask-highlighted VLM call.
+        Returns (result dict, debug dict). Never raises: every failure is a
+        NO_CANDIDATE or ERROR result with its reason (no silent fallback)."""
+        raws, labels, debug, size = [], [], {}, (0.0, 0.0)
+        prev = None
+        try:
+            for _ in range(self.judge_k):
+                if cancelled():
+                    raise _JudgeFail(V_ERROR, "canceled")
+                header, bgr, depth, t, r = next_frame(prev)
+                prev = (header.stamp.sec, header.stamp.nanosec)
+                debug["header"] = header
+                raw, label, size, highlight = self._judge_vote(face, bgr, depth, t, r)
+                raws.append(raw)
+                labels.append(label)
+                debug["highlight"] = highlight
+        except _JudgeFail as fail:
+            return _failure_result(fail.verdict, fail.detail), debug
+        except Exception as exc:                      # noqa: BLE001 - keep node alive
+            return _failure_result(V_ERROR, "%s: %s" % (type(exc).__name__, exc)), debug
+        debug["size"] = size
+        return _assemble_verdict(
+            raws, labels, size[0], size[1], self.judge_k, self.movable_vote_ratio,
+            self.push_max_height, self.push_max_width,
+            "mask %.2fx%.2f m" % size), debug
+
+    def _judge_vote(self, face, bgr, depth, t, r):
+        """One vote on one frame -> (raw_movable, label, (width, height), highlight)."""
+        rgb_h, rgb_w = bgr.shape[:2]
+        dh, dw = depth.shape[:2]
+        sx, sy = rgb_w / float(dw), rgb_h / float(dh)
+        intr = self.intrinsics
+        if intr is None:
+            raise _JudgeFail(V_ERROR, "no camera intrinsics yet")
+        face_cam = [_apply_transform(p, t, r) for p in face["pts"]]
+
+        pts, us, vs = _valid_points(depth, intr, max(1, self.depth_stride),
+                                    self.min_range, self.max_range)
+        plane = self._fit_floor(pts) if len(pts) >= 500 else None
+        box = None
+        if plane is not None:
+            box = _region_box(
+                pts, us, vs, pts @ plane[0] + plane[1], face_cam, self.region_margin,
+                self.region_depth, self.obstacle_min_h, self.obstacle_max_h,
+                self.cluster_min_pts, sx, sy)
+        points = _build_prompts(face["samples"], self.prompt_heights, t, r, intr,
+                                depth, sx, sy, rgb_w, rgb_h,
+                                self.min_range, self.max_range)
+        if not points and box is None:
+            raise _JudgeFail(V_NO_CANDIDATE,
+                             "no depth-valid prompt point and no depth region on the face")
+
+        try:
+            masks, scores = self._call_sam(bgr, points, box)
+        except Exception as exc:                      # noqa: BLE001 - reported as ERROR
+            raise _JudgeFail(V_ERROR, "sam: %s: %s" % (type(exc).__name__, exc))
+        if not masks:
+            raise _JudgeFail(V_ERROR, "sam returned no masks")
+        face_z = float(np.mean([p[2] for p in face_cam]))
+        pick = _select_mask(masks, scores, depth, face_z, self.mask_depth_tol,
+                            self.min_range, self.max_range, self.mask_min_px)
+        if pick is None:
+            raise _JudgeFail(V_ERROR, "no sam mask consistent with the face depth "
+                             "(%.2f m +- %.2f, %d masks)" % (
+                                 face_z, self.mask_depth_tol, len(masks)))
+        mask = masks[pick]
+
+        highlight = _mask_highlight(bgr, mask, self.highlight_dim)
+        cand = {"det_label": None}
+        try:
+            self._ask_image(highlight, cand)
+        except Exception as exc:                      # noqa: BLE001 - reported as ERROR
+            raise _JudgeFail(V_ERROR, "vlm: %s: %s" % (type(exc).__name__, exc))
+
+        ys, xs, z = _mask_valid(mask, depth, self.min_range, self.max_range)
+        fx, fy, cx, cy = intr
+        mpts = np.stack([(xs - cx) * z / fx, (ys - cy) * z / fy, z], axis=1)
+        if plane is None:
+            plane = _floor_from_face(face_cam, _apply_transform((0.0, 0.0, 1.0),
+                                                                (0.0, 0.0, 0.0), r))
+        return cand["raw_movable"], cand["label"], _mask_size(mpts, plane), highlight
+
+    def _call_sam(self, bgr, points, box):
+        """POST <sam_url>/segment -> (bool masks at RGB resolution, scores)."""
+        ok, buf = cv2.imencode(".jpg", bgr,
+                               [int(cv2.IMWRITE_JPEG_QUALITY), self.jpeg_quality])
+        if not ok:
+            raise RuntimeError("jpeg encode failed")
+        body = json.dumps({
+            "image_jpeg_b64": base64.b64encode(buf.tobytes()).decode(),
+            "points": points, "point_labels": [1] * len(points), "box": box,
+        }).encode()
+        req = urllib.request.Request(
+            self.sam_url.rstrip("/") + "/segment", data=body,
+            headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=self.sam_timeout) as resp:
+            out = json.loads(resp.read())
+        masks = []
+        for b64 in out["masks_png_b64"]:
+            png = cv2.imdecode(np.frombuffer(base64.b64decode(b64), np.uint8),
+                               cv2.IMREAD_GRAYSCALE)
+            if png is None:
+                raise RuntimeError("undecodable mask PNG")
+            masks.append(png > 127)
+        return masks, [float(s) for s in out["scores"]]
+
+    def _publish_judge(self, obstacle, result, debug):
+        header = debug.get("header")
+        stamp = {"sec": header.stamp.sec, "nanosec": header.stamp.nanosec} if header else None
+        self.judgments_pub.publish(String(data=json.dumps({
+            "stamp": stamp, "model": self.model, "trigger": "on_demand",
+            "latency_s": round(result["latency_s"], 3),
+            "obstacle": {"along_m": obstacle.along_m, "width_m": obstacle.width_m,
+                         "centroid": [obstacle.centroid.x, obstacle.centroid.y],
+                         "n_cells": obstacle.n_cells},
+            "result": result, "mask_size_m": debug.get("size"),
+        })))
+        highlight = debug.get("highlight")
+        if highlight is not None:
+            img = highlight.copy()
+            cv2.putText(img, "%s %s %s" % (result["verdict"], result["label"],
+                                           result["detail"]),
+                        (12, img.shape[0] - 14), cv2.FONT_HERSHEY_SIMPLEX, 0.6,
+                        (240, 240, 240), 2)
+            out = self.bridge.cv2_to_imgmsg(img, encoding="bgr8")
+            out.header = header
+            self.annotated_pub.publish(out)
 
     # ------------------------------------------------------------------
     # publishing
@@ -1466,7 +1889,12 @@ def main(args=None):
     rclpy.init(args=args)
     node = VlmMovability()
     try:
-        rclpy.spin(node)
+        # Multi-threaded so a JudgeObstacle goal blocking on the VLM does not
+        # stop the camera subscriptions; the default callback group stays
+        # mutually exclusive, so the periodic path is still serial.
+        executor = MultiThreadedExecutor(num_threads=4)
+        executor.add_node(node)
+        executor.spin()
     except KeyboardInterrupt:
         pass
     finally:
