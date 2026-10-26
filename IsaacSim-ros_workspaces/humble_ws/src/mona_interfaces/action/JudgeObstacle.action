@@ -1,0 +1,19 @@
+# On-demand judgment of one path obstacle (server: vlm_movability_node).
+# Goal: the obstacle geometry from path_obstacle_monitor (map frame).
+mona_interfaces/PathObstacle obstacle
+---
+# Result
+string MOVABLE=MOVABLE
+string FIXED=FIXED
+string NO_CANDIDATE=NO_CANDIDATE
+string ERROR=ERROR
+
+string verdict          # one of MOVABLE | FIXED | NO_CANDIDATE | ERROR
+string label            # VLM object label (empty if none)
+bool pushable           # depth size gate, independent of verdict
+uint32 votes_n          # number of VLM votes taken (k)
+uint32 votes_movable    # number of votes that said movable
+float32 latency_s       # wall time from goal acceptance to result [s]
+string detail           # reason or error string
+---
+# Feedback (none)
