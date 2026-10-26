@@ -82,7 +82,9 @@ def _launch_setup(context):
         value = LaunchConfiguration(name).perform(context)
         return value if value != "" else d[name]
 
-    use_sim_time = ParameterValue(arg("use_sim_time"), value_type=bool)
+    # Already a plain string here, and ParameterValue type-checks plain
+    # values instead of converting them, so turn it into a bool directly.
+    use_sim_time = arg("use_sim_time").lower() == "true"
     x, y, z, qx, qy, qz, qw = d["tf"]
 
     vlm_params = {
