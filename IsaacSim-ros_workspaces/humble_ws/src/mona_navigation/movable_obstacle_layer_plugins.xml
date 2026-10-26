@@ -1,0 +1,5 @@
+<library path="mona_movable_obstacle_layer">
+  <class type="mona_navigation::MovableObstacleLayer" base_class_type="nav2_costmap_2d::Layer">
+    <description>Re-marks VLM-judged obstacles by verdict: pushable objects at movable_cost, fixed ones LETHAL.</description>
+  </class>
+</library>
