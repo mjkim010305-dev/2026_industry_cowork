@@ -524,6 +524,18 @@ def _assemble_verdict(raws, labels, width_m, height_m, k, ratio, push_h, push_w,
     }
 
 
+def _choose_action(verdict, width_m, height_m, pushable, sweep_max_width,
+                   sweep_max_height):
+    """What to do about the obstacle (S36 rule): SWEEP a movable one narrower than
+    the robot and not taller than the sweep band, PUSH a wider pushable one, else
+    DETOUR (narrow-but-tall movable, unpushable movable, FIXED, no mask, error)."""
+    if verdict != V_MOVABLE:
+        return "DETOUR"
+    if width_m < sweep_max_width:
+        return "SWEEP" if height_m <= sweep_max_height else "DETOUR"
+    return "PUSH" if pushable else "DETOUR"
+
+
 def _failure_result(verdict, detail):
     return {"verdict": verdict, "label": "", "pushable": False,
             "votes_n": 0, "votes_movable": 0, "detail": detail}
@@ -702,6 +714,12 @@ class VlmMovability(Node):
         # model and was selected as one; it is 1.5 m tall, and depth knows that.
         self.push_max_height = self.declare_parameter("push_max_height", 0.7).value
         self.push_max_width = self.declare_parameter("push_max_width", 1.2).value
+        # TurtleBot3 Waffle Pi overall width 306 mm incl. wheels (ROBOTIS spec; the
+        # URDF chassis box is 0.266): a movable obstacle narrower than this is swept.
+        self.sweep_max_width = self.declare_parameter("sweep_max_width", 0.306).value
+        # Sweep finger band upper edge; 0.25 m boxes were hit again by the return
+        # swing (decision D24).
+        self.sweep_max_height = self.declare_parameter("sweep_max_height", 0.24).value
         # Half-width of the corridor the robot actually drives through. A
         # TurtleBot3 Waffle is 0.28 m wide; anything further out to the side is
         # not in the way. Set too wide, the loaded shelving lining a warehouse
@@ -1528,12 +1546,18 @@ class VlmMovability(Node):
         finally:
             with self._judge_mutex:
                 self._judge_busy = False
+        width_m, height_m = debug.get("size") or (0.0, 0.0)
+        result["width_m"], result["height_m"] = float(width_m), float(height_m)
+        result["action"] = _choose_action(
+            result["verdict"], width_m, height_m, result["pushable"],
+            self.sweep_max_width, self.sweep_max_height)
         result["latency_s"] = time.time() - t0
         self._publish_judge(obstacle, result, debug)
         self._publish_judge_markers(obstacle, result, debug)
         self.get_logger().info("vlm_movability: JudgeObstacle %s '%s' pushable=%s "
-                               "votes %d/%d (%.1fs) %s" % (
+                               "action=%s votes %d/%d (%.1fs) %s" % (
                                    result["verdict"], result["label"], result["pushable"],
+                                   result["action"],
                                    result["votes_movable"], result["votes_n"],
                                    result["latency_s"], result["detail"]))
         msg = self._JudgeObstacle.Result()
