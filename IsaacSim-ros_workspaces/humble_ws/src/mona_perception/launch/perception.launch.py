@@ -92,6 +92,10 @@ def _launch_setup(context):
     trigger = LaunchConfiguration("trigger").perform(context)
     if trigger not in ("periodic", "on_demand"):
         raise RuntimeError("trigger must be 'periodic' or 'on_demand', got %r" % trigger)
+    judge_backend = LaunchConfiguration("judge_backend").perform(context)
+    if judge_backend not in ("ollama", "logit"):
+        raise RuntimeError(
+            "judge_backend must be 'ollama' or 'logit', got %r" % judge_backend)
     x, y, z, qx, qy, qz, qw = d["tf"]
 
     vlm_params = {
@@ -118,6 +122,8 @@ def _launch_setup(context):
         "detector_url": LaunchConfiguration("detector_url"),
         "trigger": trigger,
         "sam_url": LaunchConfiguration("sam_url"),
+        "judge_backend": judge_backend,
+        "judge_url": LaunchConfiguration("judge_url"),
         # Segmentation and push-size thresholds are deliberately NOT repeated
         # here: tuned values live in the node next to the reasoning for them;
         # override from the command line when experimenting.
@@ -197,5 +203,9 @@ def generate_launch_description():
                               description="periodic | on_demand"),
         DeclareLaunchArgument("sam_url", default_value="http://127.0.0.1:8091",
                               description="SAM segmentation server (on_demand)"),
+        DeclareLaunchArgument("judge_backend", default_value="ollama",
+                              description="ollama | logit (on_demand judge)"),
+        DeclareLaunchArgument("judge_url", default_value="http://127.0.0.1:8092",
+                              description="logit judge server (judge_backend:=logit)"),
         OpaqueFunction(function=_launch_setup),
     ])
