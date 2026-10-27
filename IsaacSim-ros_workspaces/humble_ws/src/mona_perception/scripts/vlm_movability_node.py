@@ -466,6 +466,21 @@ def _mask_valid(mask, depth, min_r, max_r):
     return ys, xs, depth[ys, xs].astype(np.float32)
 
 
+def _clip_to_face(mask, face_cam, intr, sx, margin):
+    """``mask`` (RGB grid) with every column outside the face's lateral extent
+    (+- ``margin`` m, projected through the depth intrinsics ``intr`` and scaled
+    by ``sx``) cleared. The lidar cluster already separates touching objects."""
+    fx, _, cx, _ = intr
+    us = [(fx * (x + d) / z + cx) * sx for x, _, z in face_cam if z > 0
+          for d in (-margin, margin)]
+    if not us:
+        return mask
+    out = np.zeros_like(mask)
+    u0, u1 = max(int(np.floor(min(us))), 0), min(int(np.ceil(max(us))) + 1, mask.shape[1])
+    out[:, u0:u1] = mask[:, u0:u1]
+    return out
+
+
 def _near_face(ys, xs, z, face_z, tol):
     """The (ys, xs, z) pixels whose depth is within ``tol`` of the face distance."""
     keep = np.abs(z - face_z) <= tol
@@ -783,6 +798,7 @@ class VlmMovability(Node):
         # Max |depth at a prompt - face distance| for a SAM point prompt to be kept.
         self.prompt_depth_tol = self.declare_parameter("prompt_depth_tol", 0.15).value
         self.mask_depth_tol = self.declare_parameter("mask_depth_tol", 0.3).value
+        self.face_clip_margin = self.declare_parameter("face_clip_margin", 0.1).value
         self.mask_min_px = int(self.declare_parameter("mask_min_px", 50).value)
         self.judge_frame_timeout = self.declare_parameter("judge_frame_timeout", 5.0).value
         # logit (default): Qwen3.5 two-word probability from judge_server (a failure
@@ -1681,6 +1697,8 @@ class VlmMovability(Node):
             raise _JudgeFail(V_ERROR, "sam: %s: %s" % (type(exc).__name__, exc))
         if not masks:
             raise _JudgeFail(V_ERROR, "sam returned no masks")
+        # s36i: one SAM mask held the box and the forklift beside it at the same depth
+        masks = [_clip_to_face(m, face_cam, intr, sx, self.face_clip_margin) for m in masks]
         face_z = float(np.mean([p[2] for p in face_cam]))
         pick = _select_mask(masks, scores, depth, face_z, self.mask_depth_tol,
                             self.min_range, self.max_range, self.mask_min_px)

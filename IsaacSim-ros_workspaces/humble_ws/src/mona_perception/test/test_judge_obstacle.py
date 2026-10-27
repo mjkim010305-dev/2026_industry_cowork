@@ -21,7 +21,7 @@ import vlm_movability_node as vm  # noqa: E402
 from vlm_movability_node import (  # noqa: E402
     VlmMovability, _JudgeFail, _apply_transform, _assemble_verdict, _build_prompts,
     _choose_action,
-    _face_samples, _floor_from_face, _judge_marker_spec, _judge_verdict, _mask_bbox, _mask_highlight, _mask_size, _near_face,
+    _face_samples, _floor_from_face, _judge_marker_spec, _judge_verdict, _mask_bbox, _mask_highlight, _mask_size, _near_face, _clip_to_face,
     _mask_valid, _project_to_pixel, _region_box, _select_mask, _valid_points,
 )
 
@@ -182,6 +182,20 @@ def test_mask_highlight_dims_outside_keeps_inside():
     assert (out[40, 50:100] == (255, 0, 255)).all(axis=1).any()   # contour drawn
 
 
+def test_clip_to_face_drops_the_touching_neighbour():
+    # s36i: one mask = box (face x -0.3..0.3 m at 2 m) + forklift beside it (x 0.3..1.2 m)
+    intr = (100.0, 100.0, 80.0, 60.0)                 # depth grid fx, fy, cx, cy
+    mask = np.zeros((120, 320), bool)                  # RGB grid = 2x the depth width
+    mask[40:80, :] = True
+    face = [(-0.3, 0.0, 2.0), (0.0, 0.0, 2.0), (0.3, 0.0, 2.0)]
+    out = _clip_to_face(mask, face, intr, 2.0, 0.1)
+    cols = np.nonzero(out.any(axis=0))[0]
+    # u_depth = 100 * x / 2 + 80 for x in [-0.4, 0.4] -> 60..100 -> RGB 120..200
+    assert cols.min() == 120 and cols.max() == 200
+    assert (out[40:80, 120:201]).all() and not out[:, :120].any() and not out[:, 201:].any()
+    assert _clip_to_face(mask, [], intr, 2.0, 0.1) is mask   # no face: unchanged
+
+
 def test_mask_size_ignores_background_pixels_behind_the_face():
     # s36h: mask-edge pixels on the rack behind inflated the box size; only pixels
     # within tol of the face distance count
@@ -317,6 +331,7 @@ def _bare_node():
     n.prompt_heights = [0.2, 0.3]
     n.prompt_depth_tol = 0.15
     n.mask_depth_tol, n.mask_min_px = 0.3, 50
+    n.face_clip_margin = 0.1
     n.highlight_dim, n.jpeg_quality = 0.45, 85
     n.push_max_height, n.push_max_width = 0.7, 1.2
     n.movable_vote_ratio, n.judge_k = 0.6, 1
