@@ -59,6 +59,26 @@ def test_p_from_lp():
     assert J.p_from_lp(-1e9, 0.0) == 0.0
 
 
+def test_p_from_lp_rejects_non_finite():
+    for la, lb in ((float('nan'), -1.0), (-1.0, float('nan')), (float('inf'), float('inf'))):
+        try:
+            J.p_from_lp(la, lb)
+        except ValueError:
+            continue
+        raise AssertionError((la, lb))
+
+
+def test_bad_request_is_distinct_from_engine_value_error():
+    assert issubclass(J.BadRequest, ValueError)
+    assert not isinstance(ValueError('engine'), J.BadRequest)
+    try:
+        J.parse_request([])
+    except J.BadRequest:
+        pass
+    else:
+        raise AssertionError
+
+
 def test_combine():
     r = J.combine(0.8, 0.4)
     assert math.isclose(r['p'], 0.6) and r['p_ab'] == 0.8 and r['p_ba'] == 0.4
@@ -174,6 +194,7 @@ def gpu_smoke(model_dir):
         '            (cardboard box, empty crate, small carton, cone, bin)\n'
         '- fixed   : heavy machinery, vehicles, or fixed structure\n'
         '            (forklift, pallet jack, loaded pallet, rack, wall, pillar)\n'
+        '\n'
         'Answer with exactly one word: {A} or {B}.')}
     yn = 'Answer with exactly one word: {A} or {B}.'
     five = [movable] + [{'id': f'q{i}', 'options': ['yes', 'no'], 'text': t + '\n' + yn} for i, t in enumerate((
