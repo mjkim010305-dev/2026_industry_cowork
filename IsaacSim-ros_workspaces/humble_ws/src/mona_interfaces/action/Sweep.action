@@ -1,0 +1,68 @@
+# ============================================================
+# Sweep.action
+# Navigation ↔ Manipulation 연동용 ROS2 Action 인터페이스
+#
+# 목적:
+# - Navigation이 이 Action을 호출하면 Manipulation이 sweep 동작을 실행한다.
+# - sweep 실행 중에는 현재 단계를 Feedback(state)으로 전달한다.
+# - sweep 종료 후에는 최종 결과를 Result(result_code)로 반환한다.
+#
+# ------------------------------------------------------------
+# 통신 흐름
+#
+# Navigation
+#    ↓ Action Goal 전송
+# Manipulation Action Server
+#    ↓
+# obstacle_clear_sequence.py all 실행
+#    ↓
+# 실행 중 state Feedback 전송
+#    ↓
+# 최종 result_code 반환
+#
+# ------------------------------------------------------------
+# Feedback state 값 약속
+#
+# 주요 state:
+# REAR_PLACE
+# P_REAR_PRE_SWEEP
+# P_PRE_SWEEP
+# APPROACH_CONTACT
+# SWEEP_AFTER_CONTACT
+# RETREAT
+# REAR_REPICK
+# SEQUENCE_COMPLETE
+#
+# 예외/실패 state:
+# FAILED
+# SAFETY_STOP
+# SEQUENCE_FAILED
+#
+# ------------------------------------------------------------
+# Result result_code 값 약속
+#
+# SUCCESS
+#   - 전체 obstacle clear sequence 정상 완료
+#
+# STALL
+#   - 전류/관절 추종 오차 등에 의해 임시 안전 컷오프 발생
+#
+# ERROR
+#   - stall 이외의 실행 실패
+#
+# ============================================================
+
+
+# Goal
+# Action 호출 자체가 실행 요청이므로 별도 Goal 데이터 없음
+---
+
+# Result
+# 값: SUCCESS / STALL / ERROR
+string result_code
+
+---
+
+# Feedback
+# obstacle_clear_sequence.py가 발행하는 현재 실행 단계
+string state
