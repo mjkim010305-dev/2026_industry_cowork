@@ -15,5 +15,12 @@ uint32 votes_n          # number of VLM votes taken (k)
 uint32 votes_movable    # number of votes that said movable
 float32 latency_s       # wall time from goal acceptance to result [s]
 string detail           # reason or error string
+# What the robot should do about it (S36 rule in the server, from verdict + mask size):
+string PUSH=PUSH
+string SWEEP=SWEEP
+string DETOUR=DETOUR
+string action           # PUSH | SWEEP | DETOUR (DETOUR for every non-MOVABLE verdict)
+float32 width_m         # mask width from depth [m] (0 if no mask)
+float32 height_m        # mask height from depth [m] (0 if no mask)
 ---
 # Feedback (none)
