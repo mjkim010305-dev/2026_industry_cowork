@@ -17,7 +17,7 @@ from pytest import approx
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 
 from path_obstacle_monitor import (  # noqa: E402
-    costmap_cells_to_map, static_mask, find_path_obstacle, mark_mask,
+    costmap_cells_to_map, static_mask, find_path_obstacle, mark_mask, gap_closed_cells,
 )
 
 RES = 0.05
@@ -167,3 +167,34 @@ def test_10_mark_exclusion():
     keep = ~mark_mask(cxy, marks, MARGIN)
     assert find_path_obstacle(ij[keep], cxy[keep], np.array(PATH_X), ROBOT, CORRIDOR,
                               TRIGGER, RES) is None
+
+
+def _row(x0, x1, y, step=0.05):
+    return np.array([[x, y] for x in np.arange(x0, x1 + 1e-9, step)])
+
+
+def test_11_gap_closing_chain():
+    marks = [(0.0, 0.0, 0.4)]                       # covers x, y in [-0.2, 0.2]
+    # single-cell-thick fragments 0.1 m long with 0.3 m gaps: x 0.5-0.6, 0.9-1.0 (the first
+    # is 0.3 m from the mark)
+    frag = np.vstack([_row(0.5, 0.6, 0.0), _row(0.9, 1.0, 0.0)])
+    far = _row(0.0, 0.1, 1.0)                        # 0.8 m from everything
+    cells = np.vstack([frag, far])
+    ext, kept = gap_closed_cells(cells, marks, RES, 0.44)
+    assert kept[:len(frag)].all() and not kept[len(frag):].any()
+    for gx in (0.35, 0.75):                                  # mid-gap cells filled
+        assert np.any(np.hypot(ext[:, 0] - gx, ext[:, 1]) < 0.03)
+    assert not np.any(mark_mask(ext, marks, 0.0))
+    assert not np.any(ext[:, 1] > 0.5)
+
+
+def test_12_no_outward_growth_and_no_marks():
+    marks = [(0.0, 0.0, 0.4)]
+    cells = _row(0.5, 1.5, 0.0)
+    ext, kept = gap_closed_cells(cells, marks, RES, 0.44)
+    assert kept.all()
+    far_side = ext[:, 0] > 0.8                            # beyond the mark's fan of segments
+    assert np.all(np.abs(ext[far_side, 1]) <= RES)        # not 0.2 m to the side
+    assert ext[:, 0].max() <= 1.5 + RES + 1e-9
+    ext, kept = gap_closed_cells(cells, [], RES, 0.44)
+    assert len(ext) == 0 and not kept.any()

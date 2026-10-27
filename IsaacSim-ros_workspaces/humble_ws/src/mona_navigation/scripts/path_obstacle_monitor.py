@@ -8,12 +8,16 @@ Per cycle (5 Hz):
      their centers in the map frame (TF map <- costmap frame)
   2. drop every cell within static_margin of an occupied /map cell
      and every cell inside a /mona/obstacle_marks/list square (already detoured)
-  3. cluster the rest (8-connected)
-  4. look only at the path from the robot to trigger_dist ahead; a cluster is
+  3. gap merge ("a gap the robot can't pass is blocked"): a remaining cell that
+     is connected to a mark through gaps <= merge_gap joins that mark; it is not
+     a trigger, and the cells that fill the gaps go out on
+     /mona/obstacle_marks/extend (std_msgs/String JSON) for obstacle_marks
+  4. cluster the rest (8-connected)
+  5. look only at the path from the robot to trigger_dist ahead; a cluster is
      "on the path" if one of its cells is within corridor_half of that
      polyline (not before its start, not beyond its end); the one with the
      smallest along-path distance wins
-  5. fit the visible front face of the winner (PCA of the cell centers)
+  6. fit the visible front face of the winner (PCA of the cell centers)
 
 and publishes mona_interfaces/PathObstacle on /mona/path_obstacle, all
 geometry in the map frame. Only the face the lidar saw is observed; the depth
@@ -81,6 +85,78 @@ def mark_mask(xy, marks, margin):
         half = side / 2.0 + margin + 1e-9
         out |= (np.abs(xy[:, 0] - mx) <= half) & (np.abs(xy[:, 1] - my) <= half)
     return out
+
+
+def _shift(g, di, dj):
+    """g moved by (di, dj) cells (+x, +y), False fill."""
+    out = np.zeros_like(g)
+    h, w = g.shape
+    out[max(dj, 0):h + min(dj, 0), max(di, 0):w + min(di, 0)] = \
+        g[max(-dj, 0):h + min(-dj, 0), max(-di, 0):w + min(-di, 0)]
+    return out
+
+
+def gap_closed_cells(cells_xy, marks, resolution, merge_gap):
+    """Close gaps <= merge_gap between static-free lethal cells and the marks.
+    Local map-frame grid; marks [(x, y, side)] are filled squares. Cells within
+    r = merge_gap / 2 are dilated, 8-connected components of that are the groups
+    "<= merge_gap apart"; groups holding a mark cell are kept and gap-filled: every
+    pair of occupied cells <= merge_gap apart is joined by a straight segment.
+    Returns (extend Nx2: closed cell centers outside every mark square,
+    in_kept bool per input cell: it belongs to a kept group)."""
+    cells_xy = np.asarray(cells_xy, dtype=float).reshape(-1, 2)
+    in_kept = np.zeros(len(cells_xy), dtype=bool)
+    empty = np.zeros((0, 2))
+    if len(cells_xy) == 0 or not marks:
+        return empty, in_kept
+    lo = cells_xy.min(axis=0) - merge_gap
+    hi = cells_xy.max(axis=0) + merge_gap
+    near = [(mx, my, sd) for mx, my, sd in marks
+            if lo[0] <= mx + sd / 2 and mx - sd / 2 <= hi[0]
+            and lo[1] <= my + sd / 2 and my - sd / 2 <= hi[1]]
+    if not near:
+        return empty, in_kept
+    rad = int(math.ceil(merge_gap / 2.0 / resolution))
+    origin = lo - (rad + 2) * resolution
+    w, h = (np.ceil((hi - lo) / resolution).astype(int) + 2 * (rad + 2) + 1)
+
+    def centers(n, o):
+        return o + (np.arange(n) + 0.5) * resolution
+
+    cx, cy = centers(w, origin[0]), centers(h, origin[1])
+    mark_grid = np.zeros((h, w), dtype=bool)
+    for mx, my, sd in near:
+        half = sd / 2.0 + 1e-9
+        mark_grid |= ((np.abs(cx - mx) <= half)[None, :] & (np.abs(cy - my) <= half)[:, None])
+    ij = np.floor((cells_xy - origin) / resolution).astype(int)
+    occ = mark_grid.copy()
+    occ[ij[:, 1], ij[:, 0]] = True
+
+    offs = [(di, dj) for di in range(-rad, rad + 1) for dj in range(-rad, rad + 1)
+            if math.hypot(di, dj) * resolution <= merge_gap / 2.0 + 1e-9]
+    dil = np.zeros_like(occ)
+    for di, dj in offs:
+        dil |= _shift(occ, di, dj)
+    jj, ii = np.nonzero(dil)
+    labels = np.full(dil.shape, -1, dtype=int)
+    labels[jj, ii] = cluster_cells(np.stack([ii, jj], axis=1))
+    kept_labels = np.unique(labels[mark_grid])
+    kept = np.isin(labels, kept_labels[kept_labels >= 0]) & dil
+    occ &= kept
+    fill = occ.copy()
+    reach = int(merge_gap / resolution + 1e-9)
+    for dj in range(reach + 1):
+        for di in range(-reach, reach + 1):
+            steps = max(abs(di), abs(dj))
+            if (dj == 0 and di <= 0) or math.hypot(di, dj) * resolution > merge_gap + 1e-9:
+                continue
+            sj, si = np.nonzero(occ & _shift(occ, -di, -dj))   # occ at s and at s + (di, dj)
+            for k in range(1, steps):
+                fill[sj + round(k * dj / steps), si + round(k * di / steps)] = True
+    closed = fill & ~mark_grid
+    in_kept = kept[ij[:, 1], ij[:, 0]]
+    yy, xx = np.nonzero(closed)
+    return np.stack([cx[xx], cy[yy]], axis=1), in_kept
 
 
 def cluster_cells(ij):
@@ -261,6 +337,7 @@ def main(args=None):
             self.corridor_half = self.declare_parameter("corridor_half", 0.27).value
             self.trigger_dist = self.declare_parameter("trigger_dist", 2.5).value
             self.lethal = self.declare_parameter("lethal", 254).value
+            self.merge_gap = self.declare_parameter("merge_gap", 0.44).value  # 2 x robot radius
             self.plan_timeout = self.declare_parameter("plan_timeout", 3.0).value
             self.map_frame = self.declare_parameter("map_frame", "map").value
             self.base_frame = self.declare_parameter("base_frame", "base_link").value
@@ -283,6 +360,7 @@ def main(args=None):
             self.create_subscription(String, "/mona/obstacle_marks/list", self._on_marks, 1)
             self.pub = self.create_publisher(PathObstacle, "/mona/path_obstacle", 1)
             self.pub_marker = self.create_publisher(Marker, "/mona/path_obstacle/marker", 1)
+            self.pub_extend = self.create_publisher(String, "/mona/obstacle_marks/extend", 1)
             self.create_timer(0.2, self._tick)
 
         def _on_costmap(self, msg):
@@ -330,6 +408,13 @@ def main(args=None):
             keep = ~static_mask(xy, occupied, map_res, map_origin, self.static_margin)
             if self.marks:
                 keep &= ~mark_mask(xy, self.marks, self.static_margin)
+                ext, in_kept = gap_closed_cells(xy[keep], self.marks, meta.resolution,
+                                                self.merge_gap)
+                keep[np.nonzero(keep)[0][in_kept]] = False
+                if len(ext):
+                    self.pub_extend.publish(String(data=json.dumps(
+                        {"frame_id": self.map_frame, "res": meta.resolution,
+                         "cells": np.round(ext, 3).tolist()}, separators=(",", ":"))))
             path = np.array([[p.pose.position.x, p.pose.position.y] for p in self.plan.poses])
             return find_path_obstacle(ij[keep], xy[keep], path, robot[:2],
                                       self.corridor_half, self.trigger_dist,

@@ -9,6 +9,12 @@ ttl_s, and all of them are cleared when a NavigateToPose goal ends
 (/navigate_to_pose/_action/status: a goal id not yet seen terminal reaching
 SUCCEEDED / CANCELED / ABORTED).
 
+/mona/obstacle_marks/extend (std_msgs/String JSON from path_obstacle_monitor:
+{"frame_id", "res", "cells": [[x, y], ...]}) adds one res-sized mark per new grid
+cell (gap fill between a mark and the fragments of the same obstacle); known
+cells are not refreshed, so their TTL counts from the first add. The costmap
+layer clamps side to >= 0.1 (+ padding); accepted.
+
 Publishes /mona/obstacle_marks/list (std_msgs/String, 1 Hz and on every change)
 in the flat JSON that MovableObstacleLayer parses; path_obstacle_monitor reads
 the same list to ignore marked obstacles.
@@ -29,6 +35,21 @@ def make_mark(centroid, normal, width_m, now):
     return {"x": float(centroid[0]) - float(normal[0]) * side / 2.0,
             "y": float(centroid[1]) - float(normal[1]) * side / 2.0,
             "side": side, "t": float(now)}
+
+
+def merge_extend(marks, cells, res, now):
+    """Append a res-sized mark (with grid key) for every cell [x, y] whose
+    key (round(x / res), round(y / res)) is not a mark yet. Returns the number added."""
+    keys = {m["key"] for m in marks if "key" in m}
+    added = 0
+    for x, y in cells:
+        key = (round(x / res), round(y / res))
+        if key not in keys:
+            keys.add(key)
+            marks.append({"x": float(x), "y": float(y), "side": float(res),
+                          "t": float(now), "key": key})
+            added += 1
+    return added
 
 
 def split_expired(marks, now, ttl):
@@ -72,6 +93,7 @@ def main(args=None):
             self.create_subscription(PathObstacle, "/mona/obstacle_marks/add", self._on_add, 10)
             self.create_subscription(GoalStatusArray, "/navigate_to_pose/_action/status",
                                      self._on_status, 10)
+            self.create_subscription(String, "/mona/obstacle_marks/extend", self._on_extend, 10)
             self.pub = self.create_publisher(String, "/mona/obstacle_marks/list", 1)
             self.create_timer(1.0, self._tick)
 
@@ -91,6 +113,17 @@ def main(args=None):
                 f"add mark ({m['x']:.2f}, {m['y']:.2f}) side {m['side']:.2f}; "
                 f"{len(self.marks)} marks")
             self._publish()
+
+        def _on_extend(self, msg):
+            try:
+                d = json.loads(msg.data)
+                n = merge_extend(self.marks, d["cells"], float(d["res"]), self._now())
+            except (ValueError, KeyError, TypeError):
+                self.get_logger().warn("bad obstacle_marks extend", throttle_duration_sec=5.0)
+                return
+            if n:
+                self.get_logger().info(f"extend {n} cells; {len(self.marks)} marks")
+                self._publish()
 
         def _on_status(self, msg):
             statuses = [(bytes(s.goal_info.goal_id.uuid).hex(), s.status)
