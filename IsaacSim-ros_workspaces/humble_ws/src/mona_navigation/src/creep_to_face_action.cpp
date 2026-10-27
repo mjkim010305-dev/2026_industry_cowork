@@ -57,11 +57,14 @@ BT::NodeStatus CreepToFaceAction::onStart()
   getInput("global_frame", global_frame_);
   rotate_only_ = false;
   getInput("rotate_only", rotate_only_);
+  max_travel_ = 0.0;
+  getInput("max_travel", max_travel_);
 
   if (!target.header.frame_id.empty() && target.header.frame_id != global_frame_) {
     RCLCPP_ERROR(
       node_->get_logger(), "CreepToFace: target frame \"%s\" != global_frame \"%s\"",
       target.header.frame_id.c_str(), global_frame_.c_str());
+    setOutput("result", std::string("TF_ERROR"));
     return BT::NodeStatus::FAILURE;
   }
   target_x_ = target.pose.position.x;
@@ -81,6 +84,7 @@ BT::NodeStatus CreepToFaceAction::onStart()
       odom_topic_, rclcpp::SensorDataQoS(),
       [this](nav_msgs::msg::Odometry::ConstSharedPtr m) {
         odom_speed_ = std::hypot(m->twist.twist.linear.x, m->twist.twist.linear.y);
+        travel_.update(m->pose.pose.position.x, m->pose.pose.position.y);
       },
       opts);
   }
@@ -89,6 +93,8 @@ BT::NodeStatus CreepToFaceAction::onStart()
   start_s_ = node_->now().seconds();
   last_cmd_v_ = 0.0;
   odom_speed_ = 0.0;
+  tf_failing_ = false;
+  travel_.reset();
   stall_.reset();
   return BT::NodeStatus::RUNNING;
 }
@@ -99,7 +105,7 @@ BT::NodeStatus CreepToFaceAction::onRunning()
   const double now_s = node_->now().seconds();
 
   if (now_s - start_s_ > timeout_) {
-    return fail("timeout");
+    return fail("timeout", tf_failing_ ? "TF_ERROR" : "TIMEOUT");
   }
 
   double x, y, yaw;
@@ -108,7 +114,9 @@ BT::NodeStatus CreepToFaceAction::onRunning()
     x = tf.transform.translation.x;
     y = tf.transform.translation.y;
     yaw = detail::yaw_from_quat(tf.transform.rotation);
+    tf_failing_ = false;
   } catch (const tf2::TransformException & e) {
+    tf_failing_ = true;
     RCLCPP_WARN_THROTTLE(
       node_->get_logger(), *node_->get_clock(), 2000, "CreepToFace: TF %s", e.what());
     stop();
@@ -119,12 +127,11 @@ BT::NodeStatus CreepToFaceAction::onRunning()
   if (phase_ == Phase::ROTATE) {
     if (std::fabs(detail::wrap_angle(target_yaw_ - yaw)) < yaw_tol_) {
       if (rotate_only_) {
-        stop();
-        RCLCPP_INFO(node_->get_logger(), "CreepToFace: rotated to target heading");
-        return BT::NodeStatus::SUCCESS;
+        return succeed("rotated to target heading");
       }
       phase_ = Phase::DRIVE;
       stall_.reset();
+      travel_.reset();
     } else {
       cmd.angular.z = detail::rotate_cmd(yaw, target_yaw_);
       last_cmd_v_ = 0.0;
@@ -134,13 +141,15 @@ BT::NodeStatus CreepToFaceAction::onRunning()
   }
 
   if (detail::along_remaining(x, y, target_x_, target_y_, target_yaw_) <= 0.0) {
-    stop();
-    RCLCPP_INFO(node_->get_logger(), "CreepToFace: reached face");
-    return BT::NodeStatus::SUCCESS;
+    return succeed("reached face");
+  }
+
+  if (max_travel_ > 0.0 && travel_.total >= max_travel_) {
+    return succeed("max_travel reached");
   }
 
   if (stall_.update(now_s, last_cmd_v_, odom_speed_, stall_ratio_, stall_time_)) {
-    return fail("stalled (blocked)");
+    return fail("stalled (blocked)", "STALLED");
   }
 
   cmd.linear.x = speed_;
@@ -164,9 +173,18 @@ void CreepToFaceAction::stop()
   }
 }
 
-BT::NodeStatus CreepToFaceAction::fail(const char * reason)
+BT::NodeStatus CreepToFaceAction::succeed(const char * msg)
 {
   stop();
+  RCLCPP_INFO(node_->get_logger(), "CreepToFace: %s", msg);
+  setOutput("result", std::string("REACHED"));
+  return BT::NodeStatus::SUCCESS;
+}
+
+BT::NodeStatus CreepToFaceAction::fail(const char * reason, const char * result)
+{
+  stop();
+  setOutput("result", std::string(result));
   RCLCPP_WARN(node_->get_logger(), "CreepToFace: FAILURE, %s", reason);
   return BT::NodeStatus::FAILURE;
 }

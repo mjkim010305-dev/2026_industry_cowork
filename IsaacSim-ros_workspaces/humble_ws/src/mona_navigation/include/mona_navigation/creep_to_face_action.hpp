@@ -25,6 +25,7 @@
 #include "geometry_msgs/msg/twist.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "rclcpp/rclcpp.hpp"
+#include "mona_navigation/push_geometry.hpp"
 #include "tf2_ros/buffer.h"
 
 namespace mona_navigation
@@ -134,6 +135,8 @@ public:
       BT::InputPort<std::string>("base_frame", "base_footprint", "Robot base frame"),
       BT::InputPort<std::string>("global_frame", "map", "Frame of the target"),
       BT::InputPort<bool>("rotate_only", false, "SUCCESS after the rotate phase (only the target heading is used)"),
+      BT::InputPort<double>("max_travel", 0.0, "DRIVE phase: SUCCESS (REACHED) after this odom distance [m]; 0 = off"),
+      BT::OutputPort<std::string>("result", "REACHED / STALLED / TIMEOUT / TF_ERROR"),
     };
   }
 
@@ -145,7 +148,8 @@ private:
   enum class Phase { ROTATE, DRIVE };
 
   void stop();
-  BT::NodeStatus fail(const char * reason);
+  BT::NodeStatus fail(const char * reason, const char * result);
+  BT::NodeStatus succeed(const char * msg);
 
   rclcpp::Node::SharedPtr node_;
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
@@ -160,6 +164,9 @@ private:
   double speed_ {0.05}, timeout_ {30.0}, stall_time_ {2.0}, stall_ratio_ {0.3}, yaw_tol_ {0.05};
   std::string base_frame_, global_frame_;
   bool rotate_only_ {false};
+  double max_travel_ {0.0};
+  bool tf_failing_ {false};
+  detail::TravelTracker travel_;
   Phase phase_ {Phase::ROTATE};
   double start_s_ {0.0};
   double last_cmd_v_ {0.0};

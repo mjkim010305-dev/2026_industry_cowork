@@ -19,6 +19,9 @@ find_package(nav2_msgs REQUIRED)
 find_package(rclcpp_action REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(tf2_ros REQUIRED)
+find_package(control_msgs REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(trajectory_msgs REQUIRED)
 
 include_directories(include)
 
@@ -68,15 +71,30 @@ list(APPEND bt_plugin_libs mona_compute_sweep_poses_action_bt_node)
 
 add_library(mona_creep_to_face_action_bt_node SHARED src/creep_to_face_action.cpp)
 ament_target_dependencies(mona_creep_to_face_action_bt_node
-  rclcpp behaviortree_cpp_v3 geometry_msgs nav_msgs tf2_ros)
+  rclcpp behaviortree_cpp_v3 geometry_msgs nav_msgs tf2_ros trajectory_msgs)
 target_compile_definitions(mona_creep_to_face_action_bt_node PRIVATE BT_PLUGIN_EXPORT)
 list(APPEND bt_plugin_libs mona_creep_to_face_action_bt_node)
+
+add_library(mona_arm_pose_action_bt_node SHARED src/arm_pose_action.cpp)
+ament_target_dependencies(mona_arm_pose_action_bt_node
+  rclcpp rclcpp_action behaviortree_cpp_v3 control_msgs sensor_msgs trajectory_msgs nav_msgs)
+target_compile_definitions(mona_arm_pose_action_bt_node PRIVATE BT_PLUGIN_EXPORT)
+list(APPEND bt_plugin_libs mona_arm_pose_action_bt_node)
+
+add_library(mona_path_length_within_condition_bt_node SHARED src/path_length_within_condition.cpp)
+ament_target_dependencies(mona_path_length_within_condition_bt_node
+  rclcpp behaviortree_cpp_v3 nav_msgs trajectory_msgs)
+target_compile_definitions(mona_path_length_within_condition_bt_node PRIVATE BT_PLUGIN_EXPORT)
+list(APPEND bt_plugin_libs mona_path_length_within_condition_bt_node)
 
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   ament_add_gtest(test_sweep_geometry test/test_sweep_geometry.cpp)
   ament_target_dependencies(test_sweep_geometry
-    rclcpp behaviortree_cpp_v3 geometry_msgs nav_msgs tf2_ros mona_interfaces)
+    rclcpp behaviortree_cpp_v3 geometry_msgs nav_msgs tf2_ros mona_interfaces trajectory_msgs)
+  ament_add_gtest(test_push_geometry test/test_push_geometry.cpp)
+  ament_target_dependencies(test_push_geometry
+    rclcpp behaviortree_cpp_v3 geometry_msgs nav_msgs tf2_ros trajectory_msgs)
 endif()
 
 install(TARGETS mona_movable_obstacle_layer ${bt_plugin_libs}

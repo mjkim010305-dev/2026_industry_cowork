@@ -40,6 +40,8 @@ public:
         "obstacle", "The detected obstacle (map frame)"),
       BT::OutputPort<std::string>(
         "sweep_count", "obstacle.sweep_count as a string (\"0\", \"1\", ...)"),
+      BT::OutputPort<std::string>(
+        "push_count", "obstacle.push_count as a string (\"0\", \"1\", ...)"),
     };
   }
 
