@@ -155,7 +155,9 @@ MOVABLE_QUESTION = {
 }
 
 _WORD_TAIL = "Answer with exactly one word: {A} or {B}."
-_LETTER_TAIL = "A) {A}\nB) {B}\nAnswer with A or B."
+# "Answer with A or B." left 83 % of the mass on prose ("The ..."); this wording puts 0.999
+# on the two letter slots (GPU check 2026-10-27, Qwen3.5-4B, s36l box frame)
+_LETTER_TAIL = "A) {A}\nB) {B}\nAnswer with exactly one letter (A or B) and nothing else."
 
 # gate question (gate_threshold > 0): is the outlined region one whole object at all
 SINGLE_QUESTION = {

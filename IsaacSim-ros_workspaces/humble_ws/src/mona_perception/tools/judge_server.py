@@ -169,7 +169,7 @@ class JudgeEngine:
         from PIL import Image
         img = Image.new('RGB', (64, 64), (128, 128, 128))
         self.score(img, 'warm-up.\n', [{'id': 'w', 'text': 'Pick {A} or {B}.', 'options': ['yes', 'no']}])
-        self.score(img, 'warm-up.\n', [{'id': 'w', 'text': 'A) {A}\nB) {B}\nAnswer with A or B.',
+        self.score(img, 'warm-up.\n', [{'id': 'w', 'text': 'A) {A}\nB) {B}\nAnswer with exactly one letter (A or B) and nothing else.',
                                         'options': ['yes', 'no'], 'readout': 'letter'}])
 
     def decode(self, jpeg):
