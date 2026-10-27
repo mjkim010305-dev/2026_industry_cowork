@@ -16,8 +16,8 @@
     - action PUSH             -> Fallback PushOrDetour. Push: staging pose, plan + FollowPath, ArmPose
                                  P_PUSH, CreepToFace the face, CreepToFace 2 m beyond the face bounded
                                  by max_travel 1.0 (stall -> relabel FIXED), publish on
-                                 /mona/pushed_objects/add, ArmPose P_HOME, BackUp 1.2 m, clear the
-                                 local costmap, reset the verdict. Any failure -> PushFailedDetour
+                                 /mona/pushed_objects/add, ArmPose P_HOME, clear the local costmap
+                                 (blind-zone cells), BackUp 1.2 m, reset the verdict. Any failure -> PushFailedDetour
                                  (arm home, back up 1.0 m, MarkObstacle detour).
     - action SWEEP            -> Fallback SweepOrDetour. Sweep: ComputeSweepPoses, plan + FollowPath
                                  to the staging pose (general_goal_checker, CreepToFace corrects the rest), CreepToFace, SweepObstacle
@@ -175,8 +175,10 @@
                 </Fallback>
                 <MarkObstacle obstacle="{path_obstacle}" topic="/mona/pushed_objects/add"/>
                 <ArmPose positions="-0.0015339807878856412;-1.0461748973380072;1.0753205323078345;0.009203884727313847" move_time="2.0"/>
-                <BackUp backup_dist="1.2" backup_speed="0.1"/>
+                <!-- clear BEFORE backing up: the pre-push object cells sit inside the lidar blind zone
+                     (< 1.0 m) under the robot and never raytrace away, so BackUp saw a collision (s36g) -->
                 <ClearEntireCostmap name="ClearLocalCostmap-AfterPush" service_name="local_costmap/clear_entirely_local_costmap"/>
+                <BackUp backup_dist="1.2" backup_speed="0.1"/>
                 <SetBlackboard output_key="obstacle_verdict" value="none"/>
                 <SetBlackboard output_key="obstacle_action" value="none"/>
               </Sequence>
@@ -184,6 +186,7 @@
                 <ForceSuccess>
                   <ArmPose positions="-0.0015339807878856412;-1.0461748973380072;1.0753205323078345;0.009203884727313847" move_time="2.0"/>
                 </ForceSuccess>
+                <ClearEntireCostmap name="ClearLocalCostmap-PushFailed-BeforeBackUp" service_name="local_costmap/clear_entirely_local_costmap"/>
                 <BackUp backup_dist="1.0" backup_speed="0.1"/>
                 <ClearEntireCostmap name="ClearLocalCostmap-PushFailed" service_name="local_costmap/clear_entirely_local_costmap"/>
                 <MarkObstacle obstacle="{path_obstacle}"/>
