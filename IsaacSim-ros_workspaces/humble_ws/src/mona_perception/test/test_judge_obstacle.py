@@ -67,14 +67,39 @@ def test_build_prompts_two_heights_and_depth_validity():
     pts = _build_prompts([(2.0, 0.2), (2.0, 0.0), (2.0, -0.2)], [0.2, 0.3], T, Q, INTR,
                          depth, 1.0, 1.0, W, H, 0.25, 5.0)
     assert sorted(pts) == [[70, 75], [70, 80], [80, 75], [80, 80], [90, 75], [90, 80]]
-    # a hole in the depth at one prompt pixel drops just that prompt
+    # a hole at the lower prompt pixel drops that prompt and, with it, the upper
+    # one of the same sample (the upper needs the lower to have passed)
     depth[80, 70] = np.nan
     pts = _build_prompts([(2.0, 0.2)], [0.2, 0.3], T, Q, INTR, depth, 1.0, 1.0, W, H,
                          0.25, 5.0)
-    assert pts == [[70, 75]]
+    assert pts == []
+    # a hole at the upper pixel drops just the upper prompt
+    depth[80, 70], depth[75, 70] = 2.0, np.nan
+    pts = _build_prompts([(2.0, 0.2)], [0.2, 0.3], T, Q, INTR, depth, 1.0, 1.0, W, H,
+                         0.25, 5.0)
+    assert pts == [[70, 80]]
     # a face behind the camera yields nothing
     assert _build_prompts([(-1.0, 0.0)], [0.2], T, Q, INTR, depth, 1.0, 1.0, W, H,
                           0.25, 5.0) == []
+
+
+def test_build_prompts_drops_prompts_off_the_face_depth():
+    # face at 2.0 m; heights 0.2 -> v 80, 0.3 -> v 75 at u = 80
+    def run(depth):
+        return _build_prompts([(2.0, 0.0)], [0.2, 0.3], T, Q, INTR, depth, 1.0, 1.0,
+                              W, H, 0.25, 5.0, 0.15)
+    depth = np.full((H, W), 2.0, np.float32)
+    assert sorted(run(depth)) == [[80, 75], [80, 80]]          # on the face: kept
+    depth[:, :] = 2.4                                   # face + 0.4 behind: dropped
+    assert run(depth) == []
+    # upper prompt hits the background behind the object: only the lower stays
+    depth = np.full((H, W), 2.0, np.float32)
+    depth[75, 80] = 2.4
+    assert run(depth) == [[80, 80]]
+    # lower prompt off the face: the upper one is not kept either
+    depth = np.full((H, W), 2.0, np.float32)
+    depth[80, 80] = 2.4
+    assert run(depth) == []
 
 
 def test_face_samples():
@@ -270,6 +295,7 @@ def _bare_node():
     n.cluster_min_pts = 30                      # test depth grid is small
     n.region_margin, n.region_depth = 0.15, 1.0
     n.prompt_heights = [0.2, 0.3]
+    n.prompt_depth_tol = 0.15
     n.mask_depth_tol, n.mask_min_px = 0.3, 50
     n.highlight_dim, n.jpeg_quality = 0.45, 85
     n.push_max_height, n.push_max_width = 0.7, 1.2

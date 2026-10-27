@@ -410,21 +410,31 @@ def _face_samples(face_xy, start_xy, end_xy):
 
 
 def _build_prompts(samples_xy, heights, t, r, intr, depth, sx, sy, rgb_w, rgb_h,
-                   min_r, max_r):
+                   min_r, max_r, depth_tol=0.15):
     """SAM positive point prompts: each face sample at each height (map z),
-    moved into the camera frame by (t, r) and projected. Only points inside
-    the image whose depth pixel is valid are kept."""
+    moved into the camera frame by (t, r) and projected. A prompt is kept only if
+    it is inside the image, its depth pixel is valid and that depth is within
+    ``depth_tol`` of the face distance along the camera ray (the optical z of the
+    prompt point, the same distance ``_select_mask`` compares against), so a
+    prompt that lands on structure behind a small object is dropped. Per sample
+    the lowest height (the lidar plane) must pass first; the higher prompts are
+    kept only when it did and they pass themselves (they stay on the object)."""
     dh, dw = depth.shape[:2]
     out = []
     for x, y in samples_xy:
-        for h in heights:
-            px = _project_to_pixel(_apply_transform((x, y, h), t, r),
-                                   intr, sx, sy, rgb_w, rgb_h)
-            if px is None:
-                continue
-            d = depth[min(dh - 1, int(px[1] * dh / rgb_h)),
-                      min(dw - 1, int(px[0] * dw / rgb_w))]
-            if np.isfinite(d) and min_r < d < max_r:
+        low_ok = False
+        for i, h in enumerate(sorted(heights)):
+            p = _apply_transform((x, y, h), t, r)
+            px = _project_to_pixel(p, intr, sx, sy, rgb_w, rgb_h)
+            ok = False
+            if px is not None:
+                d = depth[min(dh - 1, int(px[1] * dh / rgb_h)),
+                          min(dw - 1, int(px[0] * dw / rgb_w))]
+                ok = bool(np.isfinite(d) and min_r < d < max_r
+                          and abs(float(d) - p[2]) <= depth_tol)
+            if i == 0:
+                low_ok = ok
+            if ok and low_ok:
                 out.append([px[0], px[1]])
     return out
 
@@ -763,7 +773,9 @@ class VlmMovability(Node):
             "prompt_heights", [0.15, 0.30]).value)
         self.region_margin = self.declare_parameter("region_margin", 0.15).value
         # Depth behind the face is unobservable to the lidar; this is a guess.
-        self.region_depth = self.declare_parameter("region_depth", 1.0).value
+        self.region_depth = self.declare_parameter("region_depth", 0.3).value
+        # Max |depth at a prompt - face distance| for a SAM point prompt to be kept.
+        self.prompt_depth_tol = self.declare_parameter("prompt_depth_tol", 0.15).value
         self.mask_depth_tol = self.declare_parameter("mask_depth_tol", 0.3).value
         self.mask_min_px = int(self.declare_parameter("mask_min_px", 50).value)
         self.judge_frame_timeout = self.declare_parameter("judge_frame_timeout", 5.0).value
@@ -1652,7 +1664,7 @@ class VlmMovability(Node):
                 self.cluster_min_pts, sx, sy)
         points = _build_prompts(face["samples"], self.prompt_heights, t, r, intr,
                                 depth, sx, sy, rgb_w, rgb_h,
-                                self.min_range, self.max_range)
+                                self.min_range, self.max_range, self.prompt_depth_tol)
         if not points and box is None:
             raise _JudgeFail(V_NO_CANDIDATE,
                              "no depth-valid prompt point and no depth region on the face")
