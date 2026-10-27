@@ -7,7 +7,9 @@
     - NO_CANDIDATE            -> no detour mark (face outside the FOV, or a lidar floor-hit phantom).
                                  First time per goal: ComputeSweepPoses look_pose, CreepToFace
                                  rotate_only (turn toward the obstacle), Wait 1.5 s (fresh
-                                 PathObstacle and camera frame), clear the local costmap, re-judge.
+                                 PathObstacle and camera frame), clear the local costmap, then set
+                                 no_candidate_retried=yes (last step, see the guard), re-judge.
+                                 PathObstacleDetected fires once per message stamp.
                                  Second time: MarkObstacle on /mona/ignored_objects/add; the monitor
                                  skips that obstacle for ignore_ttl (30 s) or until the goal ends.
     - action PUSH_RECHECK     -> after a push, the object is still on the path. Short detour

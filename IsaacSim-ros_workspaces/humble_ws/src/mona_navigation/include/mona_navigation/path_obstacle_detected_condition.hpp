@@ -8,6 +8,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "behaviortree_cpp_v3/condition_node.h"
 #include "mona_interfaces/msg/path_obstacle.hpp"
+#include "mona_navigation/costmap_geometry.hpp"
 
 namespace mona_navigation
 {
@@ -15,6 +16,8 @@ namespace mona_navigation
 /**
  * @brief SUCCESS iff the latest PathObstacle on `topic` has present == true and a
  * header stamp no older than `max_age`. The message is written to `obstacle`.
+ * Each message (header stamp) yields SUCCESS at most once: after a recovery the cached message
+ * must not re-trigger, so FAILURE is returned until a newer stamp arrives.
  * Geometry is computed by path_obstacle_monitor.py; this node only gates the tree.
  */
 class PathObstacleDetectedCondition : public BT::ConditionNode
@@ -56,6 +59,7 @@ private:
   std::mutex mutex_;
   mona_interfaces::msg::PathObstacle last_;
   bool received_ {false};
+  detail::StampGate gate_;
   double max_age_ {1.0};
 };
 

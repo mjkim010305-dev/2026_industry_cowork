@@ -53,6 +53,9 @@ BT::NodeStatus PathObstacleDetectedCondition::tick()
   if (age < 0.0 || age > max_age_) {
     return BT::NodeStatus::FAILURE;
   }
+  if (!gate_.accept(last_.header.stamp.sec, last_.header.stamp.nanosec)) {
+    return BT::NodeStatus::FAILURE;
+  }
   setOutput("obstacle", last_);
   setOutput("sweep_count", std::to_string(last_.sweep_count));
   setOutput("push_count", std::to_string(last_.push_count));

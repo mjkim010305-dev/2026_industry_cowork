@@ -101,6 +101,7 @@ install(TARGETS mona_movable_obstacle_layer ${bt_plugin_libs}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
+  ament_add_gtest(test_costmap_geometry test/test_costmap_geometry.cpp)
 install(DIRECTORY include/ DESTINATION include)
 install(DIRECTORY launch params bt DESTINATION share/${PROJECT_NAME})
 install(PROGRAMS scripts/path_obstacle_monitor.py scripts/obstacle_marks.py DESTINATION lib/${PROJECT_NAME})
