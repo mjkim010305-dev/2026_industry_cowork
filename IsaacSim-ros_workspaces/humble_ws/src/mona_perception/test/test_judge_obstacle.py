@@ -8,6 +8,7 @@ import base64
 import json
 import os
 import sys
+from contextlib import nullcontext
 from types import SimpleNamespace
 
 import cv2
@@ -19,6 +20,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 import vlm_movability_node as vm  # noqa: E402
 from vlm_movability_node import (  # noqa: E402
     VlmMovability, _JudgeFail, _apply_transform, _assemble_verdict, _build_prompts,
+    _choose_action,
     _face_samples, _floor_from_face, _judge_marker_spec, _judge_verdict, _mask_bbox, _mask_highlight, _mask_size,
     _mask_valid, _project_to_pixel, _region_box, _select_mask, _valid_points,
 )
@@ -202,6 +204,57 @@ def test_assemble_verdict_pushable_is_independent_of_verdict():
         ("FIXED", "forklift", True, 1, 0)
     r = _assemble_verdict([True], ["box"], 0.5, 0.9, 1, 0.6, 0.7, 1.2)
     assert (r["verdict"], r["pushable"]) == ("MOVABLE", False)
+
+
+# ---------------------------------------------------------------------------
+# action rule (S36)
+
+@pytest.mark.parametrize("verdict,w,h,pushable,expected", [
+    ("MOVABLE", 0.2, 0.24, False, "SWEEP"),       # height exactly at the band edge
+    ("MOVABLE", 0.2, 0.25, True, "DETOUR"),       # narrow but tall: do not touch
+    ("MOVABLE", 0.306, 0.1, True, "PUSH"),        # width exactly 0.306 is not swept
+    ("MOVABLE", 0.306, 0.1, False, "DETOUR"),
+    ("MOVABLE", 0.8, 0.5, True, "PUSH"),
+    ("MOVABLE", 0.8, 0.5, False, "DETOUR"),
+    ("FIXED", 0.2, 0.1, True, "DETOUR"),
+    ("NO_CANDIDATE", 0.0, 0.0, False, "DETOUR"),
+    ("ERROR", 0.0, 0.0, False, "DETOUR"),
+])
+def test_choose_action(verdict, w, h, pushable, expected):
+    assert _choose_action(verdict, w, h, pushable, 0.306, 0.24) == expected
+
+
+def _run_execute_judge(monkeypatch, result, debug, present=True):
+    node = _bare_node()
+    node.sweep_max_width, node.sweep_max_height = 0.306, 0.24
+    node._judge_mutex = nullcontext()
+    node._judge_busy = True
+    node._JudgeObstacle = SimpleNamespace(Result=SimpleNamespace)
+    node.get_logger = lambda: SimpleNamespace(info=lambda m: None, warn=lambda m: None)
+    monkeypatch.setattr(node, "_judge", lambda *a: (result, debug))
+    monkeypatch.setattr(node, "_publish_judge", lambda *a: None)
+    monkeypatch.setattr(node, "_publish_judge_markers", lambda *a: None)
+    goal = SimpleNamespace(
+        request=SimpleNamespace(obstacle=SimpleNamespace(
+            present=present, header=SimpleNamespace(frame_id="map"), face=[],
+            face_start=SimpleNamespace(x=0, y=0, z=0), face_end=SimpleNamespace(x=0, y=0, z=0))),
+        is_cancel_requested=False, succeed=lambda: None, canceled=lambda: None)
+    return node._execute_judge(goal)
+
+
+def test_execute_judge_result_carries_action_and_size(monkeypatch):
+    res = {"verdict": "MOVABLE", "label": "box", "pushable": True, "votes_n": 1,
+           "votes_movable": 1, "detail": ""}
+    msg = _run_execute_judge(monkeypatch, res, {"size": (0.2, 0.2)})
+    assert (msg.action, msg.width_m, msg.height_m) == ("SWEEP", pytest.approx(0.2), pytest.approx(0.2))
+    res = {"verdict": "MOVABLE", "label": "box", "pushable": True, "votes_n": 1,
+           "votes_movable": 1, "detail": ""}
+    assert _run_execute_judge(monkeypatch, res, {"size": (0.6, 0.5)}).action == "PUSH"
+
+
+def test_execute_judge_failure_is_detour_with_zero_size(monkeypatch):
+    msg = _run_execute_judge(monkeypatch, None, {}, present=False)
+    assert (msg.verdict, msg.action, msg.width_m, msg.height_m) == ("ERROR", "DETOUR", 0.0, 0.0)
 
 
 # ---------------------------------------------------------------------------
