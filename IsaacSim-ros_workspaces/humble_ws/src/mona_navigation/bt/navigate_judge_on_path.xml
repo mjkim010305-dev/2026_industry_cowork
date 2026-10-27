@@ -7,7 +7,7 @@
     - NO_CANDIDATE            -> clear the local costmap and re-judge once per goal.
     - action PUSH             -> named AlwaysFailure stub (goal ABORTED; implemented later).
     - action SWEEP            -> Fallback SweepOrDetour. Sweep: ComputeSweepPoses, plan + FollowPath
-                                 to the staging pose (return_goal_checker), CreepToFace, SweepObstacle
+                                 to the staging pose (general_goal_checker, CreepToFace corrects the rest), CreepToFace, SweepObstacle
                                  (/sweep), BackUp 1.0 m (lidar is blind < 1.0 m), clear the local
                                  costmap (stale cells inside the blind zone are never raytraced away),
                                  reset the verdict. If any step fails, SweepFailedDetour backs up
@@ -82,7 +82,7 @@
               <Sequence name="Sweep">
                 <ComputeSweepPoses obstacle="{path_obstacle}" staging_pose="{sweep_staging}" face_pose="{sweep_face}"/>
                 <ComputePathToPose goal="{sweep_staging}" path="{sweep_path}" planner_id="GridBased"/>
-                <FollowPath path="{sweep_path}" controller_id="FollowPath" goal_checker_id="return_goal_checker"/>
+                <FollowPath path="{sweep_path}" controller_id="FollowPath"/>
                 <CreepToFace target="{sweep_face}"/>
                 <SweepObstacle action_name="/sweep" result_code="{sweep_result}"/>
                 <BackUp backup_dist="1.0" backup_speed="0.1"/>
