@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 
 from path_obstacle_monitor import (  # noqa: E402
     costmap_cells_to_map, static_mask, find_path_obstacle, mark_mask, gap_merged_cells,
-    track_sweep, classify_tracked,
+    track_sweep, classify_tracked, add_ignored, prune_ignored, is_ignored,
 )
 
 RES = 0.05
@@ -271,3 +271,22 @@ def test_18_excluded_cluster_not_picked_farther_one_is():
 def test_19_msg_has_sweep_count():
     from mona_interfaces.msg import PathObstacle
     assert PathObstacle().sweep_count == 0
+
+
+def test_ignored_radius_inside_outside():
+    ig = []
+    e = add_ignored(ig, (1.0, 2.0), 0.1, 0.0)
+    assert e["radius"] == approx(0.30)          # max(0.05, 0.15) + 0.15
+    add_ignored(ig, (5.0, 0.0), 1.0, 0.0)       # radius 0.65
+    assert is_ignored(ig, (1.2, 2.1))
+    assert not is_ignored(ig, (1.4, 2.0))
+    assert is_ignored(ig, (5.0, 0.6))
+    assert not is_ignored([], (1.0, 2.0))
+
+
+def test_ignored_expiry():
+    ig = []
+    add_ignored(ig, (0.0, 0.0), 0.2, 0.0)
+    add_ignored(ig, (3.0, 0.0), 0.2, 20.0)
+    prune_ignored(ig, 31.0, 30.0)
+    assert len(ig) == 1 and not is_ignored(ig, (0.0, 0.0)) and is_ignored(ig, (3.0, 0.0))

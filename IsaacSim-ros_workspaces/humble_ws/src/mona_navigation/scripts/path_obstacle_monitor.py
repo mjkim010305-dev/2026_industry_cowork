@@ -31,6 +31,10 @@ and publishes mona_interfaces/PathObstacle on /mona/path_obstacle, all
 geometry in the map frame. Only the face the lidar saw is observed; the depth
 behind it is unknown (see the .msg). Marker for RViz: /mona/path_obstacle/marker.
 
+Ignore list (/mona/ignored_objects/add, param ignore_ttl, cleared when a goal ends): a
+cluster whose centroid lies within an entry's radius is skipped like a pushed-out object.
+The BT adds an obstacle there when the judge twice found no candidate (phantom / out of FOV).
+
 Pure functions come first so they test without rclpy (test_path_obstacle_monitor.py).
 """
 import json
@@ -278,6 +282,25 @@ def classify_tracked(tracked, centroid_xy, corridor_half, assoc_radius):
     return e, perp > corridor_half
 
 
+def add_ignored(ignored, centroid, width, now):
+    """Record an ignored obstacle (list of dicts, mutated): radius = max(width/2, 0.15) + 0.15."""
+    e = {"c": np.asarray(centroid, dtype=float), "radius": max(width / 2.0, 0.15) + 0.15,
+         "t": now}
+    ignored.append(e)
+    return e
+
+
+def prune_ignored(ignored, now, ttl):
+    """Drop entries older than ttl seconds (in place)."""
+    ignored[:] = [e for e in ignored if now - e["t"] <= ttl]
+
+
+def is_ignored(ignored, centroid_xy):
+    """True if the centroid lies within an ignored entry's radius."""
+    c = np.asarray(centroid_xy, dtype=float)
+    return any(float(np.hypot(*(c - e["c"]))) <= e["radius"] for e in ignored)
+
+
 def pick_on_path(labels, xy, path, corridor_half, exclude=()):
     """Cluster on the path with the smallest along distance (labels in exclude are
     never picked). Returns (label, along, lateral) or None. path is the trimmed polyline."""
@@ -396,6 +419,8 @@ def main(args=None):
             self.marks = []      # [(x, y, side)] from /mona/obstacle_marks/list
             self.static = None   # (occupied bool HxW, resolution, origin_xy)
             self.tracked = []    # swept objects of this goal (track_sweep entries)
+            self.ignored = []    # ignored obstacles (add_ignored entries)
+            self.ignore_ttl = self.declare_parameter("ignore_ttl", 30.0).value
             self.seen_terminal = set()
 
             self.tf_buffer = Buffer()
@@ -409,6 +434,8 @@ def main(args=None):
                            reliability=ReliabilityPolicy.RELIABLE))
             self.create_subscription(String, "/mona/obstacle_marks/list", self._on_marks, 1)
             self.create_subscription(PathObstacle, "/mona/swept_objects/add", self._on_swept, 10)
+            self.create_subscription(PathObstacle, "/mona/ignored_objects/add",
+                                     self._on_ignored, 10)
             self.create_subscription(GoalStatusArray, "/navigate_to_pose/_action/status",
                                      self._on_status, 10)
             self.pub = self.create_publisher(PathObstacle, "/mona/path_obstacle", 1)
@@ -438,14 +465,25 @@ def main(args=None):
             self.get_logger().info(
                 f"swept object at ({mid[0]:.2f}, {mid[1]:.2f}): sweep count {e['count']}")
 
+        def _on_ignored(self, msg):
+            add_ignored(self.ignored, (msg.centroid.x, msg.centroid.y), msg.width_m,
+                        time.monotonic())
+            self.get_logger().info(
+                f"ignoring obstacle at ({msg.centroid.x:.2f}, {msg.centroid.y:.2f}) "
+                f"for {self.ignore_ttl:.0f} s")
+
         def _on_status(self, msg):
             statuses = [(bytes(s.goal_info.goal_id.uuid).hex(), s.status)
                         for s in msg.status_list]
-            if goal_ended(statuses, self.seen_terminal) and self.tracked:
+            if goal_ended(statuses, self.seen_terminal) and (self.tracked or self.ignored):
                 self.tracked = []
-                self.get_logger().info("goal ended: swept-object tracking cleared")
+                self.ignored = []
+                self.get_logger().info("goal ended: swept-object tracking and ignore list cleared")
 
         def _skip(self, centroid):
+            prune_ignored(self.ignored, time.monotonic(), self.ignore_ttl)
+            if is_ignored(self.ignored, centroid):
+                return True
             e, outside = classify_tracked(self.tracked, centroid, self.corridor_half,
                                           self.assoc_radius)
             if e is not None and outside:

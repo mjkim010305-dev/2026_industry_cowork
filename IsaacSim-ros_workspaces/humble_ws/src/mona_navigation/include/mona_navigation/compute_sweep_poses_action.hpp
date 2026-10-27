@@ -30,7 +30,7 @@ namespace detail
 
 struct SweepPoses
 {
-  double staging_x, staging_y, face_x, face_y, yaw;
+  double staging_x, staging_y, face_x, face_y, yaw, mid_x, mid_y;
 };
 
 /// Staging/face poses from a PathObstacle face. nullopt if the normal is ~zero.
@@ -49,7 +49,7 @@ inline std::optional<SweepPoses> compute_sweep_poses(
   return SweepPoses{
     mx + ux * staging_dist, my + uy * staging_dist,
     mx + ux * face_dist, my + uy * face_dist,
-    std::atan2(-uy, -ux)};
+    std::atan2(-uy, -ux), mx, my};
 }
 
 inline geometry_msgs::msg::PoseStamped make_pose(
@@ -87,6 +87,8 @@ public:
       BT::InputPort<double>("face_dist", 0.15, "Creep target distance from the face [m]"),
       BT::OutputPort<geometry_msgs::msg::PoseStamped>("staging_pose", "Pose to navigate to"),
       BT::OutputPort<geometry_msgs::msg::PoseStamped>("face_pose", "Pose to creep to"),
+      BT::OutputPort<geometry_msgs::msg::PoseStamped>(
+        "look_pose", "Face mid, heading from robot to object (for CreepToFace rotate_only)"),
     };
   }
 };

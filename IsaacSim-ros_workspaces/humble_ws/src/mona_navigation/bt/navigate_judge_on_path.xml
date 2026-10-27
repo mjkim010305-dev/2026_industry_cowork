@@ -4,7 +4,12 @@
   verdict to the recovery slot of NavigateRecovery (the pipeline fails with obstacle_verdict
   and obstacle_action on the blackboard). RecoveryDispatch then picks:
     - verdict none            -> stock recoveries (clearing / spin / wait / backup).
-    - NO_CANDIDATE            -> clear the local costmap and re-judge once per goal.
+    - NO_CANDIDATE            -> no detour mark (face outside the FOV, or a lidar floor-hit phantom).
+                                 First time per goal: ComputeSweepPoses look_pose, CreepToFace
+                                 rotate_only (turn toward the obstacle), Wait 1.5 s (fresh
+                                 PathObstacle and camera frame), clear the local costmap, re-judge.
+                                 Second time: MarkObstacle on /mona/ignored_objects/add; the monitor
+                                 skips that obstacle for ignore_ttl (30 s) or until the goal ends.
     - action PUSH             -> named AlwaysFailure stub (goal ABORTED; implemented later).
     - action SWEEP            -> Fallback SweepOrDetour. Sweep: ComputeSweepPoses, plan + FollowPath
                                  to the staging pose (general_goal_checker, CreepToFace corrects the rest), CreepToFace, SweepObstacle
@@ -17,7 +22,7 @@
   PathObstacle.sweep_count (sweep_count port). 0 -> JudgeObstacle as usual; 1 -> sweep again
   without judging; >= 2 -> FIXED / DETOUR. A tracked object that was pushed out of its original
   approach corridor is ignored by the monitor, so it does not trigger at all.
-    - anything else (DETOUR, FIXED, ERROR, second NO_CANDIDATE)
+    - anything else (DETOUR, FIXED, ERROR)
                               -> MarkObstacle publishes a temporary global-costmap mark
                                  (obstacle_marks.py), wait for the 1 Hz global update, reset
                                  the verdict, and the retry replans around it.
@@ -86,13 +91,27 @@
             </ReactiveFallback>
           </BlackboardCheckString>
           <BlackboardCheckString name="NoCandidate" value_A="{obstacle_verdict}" value_B="NO_CANDIDATE" return_on_mismatch="FAILURE">
+            <Fallback name="NoCandidateFirstOrIgnore">
             <BlackboardCheckString name="NoCandidateFirstTime" value_A="{no_candidate_retried}" value_B="no" return_on_mismatch="FAILURE">
               <Sequence name="RejudgeOnce">
                 <SetBlackboard output_key="no_candidate_retried" value="yes"/>
+                <ForceSuccess>
+                  <Sequence name="TurnToObstacle">
+                    <ComputeSweepPoses obstacle="{path_obstacle}" look_pose="{look_pose}"/>
+                    <CreepToFace target="{look_pose}" rotate_only="true"/>
+                  </Sequence>
+                </ForceSuccess>
+                <Wait wait_duration="1.5"/>
                 <ClearEntireCostmap name="ClearLocalCostmap-Rejudge" service_name="local_costmap/clear_entirely_local_costmap"/>
                 <SetBlackboard output_key="obstacle_verdict" value="none"/>
               </Sequence>
             </BlackboardCheckString>
+              <Sequence name="IgnoreObstacle">
+                <MarkObstacle obstacle="{path_obstacle}" topic="/mona/ignored_objects/add"/>
+                <SetBlackboard output_key="obstacle_verdict" value="none"/>
+                <SetBlackboard output_key="obstacle_action" value="none"/>
+              </Sequence>
+            </Fallback>
           </BlackboardCheckString>
           <BlackboardCheckString name="IsPush" value_A="{obstacle_action}" value_B="PUSH" return_on_mismatch="FAILURE">
             <AlwaysFailure name="PushAction_NOT_IMPLEMENTED"/>
@@ -121,12 +140,15 @@
             </Fallback>
           </BlackboardCheckString>
           <Sequence name="Detour">
-            <Inverter name="NotPushOrSweep">
-              <Fallback name="PushOrSweep">
+            <Inverter name="NotPushSweepOrNoCandidate">
+              <Fallback name="PushSweepOrNoCandidate">
                 <BlackboardCheckString value_A="{obstacle_action}" value_B="PUSH" return_on_mismatch="FAILURE">
                   <AlwaysSuccess/>
                 </BlackboardCheckString>
                 <BlackboardCheckString value_A="{obstacle_action}" value_B="SWEEP" return_on_mismatch="FAILURE">
+                  <AlwaysSuccess/>
+                </BlackboardCheckString>
+                <BlackboardCheckString value_A="{obstacle_verdict}" value_B="NO_CANDIDATE" return_on_mismatch="FAILURE">
                   <AlwaysSuccess/>
                 </BlackboardCheckString>
               </Fallback>

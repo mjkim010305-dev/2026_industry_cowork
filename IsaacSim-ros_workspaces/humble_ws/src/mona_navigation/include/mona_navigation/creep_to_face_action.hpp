@@ -133,6 +133,7 @@ public:
       BT::InputPort<std::string>("odom_topic", "/odom", "Odometry topic"),
       BT::InputPort<std::string>("base_frame", "base_footprint", "Robot base frame"),
       BT::InputPort<std::string>("global_frame", "map", "Frame of the target"),
+      BT::InputPort<bool>("rotate_only", false, "SUCCESS after the rotate phase (only the target heading is used)"),
     };
   }
 
@@ -158,6 +159,7 @@ private:
   double target_x_ {0.0}, target_y_ {0.0}, target_yaw_ {0.0};
   double speed_ {0.05}, timeout_ {30.0}, stall_time_ {2.0}, stall_ratio_ {0.3}, yaw_tol_ {0.05};
   std::string base_frame_, global_frame_;
+  bool rotate_only_ {false};
   Phase phase_ {Phase::ROTATE};
   double start_s_ {0.0};
   double last_cmd_v_ {0.0};

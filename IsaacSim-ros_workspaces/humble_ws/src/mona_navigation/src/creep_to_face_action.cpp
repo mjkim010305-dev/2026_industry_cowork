@@ -55,6 +55,8 @@ BT::NodeStatus CreepToFaceAction::onStart()
   getInput("odom_topic", odom_topic);
   getInput("base_frame", base_frame_);
   getInput("global_frame", global_frame_);
+  rotate_only_ = false;
+  getInput("rotate_only", rotate_only_);
 
   if (!target.header.frame_id.empty() && target.header.frame_id != global_frame_) {
     RCLCPP_ERROR(
@@ -116,6 +118,11 @@ BT::NodeStatus CreepToFaceAction::onRunning()
   geometry_msgs::msg::Twist cmd;
   if (phase_ == Phase::ROTATE) {
     if (std::fabs(detail::wrap_angle(target_yaw_ - yaw)) < yaw_tol_) {
+      if (rotate_only_) {
+        stop();
+        RCLCPP_INFO(node_->get_logger(), "CreepToFace: rotated to target heading");
+        return BT::NodeStatus::SUCCESS;
+      }
       phase_ = Phase::DRIVE;
       stall_.reset();
     } else {

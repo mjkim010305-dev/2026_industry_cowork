@@ -34,6 +34,7 @@ BT::NodeStatus ComputeSweepPosesAction::tick()
   setOutput("staging_pose",
     detail::make_pose(poses->staging_x, poses->staging_y, poses->yaw, "map"));
   setOutput("face_pose", detail::make_pose(poses->face_x, poses->face_y, poses->yaw, "map"));
+  setOutput("look_pose", detail::make_pose(poses->mid_x, poses->mid_y, poses->yaw, "map"));
   return BT::NodeStatus::SUCCESS;
 }
 

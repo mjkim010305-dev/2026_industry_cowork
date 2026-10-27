@@ -43,6 +43,8 @@ TEST(SweepGeometry, PosesFacingObject)
   EXPECT_NEAR(p->face_x, 1.85, 1e-9);
   EXPECT_NEAR(p->staging_y, 0.0, 1e-9);
   EXPECT_NEAR(p->yaw, 0.0, 1e-9);
+  EXPECT_NEAR(p->mid_x, 2.0, 1e-9);  // look_pose position = face mid
+  EXPECT_NEAR(p->mid_y, 0.0, 1e-9);
 }
 
 TEST(SweepGeometry, PoseYawAndNormalization)
