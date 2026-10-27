@@ -941,12 +941,12 @@ def test_letter_readout_question_text(monkeypatch):
     result, _, cap = _run_logit(monkeypatch, _score(0.9), judge_readout="letter")
     q = cap["body"]["questions"][0]
     assert q["readout"] == "letter" and q["options"] == ["movable", "fixed"]
-    assert q["text"].endswith("\n\nA) {A}\nB) {B}\nAnswer with A or B.")
+    assert q["text"].endswith("\n\nA) {A}\nB) {B}\nAnswer with exactly one letter (A or B) and nothing else.")
     assert q["text"].startswith(vm.MOVABLE_QUESTION["text"].split("Answer with")[0])
     assert "readout" not in vm.MOVABLE_QUESTION and "one word" in vm.MOVABLE_QUESTION["text"]
     _, _, cap = _run_logit(monkeypatch, _score_d(0.9, 2.0, single={"p": 0.9}),
                            judge_readout="letter", gate_threshold=0.5)
-    assert cap["body"]["questions"][1]["text"].endswith("Answer with A or B.")
+    assert cap["body"]["questions"][1]["text"].endswith("Answer with exactly one letter (A or B) and nothing else.")
 
 
 def test_marker_unsure_amber():
