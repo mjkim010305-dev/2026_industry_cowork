@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 import vlm_movability_node as vm  # noqa: E402
 from vlm_movability_node import (  # noqa: E402
     VlmMovability, _JudgeFail, _apply_transform, _assemble_verdict, _build_prompts,
-    _face_samples, _floor_from_face, _judge_verdict, _mask_highlight, _mask_size,
+    _face_samples, _floor_from_face, _judge_verdict, _mask_bbox, _mask_highlight, _mask_size,
     _mask_valid, _project_to_pixel, _region_box, _select_mask, _valid_points,
 )
 
@@ -221,6 +221,8 @@ def _bare_node():
     n.push_max_height, n.push_max_width = 0.7, 1.2
     n.movable_vote_ratio, n.judge_k = 0.6, 1
     n.sam_url, n.sam_timeout = "http://sam.invalid:8091", 1.0
+    n.judge_backend, n.judge_url = "ollama", "http://judge.invalid:8092"
+    n.movable_threshold, n.request_timeout = 0.5, 7.0
     return n
 
 
@@ -387,3 +389,119 @@ def test_call_sam_request_and_response(monkeypatch):
     assert body["points"] == [[5, 6], [7, 8]] and body["point_labels"] == [1, 1]
     assert body["box"] == [1, 2, 3, 4] and body["image_jpeg_b64"]
     assert scores == [0.7] and masks[0].dtype == bool and masks[0].sum() == 100
+
+
+# ---------------------------------------------------------------------------
+# judge_backend=logit
+
+def test_mask_bbox_hand_computed():
+    m = np.zeros((H, W), bool)
+    m[10:20, 30:50] = True
+    m[12, 60] = True
+    assert _mask_bbox(m) == (30, 10, 61, 20)
+
+
+def _fake_judge(monkeypatch, out=None, exc=None):
+    captured = {}
+
+    class Resp:
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *e):
+            return False
+
+        def read(self):
+            return json.dumps(out).encode()
+
+    def fake_urlopen(req, timeout):
+        captured["url"], captured["timeout"] = req.full_url, timeout
+        captured["body"] = json.loads(req.data)
+        if exc:
+            raise exc
+        return Resp()
+    monkeypatch.setattr(vm.urllib.request, "urlopen", fake_urlopen)
+    return captured
+
+
+def _score(p):
+    return {"results": {"movable": {"p": p, "p_ab": p, "p_ba": p}},
+            "latency_s": 0.4, "model": "Qwen3.5-4B"}
+
+
+def _logit_node(monkeypatch):
+    node = _bare_node()
+    node.judge_backend = "logit"
+
+    def no_ask(image, cand):
+        raise AssertionError("ollama _ask_image must not be called")
+    monkeypatch.setattr(node, "_ask_image", no_ask)
+    return node
+
+
+@pytest.mark.parametrize("p,verdict", [(0.7, "MOVABLE"), (0.3, "FIXED"), (0.5, "MOVABLE")])
+def test_logit_threshold(monkeypatch, p, verdict):
+    bgr, depth, mask, face = _scene()
+    node = _logit_node(monkeypatch)
+    monkeypatch.setattr(node, "_call_sam", lambda b, pts, box: ([mask], [0.9]))
+    cap = _fake_judge(monkeypatch, _score(p))
+    result, debug = node._judge(face, _frames(bgr, depth))
+    assert result["verdict"] == verdict
+    assert debug["p_movable"] == [p] and debug["model"] == "Qwen3.5-4B"
+    assert "p_movable=%.2f" % p in result["detail"]
+    assert cap["url"] == "http://judge.invalid:8092/score" and cap["timeout"] == 7.0
+
+
+def test_logit_request_uses_mask_bbox_rectangle(monkeypatch):
+    bgr, depth, mask, face = _scene()
+    bgr = np.full((H, W, 3), 200, np.uint8)
+    node = _logit_node(monkeypatch)
+    # L-shaped mask: the bbox corner (65, 89) is outside the mask but inside its bbox
+    mask = mask.copy()
+    mask[65:90, 65:80] = False
+    mask[65:90, 80:95] = True
+    mask[65:70, 65:80] = True
+    monkeypatch.setattr(node, "_call_sam", lambda b, pts, box: ([mask], [0.9]))
+    cap = _fake_judge(monkeypatch, _score(0.9))
+    node._judge(face, _frames(bgr, depth))
+    body = cap["body"]
+    assert body["context"] == vm.JUDGE_CONTEXT
+    assert body["questions"] == [vm.MOVABLE_QUESTION]
+    assert body["questions"][0]["options"] == ["movable", "fixed"]
+    img = cv2.imdecode(np.frombuffer(base64.b64decode(body["image_jpeg_b64"]), np.uint8),
+                       cv2.IMREAD_COLOR)
+    assert abs(int(img[80, 75, 0]) - 200) < 25       # outside mask, inside bbox: original
+    assert abs(int(img[2, 2, 0]) - 90) < 25          # outside bbox: dimmed (200*0.45)
+
+
+def test_logit_failure_is_error_without_ollama_fallback(monkeypatch):
+    bgr, depth, mask, face = _scene()
+    node = _logit_node(monkeypatch)
+    monkeypatch.setattr(node, "_call_sam", lambda b, pts, box: ([mask], [0.9]))
+    _fake_judge(monkeypatch, exc=OSError("connection refused"))
+    result, _ = node._judge(face, _frames(bgr, depth))
+    assert result["verdict"] == "ERROR" and "judge" in result["detail"]
+    assert "connection refused" in result["detail"]
+
+
+def test_logit_response_without_question_id_is_error(monkeypatch):
+    bgr, depth, mask, face = _scene()
+    node = _logit_node(monkeypatch)
+    monkeypatch.setattr(node, "_call_sam", lambda b, pts, box: ([mask], [0.9]))
+    _fake_judge(monkeypatch, {"results": {}, "latency_s": 0.1, "model": "Qwen3.5-4B"})
+    result, _ = node._judge(face, _frames(bgr, depth))
+    assert result["verdict"] == "ERROR" and "judge" in result["detail"]
+
+
+def test_logit_result_keys_match_ollama(monkeypatch):
+    bgr, depth, mask, face = _scene()
+    node = _bare_node()
+    _patch(monkeypatch, node, [mask])
+    ollama, ollama_debug = node._judge(face, _frames(bgr, depth))
+    assert "p_movable" not in ollama_debug
+    node = _logit_node(monkeypatch)
+    monkeypatch.setattr(node, "_call_sam", lambda b, pts, box: ([mask], [0.9]))
+    _fake_judge(monkeypatch, _score(0.8))
+    logit, debug = node._judge(face, _frames(bgr, depth))
+    assert set(logit) == set(ollama)                  # Result setattr stays safe
+    assert debug["p_movable"] == [0.8]
