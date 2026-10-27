@@ -23,6 +23,9 @@
 #include "behaviortree_cpp_v3/action_node.h"
 #include "geometry_msgs/msg/pose_stamped.hpp"
 #include "geometry_msgs/msg/twist.hpp"
+#include "mona_interfaces/msg/path_obstacle.hpp"
+#include "mona_navigation/costmap_geometry.hpp"
+#include "nav2_msgs/msg/costmap.hpp"
 #include "nav_msgs/msg/odometry.hpp"
 #include "rclcpp/rclcpp.hpp"
 #include "mona_navigation/push_geometry.hpp"
@@ -136,7 +139,17 @@ public:
       BT::InputPort<std::string>("global_frame", "map", "Frame of the target"),
       BT::InputPort<bool>("rotate_only", false, "SUCCESS after the rotate phase (only the target heading is used)"),
       BT::InputPort<double>("max_travel", 0.0, "DRIVE phase: SUCCESS (REACHED) after this odom distance [m]; 0 = off"),
-      BT::OutputPort<std::string>("result", "REACHED / STALLED / TIMEOUT / TF_ERROR"),
+      BT::InputPort<bool>("side_clear_stop", false, "DRIVE: SUCCESS (SIDE_CLEAR) once a free window opens beside the robot"),
+      BT::InputPort<mona_interfaces::msg::PathObstacle>("obstacle", "Object being pushed (width_m -> half width); optional"),
+      BT::InputPort<double>("side_width", 0.5, "Side window width [m] (robot 0.44 + margin)"),
+      BT::InputPort<double>("side_margin", 0.05, "Gap between the object edge and the side window [m]"),
+      BT::InputPort<double>("side_along_min", 0.2, "Side window start ahead of the base [m]"),
+      BT::InputPort<double>("side_along_len", 1.3, "Side window length along x [m]"),
+      BT::InputPort<std::string>("costmap_topic", "/local_costmap/costmap_raw", "nav2_msgs/Costmap for side_clear_stop"),
+      BT::InputPort<int>("lethal", 254, "Cell value counted as lethal"),
+      BT::InputPort<double>("min_travel", 0.0, "side_clear_stop is checked only after this odom distance in DRIVE [m]"),
+      BT::OutputPort<std::string>("result", "REACHED / SIDE_CLEAR / STALLED / TIMEOUT / TF_ERROR"),
+      BT::OutputPort<std::string>("clear_side", "left / right when result is SIDE_CLEAR"),
     };
   }
 
@@ -150,6 +163,7 @@ private:
   void stop();
   BT::NodeStatus fail(const char * reason, const char * result);
   BT::NodeStatus succeed(const char * msg);
+  bool sideClear(const char *& side);
 
   rclcpp::Node::SharedPtr node_;
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
@@ -166,6 +180,15 @@ private:
   bool rotate_only_ {false};
   double max_travel_ {0.0};
   bool tf_failing_ {false};
+  // side_clear_stop
+  bool side_clear_stop_ {false};
+  double side_half_ {0.35}, side_width_ {0.5}, side_margin_ {0.05};
+  double side_along_min_ {0.2}, side_along_len_ {1.3}, min_travel_ {0.0};
+  int lethal_ {254};
+  std::string costmap_topic_;
+  rclcpp::Subscription<nav2_msgs::msg::Costmap>::SharedPtr costmap_sub_;
+  detail::CostGrid grid_;
+  std::string grid_frame_;
   detail::TravelTracker travel_;
   Phase phase_ {Phase::ROTATE};
   double start_s_ {0.0};

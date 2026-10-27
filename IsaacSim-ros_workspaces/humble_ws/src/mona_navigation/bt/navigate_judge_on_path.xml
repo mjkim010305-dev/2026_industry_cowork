@@ -17,7 +17,9 @@
                                  otherwise re-arm action PUSH and fall through to IsPush (push again).
     - action PUSH             -> Fallback PushOrDetour. Push: staging pose, plan + FollowPath, ArmPose
                                  P_PUSH, CreepToFace the face, CreepToFace 2 m beyond the face bounded
-                                 by max_travel 1.0 (stall -> relabel FIXED), publish on
+                                 by max_travel 2.5 and side_clear_stop (stops with
+                                 SIDE_CLEAR as soon as a robot-wide free window opens left or right of the
+                                 object in the local costmap; stall -> relabel FIXED), publish on
                                  /mona/pushed_objects/add, ArmPose P_HOME, clear the local costmap
                                  (blind-zone cells), BackUp 1.2 m, reset the verdict. Any failure -> PushFailedDetour
                                  (marks the object only on a stall; BackUps get time_allowance 20 s:
@@ -174,7 +176,7 @@
                 <ArmPose positions="-0.0107379;-0.1043107;0.4747671;-0.4172428" move_time="2.0"/>
                 <CreepToFace target="{push_face}" speed="0.05"/>
                 <Fallback name="PushForward">
-                  <CreepToFace target="{push_target}" speed="0.08" max_travel="1.0" stall_time="1.5" stall_ratio="0.3" timeout="40" result="{push_result}"/>
+                  <CreepToFace target="{push_target}" speed="0.08" max_travel="2.5" side_clear_stop="true" obstacle="{path_obstacle}" stall_time="1.5" stall_ratio="0.3" timeout="40" result="{push_result}"/>
                   <Sequence name="PushStalled">
                     <BlackboardCheckString value_A="{push_result}" value_B="STALLED" return_on_mismatch="FAILURE">
                       <SetBlackboard output_key="obstacle_verdict" value="FIXED"/>

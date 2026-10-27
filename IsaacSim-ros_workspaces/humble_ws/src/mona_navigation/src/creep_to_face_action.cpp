@@ -15,6 +15,7 @@
 #include "mona_navigation/creep_to_face_action.hpp"
 
 #include <chrono>
+#include <utility>
 
 #include "tf2/exceptions.h"
 
@@ -89,6 +90,44 @@ BT::NodeStatus CreepToFaceAction::onStart()
       opts);
   }
 
+  side_clear_stop_ = false;
+  getInput("side_clear_stop", side_clear_stop_);
+  if (side_clear_stop_) {
+    side_half_ = 0.35;
+    mona_interfaces::msg::PathObstacle obs;
+    if (getInput("obstacle", obs) && obs.width_m > 0.0f) {
+      side_half_ = 0.5 * obs.width_m;
+    }
+    getInput("side_width", side_width_);
+    getInput("side_margin", side_margin_);
+    getInput("side_along_min", side_along_min_);
+    getInput("side_along_len", side_along_len_);
+    getInput("lethal", lethal_);
+    getInput("min_travel", min_travel_);
+    std::string costmap_topic = "/local_costmap/costmap_raw";
+    getInput("costmap_topic", costmap_topic);
+    if (!costmap_sub_ || costmap_topic != costmap_topic_) {
+      costmap_topic_ = costmap_topic;
+      grid_ = detail::CostGrid();
+      rclcpp::SubscriptionOptions opts;
+      opts.callback_group = callback_group_;
+      costmap_sub_ = node_->create_subscription<nav2_msgs::msg::Costmap>(
+        costmap_topic_, rclcpp::QoS(1).reliable(),
+        [this](nav2_msgs::msg::Costmap::ConstSharedPtr m) {
+          detail::CostGrid g;
+          g.size_x = static_cast<int>(m->metadata.size_x);
+          g.size_y = static_cast<int>(m->metadata.size_y);
+          g.res = m->metadata.resolution;
+          g.ox = m->metadata.origin.position.x;
+          g.oy = m->metadata.origin.position.y;
+          g.data = m->data;
+          grid_ = std::move(g);
+          grid_frame_ = m->header.frame_id;
+        },
+        opts);
+    }
+  }
+
   phase_ = Phase::ROTATE;
   start_s_ = node_->now().seconds();
   last_cmd_v_ = 0.0;
@@ -148,6 +187,15 @@ BT::NodeStatus CreepToFaceAction::onRunning()
     return succeed("max_travel reached");
   }
 
+  const char * side = nullptr;
+  if (side_clear_stop_ && travel_.total >= min_travel_ && sideClear(side)) {
+    stop();
+    RCLCPP_INFO(node_->get_logger(), "CreepToFace: side clear (%s)", side);
+    setOutput("result", std::string("SIDE_CLEAR"));
+    setOutput("clear_side", std::string(side));
+    return BT::NodeStatus::SUCCESS;
+  }
+
   if (stall_.update(now_s, last_cmd_v_, odom_speed_, stall_ratio_, stall_time_)) {
     return fail("stalled (blocked)", "STALLED");
   }
@@ -158,6 +206,33 @@ BT::NodeStatus CreepToFaceAction::onRunning()
   last_cmd_v_ = speed_;
   pub_->publish(cmd);
   return BT::NodeStatus::RUNNING;
+}
+
+bool CreepToFaceAction::sideClear(const char *& side)
+{
+  // Callbacks run in callback_group_executor_.spin_all (onRunning); no concurrent access.
+  if (!grid_.valid()) {
+    return false;
+  }
+  detail::Pose2D robot;
+  try {
+    const auto tf = tf_buffer_->lookupTransform(grid_frame_, base_frame_, tf2::TimePointZero);
+    robot.x = tf.transform.translation.x;
+    robot.y = tf.transform.translation.y;
+    robot.yaw = detail::yaw_from_quat(tf.transform.rotation);
+  } catch (const tf2::TransformException & e) {
+    RCLCPP_WARN_THROTTLE(
+      node_->get_logger(), *node_->get_clock(), 2000, "CreepToFace: costmap TF %s", e.what());
+    return false;
+  }
+  switch (detail::side_clear(
+      grid_, robot, side_half_, side_margin_, side_width_, side_along_min_, side_along_len_,
+      static_cast<uint8_t>(lethal_)))
+  {
+    case detail::Side::LEFT: side = "left"; return true;
+    case detail::Side::RIGHT: side = "right"; return true;
+    default: return false;
+  }
 }
 
 void CreepToFaceAction::onHalted()
