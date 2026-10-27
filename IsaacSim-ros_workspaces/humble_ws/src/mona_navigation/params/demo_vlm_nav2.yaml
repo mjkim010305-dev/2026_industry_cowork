@@ -220,7 +220,13 @@ controller_server:
       max_vel_x: 0.26
       max_vel_y: 0.0
       max_vel_theta: 1.0
-      min_speed_xy: 0.0
+      # was 0.0 -> 0.01: DWB drops a sample only if |v| < min_speed_xy AND
+      # |w| < min_speed_theta (XYThetaIterator::isValidSpeed), so 0.0 left the
+      # min_speed_theta below unenforced and DWB finished goals with 0.05-0.16
+      # rad/s in-place turns the base cannot make (S32 runs j4/j5: stuck at
+      # -0.20 rad yaw error for 60 s; set to 0.01 live -> 0.47 rad/s, goal
+      # reached in 2 s with yaw_goal_tolerance still 0.05).
+      min_speed_xy: 0.01
       max_speed_xy: 0.26
       # was 0.0 -> 0.4 (demo_vlm): the simulated base does not turn on small
       # angular commands. Measured with the stack stopped and /cmd_vel driven
