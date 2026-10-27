@@ -4,9 +4,14 @@
     python judge_server.py [--model <HF dir>] [--host 0.0.0.0] [--port 8092]
 
 Endpoints
-  GET  /health -> {"status": "ok", "model": <model dir name>}
-  POST /score  -> request  {image_jpeg_b64, context, questions:[{id, text ("{A}" and "{B}" slots), options:[positive, negative]}]}
-                  response {results:{id:{p, p_ab, p_ba}}, latency_s, model}
+  GET  /health -> {"status": "ok", "model": <name>, "adapter": <LoRA dir or null>}
+  POST /score  -> request  {image_jpeg_b64, context, questions:[{id, text ("{A}" and "{B}" slots), options:[positive, negative],
+                            readout: "word" (default) | "letter"}]}
+                  response {results:{id:{p, p_ab, p_ba, d, d_ab, d_ba, slot_mass, readout}}, latency_s, model, adapter}
+readout "word": the option words fill {A}/{B}; P(option) = mass of the option's first tokens. readout "letter": the text
+lists "A) {A}\nB) {B}"-style option words in both orders and the answer is read from the slot letters A / B.
+d = log-odds(pos) - log-odds(neg) per order (d_ab, d_ba), d their mean; slot_mass = mean over orders of the full-vocab
+probability mass on the two read-out candidates (low = the model wants to say something else).
 p = P(positive) = sigmoid(logprob(first option token) difference) at the next token after the prompt;
 p_ab / p_ba are the two option orders ("{A} or {B}" = positive/negative, then negative/positive), p is their mean.
 The image + context prefix is encoded once per request; each question/order only runs its suffix on a copy of the
@@ -56,6 +61,48 @@ def combine(p_ab, p_ba):
     return {'p': (p_ab + p_ba) / 2, 'p_ab': p_ab, 'p_ba': p_ba}
 
 
+READOUTS = ('word', 'letter')
+
+
+def letter_ids(vocab):
+    """Token ids of the slot letters: {'A': [id('A'), id('ĠA')], 'B': [...]}. Missing -> ValueError (startup assert)."""
+    out = {}
+    for L in ('A', 'B'):
+        missing = [k for k in (L, 'Ġ' + L) if k not in vocab]
+        if missing:
+            raise ValueError(f'tokenizer vocab lacks letter tokens {missing}')
+        out[L] = [vocab[L], vocab['Ġ' + L]]
+    return out
+
+
+def order_result(order, readout, lp_a, lp_b):
+    """One prompt order -> {p, d, mass}.
+    word:   lp_a / lp_b = log-prob of the positive / negative option words.
+    letter: lp_a / lp_b = log-prob of slot letter A / B; ab puts pos in slot A, ba puts pos in slot B."""
+    if readout == 'letter' and order == 'ba':
+        lp_pos, lp_neg = lp_b, lp_a
+    else:
+        lp_pos, lp_neg = lp_a, lp_b
+    d = lp_pos - lp_neg
+    return {'p': p_from_lp(lp_pos, lp_neg), 'd': d, 'mass': math.exp(min(0.0, max(lp_pos, lp_neg) +
+                                                                       math.log1p(math.exp(-abs(d)))))}
+
+
+def combine_orders(r_ab, r_ba, readout='word'):
+    return {'p': (r_ab['p'] + r_ba['p']) / 2, 'p_ab': r_ab['p'], 'p_ba': r_ba['p'],
+            'd': (r_ab['d'] + r_ba['d']) / 2, 'd_ab': r_ab['d'], 'd_ba': r_ba['d'],
+            'slot_mass': (r_ab['mass'] + r_ba['mass']) / 2, 'readout': readout}
+
+
+def pad_suffixes(rows, pad_id):
+    """Right-pad token-id lists to the max length -> (padded rows, last real index per row). Causal attention makes
+    right padding harmless as long as logits are read at the last real token."""
+    if not rows or any(len(r) == 0 for r in rows):
+        raise ValueError('every suffix needs at least one token')
+    width = max(len(r) for r in rows)
+    return [list(r) + [pad_id] * (width - len(r)) for r in rows], [len(r) - 1 for r in rows]
+
+
 def parse_request(req):
     """Validate a request dict -> (jpeg bytes, context, questions). Raises BadRequest."""
     if not isinstance(req, dict):
@@ -82,6 +129,8 @@ def parse_request(req):
         opts = q.get('options')
         if not isinstance(opts, list) or len(opts) != 2 or not all(isinstance(o, str) and o.strip() for o in opts):
             raise BadRequest(f"question {q['id']}: options must be two non-empty strings")
+        if q.get('readout', 'word') not in READOUTS:
+            raise BadRequest(f"question {q['id']}: readout must be one of {READOUTS}")
     return raw, context, qs
 
 
@@ -92,25 +141,36 @@ def variants(context, questions):
     for q in questions:
         pos, neg = q['options']
         for order, a, b in (('ab', pos, neg), ('ba', neg, pos)):
-            out.append({'id': q['id'], 'order': order, 'pos': pos, 'neg': neg,
+            out.append({'id': q['id'], 'order': order, 'pos': pos, 'neg': neg, 'readout': q.get('readout', 'word'),
                         'text': context + q['text'].replace('{A}', a).replace('{B}', b)})
     return out
 
 
 class JudgeEngine:
-    def __init__(self, model_dir=DEFAULT_MODEL):
+    def __init__(self, model_dir=DEFAULT_MODEL, suffix_mode='sequential', adapter=None):
         import torch
         from transformers import AutoModelForImageTextToText, AutoProcessor
+        if suffix_mode not in ('sequential', 'batched'):
+            raise ValueError(f'suffix_mode {suffix_mode!r}')
+        self.suffix_mode = suffix_mode
+        self.adapter = adapter
         self.name = os.path.basename(os.path.normpath(model_dir))
         self.proc = AutoProcessor.from_pretrained(model_dir)
         self.model = AutoModelForImageTextToText.from_pretrained(
             model_dir, dtype=torch.bfloat16, device_map='cuda').eval()
+        if adapter:
+            from peft import PeftModel  # lazy: only needed (and installed) when serving a LoRA
+            self.model = PeftModel.from_pretrained(self.model, adapter).merge_and_unload().eval()
+            self.name = f'{self.name}+{os.path.basename(os.path.normpath(adapter))}'
         self.vocab = self.proc.tokenizer.get_vocab()
+        self.letters = letter_ids(self.vocab)
         self.opt_ids = {}
         # warm-up: first forward is slow (kernels); keep that out of the first real request
         from PIL import Image
-        self.score(Image.new('RGB', (64, 64), (128, 128, 128)),
-                   'warm-up.\n', [{'id': 'w', 'text': 'Pick {A} or {B}.', 'options': ['yes', 'no']}])
+        img = Image.new('RGB', (64, 64), (128, 128, 128))
+        self.score(img, 'warm-up.\n', [{'id': 'w', 'text': 'Pick {A} or {B}.', 'options': ['yes', 'no']}])
+        self.score(img, 'warm-up.\n', [{'id': 'w', 'text': 'A) {A}\nB) {B}\nAnswer with A or B.',
+                                        'options': ['yes', 'no'], 'readout': 'letter'}])
 
     def decode(self, jpeg):
         import io
@@ -134,14 +194,38 @@ class JudgeEngine:
         return self.proc.apply_chat_template(msgs, tokenize=False, add_generation_prompt=True,
                                              enable_thinking=False)
 
-    def score(self, img, context, questions):
-        """-> {id: {p, p_ab, p_ba}}. Raises BadRequest (bad options/prompt) or RuntimeError (prefix mismatch)."""
+    def _suffix_logprobs(self, kv, n, sufs):
+        """Log-softmax at the last real token of each suffix (list of 1-D id tensors) -> list of 1-D float tensors."""
         import copy
+        import torch
+        if self.suffix_mode == 'sequential':
+            out = []
+            for suf in sufs:
+                with torch.no_grad():
+                    lg = self.model(input_ids=suf[None], past_key_values=copy.deepcopy(kv),
+                                    cache_position=torch.arange(n, n + len(suf), device='cuda'),
+                                    use_cache=True).logits[0, -1]
+                out.append(torch.log_softmax(lg.float(), -1))
+            return out
+        rows, last = pad_suffixes([s.tolist() for s in sufs], 0)
+        ids = torch.tensor(rows, dtype=torch.long, device='cuda')
+        with torch.no_grad():
+            # expand the 1-row prefix cache to B rows (index_select copies KV and conv/recurrent states); no
+            # attention_mask: with one the 3-D rope positions come from a cumsum from 0, wrong after a prefix.
+            kv.reorder_cache(torch.zeros(len(rows), dtype=torch.long, device='cuda'))
+            lg = self.model(input_ids=ids, past_key_values=kv,
+                            cache_position=torch.arange(n, n + ids.shape[1], device='cuda'), use_cache=True).logits
+        return [torch.log_softmax(lg[i, j].float(), -1) for i, j in enumerate(last)]
+
+    def score(self, img, context, questions):
+        """-> {id: {p, p_ab, p_ba, d, d_ab, d_ba, slot_mass, readout}}. Raises BadRequest (bad options/prompt) or
+        RuntimeError (prefix mismatch)."""
         import torch
         vs = variants(context, questions)
         for v in vs:
-            self._ids(v['pos'], v['neg'])
-            self._ids(v['neg'], v['pos'])
+            if v['readout'] == 'word':
+                self._ids(v['pos'], v['neg'])
+                self._ids(v['neg'], v['pos'])
         texts = [self._chat(v['text']) for v in vs]
         pre = os.path.commonprefix(texts)
         pre = pre[:pre.rfind('\n') + 1]  # cut on a line boundary -> stable tokenisation
@@ -151,28 +235,32 @@ class JudgeEngine:
         n = pin['input_ids'].shape[1]
         with torch.no_grad():
             kv = self.model(**pin, use_cache=True).past_key_values
-        p = {}
-        for v, t in zip(vs, texts):
+        sufs = []
+        for t in texts:
             ids = self.proc(text=[t], images=[img], return_tensors='pt')['input_ids'][0]
             if not torch.equal(ids[:n].cpu(), pin['input_ids'][0].cpu()):
                 raise RuntimeError('prefix tokens differ from full-prompt tokens')
-            suf = ids[n:].to('cuda')
-            with torch.no_grad():
-                lg = self.model(input_ids=suf[None], past_key_values=copy.deepcopy(kv),
-                                cache_position=torch.arange(n, n + len(suf), device='cuda'),
-                                use_cache=True).logits[0, -1]
-            lp = torch.log_softmax(lg.float(), -1)
-            la = torch.logsumexp(lp[self._ids(v['pos'], v['neg'])], 0).item()
-            lb = torch.logsumexp(lp[self._ids(v['neg'], v['pos'])], 0).item()
-            p[(v['id'], v['order'])] = p_from_lp(la, lb)
-        return {q['id']: combine(p[(q['id'], 'ab')], p[(q['id'], 'ba')]) for q in questions}
+            sufs.append(ids[n:].to('cuda'))
+        lps = self._suffix_logprobs(kv, n, sufs)
+        r = {}
+        for v, lp in zip(vs, lps):
+            if v['readout'] == 'letter':
+                la = torch.logsumexp(lp[self.letters['A']], 0).item()
+                lb = torch.logsumexp(lp[self.letters['B']], 0).item()
+            else:
+                la = torch.logsumexp(lp[self._ids(v['pos'], v['neg'])], 0).item()
+                lb = torch.logsumexp(lp[self._ids(v['neg'], v['pos'])], 0).item()
+            r[(v['id'], v['order'])] = order_result(v['order'], v['readout'], la, lb)
+        return {q['id']: combine_orders(r[(q['id'], 'ab')], r[(q['id'], 'ba')], q.get('readout', 'word'))
+                for q in questions}
 
 
 def handle_score(engine, req):
     t0 = time.time()
     raw, context, questions = parse_request(req)
     results = engine.score(engine.decode(raw), context, questions)
-    return {'results': results, 'latency_s': round(time.time() - t0, 4), 'model': engine.name}
+    return {'results': results, 'latency_s': round(time.time() - t0, 4), 'model': engine.name,
+            'adapter': engine.adapter}
 
 
 def make_server(engine, host, port):
@@ -187,7 +275,7 @@ def make_server(engine, host, port):
 
         def do_GET(self):
             if self.path == '/health':
-                self._send(200, {'status': 'ok', 'model': engine.name})
+                self._send(200, {'status': 'ok', 'model': engine.name, 'adapter': engine.adapter})
             else:
                 self._send(404, {'error': 'not found'})
 
@@ -214,10 +302,12 @@ def main():
     ap.add_argument('--model', default=DEFAULT_MODEL)
     ap.add_argument('--host', default='0.0.0.0')
     ap.add_argument('--port', type=int, default=8092)
+    ap.add_argument('--suffix-mode', choices=('sequential', 'batched'), default='sequential')
+    ap.add_argument('--adapter', default=None, help='LoRA dir (peft); merged into the weights at load')
     a = ap.parse_args()
-    engine = JudgeEngine(a.model)
+    engine = JudgeEngine(a.model, a.suffix_mode, a.adapter)
     srv = make_server(engine, a.host, a.port)
-    print(f'judge_server: {engine.name} on {a.host}:{a.port}', flush=True)
+    print(f'judge_server: {engine.name} suffix={engine.suffix_mode} on {a.host}:{a.port}', flush=True)
     srv.serve_forever()
 
 

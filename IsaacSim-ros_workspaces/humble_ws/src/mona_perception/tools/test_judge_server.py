@@ -121,6 +121,72 @@ def test_variants_slots_and_order():
     assert vs[1]['pos'] == 'movable' and vs[1]['neg'] == 'fixed'
 
 
+def test_letter_ids_from_vocab():
+    v = {'A': 32, 'ĠA': 357, 'B': 33, 'ĠB': 417, 'x': 1}
+    assert J.letter_ids(v) == {'A': [32, 357], 'B': [33, 417]}
+    for drop in ('A', 'ĠB'):
+        bad = {k: i for k, i in v.items() if k != drop}
+        try:
+            J.letter_ids(bad)
+        except ValueError:
+            continue
+        raise AssertionError(drop)
+
+
+def test_variants_letter_readout():
+    q = _q(text='A) {A}\nB) {B}\nAnswer with A or B.', readout='letter')
+    vs = J.variants('ctx\n', [q])
+    assert vs[0]['readout'] == 'letter' and vs[0]['text'] == 'ctx\nA) movable\nB) fixed\nAnswer with A or B.'
+    assert vs[1]['text'] == 'ctx\nA) fixed\nB) movable\nAnswer with A or B.'
+    assert J.variants('', [_q()])[0]['readout'] == 'word'
+
+
+def test_order_result_letter_both_orders():
+    lpa, lpb = math.log(0.6), math.log(0.2)
+    ab = J.order_result('ab', 'letter', lpa, lpb)   # pos in slot A
+    ba = J.order_result('ba', 'letter', lpa, lpb)   # pos in slot B
+    assert math.isclose(ab['p'], 0.75) and math.isclose(ba['p'], 0.25)
+    assert math.isclose(ab['d'], math.log(3)) and math.isclose(ba['d'], -math.log(3))
+    assert math.isclose(ab['mass'], 0.8) and math.isclose(ba['mass'], 0.8)
+    r = J.combine_orders(ab, ba, 'letter')
+    assert math.isclose(r['p'], 0.5) and math.isclose(r['d'], 0.0) and math.isclose(r['slot_mass'], 0.8)
+    assert r['d_ab'] == ab['d'] and r['d_ba'] == ba['d'] and r['p_ab'] == ab['p'] and r['readout'] == 'letter'
+
+
+def test_order_result_word_ignores_order():
+    for o in ('ab', 'ba'):
+        r = J.order_result(o, 'word', math.log(0.3), math.log(0.1))
+        assert math.isclose(r['p'], 0.75) and math.isclose(r['mass'], 0.4)
+
+
+def test_order_result_rejects_non_finite():
+    try:
+        J.order_result('ab', 'letter', float('-inf'), float('-inf'))
+    except ValueError:
+        return
+    raise AssertionError
+
+
+def test_pad_suffixes():
+    rows, last = J.pad_suffixes([[1, 2, 3], [4], [5, 6]], 0)
+    assert rows == [[1, 2, 3], [4, 0, 0], [5, 6, 0]] and last == [2, 0, 1]
+    assert J.pad_suffixes([[7]], 9) == ([[7]], [0])
+    for bad in ([], [[1], []]):
+        try:
+            J.pad_suffixes(bad, 0)
+        except ValueError:
+            continue
+        raise AssertionError(bad)
+
+
+def test_parse_request_readout():
+    J.parse_request(_req(questions=[_q(readout='letter')]))
+    J.parse_request(_req(questions=[_q(readout='word')]))
+    assert _bad(_req(questions=[_q(readout='digit')]))
+    assert _bad(_req(questions=[_q(readout=None)]))
+    assert _bad(_req(questions=[_q(readout='letter', text='no slots')]))
+
+
 # ---------------------------------------------------------------- GPU smoke
 def _post(url, body):
     data = body if isinstance(body, bytes) else json.dumps(body).encode()
