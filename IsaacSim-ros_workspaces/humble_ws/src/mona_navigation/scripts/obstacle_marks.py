@@ -11,7 +11,7 @@ SUCCEEDED / CANCELED / ABORTED).
 
 /mona/obstacle_marks/extend (std_msgs/String JSON from path_obstacle_monitor:
 {"frame_id", "res", "cells": [[x, y], ...]}) adds one res-sized mark per new grid
-cell (gap fill between a mark and the fragments of the same obstacle); known
+cell (fragments of the same obstacle joined to a mark); known
 cells are not refreshed, so their TTL counts from the first add. The costmap
 layer clamps side to >= 0.1 (+ padding); accepted.
 
@@ -39,14 +39,15 @@ def make_mark(centroid, normal, width_m, now):
 
 def merge_extend(marks, cells, res, now):
     """Append a res-sized mark (with grid key) for every cell [x, y] whose
-    key (round(x / res), round(y / res)) is not a mark yet. Returns the number added."""
+    key (floor(x / res), floor(y / res)) is not a mark yet. Returns the number added."""
     keys = {m["key"] for m in marks if "key" in m}
     added = 0
     for x, y in cells:
-        key = (round(x / res), round(y / res))
+        key = (math.floor(x / res), math.floor(y / res))
         if key not in keys:
             keys.add(key)
-            marks.append({"x": float(x), "y": float(y), "side": float(res),
+            marks.append({"x": (key[0] + 0.5) * res, "y": (key[1] + 0.5) * res,
+                          "side": float(res),
                           "t": float(now), "key": key})
             added += 1
     return added
@@ -135,9 +136,10 @@ def main(args=None):
 
         def _tick(self):
             self.marks, expired = split_expired(self.marks, self._now(), self.ttl_s)
-            for m in expired:
+            if expired:
                 self.get_logger().info(
-                    f"expire mark ({m['x']:.2f}, {m['y']:.2f}) after {self.ttl_s:.0f} s")
+                    f"expire {len(expired)} marks after {self.ttl_s:.0f} s; "
+                    f"{len(self.marks)} left")
             self._publish()
 
     rclpy.init(args=args)

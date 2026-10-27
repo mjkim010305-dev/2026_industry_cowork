@@ -61,10 +61,12 @@ def test_5_json_shape_for_cpp_parser():
 
 def test_6_extend_dedup_ttl_and_goal_clear():
     marks = [make_mark((2.0, 1.0), (-1.0, 0.0), 0.6, 0.0)]
-    assert merge_extend(marks, [[3.0, 1.0], [3.05, 1.0]], 0.05, 10.0) == 2
-    assert merge_extend(marks, [[3.0, 1.0], [3.001, 1.0], [3.1, 1.0]], 0.05, 50.0) == 1
+    assert merge_extend(marks, [[3.025, 1.025], [3.075, 1.025]], 0.05, 10.0) == 2
+    # same physical cells, sub-cell different coordinates + one new cell: only 1 added
+    assert merge_extend(marks, [[3.03, 1.03], [3.07, 1.02], [3.125, 1.025]], 0.05, 50.0) == 1
     assert len(marks) == 4
-    assert marks[1]["t"] == 10.0 and marks[3]["t"] == 50.0 and marks[1]["side"] == approx(0.05)
+    assert marks[1]["x"] == approx(3.025) and marks[1]["t"] == 10.0
+    assert marks[3]["t"] == 50.0 and marks[1]["side"] == approx(0.05)
     alive, expired = split_expired(marks, 135.0, 120.0)   # base mark t=0 and t=10 ones expire
     assert len(alive) == 1 and len(expired) == 3
     d = json.loads(marks_json(marks, "map"))
