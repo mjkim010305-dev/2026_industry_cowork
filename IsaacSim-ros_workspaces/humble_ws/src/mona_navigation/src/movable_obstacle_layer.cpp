@@ -44,6 +44,9 @@ void MovableObstacleLayer::onInitialize()
   declareParameter("mark_fixed", rclcpp::ParameterValue(true));
   // Extra metres drawn around the measured footprint.
   declareParameter("padding", rclcpp::ParameterValue(0.05));
+  // false: reset() (e.g. Nav2 ClearEntireCostmap) keeps the objects, because
+  // the publisher's list is authoritative and republished periodically.
+  declareParameter("clear_on_reset", rclcpp::ParameterValue(true));
 
   node->get_parameter(name_ + ".enabled", enabled_);
   node->get_parameter(name_ + ".list_topic", list_topic_);
@@ -52,6 +55,7 @@ void MovableObstacleLayer::onInitialize()
   node->get_parameter(name_ + ".fixed_cost", fc);
   node->get_parameter(name_ + ".mark_fixed", mark_fixed_);
   node->get_parameter(name_ + ".padding", padding_);
+  node->get_parameter(name_ + ".clear_on_reset", clear_on_reset_);
   movable_cost_ = static_cast<unsigned char>(std::clamp(mc, 0, 254));
   fixed_cost_ = static_cast<unsigned char>(std::clamp(fc, 0, 254));
 
@@ -60,8 +64,9 @@ void MovableObstacleLayer::onInitialize()
     std::bind(&MovableObstacleLayer::onList, this, std::placeholders::_1));
   current_ = true;
   RCLCPP_INFO(
-    node->get_logger(), "MovableObstacleLayer: listening on %s (movable=%d fixed=%d mark_fixed=%s)",
-    list_topic_.c_str(), mc, fc, mark_fixed_ ? "true" : "false");
+    node->get_logger(), "MovableObstacleLayer: listening on %s (movable=%d fixed=%d mark_fixed=%s clear_on_reset=%s)",
+    list_topic_.c_str(), mc, fc, mark_fixed_ ? "true" : "false",
+    clear_on_reset_ ? "true" : "false");
 }
 
 void MovableObstacleLayer::onList(const std_msgs::msg::String::SharedPtr msg)
@@ -218,8 +223,12 @@ void MovableObstacleLayer::updateCosts(
 void MovableObstacleLayer::reset()
 {
   std::lock_guard<std::mutex> lock(mutex_);
-  objects_.clear();
-  last_drawn_.clear();
+  // Kept objects stay in updateBounds (objects_ + last_drawn_), so the
+  // cleared master grid gets them repainted on the next update.
+  if (clear_on_reset_) {
+    objects_.clear();
+    last_drawn_.clear();
+  }
   current_ = true;
 }
 

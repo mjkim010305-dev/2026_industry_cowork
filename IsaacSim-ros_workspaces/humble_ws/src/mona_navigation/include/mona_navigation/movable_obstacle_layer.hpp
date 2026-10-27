@@ -78,6 +78,7 @@ private:
   unsigned char fixed_cost_{0};
   double padding_{0.0};
   bool mark_fixed_{true};
+  bool clear_on_reset_{true};
 };
 
 }  // namespace mona_navigation

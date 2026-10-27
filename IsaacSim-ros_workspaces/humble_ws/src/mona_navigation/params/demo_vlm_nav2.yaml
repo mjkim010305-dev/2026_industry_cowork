@@ -419,6 +419,7 @@ global_costmap:
         plugin: "mona_navigation::MovableObstacleLayer"
         enabled: True
         list_topic: "/mona/obstacle_marks/list"
+        clear_on_reset: False  # global clears in the BT must not erase temporary marks
         movable_cost: 253
         fixed_cost: 254
         mark_fixed: True
