@@ -134,9 +134,13 @@ PROMPT_HEAD_CONTOUR = PROMPT_HEAD.replace("by the magenta rectangle",
                                           "by the magenta contour")
 
 # judge_backend=logit: one two-word question scored by judge_server. The image
-# carries the magenta rectangle (the S33 measurement), so the rect context is used.
-# The question is the wording S33 measured (27/27, mona-scenes judge/k2 DECISION):
-# only the final "{A} or {B}" line swaps between the two option orders.
+# carries the magenta rectangle, so the rect context is used. The wording is the one
+# S33 measured (mona-scenes judge/k2 DECISION); only the final "{A} or {B}" line swaps
+# between the two option orders. S33's 27/27 used a depth-cluster rectangle; this node
+# draws the SAM-mask bbox, which measured 0.81 offline (S34 W0: racks whose SAM mask
+# was a carton on the shelf), so 27/27 does not carry over to this configuration.
+# Racks are on the static map and never reach this judge (path_obstacle_monitor drops
+# them); on the box + forklift candidates that can, W0 is 12/12.
 JUDGE_CONTEXT = PROMPT_HEAD
 MOVABLE_QUESTION = {
     "id": "movable",
@@ -1510,7 +1514,9 @@ class VlmMovability(Node):
         return header, bgr, depth, (t.x, t.y, t.z), (r.x, r.y, r.z, r.w)
 
     def _judge(self, face, next_frame, cancelled=lambda: False):
-        """k votes, each on a fresh frame: SAM mask -> mask-highlighted VLM call.
+        """k votes, each on a fresh frame: SAM mask -> mask-highlighted VLM call
+        (judge_backend=ollama: contour + free-text answer; logit: mask-bbox rectangle
+        + judge_server option probability).
         Returns (result dict, debug dict). Never raises: every failure is a
         NO_CANDIDATE or ERROR result with its reason (no silent fallback)."""
         raws, labels, debug, size = [], [], {}, (0.0, 0.0)
@@ -1621,7 +1627,10 @@ class VlmMovability(Node):
             headers={"Content-Type": "application/json"})
         with urllib.request.urlopen(req, timeout=self.request_timeout) as resp:
             out = json.loads(resp.read())
-        return float(out["results"][MOVABLE_QUESTION["id"]]["p"]), str(out["model"])
+        p = float(out["results"][MOVABLE_QUESTION["id"]]["p"])
+        if not 0.0 <= p <= 1.0:                       # also rejects NaN
+            raise ValueError("judge p out of range: %r" % p)
+        return p, str(out["model"])
 
     def _call_sam(self, bgr, points, box):
         """POST <sam_url>/segment -> (bool masks at RGB resolution, scores)."""
@@ -1650,8 +1659,14 @@ class VlmMovability(Node):
     def _publish_judge(self, obstacle, result, debug):
         header = debug.get("header")
         stamp = {"sec": header.stamp.sec, "nanosec": header.stamp.nanosec} if header else None
+        # logit backend: the server's model, or null when no judge call succeeded
+        # (self.model is the ollama model and would be a false provenance record).
+        if "model" in debug:
+            model = debug["model"]
+        else:
+            model = None if self.judge_backend == "logit" else self.model
         self.judgments_pub.publish(String(data=json.dumps({
-            "stamp": stamp, "model": debug.get("model", self.model),
+            "stamp": stamp, "model": model,
             "judge_backend": self.judge_backend, "p_movable": debug.get("p_movable"),
             "trigger": "on_demand",
             "latency_s": round(result["latency_s"], 3),
