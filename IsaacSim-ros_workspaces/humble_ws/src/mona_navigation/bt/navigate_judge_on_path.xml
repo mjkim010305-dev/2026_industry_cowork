@@ -33,7 +33,10 @@
   PathObstacle.sweep_count (sweep_count port). 0 -> JudgeObstacle as usual; 1 -> sweep again
   without judging; >= 2 -> FIXED / DETOUR. A tracked object that was pushed out of its original
   approach corridor is ignored by the monitor, so it does not trigger at all.
-    - anything else (DETOUR, FIXED, ERROR)
+    - verdict UNSURE          -> calibrated p between movable_lo and movable_hi; the server sets action DETOUR.
+                                 Not PUSH/SWEEP/PUSH_RECHECK/NO_CANDIDATE, so the Detour gate below
+                                 catches it and it takes the same MarkObstacle path as FIXED.
+    - anything else (DETOUR, FIXED, UNSURE, ERROR)
                               -> MarkObstacle publishes a temporary global-costmap mark
                                  (obstacle_marks.py), wait for the 1 Hz global update, reset
                                  the verdict, and the retry replans around it.

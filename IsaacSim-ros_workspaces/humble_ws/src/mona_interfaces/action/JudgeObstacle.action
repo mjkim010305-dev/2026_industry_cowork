@@ -6,9 +6,10 @@ mona_interfaces/PathObstacle obstacle
 string MOVABLE=MOVABLE
 string FIXED=FIXED
 string NO_CANDIDATE=NO_CANDIDATE
+string UNSURE=UNSURE            # calibrated p between movable_lo and movable_hi; the robot detours
 string ERROR=ERROR
 
-string verdict          # one of MOVABLE | FIXED | NO_CANDIDATE | ERROR
+string verdict          # one of MOVABLE | FIXED | UNSURE | NO_CANDIDATE | ERROR
 string label            # VLM object label (empty if none)
 bool pushable           # depth size gate, independent of verdict
 uint32 votes_n          # number of VLM votes taken (k)
