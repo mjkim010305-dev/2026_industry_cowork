@@ -123,7 +123,6 @@
             <Fallback name="NoCandidateFirstOrIgnore">
             <BlackboardCheckString name="NoCandidateFirstTime" value_A="{no_candidate_retried}" value_B="no" return_on_mismatch="FAILURE">
               <Sequence name="RejudgeOnce">
-                <SetBlackboard output_key="no_candidate_retried" value="yes"/>
                 <ForceSuccess>
                   <Sequence name="TurnToObstacle">
                     <ComputeSweepPoses obstacle="{path_obstacle}" look_pose="{look_pose}"/>
@@ -137,6 +136,9 @@
             </BlackboardCheckString>
               <Sequence name="IgnoreObstacle">
                 <MarkObstacle obstacle="{path_obstacle}" topic="/mona/ignored_objects/add"/>
+                <!-- set LAST: the NoCandidateFirstTime guard re-checks this key every tick and halts
+                     its running child, so setting it first aborted the turn/Wait/rejudge (s36l) -->
+                <SetBlackboard output_key="no_candidate_retried" value="yes"/>
                 <SetBlackboard output_key="obstacle_verdict" value="none"/>
                 <SetBlackboard output_key="obstacle_action" value="none"/>
               </Sequence>
