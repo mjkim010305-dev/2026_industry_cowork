@@ -16,7 +16,8 @@
 + the camera optical static TF.
 
 Merged from the sim launch files vlm_movability.launch.py and
-vlm_perception.launch.py. ``mode:=sim`` reproduces them exactly; ``mode:=real``
+vlm_perception.launch.py. ``mode:=sim`` reproduces them (camera TF since
+corrected, see MODE_DEFAULTS); ``mode:=real``
 swaps in the festa_demo real-robot camera frame/TF and PLACEHOLDER topics that
 must be checked against the real camera driver before use.
 """
@@ -42,21 +43,24 @@ MODE_DEFAULTS = {
         # writes the forward distance into the map Z axis: an obstacle 1.4 m
         # ahead came out at the robot's own feet, and the robot drove at itself.
         #
-        # The rotation below is the USD camera orientation with the usual
-        # 180 deg about X applied, converting USD's convention (-Z forward,
-        # +Y up) to the ROS optical one.
+        # The camera Isaac renders from is the RSD455 colour sensor
+        # (.../rsd455/RSD455/Camera_OmniVision_OV9782_Color, fx 634.09 =
+        # camera_info), not /base_link/Camera (0.46 m up, 8.6 deg down) whose
+        # pose this TF used to copy. Everything below is MEASURED on the live
+        # frames, not read from the USD.
         #
-        # The translation is MEASURED, not read from the USD. The USD authors
-        # base_link -> Camera as (-0.941, 0, 0.461), and using that put the
-        # obstacle exactly 0.95 m short of the truth - the offset itself. With
-        # the robot parked at x=28.70 facing a box whose front face is at
-        # x=30.12, the centre depth pixel reads 1.403 m, so the camera Isaac
-        # actually renders from sits at x=28.717, i.e. +0.02 m from base_link,
-        # not 0.94 m behind it. Height is left at the authored value: it only
-        # shifts the obstacle's z, which the published pose discards.
+        # x: with the robot parked at x=28.70 facing a box whose front face is
+        # at x=30.12, the centre depth pixel reads 1.403 m, so the camera sits
+        # +0.017 m from base_link.
+        # z and rotation: a plane fit to the floor in the live depth
+        # (perc_j1 round 1) puts the camera 0.106 m above the floor and level
+        # (pitch -0.2 deg); base_link spawns 0.002 m above the floor. Level
+        # optical axes = the standard base -> optical rotation. The old 0.46 m
+        # / 8.6 deg pose moved the on-demand SAM prompt points 129 px down at
+        # 1 m (onto the floor under a 0.5 m box).
         "optical_frame": "camera_optical",
-        "tf": ["0.017", "0.0", "0.4609",
-               "-0.524453", "0.547077", "-0.460846", "0.461819"],
+        "tf": ["0.017", "0.0", "0.104",
+               "-0.5", "0.5", "-0.5", "0.5"],
     },
     "real": {
         # PLACEHOLDER: replace with the real camera driver's topics.
