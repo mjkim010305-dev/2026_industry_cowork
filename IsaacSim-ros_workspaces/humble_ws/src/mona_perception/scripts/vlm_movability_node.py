@@ -154,6 +154,59 @@ MOVABLE_QUESTION = {
     "options": ["movable", "fixed"],
 }
 
+_WORD_TAIL = "Answer with exactly one word: {A} or {B}."
+_LETTER_TAIL = "A) {A}\nB) {B}\nAnswer with A or B."
+
+# gate question (gate_threshold > 0): is the outlined region one whole object at all
+SINGLE_QUESTION = {
+    "id": "single",
+    "text": ("Does the region inside the magenta rectangle show exactly one whole physical "
+             "object (not two or more objects, not only a small part of a larger "
+             "structure, not only floor or wall)?\n"
+             "\n" + _WORD_TAIL),
+    "options": ["yes", "no"],
+}
+
+
+def _with_readout(question, readout):
+    """``question`` as sent for ``readout``: word = unchanged; letter = the final
+    instruction becomes an A/B listing and the request carries readout=letter."""
+    if readout != "letter":
+        return question
+    out = dict(question)
+    out["text"] = question["text"].replace(_WORD_TAIL, _LETTER_TAIL)
+    out["readout"] = "letter"
+    return out
+
+
+def _sigmoid(x):
+    if x >= 0:
+        return 1.0 / (1.0 + math.exp(-x))
+    e = math.exp(x)
+    return e / (1.0 + e)
+
+
+def _calibrate(p, d, temperature):
+    """Calibrated movable probability: sigmoid(d / T) from the server's mean
+    log-odds ``d``; without ``d``, logit(p) (T == 1 returns p itself, exactly)."""
+    if d is not None:
+        return _sigmoid(d / temperature)
+    if temperature == 1.0:
+        return p
+    p = min(max(p, 1e-12), 1.0 - 1e-12)
+    return _sigmoid(math.log(p / (1.0 - p)) / temperature)
+
+
+def _band(p_cal, hi, lo):
+    """MOVABLE at p_cal >= hi, FIXED at p_cal <= lo, UNSURE between. With hi == lo
+    there is no middle band: p_cal >= hi is MOVABLE, anything below FIXED."""
+    if p_cal >= hi:
+        return V_MOVABLE
+    if hi == lo or p_cal <= lo:
+        return V_FIXED
+    return V_UNSURE
+
+
 def _same_size(a, b, ratio):
     """Extent may not jump by more than ``ratio`` between the two readings.
 
@@ -358,6 +411,7 @@ Answer with ONLY a JSON object, no prose, no markdown fence:
 # the SAM pipeline is unit-testable (test/test_judge_obstacle.py).
 
 V_MOVABLE, V_FIXED, V_NO_CANDIDATE, V_ERROR = "MOVABLE", "FIXED", "NO_CANDIDATE", "ERROR"
+V_UNSURE = "UNSURE"
 
 
 class _JudgeFail(Exception):
@@ -536,21 +590,28 @@ def _mask_size(pts, plane):
     return width, height
 
 
-def _judge_verdict(raws, k, ratio):
-    """MOVABLE only if the vote gate passes AND the last raw call is movable
-    (the periodic path's H1 rule); every other outcome is FIXED."""
-    return V_MOVABLE if raws and raws[-1] and _vote(raws, k, ratio) else V_FIXED
+def _judge_verdict(raws, k, ratio, hi=0.5, lo=0.5):
+    """``raws`` are calibrated p per call (the ollama backend maps its booleans to
+    1.0 / 0.0). MOVABLE only if the vote gate passes AND the last call is movable
+    (the periodic path's H1 rule). Otherwise FIXED, except that with a middle band
+    (hi > lo) anything but a FIXED last call is UNSURE."""
+    if not raws:
+        return V_FIXED
+    last = _band(raws[-1], hi, lo)
+    if last == V_MOVABLE and _vote([p >= hi for p in raws], k, ratio):
+        return V_MOVABLE
+    return V_UNSURE if hi > lo and last != V_FIXED else V_FIXED
 
 
 def _assemble_verdict(raws, labels, width_m, height_m, k, ratio, push_h, push_w,
-                      detail=""):
+                      detail="", hi=0.5, lo=0.5):
     """The JudgeObstacle result fields (as a dict) from k raw VLM calls and the
     mask size. ``pushable`` is the size gate and is independent of the verdict."""
     return {
-        "verdict": _judge_verdict(raws, k, ratio),
+        "verdict": _judge_verdict(raws, k, ratio, hi, lo),
         "label": _majority_label(labels) or "",
         "pushable": bool(height_m <= push_h and width_m <= push_w),
-        "votes_n": len(raws), "votes_movable": sum(1 for v in raws if v),
+        "votes_n": len(raws), "votes_movable": sum(1 for v in raws if v >= hi),
         "detail": detail,
     }
 
@@ -589,7 +650,8 @@ JUDGE_MARKER_DEPTH_M = 0.05      # slab thickness behind the face (depth is unob
 JUDGE_MARKER_FALLBACK_H = 0.3    # height when no mask size exists (failed judgment)
 _JUDGE_COLORS = {                # same RGB as movable_obstacle_map_node, a=0.5
     "movable": (0.3, 0.85, 0.3, 0.5), "too_large": (1.0, 0.75, 0.15, 0.5),
-    "fixed": (0.9, 0.25, 0.25, 0.5), "fail": (0.6, 0.6, 0.6, 0.5)}
+    "fixed": (0.9, 0.25, 0.25, 0.5), "fail": (0.6, 0.6, 0.6, 0.5),
+    "unsure": (1.0, 0.5, 0.0, 0.5)}
 
 
 def _judge_marker_spec(geom, result, debug):
@@ -620,6 +682,12 @@ def _judge_marker_spec(geom, result, debug):
         text = " / ".join(parts)
         if not result["pushable"]:
             text += " (too large)"
+    elif verdict == V_UNSURE:
+        rgba = _JUDGE_COLORS["unsure"]
+        p = debug.get("p_cal") or debug.get("p_movable")
+        text = verdict + (" p=%.2f" % (sum(p) / len(p)) if p else "")
+        if size:
+            text += " / %.2fx%.2f m" % (size[0], size[1])
     elif verdict == V_FIXED:
         rgba = _JUDGE_COLORS["fixed"]
         text = verdict + (" / %.2fx%.2f m" % (size[0], size[1]) if size else "")
@@ -809,7 +877,28 @@ class VlmMovability(Node):
             raise ValueError("judge_backend must be ollama|logit, got %r"
                              % self.judge_backend)
         self.judge_url = self.declare_parameter("judge_url", "http://127.0.0.1:8092").value
+        # deprecated: use movable_hi / movable_lo
         self.movable_threshold = self.declare_parameter("movable_threshold", 0.5).value
+        # letter: the question ends in "A) .. B) .." and the server reads the letter slot
+        self.judge_readout = self.declare_parameter("judge_readout", "word").value
+        if self.judge_readout not in ("word", "letter"):
+            raise ValueError("judge_readout must be word|letter, got %r" % self.judge_readout)
+        self.judge_temperature = float(self.declare_parameter("judge_temperature", 1.0).value)
+        if not self.judge_temperature > 0.0:
+            raise ValueError("judge_temperature must be > 0")
+        self.movable_hi = float(self.declare_parameter("movable_hi", 0.5).value)
+        self.movable_lo = float(self.declare_parameter("movable_lo", 0.5).value)
+        if self.movable_threshold != 0.5 and self.movable_hi == self.movable_lo == 0.5:
+            self.movable_hi = self.movable_lo = float(self.movable_threshold)
+            self.get_logger().warn("vlm_movability: movable_threshold is deprecated; "
+                                   "using it as movable_hi = movable_lo = %.2f"
+                                   % self.movable_hi)
+        if self.movable_lo > self.movable_hi:
+            raise ValueError("movable_lo must be <= movable_hi")
+        # 0 = off; else a second "single" question rejects regions with p_single below it
+        self.gate_threshold = float(self.declare_parameter("gate_threshold", 0.0).value)
+        # "" = no check; else the server's reported adapter must equal this
+        self.judge_adapter_expected = self.declare_parameter("judge_adapter_expected", "").value
 
         # --- state --------------------------------------------------------
         self.bridge = CvBridge()
@@ -1660,13 +1749,16 @@ class VlmMovability(Node):
         detail = "mask %.2fx%.2f m" % size
         if "p_movable" in debug:
             detail += " p_movable=" + ",".join("%.2f" % p for p in debug["p_movable"])
+            detail += " p_cal=" + ",".join("%.2f" % p for p in debug["p_cal"])
         return _assemble_verdict(
             raws, labels, size[0], size[1], self.judge_k, self.movable_vote_ratio,
-            self.push_max_height, self.push_max_width, detail), debug
+            self.push_max_height, self.push_max_width, detail,
+            self.movable_hi, self.movable_lo), debug
 
     def _judge_vote(self, face, bgr, depth, t, r, debug=None):
-        """One vote on one frame -> (raw_movable, label, (width, height), highlight).
-        The logit backend also appends its p and the server's model to ``debug``."""
+        """One vote on one frame -> (p_cal, label, (width, height), highlight); the
+        ollama backend's p_cal is 1.0 / 0.0. The logit backend also records p, d,
+        p_cal, p_single, model and adapter in ``debug``."""
         rgb_h, rgb_w = bgr.shape[:2]
         dh, dw = depth.shape[:2]
         sx, sy = rgb_w / float(dw), rgb_h / float(dh)
@@ -1711,13 +1803,23 @@ class VlmMovability(Node):
         if self.judge_backend == "logit":
             highlight = self._draw_highlight(bgr, _mask_bbox(mask))
             try:
-                p, model = self._call_judge(highlight)
+                j = self._call_judge(highlight)
             except Exception as exc:                  # noqa: BLE001 - reported as ERROR
                 raise _JudgeFail(V_ERROR, "judge: %s: %s" % (type(exc).__name__, exc))
+            p_cal = _calibrate(j["p"], j["d"], self.judge_temperature)
             if debug is not None:
-                debug.setdefault("p_movable", []).append(p)
-                debug["model"] = model
-            cand = {"raw_movable": p >= self.movable_threshold, "label": ""}
+                debug.setdefault("p_movable", []).append(j["p"])
+                debug.setdefault("p_cal", []).append(p_cal)
+                debug.setdefault("d", []).append(j["d"])
+                debug["model"], debug["adapter"] = j["model"], j["adapter"]
+                if j["p_single"] is not None:
+                    debug.setdefault("p_single", []).append(j["p_single"])
+            if self.gate_threshold > 0 and j["p_single"] < self.gate_threshold:
+                if debug is not None:
+                    debug["highlight"] = highlight
+                raise _JudgeFail(V_NO_CANDIDATE, "gate p_single=%.2f < %.2f" % (
+                    j["p_single"], self.gate_threshold))
+            cand = {"raw_movable": p_cal, "label": ""}
         else:
             highlight = _mask_highlight(bgr, mask, self.highlight_dim)
             cand = {"det_label": None, "outline": "contour"}
@@ -1735,27 +1837,48 @@ class VlmMovability(Node):
         if plane is None:
             plane = _floor_from_face(face_cam, _apply_transform((0.0, 0.0, 1.0),
                                                                 (0.0, 0.0, 0.0), r))
-        return cand["raw_movable"], cand["label"], _mask_size(mpts, plane), highlight
+        return float(cand["raw_movable"]), cand["label"], _mask_size(mpts, plane), highlight
 
     def _call_judge(self, image):
-        """POST <judge_url>/score with the movable question -> (p, server model)."""
+        """POST <judge_url>/score with the movable question (plus the single question
+        when gate_threshold > 0) -> dict p, d (None if the server sent none),
+        p_single (None if not asked), model, adapter."""
         ok, buf = cv2.imencode(".jpg", image,
                                [int(cv2.IMWRITE_JPEG_QUALITY), self.jpeg_quality])
         if not ok:
             raise RuntimeError("jpeg encode failed")
+        questions = [_with_readout(MOVABLE_QUESTION, self.judge_readout)]
+        if self.gate_threshold > 0:
+            questions.append(_with_readout(SINGLE_QUESTION, self.judge_readout))
         body = json.dumps({
             "image_jpeg_b64": base64.b64encode(buf.tobytes()).decode(),
-            "context": JUDGE_CONTEXT, "questions": [MOVABLE_QUESTION],
+            "context": JUDGE_CONTEXT, "questions": questions,
         }).encode()
         req = urllib.request.Request(
             self.judge_url.rstrip("/") + "/score", data=body,
             headers={"Content-Type": "application/json"})
         with urllib.request.urlopen(req, timeout=self.request_timeout) as resp:
             out = json.loads(resp.read())
-        p = float(out["results"][MOVABLE_QUESTION["id"]]["p"])
+        adapter = out.get("adapter")
+        if self.judge_adapter_expected and adapter != self.judge_adapter_expected:
+            raise ValueError("judge adapter %r != expected %r"
+                             % (adapter, self.judge_adapter_expected))
+        res = out["results"][MOVABLE_QUESTION["id"]]
+        p = float(res["p"])
         if not 0.0 <= p <= 1.0:                       # also rejects NaN
             raise ValueError("judge p out of range: %r" % p)
-        return p, str(out["model"])
+        d = res.get("d")
+        if d is not None:
+            d = float(d)
+            if not math.isfinite(d):
+                raise ValueError("judge d not finite: %r" % d)
+        p_single = None
+        if self.gate_threshold > 0:
+            p_single = float(out["results"][SINGLE_QUESTION["id"]]["p"])
+            if not 0.0 <= p_single <= 1.0:
+                raise ValueError("judge p_single out of range: %r" % p_single)
+        return {"p": p, "d": d, "p_single": p_single, "model": str(out["model"]),
+                "adapter": None if adapter is None else str(adapter)}
 
     def _call_sam(self, bgr, points, box):
         """POST <sam_url>/segment -> (bool masks at RGB resolution, scores)."""
@@ -1831,6 +1954,11 @@ class VlmMovability(Node):
         self.judgments_pub.publish(String(data=json.dumps({
             "stamp": stamp, "model": model,
             "judge_backend": self.judge_backend, "p_movable": debug.get("p_movable"),
+            "p_cal": debug.get("p_cal"), "d": debug.get("d"),
+            "p_single": debug.get("p_single"), "adapter": debug.get("adapter"),
+            "movable_hi": self.movable_hi, "movable_lo": self.movable_lo,
+            "judge_temperature": self.judge_temperature,
+            "judge_readout": self.judge_readout, "gate_threshold": self.gate_threshold,
             "trigger": "on_demand",
             "latency_s": round(result["latency_s"], 3),
             "obstacle": {"along_m": obstacle.along_m, "width_m": obstacle.width_m,

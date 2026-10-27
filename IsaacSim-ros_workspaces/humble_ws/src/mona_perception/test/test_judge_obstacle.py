@@ -6,6 +6,7 @@ Pure functions are called directly; the per-frame pipeline runs on a bare node
 """
 import base64
 import json
+import math
 import os
 import sys
 from contextlib import nullcontext
@@ -278,6 +279,7 @@ def test_assemble_verdict_pushable_is_independent_of_verdict():
     ("FIXED", 0.2, 0.1, True, "DETOUR"),
     ("NO_CANDIDATE", 0.0, 0.0, False, "DETOUR"),
     ("ERROR", 0.0, 0.0, False, "DETOUR"),
+    ("UNSURE", 0.2, 0.1, True, "DETOUR"),
     ("MOVABLE", 0.0, 0.0, True, "DETOUR"),
 ])
 def test_choose_action(verdict, w, h, pushable, expected):
@@ -338,6 +340,9 @@ def _bare_node():
     n.sam_url, n.sam_timeout = "http://sam.invalid:8091", 1.0
     n.judge_backend, n.judge_url = "ollama", "http://judge.invalid:8092"
     n.movable_threshold, n.request_timeout = 0.5, 7.0
+    n.judge_readout, n.judge_temperature = "word", 1.0
+    n.movable_hi = n.movable_lo = 0.5
+    n.gate_threshold, n.judge_adapter_expected = 0.0, ""
     return n
 
 
@@ -839,3 +844,112 @@ def test_publish_markers_publisher_error_is_swallowed():
     node = _marker_node(_FakePub(exc=RuntimeError("pub down")))
     node._publish_judge_markers(_obstacle(), _res(), {})          # must not raise
     assert len(node._log.warnings) == 1 and "pub down" in node._log.warnings[0]
+
+
+# ---------------------------------------------------------------------------
+# calibrated bands, gate, readout, adapter (S37 lane N1)
+
+def test_band_binary_and_three_bands():
+    assert vm._band(0.5, 0.5, 0.5) == "MOVABLE"
+    assert vm._band(0.4999, 0.5, 0.5) == "FIXED"
+    assert vm._band(0.8, 0.7, 0.3) == "MOVABLE" and vm._band(0.7, 0.7, 0.3) == "MOVABLE"
+    assert vm._band(0.5, 0.7, 0.3) == "UNSURE"
+    assert vm._band(0.3, 0.7, 0.3) == "FIXED" and vm._band(0.1, 0.7, 0.3) == "FIXED"
+
+
+def test_calibrate_temperature():
+    assert vm._calibrate(0.7, None, 1.0) == 0.7                      # exact at T=1
+    assert vm._calibrate(0.7, 0.0, 1.0) == 0.5
+    assert vm._calibrate(0.9, 2.0, 1.0) == pytest.approx(1 / (1 + math.exp(-2.0)))
+    assert vm._calibrate(0.9, 2.0, 4.0) == pytest.approx(1 / (1 + math.exp(-0.5)))
+    assert vm._calibrate(0.9, None, 4.0) == pytest.approx(
+        1 / (1 + math.exp(-math.log(9) / 4)))
+    assert vm._calibrate(0.5, -800.0, 1.0) == 0.0                    # no overflow
+
+
+def test_judge_verdict_three_bands():
+    assert _judge_verdict([0.8], 1, 0.6, 0.7, 0.3) == "MOVABLE"
+    assert _judge_verdict([0.5], 1, 0.6, 0.7, 0.3) == "UNSURE"
+    assert _judge_verdict([0.2], 1, 0.6, 0.7, 0.3) == "FIXED"
+    r = _assemble_verdict([0.5], [""], 0.2, 0.1, 1, 0.6, 0.7, 1.2, "", 0.7, 0.3)
+    assert r["verdict"] == "UNSURE" and r["votes_movable"] == 0
+
+
+def _run_logit(monkeypatch, out, **attrs):
+    bgr, depth, mask, face = _scene()
+    node = _logit_node(monkeypatch)
+    for k, v in attrs.items():
+        setattr(node, k, v)
+    monkeypatch.setattr(node, "_call_sam", lambda b, pts, box: ([mask], [0.9]))
+    cap = _fake_judge(monkeypatch, out)
+    result, debug = node._judge(face, _frames(bgr, depth))
+    return result, debug, cap
+
+
+def _score_d(p, d, **extra):
+    out = {"results": {"movable": {"p": p, "d": d}}, "model": "Qwen3.5-4B", "adapter": "ad1"}
+    out["results"].update(extra)
+    return out
+
+
+def test_default_params_equal_binary_verdict(monkeypatch):
+    for p, v in [(0.5, "MOVABLE"), (0.51, "MOVABLE"), (0.49, "FIXED")]:
+        result, debug, cap = _run_logit(monkeypatch, _score(p))
+        assert result["verdict"] == v and debug["p_cal"] == [p]
+        assert [q["id"] for q in cap["body"]["questions"]] == ["movable"]
+
+
+def test_three_band_pipeline_and_temperature(monkeypatch):
+    kw = dict(movable_hi=0.7, movable_lo=0.3)
+    assert _run_logit(monkeypatch, _score_d(0.9, 1.5), **kw)[0]["verdict"] == "MOVABLE"
+    result, debug, _ = _run_logit(monkeypatch, _score_d(0.9, 0.2), **kw)
+    assert result["verdict"] == "UNSURE" and debug["d"] == [0.2]
+    assert _run_logit(monkeypatch, _score_d(0.9, -1.5), **kw)[0]["verdict"] == "FIXED"
+    # d=1.5 is MOVABLE at T=1 (sigmoid .82) but UNSURE at T=4 (sigmoid .59)
+    result, debug, _ = _run_logit(monkeypatch, _score_d(0.9, 1.5), judge_temperature=4.0, **kw)
+    assert result["verdict"] == "UNSURE" and debug["p_cal"][0] == pytest.approx(0.5927, abs=1e-3)
+
+
+def test_unsure_pipeline_action_is_detour(monkeypatch):
+    result, debug, _ = _run_logit(monkeypatch, _score_d(0.5, 0.0),
+                                  movable_hi=0.7, movable_lo=0.3)
+    assert result["verdict"] == "UNSURE"
+    w, h = debug["size"]
+    assert _choose_action(result["verdict"], w, h, result["pushable"], 0.306, 0.24) == "DETOUR"
+
+
+def test_gate_on_adds_question_and_rejects_below_threshold(monkeypatch):
+    ok = _score_d(0.9, 2.0, single={"p": 0.8})
+    result, debug, cap = _run_logit(monkeypatch, ok, gate_threshold=0.5)
+    assert [q["id"] for q in cap["body"]["questions"]] == ["movable", "single"]
+    assert cap["body"]["questions"][1]["options"] == ["yes", "no"]
+    assert result["verdict"] == "MOVABLE" and debug["p_single"] == [0.8]
+    bad = _score_d(0.9, 2.0, single={"p": 0.2})
+    result, debug, _ = _run_logit(monkeypatch, bad, gate_threshold=0.5)
+    assert result["verdict"] == "NO_CANDIDATE" and "gate p_single=0.20 < 0.50" in result["detail"]
+    assert debug["highlight"] is not None and debug["p_single"] == [0.2]
+
+
+def test_adapter_mismatch_is_error(monkeypatch):
+    result, _, _ = _run_logit(monkeypatch, _score_d(0.9, 2.0), judge_adapter_expected="other")
+    assert result["verdict"] == "ERROR" and "adapter" in result["detail"]
+    result, debug, _ = _run_logit(monkeypatch, _score_d(0.9, 2.0), judge_adapter_expected="ad1")
+    assert result["verdict"] == "MOVABLE" and debug["adapter"] == "ad1"
+
+
+def test_letter_readout_question_text(monkeypatch):
+    result, _, cap = _run_logit(monkeypatch, _score(0.9), judge_readout="letter")
+    q = cap["body"]["questions"][0]
+    assert q["readout"] == "letter" and q["options"] == ["movable", "fixed"]
+    assert q["text"].endswith("\n\nA) {A}\nB) {B}\nAnswer with A or B.")
+    assert q["text"].startswith(vm.MOVABLE_QUESTION["text"].split("Answer with")[0])
+    assert "readout" not in vm.MOVABLE_QUESTION and "one word" in vm.MOVABLE_QUESTION["text"]
+    _, _, cap = _run_logit(monkeypatch, _score_d(0.9, 2.0, single={"p": 0.9}),
+                           judge_readout="letter", gate_threshold=0.5)
+    assert cap["body"]["questions"][1]["text"].endswith("Answer with A or B.")
+
+
+def test_marker_unsure_amber():
+    spec = _judge_marker_spec(_geom(), _res("UNSURE"), {"p_cal": [0.5], "size": (0.5, 0.4)})
+    assert spec["cube"]["rgba"] == (1.0, 0.5, 0.0, 0.5)
+    assert spec["text"]["text"] == "UNSURE p=0.50 / 0.50x0.40 m"
