@@ -21,7 +21,7 @@ import vlm_movability_node as vm  # noqa: E402
 from vlm_movability_node import (  # noqa: E402
     VlmMovability, _JudgeFail, _apply_transform, _assemble_verdict, _build_prompts,
     _choose_action,
-    _face_samples, _floor_from_face, _judge_marker_spec, _judge_verdict, _mask_bbox, _mask_highlight, _mask_size,
+    _face_samples, _floor_from_face, _judge_marker_spec, _judge_verdict, _mask_bbox, _mask_highlight, _mask_size, _near_face,
     _mask_valid, _project_to_pixel, _region_box, _select_mask, _valid_points,
 )
 
@@ -180,6 +180,26 @@ def test_mask_highlight_dims_outside_keeps_inside():
     assert (out[50:70, 60:90] == 200).all()         # interior untouched
     assert (out[0:20, 0:20] == 90).all()            # int(200 * 0.45)
     assert (out[40, 50:100] == (255, 0, 255)).all(axis=1).any()   # contour drawn
+
+
+def test_mask_size_ignores_background_pixels_behind_the_face():
+    # s36h: mask-edge pixels on the rack behind inflated the box size; only pixels
+    # within tol of the face distance count
+    depth, mask = _depth_with_box()
+    ys, xs, z = _mask_valid(mask, depth, 0.25, 5.0)
+    plane = (np.array([0.0, -1.0, 0.0]), 0.5)
+
+    def size(ys, xs, z):
+        return _mask_size(np.stack([(xs - 80.0) * z / 100.0, (ys - 60.0) * z / 100.0, z], axis=1), plane)
+
+    clean = size(ys, xs, z)
+    # add a band of background pixels (1 m behind, above the box) to the masked set
+    bys, bxs = np.mgrid[0:10, 20:140]
+    bz = np.full(bys.size, 3.0, np.float32)
+    ys2, xs2, z2 = (np.concatenate([ys, bys.ravel()]), np.concatenate([xs, bxs.ravel()]),
+                    np.concatenate([z, bz]))
+    assert size(ys2, xs2, z2)[1] > clean[1] + 0.2          # unfiltered: inflated
+    assert size(*_near_face(ys2, xs2, z2, 2.0, 0.3)) == pytest.approx(clean)
 
 
 def test_mask_size_synthetic_box_with_fitted_floor_and_face_floor():

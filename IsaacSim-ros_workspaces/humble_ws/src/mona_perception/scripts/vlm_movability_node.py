@@ -466,6 +466,12 @@ def _mask_valid(mask, depth, min_r, max_r):
     return ys, xs, depth[ys, xs].astype(np.float32)
 
 
+def _near_face(ys, xs, z, face_z, tol):
+    """The (ys, xs, z) pixels whose depth is within ``tol`` of the face distance."""
+    keep = np.abs(z - face_z) <= tol
+    return ys[keep], xs[keep], z[keep]
+
+
 def _select_mask(masks, scores, depth, face_z, tol, min_r, max_r, min_px):
     """Index of the highest-scoring mask whose median depth is within ``tol`` of
     the face distance (and that has >= ``min_px`` valid depth pixels), else None.
@@ -1703,6 +1709,9 @@ class VlmMovability(Node):
                 raise _JudgeFail(V_ERROR, "vlm: %s: %s" % (type(exc).__name__, exc))
 
         ys, xs, z = _mask_valid(mask, depth, self.min_range, self.max_range)
+        # size only from pixels at the face distance: mixed / background pixels at the
+        # mask edge (rack or forklift behind) inflated a 0.71x0.46 box to 1.07x0.77 (s36h)
+        ys, xs, z = _near_face(ys, xs, z, face_z, self.mask_depth_tol)
         fx, fy, cx, cy = intr
         mpts = np.stack([(xs - cx) * z / fx, (ys - cy) * z / fy, z], axis=1)
         if plane is None:
