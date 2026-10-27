@@ -89,6 +89,8 @@ bt_navigator:
       - mona_sweep_obstacle_action_bt_node
       - mona_compute_sweep_poses_action_bt_node
       - mona_creep_to_face_action_bt_node
+      - mona_arm_pose_action_bt_node
+      - mona_path_length_within_condition_bt_node
       - nav2_is_stuck_condition_bt_node
       - nav2_goal_reached_condition_bt_node
       - nav2_goal_updated_condition_bt_node

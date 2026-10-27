@@ -10,14 +10,23 @@
                                  PathObstacle and camera frame), clear the local costmap, re-judge.
                                  Second time: MarkObstacle on /mona/ignored_objects/add; the monitor
                                  skips that obstacle for ignore_ttl (30 s) or until the goal ends.
-    - action PUSH             -> named AlwaysFailure stub (goal ABORTED; implemented later).
+    - action PUSH_RECHECK     -> after a push, the object is still on the path. Short detour
+                                 (path <= 1.5x + 3 m of the current path) -> mark it and go around;
+                                 otherwise re-arm action PUSH and fall through to IsPush (push again).
+    - action PUSH             -> Fallback PushOrDetour. Push: staging pose, plan + FollowPath, ArmPose
+                                 P_PUSH, CreepToFace the face, CreepToFace 2 m beyond the face bounded
+                                 by max_travel 1.0 (stall -> relabel FIXED), publish on
+                                 /mona/pushed_objects/add, ArmPose P_HOME, BackUp 1.2 m, clear the
+                                 local costmap, reset the verdict. Any failure -> PushFailedDetour
+                                 (arm home, back up 1.0 m, MarkObstacle detour).
     - action SWEEP            -> Fallback SweepOrDetour. Sweep: ComputeSweepPoses, plan + FollowPath
                                  to the staging pose (general_goal_checker, CreepToFace corrects the rest), CreepToFace, SweepObstacle
                                  (/sweep), BackUp 1.0 m (lidar is blind < 1.0 m), clear the local
                                  costmap (stale cells inside the blind zone are never raytraced away),
                                  reset the verdict. If any step fails, SweepFailedDetour backs up
                                  0.5 m and falls through to the MarkObstacle detour.
-  Per-object sweep cap (2): after SweepObstacle the object is published on
+  Per-object caps (push 2, sweep 2). Push count is checked first: PathObstacle.push_count
+  (push_count port) 1 -> PUSH_RECHECK without judging; >= 2 -> FIXED / DETOUR. Sweep cap (2): after SweepObstacle the object is published on
   /mona/swept_objects/add; path_obstacle_monitor tracks it for the goal and puts the count in
   PathObstacle.sweep_count (sweep_count port). 0 -> JudgeObstacle as usual; 1 -> sweep again
   without judging; >= 2 -> FIXED / DETOUR. A tracked object that was pushed out of its original
@@ -45,10 +54,25 @@
           </RateController>
           <ReactiveFallback name="JudgeOrFollow">
             <Sequence name="JudgeObstacleOnPath">
-              <PathObstacleDetected topic="/mona/path_obstacle" max_age="1.0" obstacle="{path_obstacle}" sweep_count="{obstacle_sweep_count}"/>
+              <PathObstacleDetected topic="/mona/path_obstacle" max_age="1.0" obstacle="{path_obstacle}" sweep_count="{obstacle_sweep_count}" push_count="{obstacle_push_count}"/>
               <SetBlackboard output_key="obstacle_verdict" value="judging"/>
               <SetBlackboard output_key="obstacle_action" value="none"/>
               <Fallback name="SweepCountDispatch">
+                <BlackboardCheckString name="PushedOnce" value_A="{obstacle_push_count}" value_B="1" return_on_mismatch="FAILURE">
+                  <Sequence name="PushRecheck">
+                    <SetBlackboard output_key="obstacle_verdict" value="MOVABLE"/>
+                    <SetBlackboard output_key="obstacle_action" value="PUSH_RECHECK"/>
+                  </Sequence>
+                </BlackboardCheckString>
+                <Sequence name="PushCapReached">
+                  <Inverter name="PushedBefore">
+                    <BlackboardCheckString name="NeverPushed" value_A="{obstacle_push_count}" value_B="0" return_on_mismatch="FAILURE">
+                      <AlwaysSuccess/>
+                    </BlackboardCheckString>
+                  </Inverter>
+                  <SetBlackboard output_key="obstacle_verdict" value="FIXED"/>
+                  <SetBlackboard output_key="obstacle_action" value="DETOUR"/>
+                </Sequence>
                 <BlackboardCheckString name="NeverSwept" value_A="{obstacle_sweep_count}" value_B="0" return_on_mismatch="FAILURE">
                   <ForceSuccess>
                     <JudgeObstacle server_name="/judge_obstacle" server_timeout="2000" obstacle="{path_obstacle}" verdict="{obstacle_verdict}" label="{obstacle_label}" pushable="{obstacle_pushable}" action="{obstacle_action}"/>
@@ -113,8 +137,61 @@
               </Sequence>
             </Fallback>
           </BlackboardCheckString>
+          <BlackboardCheckString name="IsPushRecheck" value_A="{obstacle_action}" value_B="PUSH_RECHECK" return_on_mismatch="FAILURE">
+            <Fallback name="PushRecheckDispatch">
+              <Sequence name="GoAroundIfShort">
+                <MarkObstacle obstacle="{path_obstacle}"/>
+                <Wait wait_duration="2"/>
+                <ComputePathToPose goal="{goal}" path="{detour_path}" planner_id="GridBased"/>
+                <PathLengthWithin path="{detour_path}" reference="{path}" ratio="1.5" slack="3.0"/>
+                <SetBlackboard output_key="obstacle_verdict" value="none"/>
+                <SetBlackboard output_key="obstacle_action" value="none"/>
+              </Sequence>
+              <Sequence name="PushAgain">
+                <MarkObstacle obstacle="{path_obstacle}" topic="/mona/obstacle_marks/remove"/>
+                <Wait wait_duration="1"/>
+                <SetBlackboard output_key="obstacle_action" value="PUSH"/>
+                <AlwaysFailure name="FallThroughToIsPush"/>
+              </Sequence>
+            </Fallback>
+          </BlackboardCheckString>
           <BlackboardCheckString name="IsPush" value_A="{obstacle_action}" value_B="PUSH" return_on_mismatch="FAILURE">
-            <AlwaysFailure name="PushAction_NOT_IMPLEMENTED"/>
+            <Fallback name="PushOrDetour">
+              <Sequence name="Push">
+                <ComputeSweepPoses obstacle="{path_obstacle}" staging_dist="1.1" face_dist="0.25" staging_pose="{push_staging}" face_pose="{push_face}"/>
+                <ComputeSweepPoses obstacle="{path_obstacle}" staging_dist="1.1" face_dist="-2.0" staging_pose="{push_unused}" face_pose="{push_target}"/>
+                <ComputePathToPose goal="{push_staging}" path="{push_path}" planner_id="GridBased"/>
+                <FollowPath path="{push_path}" controller_id="FollowPath"/>
+                <ArmPose positions="-0.0107379;-0.1043107;0.4747671;-0.4172428" move_time="2.0"/>
+                <CreepToFace target="{push_face}" speed="0.05"/>
+                <Fallback name="PushForward">
+                  <CreepToFace target="{push_target}" speed="0.08" max_travel="1.0" stall_time="1.5" stall_ratio="0.3" timeout="40" result="{push_result}"/>
+                  <Sequence name="PushStalled">
+                    <BlackboardCheckString value_A="{push_result}" value_B="STALLED" return_on_mismatch="FAILURE">
+                      <SetBlackboard output_key="obstacle_verdict" value="FIXED"/>
+                    </BlackboardCheckString>
+                    <AlwaysFailure name="PushStallFails"/>
+                  </Sequence>
+                </Fallback>
+                <MarkObstacle obstacle="{path_obstacle}" topic="/mona/pushed_objects/add"/>
+                <ArmPose positions="-0.0015339807878856412;-1.0461748973380072;1.0753205323078345;0.009203884727313847" move_time="2.0"/>
+                <BackUp backup_dist="1.2" backup_speed="0.1"/>
+                <ClearEntireCostmap name="ClearLocalCostmap-AfterPush" service_name="local_costmap/clear_entirely_local_costmap"/>
+                <SetBlackboard output_key="obstacle_verdict" value="none"/>
+                <SetBlackboard output_key="obstacle_action" value="none"/>
+              </Sequence>
+              <Sequence name="PushFailedDetour">
+                <ForceSuccess>
+                  <ArmPose positions="-0.0015339807878856412;-1.0461748973380072;1.0753205323078345;0.009203884727313847" move_time="2.0"/>
+                </ForceSuccess>
+                <BackUp backup_dist="1.0" backup_speed="0.1"/>
+                <ClearEntireCostmap name="ClearLocalCostmap-PushFailed" service_name="local_costmap/clear_entirely_local_costmap"/>
+                <MarkObstacle obstacle="{path_obstacle}"/>
+                <Wait wait_duration="2"/>
+                <SetBlackboard output_key="obstacle_verdict" value="none"/>
+                <SetBlackboard output_key="obstacle_action" value="none"/>
+              </Sequence>
+            </Fallback>
           </BlackboardCheckString>
           <BlackboardCheckString name="IsSweep" value_A="{obstacle_action}" value_B="SWEEP" return_on_mismatch="FAILURE">
             <Fallback name="SweepOrDetour">
@@ -143,6 +220,9 @@
             <Inverter name="NotPushSweepOrNoCandidate">
               <Fallback name="PushSweepOrNoCandidate">
                 <BlackboardCheckString value_A="{obstacle_action}" value_B="PUSH" return_on_mismatch="FAILURE">
+                  <AlwaysSuccess/>
+                </BlackboardCheckString>
+                <BlackboardCheckString value_A="{obstacle_action}" value_B="PUSH_RECHECK" return_on_mismatch="FAILURE">
                   <AlwaysSuccess/>
                 </BlackboardCheckString>
                 <BlackboardCheckString value_A="{obstacle_action}" value_B="SWEEP" return_on_mismatch="FAILURE">
