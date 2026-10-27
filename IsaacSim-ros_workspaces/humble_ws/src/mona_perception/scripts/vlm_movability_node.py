@@ -1500,6 +1500,10 @@ class VlmMovability(Node):
             MarkerArray, "/vlm/judge_markers",
             QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
                        durability=DurabilityPolicy.TRANSIENT_LOCAL))
+        self.judge_image_pub = self.create_publisher(
+            Image, "/vlm/judge_image",
+            QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
+                       durability=DurabilityPolicy.TRANSIENT_LOCAL))
 
     def _on_judge_goal(self, _goal):
         with self._judge_mutex:
@@ -1778,6 +1782,9 @@ class VlmMovability(Node):
             out = self.bridge.cv2_to_imgmsg(img, encoding="bgr8")
             out.header = header
             self.annotated_pub.publish(out)
+            # The same picture, reliable + latched: one best-effort 2.7 MB message is
+            # lost whole if any fragment drops (S35 run q3 recorded none of it).
+            self.judge_image_pub.publish(out)
 
     # ------------------------------------------------------------------
     # publishing
