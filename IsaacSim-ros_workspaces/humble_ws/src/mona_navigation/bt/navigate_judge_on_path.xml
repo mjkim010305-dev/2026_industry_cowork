@@ -18,6 +18,8 @@
                                  by max_travel 1.0 (stall -> relabel FIXED), publish on
                                  /mona/pushed_objects/add, ArmPose P_HOME, clear the local costmap
                                  (blind-zone cells), BackUp 1.2 m, reset the verdict. Any failure -> PushFailedDetour
+                                 (marks the object only on a stall; BackUps get time_allowance 20 s:
+                                 1.2 m at 0.1 m/s overran the 10 s default in s36j)
                                  (arm home, back up 1.0 m, MarkObstacle detour).
     - action SWEEP            -> Fallback SweepOrDetour. Sweep: ComputeSweepPoses, plan + FollowPath
                                  to the staging pose (general_goal_checker, CreepToFace corrects the rest), CreepToFace, SweepObstacle
@@ -178,7 +180,7 @@
                 <!-- clear BEFORE backing up: the pre-push object cells sit inside the lidar blind zone
                      (< 1.0 m) under the robot and never raytrace away, so BackUp saw a collision (s36g) -->
                 <ClearEntireCostmap name="ClearLocalCostmap-AfterPush" service_name="local_costmap/clear_entirely_local_costmap"/>
-                <BackUp backup_dist="1.2" backup_speed="0.1"/>
+                <BackUp backup_dist="1.2" backup_speed="0.1" time_allowance="20"/>
                 <SetBlackboard output_key="obstacle_verdict" value="none"/>
                 <SetBlackboard output_key="obstacle_action" value="none"/>
               </Sequence>
@@ -187,10 +189,20 @@
                   <ArmPose positions="-0.0015339807878856412;-1.0461748973380072;1.0753205323078345;0.009203884727313847" move_time="2.0"/>
                 </ForceSuccess>
                 <ClearEntireCostmap name="ClearLocalCostmap-PushFailed-BeforeBackUp" service_name="local_costmap/clear_entirely_local_costmap"/>
-                <BackUp backup_dist="1.0" backup_speed="0.1"/>
+                <BackUp backup_dist="1.0" backup_speed="0.1" time_allowance="20"/>
                 <ClearEntireCostmap name="ClearLocalCostmap-PushFailed" service_name="local_costmap/clear_entirely_local_costmap"/>
-                <MarkObstacle obstacle="{path_obstacle}"/>
-                <Wait wait_duration="2"/>
+                <!-- mark only an object that did not move (stall -> FIXED). If the push itself
+                     succeeded and a later step failed, the object is no longer where path_obstacle
+                     says (s36j marked the pre-push spot and sealed the aisle): just replan -->
+                <Fallback name="MarkIfStalled">
+                  <BlackboardCheckString value_A="{obstacle_verdict}" value_B="FIXED" return_on_mismatch="FAILURE">
+                    <Sequence>
+                      <MarkObstacle obstacle="{path_obstacle}"/>
+                      <Wait wait_duration="2"/>
+                    </Sequence>
+                  </BlackboardCheckString>
+                  <AlwaysSuccess/>
+                </Fallback>
                 <SetBlackboard output_key="obstacle_verdict" value="none"/>
                 <SetBlackboard output_key="obstacle_action" value="none"/>
               </Sequence>
@@ -205,13 +217,13 @@
                 <CreepToFace target="{sweep_face}"/>
                 <SweepObstacle action_name="/sweep" result_code="{sweep_result}"/>
                 <MarkObstacle obstacle="{path_obstacle}" topic="/mona/swept_objects/add"/>
-                <BackUp backup_dist="1.0" backup_speed="0.1"/>
+                <BackUp backup_dist="1.0" backup_speed="0.1" time_allowance="20"/>
                 <ClearEntireCostmap name="ClearLocalCostmap-AfterSweep" service_name="local_costmap/clear_entirely_local_costmap"/>
                 <SetBlackboard output_key="obstacle_verdict" value="none"/>
                 <SetBlackboard output_key="obstacle_action" value="none"/>
               </Sequence>
               <Sequence name="SweepFailedDetour">
-                <BackUp backup_dist="0.5" backup_speed="0.1"/>
+                <BackUp backup_dist="0.5" backup_speed="0.1" time_allowance="20"/>
                 <MarkObstacle obstacle="{path_obstacle}"/>
                 <Wait wait_duration="2"/>
                 <SetBlackboard output_key="obstacle_verdict" value="none"/>
