@@ -16,3 +16,4 @@ float32 along_m                 # path distance from robot to the nearest obstac
 float32 lateral_m               # minimum lateral distance of the cluster to the path polyline [m]
 uint32 n_cells                  # number of costmap cells in the cluster
 uint8 sweep_count               # times this object was already swept in this goal (0 = not a tracked object)
+uint8 push_count                # times this object was already pushed in this goal (0 = not a tracked object)
