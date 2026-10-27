@@ -10,6 +10,7 @@ find_package(action_msgs REQUIRED)
 rosidl_generate_interfaces(${PROJECT_NAME}
   "msg/PathObstacle.msg"
   "action/JudgeObstacle.action"
+  "action/Sweep.action"
   DEPENDENCIES std_msgs geometry_msgs action_msgs
 )
 
