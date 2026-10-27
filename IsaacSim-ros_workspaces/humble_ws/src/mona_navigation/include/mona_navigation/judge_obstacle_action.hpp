@@ -37,6 +37,7 @@ public:
         BT::OutputPort<std::string>("verdict", "MOVABLE | FIXED | NO_CANDIDATE | ERROR"),
         BT::OutputPort<std::string>("label", "VLM object label"),
         BT::OutputPort<bool>("pushable", "Depth size gate"),
+        BT::OutputPort<std::string>("action", "PUSH | SWEEP | DETOUR"),
       });
   }
 };

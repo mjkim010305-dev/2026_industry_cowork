@@ -44,12 +44,20 @@ target_compile_definitions(mona_judge_obstacle_action_bt_node
   PRIVATE BT_PLUGIN_EXPORT)
 list(APPEND bt_plugin_libs mona_judge_obstacle_action_bt_node)
 
+add_library(mona_mark_obstacle_action_bt_node SHARED
+  src/mark_obstacle_action.cpp)
+ament_target_dependencies(mona_mark_obstacle_action_bt_node
+  rclcpp behaviortree_cpp_v3 mona_interfaces)
+target_compile_definitions(mona_mark_obstacle_action_bt_node
+  PRIVATE BT_PLUGIN_EXPORT)
+list(APPEND bt_plugin_libs mona_mark_obstacle_action_bt_node)
+
 install(TARGETS mona_movable_obstacle_layer ${bt_plugin_libs}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
 install(DIRECTORY include/ DESTINATION include)
 install(DIRECTORY launch params bt DESTINATION share/${PROJECT_NAME})
-install(PROGRAMS scripts/path_obstacle_monitor.py DESTINATION lib/${PROJECT_NAME})
+install(PROGRAMS scripts/path_obstacle_monitor.py scripts/obstacle_marks.py DESTINATION lib/${PROJECT_NAME})
 
 ament_package()

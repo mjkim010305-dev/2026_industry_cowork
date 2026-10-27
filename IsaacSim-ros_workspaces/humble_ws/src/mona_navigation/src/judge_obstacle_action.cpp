@@ -25,6 +25,7 @@ BT::NodeStatus JudgeObstacleAction::on_success()
   setOutput("verdict", result_.result->verdict);
   setOutput("label", result_.result->label);
   setOutput("pushable", result_.result->pushable);
+  setOutput("action", result_.result->action);
   RCLCPP_INFO(
     node_->get_logger(), "JudgeObstacle: verdict=%s label=\"%s\" votes=%u/%u latency=%.1fs (%s)",
     result_.result->verdict.c_str(), result_.result->label.c_str(),
@@ -36,12 +37,14 @@ BT::NodeStatus JudgeObstacleAction::on_success()
 BT::NodeStatus JudgeObstacleAction::on_aborted()
 {
   setOutput("verdict", mona_interfaces::action::JudgeObstacle::Result::ERROR);
+  setOutput("action", mona_interfaces::action::JudgeObstacle::Result::DETOUR);
   return BT::NodeStatus::FAILURE;
 }
 
 BT::NodeStatus JudgeObstacleAction::on_cancelled()
 {
   setOutput("verdict", mona_interfaces::action::JudgeObstacle::Result::ERROR);
+  setOutput("action", mona_interfaces::action::JudgeObstacle::Result::DETOUR);
   return BT::NodeStatus::FAILURE;
 }
 

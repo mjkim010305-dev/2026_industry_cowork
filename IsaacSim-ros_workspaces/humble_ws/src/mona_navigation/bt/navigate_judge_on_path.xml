@@ -1,14 +1,24 @@
 <!--
   Stock navigate_to_pose_w_replanning_and_recovery.xml plus: stop when the local costmap
-  shows a non-static obstacle on the path, judge it once (JudgeObstacle), branch on the
-  verdict. Post-verdict actions are UNDECIDED stubs (AlwaysFailure): every verdict ends in
-  goal ABORTED with zero recoveries. obstacle_verdict stays "none" when nothing is on the
-  path, so the tree then behaves exactly like the stock one (recoveries included).
+  shows a non-static obstacle on the path, judge it once (JudgeObstacle), and hand the
+  verdict to the recovery slot of NavigateRecovery (the pipeline fails with obstacle_verdict
+  and obstacle_action on the blackboard). RecoveryDispatch then picks:
+    - verdict none            -> stock recoveries (clearing / spin / wait / backup).
+    - NO_CANDIDATE            -> clear the local costmap and re-judge once per goal.
+    - action PUSH / SWEEP     -> named AlwaysFailure stubs (goal ABORTED; implemented later).
+    - anything else (DETOUR, FIXED, ERROR, second NO_CANDIDATE)
+                              -> MarkObstacle publishes a temporary global-costmap mark
+                                 (obstacle_marks.py), wait for the 1 Hz global update, reset
+                                 the verdict, and the retry replans around it.
+  obstacle_verdict stays "none" when nothing is on the path, so the tree then behaves
+  exactly like the stock one.
 -->
 <root main_tree_to_execute="MainTree">
   <BehaviorTree ID="MainTree">
     <Sequence name="Root">
       <SetBlackboard output_key="obstacle_verdict" value="none"/>
+      <SetBlackboard output_key="obstacle_action" value="none"/>
+      <SetBlackboard output_key="no_candidate_retried" value="no"/>
       <RecoveryNode number_of_retries="6" name="NavigateRecovery">
         <PipelineSequence name="NavigateWithReplanning">
           <RateController hz="1.0">
@@ -21,16 +31,9 @@
             <Sequence name="JudgeObstacleOnPath">
               <PathObstacleDetected topic="/mona/path_obstacle" max_age="1.0" obstacle="{path_obstacle}"/>
               <SetBlackboard output_key="obstacle_verdict" value="judging"/>
-              <JudgeObstacle server_name="/judge_obstacle" server_timeout="2000" obstacle="{path_obstacle}" verdict="{obstacle_verdict}" label="{obstacle_label}" pushable="{obstacle_pushable}"/>
-              <Fallback name="ActOnVerdict">
-                <BlackboardCheckString value_A="{obstacle_verdict}" value_B="MOVABLE" return_on_mismatch="FAILURE">
-                  <AlwaysFailure name="MovableAction_UNDECIDED"/>
-                </BlackboardCheckString>
-                <BlackboardCheckString value_A="{obstacle_verdict}" value_B="FIXED" return_on_mismatch="FAILURE">
-                  <AlwaysFailure name="FixedAction_UNDECIDED"/>
-                </BlackboardCheckString>
-                <AlwaysFailure name="NoVerdictAction_UNDECIDED"/>
-              </Fallback>
+              <SetBlackboard output_key="obstacle_action" value="none"/>
+              <JudgeObstacle server_name="/judge_obstacle" server_timeout="2000" obstacle="{path_obstacle}" verdict="{obstacle_verdict}" label="{obstacle_label}" pushable="{obstacle_pushable}" action="{obstacle_action}"/>
+              <AlwaysFailure name="HandVerdictToRecovery"/>
             </Sequence>
             <BlackboardCheckString name="NoVerdictYet" value_A="{obstacle_verdict}" value_B="none" return_on_mismatch="FAILURE">
               <RecoveryNode number_of_retries="1" name="FollowPath">
@@ -40,20 +43,53 @@
             </BlackboardCheckString>
           </ReactiveFallback>
         </PipelineSequence>
-        <BlackboardCheckString name="RecoverOnlyWithoutVerdict" value_A="{obstacle_verdict}" value_B="none" return_on_mismatch="FAILURE">
-          <ReactiveFallback name="RecoveryFallback">
-            <GoalUpdated/>
-            <RoundRobin name="RecoveryActions">
-              <Sequence name="ClearingActions">
-                <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
-                <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
+        <Fallback name="RecoveryDispatch">
+          <BlackboardCheckString name="RecoverOnlyWithoutVerdict" value_A="{obstacle_verdict}" value_B="none" return_on_mismatch="FAILURE">
+            <ReactiveFallback name="RecoveryFallback">
+              <GoalUpdated/>
+              <RoundRobin name="RecoveryActions">
+                <Sequence name="ClearingActions">
+                  <ClearEntireCostmap name="ClearLocalCostmap-Subtree" service_name="local_costmap/clear_entirely_local_costmap"/>
+                  <ClearEntireCostmap name="ClearGlobalCostmap-Subtree" service_name="global_costmap/clear_entirely_global_costmap"/>
+                </Sequence>
+                <Spin spin_dist="1.57"/>
+                <Wait wait_duration="5"/>
+                <BackUp backup_dist="0.30" backup_speed="0.05"/>
+              </RoundRobin>
+            </ReactiveFallback>
+          </BlackboardCheckString>
+          <BlackboardCheckString name="NoCandidate" value_A="{obstacle_verdict}" value_B="NO_CANDIDATE" return_on_mismatch="FAILURE">
+            <BlackboardCheckString name="NoCandidateFirstTime" value_A="{no_candidate_retried}" value_B="no" return_on_mismatch="FAILURE">
+              <Sequence name="RejudgeOnce">
+                <SetBlackboard output_key="no_candidate_retried" value="yes"/>
+                <ClearEntireCostmap name="ClearLocalCostmap-Rejudge" service_name="local_costmap/clear_entirely_local_costmap"/>
+                <SetBlackboard output_key="obstacle_verdict" value="none"/>
               </Sequence>
-              <Spin spin_dist="1.57"/>
-              <Wait wait_duration="5"/>
-              <BackUp backup_dist="0.30" backup_speed="0.05"/>
-            </RoundRobin>
-          </ReactiveFallback>
-        </BlackboardCheckString>
+            </BlackboardCheckString>
+          </BlackboardCheckString>
+          <BlackboardCheckString name="IsPush" value_A="{obstacle_action}" value_B="PUSH" return_on_mismatch="FAILURE">
+            <AlwaysFailure name="PushAction_NOT_IMPLEMENTED"/>
+          </BlackboardCheckString>
+          <BlackboardCheckString name="IsSweep" value_A="{obstacle_action}" value_B="SWEEP" return_on_mismatch="FAILURE">
+            <AlwaysFailure name="SweepAction_NOT_IMPLEMENTED"/>
+          </BlackboardCheckString>
+          <Sequence name="Detour">
+            <Inverter name="NotPushOrSweep">
+              <Fallback name="PushOrSweep">
+                <BlackboardCheckString value_A="{obstacle_action}" value_B="PUSH" return_on_mismatch="FAILURE">
+                  <AlwaysSuccess/>
+                </BlackboardCheckString>
+                <BlackboardCheckString value_A="{obstacle_action}" value_B="SWEEP" return_on_mismatch="FAILURE">
+                  <AlwaysSuccess/>
+                </BlackboardCheckString>
+              </Fallback>
+            </Inverter>
+            <MarkObstacle obstacle="{path_obstacle}"/>
+            <Wait wait_duration="2"/>
+            <SetBlackboard output_key="obstacle_verdict" value="none"/>
+            <SetBlackboard output_key="obstacle_action" value="none"/>
+          </Sequence>
+        </Fallback>
       </RecoveryNode>
     </Sequence>
   </BehaviorTree>

@@ -85,6 +85,7 @@ bt_navigator:
       - nav2_back_up_action_bt_node
       - nav2_drive_on_heading_bt_node
       - nav2_clear_costmap_service_bt_node
+      - mona_mark_obstacle_action_bt_node
       - nav2_is_stuck_condition_bt_node
       - nav2_goal_reached_condition_bt_node
       - nav2_goal_updated_condition_bt_node
@@ -407,10 +408,21 @@ global_costmap:
       # Scenario step 1: plan globally on the static map only. Obstacles are
       # met by the local costmap while driving. With scan/movable layers here
       # the pushed box covered the goal and replanning aborted the push (S5).
-      plugins: ["static_layer", "inflation_layer"]
+      # S36: obstacle_mark_layer is a TEMPORARY judged-obstacle layer (user decision:
+      # the static map is never updated; marks expire with the goal or after 120 s,
+      # owned by obstacle_marks.py). static_layer stays untouched.
+      plugins: ["static_layer", "obstacle_mark_layer", "inflation_layer"]
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: True
+      obstacle_mark_layer:
+        plugin: "mona_navigation::MovableObstacleLayer"
+        enabled: True
+        list_topic: "/mona/obstacle_marks/list"
+        movable_cost: 253
+        fixed_cost: 254
+        mark_fixed: True
+        padding: 0.05
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
