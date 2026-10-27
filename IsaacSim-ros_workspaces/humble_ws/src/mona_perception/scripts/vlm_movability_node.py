@@ -106,7 +106,7 @@ from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.duration import Duration
 from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
-from rclpy.qos import QoSProfile, ReliabilityPolicy, HistoryPolicy, qos_profile_system_default
+from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy, HistoryPolicy, qos_profile_system_default
 from rclpy.time import Time
 
 from cv_bridge import CvBridge
@@ -538,6 +538,54 @@ def _face_from_obstacle(obstacle):
     return {"pts": [(s.x, s.y, s.z), (e.x, e.y, e.z)] + poly,
             "samples": _face_samples([(p[0], p[1]) for p in poly],
                                      (s.x, s.y), (e.x, e.y))}
+
+
+# RViz display constants for /vlm/judge_markers (visualization only, not measured).
+JUDGE_MARKER_DEPTH_M = 0.05      # slab thickness behind the face (depth is unobservable)
+JUDGE_MARKER_FALLBACK_H = 0.3    # height when no mask size exists (failed judgment)
+_JUDGE_COLORS = {                # same RGB as movable_obstacle_map_node, a=0.5
+    "movable": (0.3, 0.85, 0.3, 0.5), "too_large": (1.0, 0.75, 0.15, 0.5),
+    "fixed": (0.9, 0.25, 0.25, 0.5), "fail": (0.6, 0.6, 0.6, 0.5)}
+
+
+def _judge_marker_spec(geom, result, debug):
+    """Plain-value spec of the RViz cube + text for one judgment, or None.
+
+    ``geom``: present, face_start/face_end (x, y), normal (x, y), width_m.
+    The cube's x axis follows the face normal (yaw from the normal, which stays
+    defined for a single-cell face) and its length is ``width_m``, not the
+    endpoint distance, which is 0 for a single cell."""
+    if not geom["present"]:
+        return None
+    nx, ny = geom["normal"]
+    (sx, sy), (ex, ey) = geom["face_start"], geom["face_end"]
+    d = JUDGE_MARKER_DEPTH_M
+    size = debug.get("size")
+    height = max(size[1], 0.05) if size else JUDGE_MARKER_FALLBACK_H
+    cx = (sx + ex) / 2.0 - nx * d / 2.0
+    cy = (sy + ey) / 2.0 - ny * d / 2.0
+    verdict = result["verdict"]
+    if verdict == V_MOVABLE:
+        rgba = _JUDGE_COLORS["movable" if result["pushable"] else "too_large"]
+        parts = [verdict]
+        p = debug.get("p_movable")
+        if p:
+            parts[0] += " p=%.2f" % (sum(p) / len(p))
+        if size:
+            parts.append("%.2fx%.2f m" % (size[0], size[1]))
+        text = " / ".join(parts)
+        if not result["pushable"]:
+            text += " (too large)"
+    elif verdict == V_FIXED:
+        rgba = _JUDGE_COLORS["fixed"]
+        text = verdict + (" / %.2fx%.2f m" % (size[0], size[1]) if size else "")
+    else:
+        rgba = _JUDGE_COLORS["fail"]
+        text = "%s: %s" % (verdict, result["detail"][:40])
+    return {"cube": {"center": (cx, cy, height / 2.0), "yaw": math.atan2(ny, nx),
+                     "scale": (d, max(geom["width_m"], 0.05), height), "rgba": rgba},
+            "text": {"pos": (cx, cy, height + 0.25), "text": text,
+                     "rgba": (1.0, 1.0, 1.0, 1.0)}}
 
 
 class VlmMovability(Node):
@@ -1447,6 +1495,11 @@ class VlmMovability(Node):
             goal_callback=self._on_judge_goal,
             cancel_callback=lambda _goal: CancelResponse.ACCEPT,
             callback_group=ReentrantCallbackGroup())
+        from visualization_msgs.msg import MarkerArray
+        self.judge_markers_pub = self.create_publisher(
+            MarkerArray, "/vlm/judge_markers",
+            QoSProfile(depth=1, reliability=ReliabilityPolicy.RELIABLE,
+                       durability=DurabilityPolicy.TRANSIENT_LOCAL))
 
     def _on_judge_goal(self, _goal):
         with self._judge_mutex:
@@ -1473,6 +1526,7 @@ class VlmMovability(Node):
                 self._judge_busy = False
         result["latency_s"] = time.time() - t0
         self._publish_judge(obstacle, result, debug)
+        self._publish_judge_markers(obstacle, result, debug)
         self.get_logger().info("vlm_movability: JudgeObstacle %s '%s' pushable=%s "
                                "votes %d/%d (%.1fs) %s" % (
                                    result["verdict"], result["label"], result["pushable"],
@@ -1656,6 +1710,44 @@ class VlmMovability(Node):
                 raise RuntimeError("undecodable mask PNG")
             masks.append(png > 127)
         return masks, [float(s) for s in out["scores"]]
+
+    def _publish_judge_markers(self, obstacle, result, debug):
+        """RViz cube + text on the judged face. Never fails the action."""
+        try:
+            from visualization_msgs.msg import Marker, MarkerArray
+            s, e, n = obstacle.face_start, obstacle.face_end, obstacle.normal
+            spec = _judge_marker_spec(
+                {"present": obstacle.present, "face_start": (s.x, s.y),
+                 "face_end": (e.x, e.y), "normal": (n.x, n.y),
+                 "width_m": obstacle.width_m}, result, debug)
+            out = MarkerArray()
+            if spec is None:
+                clear = Marker()
+                clear.action = Marker.DELETEALL
+                out.markers.append(clear)
+            else:
+                cube, text = spec["cube"], spec["text"]
+                m = Marker()
+                m.header = obstacle.header
+                m.ns, m.id, m.type, m.action = "vlm_judge", 0, Marker.CUBE, Marker.ADD
+                (m.pose.position.x, m.pose.position.y, m.pose.position.z) = cube["center"]
+                m.pose.orientation.z = math.sin(cube["yaw"] / 2.0)
+                m.pose.orientation.w = math.cos(cube["yaw"] / 2.0)
+                m.scale.x, m.scale.y, m.scale.z = cube["scale"]
+                m.color.r, m.color.g, m.color.b, m.color.a = cube["rgba"]
+                t = Marker()
+                t.header = obstacle.header
+                t.ns, t.id, t.type, t.action = ("vlm_judge", 1,
+                                                Marker.TEXT_VIEW_FACING, Marker.ADD)
+                (t.pose.position.x, t.pose.position.y, t.pose.position.z) = text["pos"]
+                t.pose.orientation.w = 1.0
+                t.scale.z = 0.15
+                t.text = text["text"]
+                t.color.r, t.color.g, t.color.b, t.color.a = text["rgba"]
+                out.markers.extend([m, t])
+            self.judge_markers_pub.publish(out)
+        except Exception as exc:                      # noqa: BLE001 - visualization only
+            self.get_logger().warn("vlm_movability: judge marker failed: %s" % exc)
 
     def _publish_judge(self, obstacle, result, debug):
         header = debug.get("header")
