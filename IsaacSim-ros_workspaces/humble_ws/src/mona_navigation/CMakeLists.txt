@@ -87,6 +87,12 @@ ament_target_dependencies(mona_path_length_within_condition_bt_node
 target_compile_definitions(mona_path_length_within_condition_bt_node PRIVATE BT_PLUGIN_EXPORT)
 list(APPEND bt_plugin_libs mona_path_length_within_condition_bt_node)
 
+add_library(mona_path_clear_in_costmap_condition_bt_node SHARED src/path_clear_in_costmap_condition.cpp)
+ament_target_dependencies(mona_path_clear_in_costmap_condition_bt_node
+  rclcpp behaviortree_cpp_v3 nav_msgs nav2_msgs tf2 tf2_ros geometry_msgs)
+target_compile_definitions(mona_path_clear_in_costmap_condition_bt_node PRIVATE BT_PLUGIN_EXPORT)
+list(APPEND bt_plugin_libs mona_path_clear_in_costmap_condition_bt_node)
+
 if(BUILD_TESTING)
   find_package(ament_cmake_gtest REQUIRED)
   ament_add_gtest(test_sweep_geometry test/test_sweep_geometry.cpp)
@@ -95,13 +101,13 @@ if(BUILD_TESTING)
   ament_add_gtest(test_push_geometry test/test_push_geometry.cpp)
   ament_target_dependencies(test_push_geometry
     rclcpp behaviortree_cpp_v3 geometry_msgs nav_msgs tf2_ros trajectory_msgs)
+  ament_add_gtest(test_costmap_geometry test/test_costmap_geometry.cpp)
 endif()
 
 install(TARGETS mona_movable_obstacle_layer ${bt_plugin_libs}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin)
-  ament_add_gtest(test_costmap_geometry test/test_costmap_geometry.cpp)
 install(DIRECTORY include/ DESTINATION include)
 install(DIRECTORY launch params bt DESTINATION share/${PROJECT_NAME})
 install(PROGRAMS scripts/path_obstacle_monitor.py scripts/obstacle_marks.py DESTINATION lib/${PROJECT_NAME})

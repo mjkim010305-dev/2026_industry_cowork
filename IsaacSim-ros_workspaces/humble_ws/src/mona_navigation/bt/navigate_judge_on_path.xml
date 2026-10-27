@@ -13,7 +13,8 @@
                                  Second time: MarkObstacle on /mona/ignored_objects/add; the monitor
                                  skips that obstacle for ignore_ttl (30 s) or until the goal ends.
     - action PUSH_RECHECK     -> after a push, the object is still on the path. Short detour
-                                 (path <= 1.5x + 3 m of the current path) -> mark it and go around;
+                                 (path <= 1.5x + 3 m of the current path) and its first 3 m are free of lethal
+                                 local-costmap cells (PathClearInCostmap) -> mark it and go around;
                                  otherwise re-arm action PUSH and fall through to IsPush (push again).
     - action PUSH             -> Fallback PushOrDetour. Push: staging pose, plan + FollowPath, ArmPose
                                  P_PUSH, CreepToFace the face, CreepToFace 2 m beyond the face bounded
@@ -135,14 +136,14 @@
                 </ForceSuccess>
                 <Wait wait_duration="1.5"/>
                 <ClearEntireCostmap name="ClearLocalCostmap-Rejudge" service_name="local_costmap/clear_entirely_local_costmap"/>
+                <!-- set LAST: the NoCandidateFirstTime guard re-checks this key every tick and halts
+                     its running child, so setting it first aborted the turn/Wait/rejudge (s36l) -->
+                <SetBlackboard output_key="no_candidate_retried" value="yes"/>
                 <SetBlackboard output_key="obstacle_verdict" value="none"/>
               </Sequence>
             </BlackboardCheckString>
               <Sequence name="IgnoreObstacle">
                 <MarkObstacle obstacle="{path_obstacle}" topic="/mona/ignored_objects/add"/>
-                <!-- set LAST: the NoCandidateFirstTime guard re-checks this key every tick and halts
-                     its running child, so setting it first aborted the turn/Wait/rejudge (s36l) -->
-                <SetBlackboard output_key="no_candidate_retried" value="yes"/>
                 <SetBlackboard output_key="obstacle_verdict" value="none"/>
                 <SetBlackboard output_key="obstacle_action" value="none"/>
               </Sequence>
@@ -155,6 +156,7 @@
                 <Wait wait_duration="2"/>
                 <ComputePathToPose goal="{goal}" path="{detour_path}" planner_id="GridBased"/>
                 <PathLengthWithin path="{detour_path}" reference="{path}" ratio="1.5" slack="3.0"/>
+                <PathClearInCostmap path="{detour_path}"/>
                 <SetBlackboard output_key="obstacle_verdict" value="none"/>
                 <SetBlackboard output_key="obstacle_action" value="none"/>
               </Sequence>
