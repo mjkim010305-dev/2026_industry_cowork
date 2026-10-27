@@ -19,7 +19,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 import vlm_movability_node as vm  # noqa: E402
 from vlm_movability_node import (  # noqa: E402
     VlmMovability, _JudgeFail, _apply_transform, _assemble_verdict, _build_prompts,
-    _face_samples, _floor_from_face, _judge_verdict, _mask_bbox, _mask_highlight, _mask_size,
+    _face_samples, _floor_from_face, _judge_marker_spec, _judge_verdict, _mask_bbox, _mask_highlight, _mask_size,
     _mask_valid, _project_to_pixel, _region_box, _select_mask, _valid_points,
 )
 
@@ -570,3 +570,64 @@ def test_publish_judge_model_provenance():
     assert _published_model(logit, {}) is None                       # no judge call succeeded
     assert _published_model(logit, {"model": "Qwen3.5-4B"}) == "Qwen3.5-4B"
     assert _published_model(_bare_node(), {}) == "gemma4:e4b"        # ollama: self.model
+
+
+# ---------------------------------------------------------------------------
+# RViz judgment marker spec
+
+def _geom(normal=(1.0, 0.0), start=(2.0, -0.3), end=(2.0, 0.3), width=0.65, present=True):
+    return {"present": present, "face_start": start, "face_end": end,
+            "normal": normal, "width_m": width}
+
+
+def _res(verdict="MOVABLE", pushable=True, detail=""):
+    return {"verdict": verdict, "pushable": pushable, "detail": detail}
+
+
+def test_marker_geometry_normal_x():
+    c = _judge_marker_spec(_geom(), _res(), {})["cube"]
+    assert c["center"][:2] == pytest.approx((2.0 - 0.025, 0.0))
+    assert c["yaw"] == pytest.approx(0.0)
+    assert c["scale"][:2] == pytest.approx((0.05, 0.65))
+
+
+def test_marker_yaw_from_normal_y():
+    c = _judge_marker_spec(_geom(normal=(0.0, 1.0)), _res(), {})["cube"]
+    assert c["yaw"] == pytest.approx(np.pi / 2)
+
+
+def test_marker_single_cell_face_keeps_width():
+    c = _judge_marker_spec(_geom(start=(2.0, 0.0), end=(2.0, 0.0), width=0.05),
+                           _res(), {})["cube"]
+    assert c["scale"][1] == pytest.approx(0.05)
+
+
+def test_marker_height_from_size_or_fallback():
+    c = _judge_marker_spec(_geom(), _res(), {"size": (0.53, 0.46)})["cube"]
+    assert c["scale"][2] == pytest.approx(0.46) and c["center"][2] == pytest.approx(0.23)
+    c = _judge_marker_spec(_geom(), _res("ERROR", detail="x"), {})["cube"]
+    assert c["scale"][2] == pytest.approx(0.3) and c["center"][2] == pytest.approx(0.15)
+
+
+def test_marker_colors():
+    def rgb(r):
+        return _judge_marker_spec(_geom(), r, {})["cube"]["rgba"]
+    assert rgb(_res()) == (0.3, 0.85, 0.3, 0.5)
+    assert rgb(_res(pushable=False)) == (1.0, 0.75, 0.15, 0.5)
+    assert rgb(_res("FIXED")) == (0.9, 0.25, 0.25, 0.5)
+    assert rgb(_res("ERROR")) == rgb(_res("NO_CANDIDATE")) == (0.6, 0.6, 0.6, 0.5)
+
+
+def test_marker_text():
+    def text(r, d):
+        return _judge_marker_spec(_geom(), r, d)["text"]["text"]
+    assert text(_res(), {"p_movable": [0.98], "size": (0.53, 0.46)}) == \
+        "MOVABLE p=0.98 / 0.53x0.46 m"
+    assert text(_res(), {"size": (0.53, 0.46)}) == "MOVABLE / 0.53x0.46 m"
+    assert text(_res(pushable=False), {"size": (0.53, 0.46)}) == \
+        "MOVABLE / 0.53x0.46 m (too large)"
+    assert text(_res("ERROR", detail="e" * 60), {}) == "ERROR: " + "e" * 40
+
+
+def test_marker_absent_obstacle_is_none():
+    assert _judge_marker_spec(_geom(present=False), _res(), {}) is None
