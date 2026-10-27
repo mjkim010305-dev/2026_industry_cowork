@@ -8,7 +8,7 @@ from pytest import approx
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 
-from obstacle_marks import make_mark, split_expired, goal_ended, marks_json, merge_extend  # noqa: E402
+from obstacle_marks import make_mark, split_expired, goal_ended, marks_json, merge_extend, remove_mark  # noqa: E402
 
 
 def test_1_square_centre_and_side():
@@ -73,3 +73,23 @@ def test_6_extend_dedup_ttl_and_goal_clear():
     assert all(set(o) == {"x", "y", "width_m", "movable", "pushable"} for o in d["objects"])
     seen = set()
     assert goal_ended([("g", 4)], seen)   # node clears self.marks on this; list reset
+
+
+def test_remove_mark_drops_mark_and_later_extends_only():
+    judged = make_mark((2.0, 1.0), (-1.0, 0.0), 0.6, 10.0)        # centre (2.3, 1.0)
+    other = make_mark((8.0, 8.0), (-1.0, 0.0), 0.6, 11.0)
+    marks = [judged, other]
+    merge_extend(marks, [[0.0, 0.0]], 0.05, 5.0)                   # earlier extend: stays
+    merge_extend(marks, [[3.0, 1.0]], 0.05, 10.0)                  # at mark time: goes
+    merge_extend(marks, [[3.5, 1.0]], 0.05, 20.0)                  # later: goes
+    n = remove_mark(marks, make_mark((2.05, 1.02), (-1.0, 0.0), 0.6, 0.0))
+    assert n == 3
+    assert other in marks and judged not in marks
+    assert len(marks) == 2 and sorted(m["t"] for m in marks) == [5.0, 11.0]
+
+
+def test_remove_mark_no_match_keeps_all():
+    marks = [make_mark((2.0, 1.0), (-1.0, 0.0), 0.6, 10.0)]
+    merge_extend(marks, [[2.3, 1.0]], 0.05, 20.0)                  # extend at the centre: not a judged mark
+    assert remove_mark(marks, make_mark((5.0, 5.0), (-1.0, 0.0), 0.6, 0.0)) == 0
+    assert len(marks) == 2

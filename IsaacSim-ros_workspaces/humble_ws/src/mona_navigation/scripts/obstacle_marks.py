@@ -15,6 +15,10 @@ cell (fragments of the same obstacle joined to a mark); known
 cells are not refreshed, so their TTL counts from the first add. The costmap
 layer clamps side to >= 0.1 (+ padding); accepted.
 
+/mona/obstacle_marks/remove (PathObstacle): removes the judged mark make_mark would
+create for that msg (nearest centre within 0.2 m) and every extend cell added at or
+after it (the BT pushed the object away, so the detour mark and its growth are void).
+
 Publishes /mona/obstacle_marks/list (std_msgs/String, 1 Hz and on every change)
 in the flat JSON that MovableObstacleLayer parses; path_obstacle_monitor reads
 the same list to ignore marked obstacles.
@@ -51,6 +55,26 @@ def merge_extend(marks, cells, res, now):
                           "t": float(now), "key": key})
             added += 1
     return added
+
+
+def remove_mark(marks, centre, tol=0.2):
+    """Remove (in place) the judged (non-extend) mark whose centre is nearest to `centre`
+    within tol, plus every extend mark (has "key") added at or after that mark.
+    Returns the number removed (0 if no mark matched)."""
+    best = None
+    for m in marks:
+        if "key" in m:
+            continue
+        d = math.hypot(m["x"] - centre["x"], m["y"] - centre["y"])
+        if d <= tol and (best is None or d < best[0]):
+            best = (d, m)
+    if best is None:
+        return 0
+    t0 = best[1]["t"]
+    keep = [m for m in marks if m is not best[1] and not ("key" in m and m["t"] >= t0)]
+    n = len(marks) - len(keep)
+    marks[:] = keep
+    return n
 
 
 def split_expired(marks, now, ttl):
@@ -92,6 +116,8 @@ def main(args=None):
             self.marks = []
             self.seen_terminal = set()
             self.create_subscription(PathObstacle, "/mona/obstacle_marks/add", self._on_add, 10)
+            self.create_subscription(PathObstacle, "/mona/obstacle_marks/remove",
+                                     self._on_remove, 10)
             self.create_subscription(GoalStatusArray, "/navigate_to_pose/_action/status",
                                      self._on_status, 10)
             self.create_subscription(String, "/mona/obstacle_marks/extend", self._on_extend, 10)
@@ -114,6 +140,16 @@ def main(args=None):
                 f"add mark ({m['x']:.2f}, {m['y']:.2f}) side {m['side']:.2f}; "
                 f"{len(self.marks)} marks")
             self._publish()
+
+        def _on_remove(self, msg):
+            m = make_mark((msg.centroid.x, msg.centroid.y), (msg.normal.x, msg.normal.y),
+                          msg.width_m, 0.0)
+            n = remove_mark(self.marks, m)
+            self.get_logger().info(
+                f"remove mark ({m['x']:.2f}, {m['y']:.2f}): {n} marks removed "
+                f"(mark + later extends); {len(self.marks)} left")
+            if n:
+                self._publish()
 
         def _on_extend(self, msg):
             try:

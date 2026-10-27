@@ -18,7 +18,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 
 from path_obstacle_monitor import (  # noqa: E402
     costmap_cells_to_map, static_mask, find_path_obstacle, mark_mask, gap_merged_cells,
-    track_sweep, classify_tracked, add_ignored, prune_ignored, is_ignored,
+    track_sweep, track_push, counts_of, classify_tracked, add_ignored, prune_ignored, is_ignored,
 )
 
 RES = 0.05
@@ -290,3 +290,68 @@ def test_ignored_expiry():
     add_ignored(ig, (3.0, 0.0), 0.2, 20.0)
     prune_ignored(ig, 31.0, 30.0)
     assert len(ig) == 1 and not is_ignored(ig, (0.0, 0.0)) and is_ignored(ig, (3.0, 0.0))
+
+
+# push entries: face mid (5, 0), robot approaches along +x (normal -x), robot ends at (5.8, 0)
+def _push_entry():
+    tracked = []
+    e = track_push(tracked, (5.0, 0.0), (-1.0, 0.0), (5.8, 0.0), 0.2, CORRIDOR, 2.0, 0.0)
+    return tracked, e
+
+
+def test_push_entry_pred_is_robot_plus_tip_offset():
+    tracked, e = _push_entry()
+    assert e["kind"] == "push" and e["count"] == 1
+    assert e["pred"] == approx((6.0, 0.0))
+    assert e["mid"] == approx((5.0, 0.0))
+
+
+def test_push_assoc_on_line_inside_range():
+    tracked, e = _push_entry()
+    for c in [(6.0, 0.0), (6.5, 0.2), (5.0 + 2.0, -0.26)]:
+        got, outside = classify_tracked(tracked, c, CORRIDOR, ASSOC, 2.0)
+        assert got is e and not outside
+
+
+def test_push_assoc_off_line_or_range_rejected():
+    tracked, _ = _push_entry()
+    for c in [(6.0, 0.5), (7.1, 0.0), (4.6, 0.0)]:    # off line, past range, behind -0.3
+        assert classify_tracked(tracked, c, CORRIDOR, ASSOC, 2.0) == (None, False)
+    got, _ = classify_tracked(tracked, (4.75, 0.0), CORRIDOR, ASSOC, 2.0)   # -0.25 behind: ok
+    assert got is not None
+
+
+def test_push_never_outside_even_if_far_along_line():
+    tracked, e = _push_entry()
+    got, outside = classify_tracked(tracked, (6.9, 0.25), CORRIDOR, ASSOC, 2.0)
+    assert got is e and outside is False
+
+
+def test_second_push_increments_and_updates_pred():
+    tracked, e = _push_entry()
+    e2 = track_push(tracked, (6.0, 0.05), (-1.0, 0.0), (6.8, 0.05), 0.2, CORRIDOR, 2.0, 1.0)
+    assert e2 is e and len(tracked) == 1 and e["count"] == 2
+    assert e["pred"] == approx((7.0, 0.05))
+    assert e["mid"] == approx((5.0, 0.0))
+
+
+def test_push_elsewhere_gets_own_entry():
+    tracked, _ = _push_entry()
+    track_push(tracked, (5.0, 3.0), (-1.0, 0.0), (5.8, 3.0), 0.2, CORRIDOR, 2.0, 1.0)
+    assert len(tracked) == 2
+
+
+def test_sweep_and_push_counts_published_separately():
+    tracked, push_e = _push_entry()
+    sweep_e = track_sweep(tracked, (20.0, 0.0), (-1.0, 0.0), 0.0, ASSOC, SHIFT)
+    track_sweep(tracked, (20.0, 0.0), (-1.0, 0.0), 1.0, ASSOC, SHIFT)
+    assert counts_of(sweep_e) == (2, 0)
+    assert counts_of(push_e) == (0, 1)
+    assert counts_of(None) == (0, 0)
+    # a sweep near a push entry is not merged into it
+    assert track_sweep(tracked, (5.0, 0.0), (-1.0, 0.0), 2.0, ASSOC, SHIFT)["kind"] == "sweep"
+
+
+def test_push_count_field_in_msg():
+    from mona_interfaces.msg import PathObstacle
+    assert PathObstacle().push_count == 0

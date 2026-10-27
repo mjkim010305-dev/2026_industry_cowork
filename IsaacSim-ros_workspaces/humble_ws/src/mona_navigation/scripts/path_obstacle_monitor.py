@@ -26,6 +26,10 @@ centroid is near an entry is that object; if it now lies off the original
 approach line by more than corridor_half it was pushed out of the way and is
 skipped in step 5. Otherwise it can trigger again and the published
 PathObstacle carries sweep_count (0 = not a tracked object).
+Pushed objects (/mona/pushed_objects/add, sent right after a push ends) are tracked the
+same way with kind "push" and published as push_count: pred = robot + heading *
+push_tip_offset; a cluster belongs to the entry if it lies within corridor_half of the
+approach line and -0.3 .. push_assoc_along m along it. Push entries are never skipped.
 
 and publishes mona_interfaces/PathObstacle on /mona/path_obstacle, all
 geometry in the map frame. Only the face the lidar saw is observed; the depth
@@ -253,28 +257,75 @@ def track_sweep(tracked, face_mid, normal, now, assoc_radius, shift_left):
     heading = -n / max(float(np.hypot(*n)), 1e-9)
     pred = mid + np.array([-heading[1], heading[0]]) * shift_left
     for e in tracked:
+        if e.get("kind", "sweep") != "sweep":
+            continue
         if min(float(np.hypot(*(mid - e["mid"]))),
                float(np.hypot(*(mid - e["pred"])))) <= assoc_radius:
             e["count"] += 1
             e.update(mid=mid, heading=heading, pred=pred, t=now)
             return e
-    e = {"mid": mid, "heading": heading, "pred": pred, "count": 1, "t": now}
+    e = {"kind": "sweep", "mid": mid, "heading": heading, "pred": pred, "count": 1, "t": now}
     tracked.append(e)
     return e
 
 
-def classify_tracked(tracked, centroid_xy, corridor_half, assoc_radius):
-    """(entry, outside) for a cluster centroid. entry = closest tracked object whose
-    pred or mid is within assoc_radius (None if none). outside = the centroid is more
-    than corridor_half (perpendicular) from the entry's approach line through mid
-    along heading."""
+def on_push_line(e, p, corridor_half, along_max):
+    """True if point p lies on a push entry's approach line: perpendicular distance to
+    the line through e["mid"] along e["heading"] <= corridor_half and the along-line
+    coordinate from mid within [-0.3, along_max]."""
+    h = e["heading"]
+    d = np.asarray(p, dtype=float) - e["mid"]
+    along = float(d[0] * h[0] + d[1] * h[1])
+    perp = abs(float(d[0] * -h[1] + d[1] * h[0]))
+    return perp <= corridor_half and -0.3 <= along <= along_max
+
+
+def track_push(tracked, face_mid, normal, robot_xy, tip_offset, corridor_half, along_max,
+               now):
+    """Record one finished push in tracked (mutated). face_mid / normal: pushed face
+    mid and unit normal (toward the robot); heading = -normal. The robot stands at the
+    end of the push, so pred = robot + heading * tip_offset. A face mid on the approach
+    line of an existing push entry is the same object: count += 1, heading/pred follow,
+    the original mid stays. Otherwise a new entry with count 1. Returns the entry."""
+    mid = np.asarray(face_mid, dtype=float)
+    n = np.asarray(normal, dtype=float)
+    heading = -n / max(float(np.hypot(*n)), 1e-9)
+    pred = np.asarray(robot_xy, dtype=float) + heading * tip_offset
+    for e in tracked:
+        if e.get("kind") == "push" and on_push_line(e, mid, corridor_half, along_max):
+            e["count"] += 1
+            e.update(heading=heading, pred=pred, t=now)
+            return e
+    e = {"kind": "push", "mid": mid, "heading": heading, "pred": pred, "count": 1, "t": now}
+    tracked.append(e)
+    return e
+
+
+def counts_of(e):
+    """(sweep_count, push_count) to publish for a tracked entry (None = untracked)."""
+    if e is None:
+        return 0, 0
+    return (e["count"], 0) if e.get("kind", "sweep") == "sweep" else (0, e["count"])
+
+
+def classify_tracked(tracked, centroid_xy, corridor_half, assoc_radius, push_along=2.0):
+    """(entry, outside) for a cluster centroid. Sweep entry = closest one whose pred or
+    mid is within assoc_radius; outside = the centroid is more than corridor_half
+    (perpendicular) from its approach line through mid along heading. Without a sweep
+    match, a push entry whose approach line holds the centroid (on_push_line) is
+    returned with outside False (pushed objects stay on the line, never skipped)."""
     c = np.asarray(centroid_xy, dtype=float)
     best = None
     for e in tracked:
+        if e.get("kind", "sweep") != "sweep":
+            continue
         d = min(float(np.hypot(*(c - e["mid"]))), float(np.hypot(*(c - e["pred"]))))
         if d <= assoc_radius and (best is None or d < best[0]):
             best = (d, e)
     if best is None:
+        for e in tracked:
+            if e.get("kind") == "push" and on_push_line(e, c, corridor_half, push_along):
+                return e, False
         return None, False
     e = best[1]
     h = e["heading"]
@@ -412,6 +463,8 @@ def main(args=None):
             self.base_frame = self.declare_parameter("base_frame", "base_link").value
             self.assoc_radius = self.declare_parameter("assoc_radius", 0.3).value
             self.sweep_shift_left = self.declare_parameter("sweep_shift_left", 0.4).value
+            self.push_tip_offset = self.declare_parameter("push_tip_offset", 0.20).value
+            self.push_assoc_along = self.declare_parameter("push_assoc_along", 2.0).value
 
             self.costmap = None
             self.plan = None
@@ -434,6 +487,7 @@ def main(args=None):
                            reliability=ReliabilityPolicy.RELIABLE))
             self.create_subscription(String, "/mona/obstacle_marks/list", self._on_marks, 1)
             self.create_subscription(PathObstacle, "/mona/swept_objects/add", self._on_swept, 10)
+            self.create_subscription(PathObstacle, "/mona/pushed_objects/add", self._on_pushed, 10)
             self.create_subscription(PathObstacle, "/mona/ignored_objects/add",
                                      self._on_ignored, 10)
             self.create_subscription(GoalStatusArray, "/navigate_to_pose/_action/status",
@@ -465,6 +519,21 @@ def main(args=None):
             self.get_logger().info(
                 f"swept object at ({mid[0]:.2f}, {mid[1]:.2f}): sweep count {e['count']}")
 
+        def _on_pushed(self, msg):
+            mid = ((msg.face_start.x + msg.face_end.x) / 2.0,
+                   (msg.face_start.y + msg.face_end.y) / 2.0)
+            try:
+                robot = self._lookup(self.map_frame, self.base_frame)
+            except TransformException as ex:
+                self.get_logger().warn(f"pushed object dropped, TF: {ex}")
+                return
+            e = track_push(self.tracked, mid, (msg.normal.x, msg.normal.y), robot[:2],
+                           self.push_tip_offset, self.corridor_half, self.push_assoc_along,
+                           time.monotonic())
+            self.get_logger().info(
+                f"pushed object at ({mid[0]:.2f}, {mid[1]:.2f}): push count {e['count']}, "
+                f"pred ({e['pred'][0]:.2f}, {e['pred'][1]:.2f})")
+
         def _on_ignored(self, msg):
             add_ignored(self.ignored, (msg.centroid.x, msg.centroid.y), msg.width_m,
                         time.monotonic())
@@ -485,7 +554,7 @@ def main(args=None):
             if is_ignored(self.ignored, centroid):
                 return True
             e, outside = classify_tracked(self.tracked, centroid, self.corridor_half,
-                                          self.assoc_radius)
+                                          self.assoc_radius, self.push_assoc_along)
             if e is not None and outside:
                 self.get_logger().info(
                     f"tracked object (sweeps {e['count']}) pushed out of its corridor: ignored",
@@ -555,8 +624,8 @@ def main(args=None):
                 msg.lateral_m = float(geo["lateral"])
                 msg.n_cells = int(geo["n_cells"])
                 e, _ = classify_tracked(self.tracked, geo["centroid"], self.corridor_half,
-                                        self.assoc_radius)
-                msg.sweep_count = int(e["count"]) if e is not None else 0
+                                        self.assoc_radius, self.push_assoc_along)
+                msg.sweep_count, msg.push_count = counts_of(e)
             self.pub.publish(msg)
             self._publish_marker(msg)
 
