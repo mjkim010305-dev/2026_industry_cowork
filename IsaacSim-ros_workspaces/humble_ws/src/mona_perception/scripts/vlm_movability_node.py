@@ -528,8 +528,9 @@ def _choose_action(verdict, width_m, height_m, pushable, sweep_max_width,
                    sweep_max_height):
     """What to do about the obstacle (S36 rule): SWEEP a movable one narrower than
     the robot and not taller than the sweep band, PUSH a wider pushable one, else
-    DETOUR (narrow-but-tall movable, unpushable movable, FIXED, no mask, error)."""
-    if verdict != V_MOVABLE:
+    DETOUR (narrow-but-tall movable, unpushable movable, degenerate width,
+    FIXED, no mask, error)."""
+    if verdict != V_MOVABLE or width_m <= 0:
         return "DETOUR"
     if width_m < sweep_max_width:
         return "SWEEP" if height_m <= sweep_max_height else "DETOUR"

@@ -219,6 +219,7 @@ def test_assemble_verdict_pushable_is_independent_of_verdict():
     ("FIXED", 0.2, 0.1, True, "DETOUR"),
     ("NO_CANDIDATE", 0.0, 0.0, False, "DETOUR"),
     ("ERROR", 0.0, 0.0, False, "DETOUR"),
+    ("MOVABLE", 0.0, 0.0, True, "DETOUR"),
 ])
 def test_choose_action(verdict, w, h, pushable, expected):
     assert _choose_action(verdict, w, h, pushable, 0.306, 0.24) == expected
