@@ -505,3 +505,68 @@ def test_logit_result_keys_match_ollama(monkeypatch):
     logit, debug = node._judge(face, _frames(bgr, depth))
     assert set(logit) == set(ollama)                  # Result setattr stays safe
     assert debug["p_movable"] == [0.8]
+
+
+# the S33-measured wording (mona-scenes judge/k2_vllm_logprob.py DECISION), written out
+# literally so the test does not compare the node's constants with themselves
+_PROMPT_HEAD_RECT = (
+    "You are the perception module of a warehouse mobile robot with a small arm.\n"
+    "The robot is driving down an aisle and something is in its way.\n"
+    "\n"
+    "Exactly one object is outlined by the magenta rectangle. Judge only that object. The\n"
+    "rest of the image is context - do not describe it. Parked vehicles and machinery are\n"
+    "objects too and must be judged, not dismissed as background.\n"
+    "\n")
+_DECISION = (
+    "Decide whether the robot can PUSH the outlined object aside with its small arm:\n"
+    "- movable : light, free-standing, small enough to shove\n"
+    "            (cardboard box, empty crate, small carton, cone, bin)\n"
+    "- fixed   : heavy machinery, vehicles, or fixed structure\n"
+    "            (forklift, pallet jack, loaded pallet, rack, wall, pillar)\n"
+    "\n"
+    "Answer with exactly one word: movable or fixed.")
+
+
+def test_logit_prompt_equals_measured_text_both_orders():
+    text = vm.MOVABLE_QUESTION["text"]
+    ab = vm.JUDGE_CONTEXT + text.replace("{A}", "movable").replace("{B}", "fixed")
+    ba = vm.JUDGE_CONTEXT + text.replace("{A}", "fixed").replace("{B}", "movable")
+    assert ab == _PROMPT_HEAD_RECT + _DECISION
+    assert ba == _PROMPT_HEAD_RECT + _DECISION.replace("movable or fixed.", "fixed or movable.")
+    assert ba.endswith("Answer with exactly one word: fixed or movable.")
+
+
+@pytest.mark.parametrize("p", [float("nan"), float("inf"), -0.1, 1.1])
+def test_call_judge_rejects_non_finite_or_out_of_range_p(monkeypatch, p):
+    node = _bare_node()
+    _fake_judge(monkeypatch, _score(p))
+    with pytest.raises(ValueError):
+        node._call_judge(np.zeros((8, 8, 3), np.uint8))
+
+
+def test_nan_p_becomes_error_verdict(monkeypatch):
+    bgr, depth, mask, face = _scene()
+    node = _logit_node(monkeypatch)
+    monkeypatch.setattr(node, "_call_sam", lambda b, pts, box: ([mask], [0.9]))
+    _fake_judge(monkeypatch, _score(float("nan")))
+    result, _ = node._judge(face, _frames(bgr, depth))
+    assert result["verdict"] == "ERROR" and "judge" in result["detail"]
+
+
+def _published_model(node, debug):
+    sent = []
+    node.judgments_pub = SimpleNamespace(publish=lambda m: sent.append(json.loads(m.data)))
+    node.model = "gemma4:e4b"
+    obstacle = SimpleNamespace(along_m=1.0, width_m=0.5, n_cells=3,
+                               centroid=SimpleNamespace(x=1.0, y=0.0))
+    node._publish_judge(obstacle, {"latency_s": 0.1, "verdict": "ERROR",
+                                   "label": "", "detail": "x"}, debug)
+    return sent[0]["model"]
+
+
+def test_publish_judge_model_provenance():
+    logit = _bare_node()
+    logit.judge_backend = "logit"
+    assert _published_model(logit, {}) is None                       # no judge call succeeded
+    assert _published_model(logit, {"model": "Qwen3.5-4B"}) == "Qwen3.5-4B"
+    assert _published_model(_bare_node(), {}) == "gemma4:e4b"        # ollama: self.model
