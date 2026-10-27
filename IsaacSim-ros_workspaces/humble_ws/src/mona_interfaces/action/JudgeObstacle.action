@@ -19,7 +19,7 @@ string detail           # reason or error string
 string PUSH=PUSH
 string SWEEP=SWEEP
 string DETOUR=DETOUR
-string action           # PUSH | SWEEP | DETOUR (DETOUR for every non-MOVABLE verdict)
+string action           # PUSH | SWEEP | DETOUR (DETOUR for every non-MOVABLE verdict, and also for a MOVABLE that is narrow-but-tall, not pushable, or of degenerate size)
 float32 width_m         # mask width from depth [m] (0 if no mask)
 float32 height_m        # mask height from depth [m] (0 if no mask)
 ---
