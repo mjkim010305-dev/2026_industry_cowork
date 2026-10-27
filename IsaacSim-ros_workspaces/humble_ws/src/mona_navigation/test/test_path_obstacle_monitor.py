@@ -17,7 +17,7 @@ from pytest import approx
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 
 from path_obstacle_monitor import (  # noqa: E402
-    costmap_cells_to_map, static_mask, find_path_obstacle,
+    costmap_cells_to_map, static_mask, find_path_obstacle, mark_mask,
 )
 
 RES = 0.05
@@ -150,3 +150,20 @@ def test_9_nearest_of_several_clusters():
     assert geo is not None
     assert geo["centroid"][0] == approx(1.525, abs=1e-6)
     assert geo["along"] == approx(1.475, abs=1e-6)
+
+
+def test_10_mark_exclusion():
+    # mark square centre (2.075, 0.025), side 0.2 -> half 0.1 + margin 0.15 = 0.25
+    marks = [(2.075, 0.025, 0.2)]
+    xy = np.array([[2.075, 0.025], [2.30, 0.20], [2.40, 0.025], [2.075, 0.30]])
+    assert list(mark_mask(xy, marks, MARGIN)) == [True, True, False, False]
+    assert not mark_mask(xy, [], MARGIN).any()
+    # the box of test 1 is fully inside -> no obstacle once marked
+    cells = box(60, 62, 48, 52)
+    ij, cxy = costmap_cells_to_map(
+        np.where(np.isin(np.arange(SIZE * SIZE), [j * SIZE + i for i, j in cells]),
+                 LETHAL, 0).astype(np.uint8), SIZE, SIZE, RES, ORIGIN, 0.0, LETHAL,
+        (0.0, 0.0, 0.0))
+    keep = ~mark_mask(cxy, marks, MARGIN)
+    assert find_path_obstacle(ij[keep], cxy[keep], np.array(PATH_X), ROBOT, CORRIDOR,
+                              TRIGGER, RES) is None

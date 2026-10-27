@@ -7,6 +7,7 @@ Per cycle (5 Hz):
   1. take the lethal (== 254) cells of /local_costmap/costmap_raw and put
      their centers in the map frame (TF map <- costmap frame)
   2. drop every cell within static_margin of an occupied /map cell
+     and every cell inside a /mona/obstacle_marks/list square (already detoured)
   3. cluster the rest (8-connected)
   4. look only at the path from the robot to trigger_dist ahead; a cluster is
      "on the path" if one of its cells is within corridor_half of that
@@ -20,6 +21,7 @@ behind it is unknown (see the .msg). Marker for RViz: /mona/path_obstacle/marker
 
 Pure functions come first so they test without rclpy (test_path_obstacle_monitor.py).
 """
+import json
 import math
 import time
 
@@ -68,6 +70,16 @@ def static_mask(xy, occupied, resolution, origin_xy, margin):
         cx = origin_xy[0] + (oi + i0 + 0.5) * resolution
         cy = origin_xy[1] + (oj + j0 + 0.5) * resolution
         out[k] = bool(np.any(np.hypot(cx - x, cy - y) <= margin + 1e-9))
+    return out
+
+
+def mark_mask(xy, marks, margin):
+    """True for every point inside a mark square (half side + margin).
+    marks: [(x, y, side)], axis-aligned squares centred on (x, y)."""
+    out = np.zeros(len(xy), dtype=bool)
+    for mx, my, side in marks:
+        half = side / 2.0 + margin + 1e-9
+        out |= (np.abs(xy[:, 0] - mx) <= half) & (np.abs(xy[:, 1] - my) <= half)
     return out
 
 
@@ -237,6 +249,7 @@ def main(args=None):
     from geometry_msgs.msg import Point, Vector3
     from nav2_msgs.msg import Costmap
     from nav_msgs.msg import OccupancyGrid, Path
+    from std_msgs.msg import String
     from visualization_msgs.msg import Marker
     from tf2_ros import Buffer, TransformListener, TransformException
     from mona_interfaces.msg import PathObstacle
@@ -255,6 +268,7 @@ def main(args=None):
             self.costmap = None
             self.plan = None
             self.plan_time = 0.0
+            self.marks = []      # [(x, y, side)] from /mona/obstacle_marks/list
             self.static = None   # (occupied bool HxW, resolution, origin_xy)
 
             self.tf_buffer = Buffer()
@@ -266,6 +280,7 @@ def main(args=None):
                 OccupancyGrid, "/map", self._on_map,
                 QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL,
                            reliability=ReliabilityPolicy.RELIABLE))
+            self.create_subscription(String, "/mona/obstacle_marks/list", self._on_marks, 1)
             self.pub = self.create_publisher(PathObstacle, "/mona/path_obstacle", 1)
             self.pub_marker = self.create_publisher(Marker, "/mona/path_obstacle/marker", 1)
             self.create_timer(0.2, self._tick)
@@ -276,6 +291,13 @@ def main(args=None):
         def _on_plan(self, msg):
             self.plan = msg
             self.plan_time = time.monotonic()
+
+        def _on_marks(self, msg):
+            try:
+                objs = json.loads(msg.data)["objects"]
+                self.marks = [(float(o["x"]), float(o["y"]), float(o["width_m"])) for o in objs]
+            except (ValueError, KeyError, TypeError):
+                self.get_logger().warn("bad obstacle_marks list", throttle_duration_sec=5.0)
 
         def _on_map(self, msg):
             grid = np.asarray(msg.data, dtype=np.int16).reshape(msg.info.height, msg.info.width)
@@ -306,6 +328,8 @@ def main(args=None):
                 _yaw_of(meta.origin.orientation), self.lethal, tf_cm)
             occupied, map_res, map_origin = self.static
             keep = ~static_mask(xy, occupied, map_res, map_origin, self.static_margin)
+            if self.marks:
+                keep &= ~mark_mask(xy, self.marks, self.static_margin)
             path = np.array([[p.pose.position.x, p.pose.position.y] for p in self.plan.poses])
             return find_path_obstacle(ij[keep], xy[keep], path, robot[:2],
                                       self.corridor_half, self.trigger_dist,

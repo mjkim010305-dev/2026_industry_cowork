@@ -35,6 +35,12 @@ def _launch_setup(context):
             name='path_obstacle_monitor',
             output='screen',
             parameters=[{'use_sim_time': use_sim_time}]))
+        actions.append(Node(
+            package='mona_navigation',
+            executable='obstacle_marks.py',
+            name='obstacle_marks',
+            output='screen',
+            parameters=[{'use_sim_time': use_sim_time}]))
 
     actions.append(IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
