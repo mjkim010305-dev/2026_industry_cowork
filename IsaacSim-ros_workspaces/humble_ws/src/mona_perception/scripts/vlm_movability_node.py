@@ -595,6 +595,8 @@ def _judge_marker_spec(geom, result, debug):
     else:
         rgba = _JUDGE_COLORS["fail"]
         text = "%s: %s" % (verdict, result["detail"][:40])
+    if result.get("action"):
+        text += "\naction " + result["action"]
     return {"cube": {"center": (cx, cy, height / 2.0), "yaw": math.atan2(ny, nx),
                      "scale": (d, max(geom["width_m"], 0.05), height), "rgba": rgba},
             "text": {"pos": (cx, cy, height + 0.25), "text": text,

@@ -701,6 +701,12 @@ def test_marker_text():
     assert text(_res("ERROR", detail="e" * 60), {}) == "ERROR: " + "e" * 40
 
 
+def test_marker_text_shows_action():
+    r = dict(_res(), action="DETOUR")
+    t = _judge_marker_spec(_geom(), r, {"size": (0.2, 0.5)})["text"]["text"]
+    assert t == "MOVABLE / 0.20x0.50 m\naction DETOUR"
+
+
 def test_marker_absent_obstacle_is_none():
     assert _judge_marker_spec(_geom(present=False), _res(), {}) is None
 

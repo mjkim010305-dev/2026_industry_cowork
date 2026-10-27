@@ -27,15 +27,17 @@ BT::NodeStatus JudgeObstacleAction::on_success()
   setOutput("pushable", result_.result->pushable);
   setOutput("action", result_.result->action);
   RCLCPP_INFO(
-    node_->get_logger(), "JudgeObstacle: verdict=%s label=\"%s\" votes=%u/%u latency=%.1fs (%s)",
+    node_->get_logger(), "JudgeObstacle: verdict=%s label=\"%s\" votes=%u/%u latency=%.1fs action=%s width=%.2fm height=%.2fm (%s)",
     result_.result->verdict.c_str(), result_.result->label.c_str(),
     result_.result->votes_movable, result_.result->votes_n, result_.result->latency_s,
+    result_.result->action.c_str(), result_.result->width_m, result_.result->height_m,
     result_.result->detail.c_str());
   return BT::NodeStatus::SUCCESS;
 }
 
 BT::NodeStatus JudgeObstacleAction::on_aborted()
 {
+  RCLCPP_WARN(node_->get_logger(), "JudgeObstacle: aborted, verdict set to ERROR / action DETOUR");
   setOutput("verdict", mona_interfaces::action::JudgeObstacle::Result::ERROR);
   setOutput("action", mona_interfaces::action::JudgeObstacle::Result::DETOUR);
   return BT::NodeStatus::FAILURE;
@@ -43,6 +45,7 @@ BT::NodeStatus JudgeObstacleAction::on_aborted()
 
 BT::NodeStatus JudgeObstacleAction::on_cancelled()
 {
+  RCLCPP_WARN(node_->get_logger(), "JudgeObstacle: cancelled, verdict set to ERROR / action DETOUR");
   setOutput("verdict", mona_interfaces::action::JudgeObstacle::Result::ERROR);
   setOutput("action", mona_interfaces::action::JudgeObstacle::Result::DETOUR);
   return BT::NodeStatus::FAILURE;
