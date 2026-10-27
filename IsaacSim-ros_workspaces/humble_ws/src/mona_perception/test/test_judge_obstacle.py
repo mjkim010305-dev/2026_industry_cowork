@@ -631,3 +631,72 @@ def test_marker_text():
 
 def test_marker_absent_obstacle_is_none():
     assert _judge_marker_spec(_geom(present=False), _res(), {}) is None
+
+
+# ---------------------------------------------------------------------------
+# _publish_judge_markers (ROS builder) on a bare node, fake publisher
+
+class _FakePub:
+    def __init__(self, exc=None):
+        self.sent, self.exc = [], exc
+
+    def publish(self, msg):
+        if self.exc:
+            raise self.exc
+        self.sent.append(msg)
+
+
+class _FakeLog:
+    def __init__(self):
+        self.warnings = []
+
+    def warn(self, text):
+        self.warnings.append(text)
+
+
+def _marker_node(pub):
+    n = _bare_node()
+    n.judge_markers_pub, n._log = pub, _FakeLog()
+    n.get_logger = lambda: n._log
+    return n
+
+
+def _obstacle(present=True, normal=(0.0, 1.0)):
+    from std_msgs.msg import Header
+    v = lambda x, y: SimpleNamespace(x=x, y=y)
+    header = Header()
+    header.frame_id = "map"
+    return SimpleNamespace(
+        present=present, face_start=v(1.0, 0.0), face_end=v(3.0, 0.0),
+        normal=v(*normal), width_m=0.6,
+        header=header)
+
+
+def test_publish_markers_present_obstacle():
+    from visualization_msgs.msg import Marker
+    pub = _FakePub()
+    _marker_node(pub)._publish_judge_markers(_obstacle(), _res(), {})
+    assert len(pub.sent) == 1
+    cube, text = pub.sent[0].markers
+    assert [(m.ns, m.id) for m in (cube, text)] == [("vlm_judge", 0), ("vlm_judge", 1)]
+    assert (cube.type, text.type) == (Marker.CUBE, Marker.TEXT_VIEW_FACING)
+    assert cube.action == text.action == Marker.ADD
+    # normal (0, 1): yaw = pi/2 -> z = sin(pi/4), w = cos(pi/4) = sqrt(2)/2
+    assert cube.pose.orientation.x == 0.0 and cube.pose.orientation.y == 0.0
+    assert cube.pose.orientation.z == pytest.approx(0.7071067811865476)
+    assert cube.pose.orientation.w == pytest.approx(0.7071067811865476)
+    assert cube.header.frame_id == text.header.frame_id == "map"
+
+
+def test_publish_markers_absent_obstacle_deletes_all():
+    from visualization_msgs.msg import Marker
+    pub = _FakePub()
+    _marker_node(pub)._publish_judge_markers(_obstacle(present=False), _res(), {})
+    assert len(pub.sent[0].markers) == 1
+    assert pub.sent[0].markers[0].action == Marker.DELETEALL
+
+
+def test_publish_markers_publisher_error_is_swallowed():
+    node = _marker_node(_FakePub(exc=RuntimeError("pub down")))
+    node._publish_judge_markers(_obstacle(), _res(), {})          # must not raise
+    assert len(node._log.warnings) == 1 and "pub down" in node._log.warnings[0]
