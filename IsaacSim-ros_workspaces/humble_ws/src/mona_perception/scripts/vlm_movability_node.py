@@ -133,6 +133,23 @@ objects too and must be judged, not dismissed as background.
 PROMPT_HEAD_CONTOUR = PROMPT_HEAD.replace("by the magenta rectangle",
                                           "by the magenta contour")
 
+# judge_backend=logit: one two-word question scored by judge_server. The image
+# carries the magenta rectangle (the S33 measurement), so the rect context is used.
+# The question is the wording S33 measured (27/27, mona-scenes judge/k2 DECISION):
+# only the final "{A} or {B}" line swaps between the two option orders.
+JUDGE_CONTEXT = PROMPT_HEAD
+MOVABLE_QUESTION = {
+    "id": "movable",
+    "text": ("Decide whether the robot can PUSH the outlined object aside with its small arm:\n"
+             "- movable : light, free-standing, small enough to shove\n"
+             "            (cardboard box, empty crate, small carton, cone, bin)\n"
+             "- fixed   : heavy machinery, vehicles, or fixed structure\n"
+             "            (forklift, pallet jack, loaded pallet, rack, wall, pillar)\n"
+             "\n"
+             "Answer with exactly one word: {A} or {B}."),
+    "options": ["movable", "fixed"],
+}
+
 def _same_size(a, b, ratio):
     """Extent may not jump by more than ``ratio`` between the two readings.
 
@@ -449,6 +466,12 @@ def _select_mask(masks, scores, depth, face_z, tol, min_r, max_r, min_px):
     return best
 
 
+def _mask_bbox(mask):
+    """(x0, y0, x1, y1) of a bool mask, x1/y1 exclusive like ``_draw_highlight``."""
+    ys, xs = np.nonzero(mask)
+    return int(xs.min()), int(ys.min()), int(xs.max()) + 1, int(ys.max()) + 1
+
+
 def _mask_highlight(bgr, mask, dim):
     """The mask-prompted version of ``_draw_highlight``: everything outside the
     mask is dimmed, the inside is untouched, and the outline is magenta."""
@@ -671,6 +694,14 @@ class VlmMovability(Node):
         self.mask_depth_tol = self.declare_parameter("mask_depth_tol", 0.3).value
         self.mask_min_px = int(self.declare_parameter("mask_min_px", 50).value)
         self.judge_frame_timeout = self.declare_parameter("judge_frame_timeout", 5.0).value
+        # ollama: the generative VLM above. logit: Qwen3.5 two-word probability from
+        # judge_server (a failure is an ERROR verdict, never a fallback to ollama).
+        self.judge_backend = self.declare_parameter("judge_backend", "ollama").value
+        if self.judge_backend not in ("ollama", "logit"):
+            raise ValueError("judge_backend must be ollama|logit, got %r"
+                             % self.judge_backend)
+        self.judge_url = self.declare_parameter("judge_url", "http://127.0.0.1:8092").value
+        self.movable_threshold = self.declare_parameter("movable_threshold", 0.5).value
 
         # --- state --------------------------------------------------------
         self.bridge = CvBridge()
@@ -1491,7 +1522,7 @@ class VlmMovability(Node):
                 header, bgr, depth, t, r = next_frame(prev)
                 prev = (header.stamp.sec, header.stamp.nanosec)
                 debug["header"] = header
-                raw, label, size, highlight = self._judge_vote(face, bgr, depth, t, r)
+                raw, label, size, highlight = self._judge_vote(face, bgr, depth, t, r, debug)
                 raws.append(raw)
                 labels.append(label)
                 debug["highlight"] = highlight
@@ -1500,13 +1531,16 @@ class VlmMovability(Node):
         except Exception as exc:                      # noqa: BLE001 - keep node alive
             return _failure_result(V_ERROR, "%s: %s" % (type(exc).__name__, exc)), debug
         debug["size"] = size
+        detail = "mask %.2fx%.2f m" % size
+        if "p_movable" in debug:
+            detail += " p_movable=" + ",".join("%.2f" % p for p in debug["p_movable"])
         return _assemble_verdict(
             raws, labels, size[0], size[1], self.judge_k, self.movable_vote_ratio,
-            self.push_max_height, self.push_max_width,
-            "mask %.2fx%.2f m" % size), debug
+            self.push_max_height, self.push_max_width, detail), debug
 
-    def _judge_vote(self, face, bgr, depth, t, r):
-        """One vote on one frame -> (raw_movable, label, (width, height), highlight)."""
+    def _judge_vote(self, face, bgr, depth, t, r, debug=None):
+        """One vote on one frame -> (raw_movable, label, (width, height), highlight).
+        The logit backend also appends its p and the server's model to ``debug``."""
         rgb_h, rgb_w = bgr.shape[:2]
         dh, dw = depth.shape[:2]
         sx, sy = rgb_w / float(dw), rgb_h / float(dh)
@@ -1546,12 +1580,23 @@ class VlmMovability(Node):
                                  face_z, self.mask_depth_tol, len(masks)))
         mask = masks[pick]
 
-        highlight = _mask_highlight(bgr, mask, self.highlight_dim)
-        cand = {"det_label": None, "outline": "contour"}
-        try:
-            self._ask_image(highlight, cand)
-        except Exception as exc:                      # noqa: BLE001 - reported as ERROR
-            raise _JudgeFail(V_ERROR, "vlm: %s: %s" % (type(exc).__name__, exc))
+        if self.judge_backend == "logit":
+            highlight = self._draw_highlight(bgr, _mask_bbox(mask))
+            try:
+                p, model = self._call_judge(highlight)
+            except Exception as exc:                  # noqa: BLE001 - reported as ERROR
+                raise _JudgeFail(V_ERROR, "judge: %s: %s" % (type(exc).__name__, exc))
+            if debug is not None:
+                debug.setdefault("p_movable", []).append(p)
+                debug["model"] = model
+            cand = {"raw_movable": p >= self.movable_threshold, "label": ""}
+        else:
+            highlight = _mask_highlight(bgr, mask, self.highlight_dim)
+            cand = {"det_label": None, "outline": "contour"}
+            try:
+                self._ask_image(highlight, cand)
+            except Exception as exc:                  # noqa: BLE001 - reported as ERROR
+                raise _JudgeFail(V_ERROR, "vlm: %s: %s" % (type(exc).__name__, exc))
 
         ys, xs, z = _mask_valid(mask, depth, self.min_range, self.max_range)
         fx, fy, cx, cy = intr
@@ -1560,6 +1605,23 @@ class VlmMovability(Node):
             plane = _floor_from_face(face_cam, _apply_transform((0.0, 0.0, 1.0),
                                                                 (0.0, 0.0, 0.0), r))
         return cand["raw_movable"], cand["label"], _mask_size(mpts, plane), highlight
+
+    def _call_judge(self, image):
+        """POST <judge_url>/score with the movable question -> (p, server model)."""
+        ok, buf = cv2.imencode(".jpg", image,
+                               [int(cv2.IMWRITE_JPEG_QUALITY), self.jpeg_quality])
+        if not ok:
+            raise RuntimeError("jpeg encode failed")
+        body = json.dumps({
+            "image_jpeg_b64": base64.b64encode(buf.tobytes()).decode(),
+            "context": JUDGE_CONTEXT, "questions": [MOVABLE_QUESTION],
+        }).encode()
+        req = urllib.request.Request(
+            self.judge_url.rstrip("/") + "/score", data=body,
+            headers={"Content-Type": "application/json"})
+        with urllib.request.urlopen(req, timeout=self.request_timeout) as resp:
+            out = json.loads(resp.read())
+        return float(out["results"][MOVABLE_QUESTION["id"]]["p"]), str(out["model"])
 
     def _call_sam(self, bgr, points, box):
         """POST <sam_url>/segment -> (bool masks at RGB resolution, scores)."""
@@ -1589,7 +1651,9 @@ class VlmMovability(Node):
         header = debug.get("header")
         stamp = {"sec": header.stamp.sec, "nanosec": header.stamp.nanosec} if header else None
         self.judgments_pub.publish(String(data=json.dumps({
-            "stamp": stamp, "model": self.model, "trigger": "on_demand",
+            "stamp": stamp, "model": debug.get("model", self.model),
+            "judge_backend": self.judge_backend, "p_movable": debug.get("p_movable"),
+            "trigger": "on_demand",
             "latency_s": round(result["latency_s"], 3),
             "obstacle": {"along_m": obstacle.along_m, "width_m": obstacle.width_m,
                          "centroid": [obstacle.centroid.x, obstacle.centroid.y],
