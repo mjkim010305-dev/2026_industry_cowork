@@ -1,6 +1,6 @@
 # Source: branch feat/warehouse-sweep commit 84188f0 (humble_ws/src/demo_vlm_params.yaml; identical on blocked-push-scenario).
-# Changes vs source: (a) default_nav_to_pose_bt_xml removed (stock BT), (b) custom_* plugin_lib_names removed,
-# (c) goal_checker_plugins -> [general_goal_checker], (d) layer class -> mona_navigation::MovableObstacleLayer.
+# Changes vs source: (a) default_nav_to_pose_bt_xml removed (stock BT), (b) custom_* plugin_lib_names removed (+ mona sweep/compute_sweep_poses/creep_to_face BT libs),
+# (c) goal_checker_plugins -> [general_goal_checker, return_goal_checker], (d) layer class -> mona_navigation::MovableObstacleLayer.
 amcl:
   ros__parameters:
     use_sim_time: True
@@ -86,6 +86,9 @@ bt_navigator:
       - nav2_drive_on_heading_bt_node
       - nav2_clear_costmap_service_bt_node
       - mona_mark_obstacle_action_bt_node
+      - mona_sweep_obstacle_action_bt_node
+      - mona_compute_sweep_poses_action_bt_node
+      - mona_creep_to_face_action_bt_node
       - nav2_is_stuck_condition_bt_node
       - nav2_goal_reached_condition_bt_node
       - nav2_goal_updated_condition_bt_node
@@ -144,12 +147,13 @@ controller_server:
     failure_tolerance: 0.3
     progress_checker_plugin: "progress_checker"
     # return_goal_checker: tighter xy tolerance than general_goal_checker,
-    # used ONLY for the PlaceOnCommand Leg 2 return leg (demo.xml,
-    # FollowPathReverse's goal_checker_id) - general_goal_checker's 0.35m
+    # used by the PlaceOnCommand Leg 2 return leg (demo.xml,
+    # FollowPathReverse's goal_checker_id) and by the SWEEP staging leg
+    # (navigate_judge_on_path.xml, FollowPath goal_checker_id) - general_goal_checker's 0.35m
     # was loosened for Leg 1's approach (see its comment below), but that
     # same looseness let the return leg call "arrived" up to 0.35m short of
     # spot A, too far off for FixedPickObject's fixed-joint pick to reach.
-    goal_checker_plugins: ["general_goal_checker"] # "precise_goal_checker"
+    goal_checker_plugins: ["general_goal_checker", "return_goal_checker"] # "precise_goal_checker"
     # FollowPathReverse: same DWB config as FollowPath but reverse-only
     # (min_vel_x negative, max_vel_x 0.0) - used ONLY for the PlaceOnCommand
     # Leg 2 return-to-spot-A leg (demo.xml), whose path keeps the robot

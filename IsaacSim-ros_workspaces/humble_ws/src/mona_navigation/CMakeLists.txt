@@ -17,6 +17,8 @@ find_package(mona_interfaces REQUIRED)
 find_package(nav2_behavior_tree REQUIRED)
 find_package(nav2_msgs REQUIRED)
 find_package(rclcpp_action REQUIRED)
+find_package(nav_msgs REQUIRED)
+find_package(tf2_ros REQUIRED)
 
 include_directories(include)
 
@@ -51,6 +53,31 @@ ament_target_dependencies(mona_mark_obstacle_action_bt_node
 target_compile_definitions(mona_mark_obstacle_action_bt_node
   PRIVATE BT_PLUGIN_EXPORT)
 list(APPEND bt_plugin_libs mona_mark_obstacle_action_bt_node)
+
+add_library(mona_sweep_obstacle_action_bt_node SHARED src/sweep_obstacle_action.cpp)
+ament_target_dependencies(mona_sweep_obstacle_action_bt_node
+  rclcpp rclcpp_action behaviortree_cpp_v3 mona_interfaces)
+target_compile_definitions(mona_sweep_obstacle_action_bt_node PRIVATE BT_PLUGIN_EXPORT)
+list(APPEND bt_plugin_libs mona_sweep_obstacle_action_bt_node)
+
+add_library(mona_compute_sweep_poses_action_bt_node SHARED src/compute_sweep_poses_action.cpp)
+ament_target_dependencies(mona_compute_sweep_poses_action_bt_node
+  rclcpp behaviortree_cpp_v3 geometry_msgs mona_interfaces)
+target_compile_definitions(mona_compute_sweep_poses_action_bt_node PRIVATE BT_PLUGIN_EXPORT)
+list(APPEND bt_plugin_libs mona_compute_sweep_poses_action_bt_node)
+
+add_library(mona_creep_to_face_action_bt_node SHARED src/creep_to_face_action.cpp)
+ament_target_dependencies(mona_creep_to_face_action_bt_node
+  rclcpp behaviortree_cpp_v3 geometry_msgs nav_msgs tf2_ros)
+target_compile_definitions(mona_creep_to_face_action_bt_node PRIVATE BT_PLUGIN_EXPORT)
+list(APPEND bt_plugin_libs mona_creep_to_face_action_bt_node)
+
+if(BUILD_TESTING)
+  find_package(ament_cmake_gtest REQUIRED)
+  ament_add_gtest(test_sweep_geometry test/test_sweep_geometry.cpp)
+  ament_target_dependencies(test_sweep_geometry
+    rclcpp behaviortree_cpp_v3 geometry_msgs nav_msgs tf2_ros mona_interfaces)
+endif()
 
 install(TARGETS mona_movable_obstacle_layer ${bt_plugin_libs}
   ARCHIVE DESTINATION lib

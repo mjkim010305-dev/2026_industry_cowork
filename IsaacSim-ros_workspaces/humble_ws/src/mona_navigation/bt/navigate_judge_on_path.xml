@@ -5,7 +5,14 @@
   and obstacle_action on the blackboard). RecoveryDispatch then picks:
     - verdict none            -> stock recoveries (clearing / spin / wait / backup).
     - NO_CANDIDATE            -> clear the local costmap and re-judge once per goal.
-    - action PUSH / SWEEP     -> named AlwaysFailure stubs (goal ABORTED; implemented later).
+    - action PUSH             -> named AlwaysFailure stub (goal ABORTED; implemented later).
+    - action SWEEP            -> Fallback SweepOrDetour. Sweep: ComputeSweepPoses, plan + FollowPath
+                                 to the staging pose (return_goal_checker), CreepToFace, SweepObstacle
+                                 (/sweep), BackUp 1.0 m (lidar is blind < 1.0 m), clear the local
+                                 costmap (stale cells inside the blind zone are never raytraced away),
+                                 reset the verdict. If any step fails, SweepFailedDetour backs up
+                                 0.5 m and falls through to the MarkObstacle detour. A per-object
+                                 sweep cap with tracking is pending (not implemented).
     - anything else (DETOUR, FIXED, ERROR, second NO_CANDIDATE)
                               -> MarkObstacle publishes a temporary global-costmap mark
                                  (obstacle_marks.py), wait for the 1 Hz global update, reset
@@ -71,7 +78,26 @@
             <AlwaysFailure name="PushAction_NOT_IMPLEMENTED"/>
           </BlackboardCheckString>
           <BlackboardCheckString name="IsSweep" value_A="{obstacle_action}" value_B="SWEEP" return_on_mismatch="FAILURE">
-            <AlwaysFailure name="SweepAction_NOT_IMPLEMENTED"/>
+            <Fallback name="SweepOrDetour">
+              <Sequence name="Sweep">
+                <ComputeSweepPoses obstacle="{path_obstacle}" staging_pose="{sweep_staging}" face_pose="{sweep_face}"/>
+                <ComputePathToPose goal="{sweep_staging}" path="{sweep_path}" planner_id="GridBased"/>
+                <FollowPath path="{sweep_path}" controller_id="FollowPath" goal_checker_id="return_goal_checker"/>
+                <CreepToFace target="{sweep_face}"/>
+                <SweepObstacle action_name="/sweep" result_code="{sweep_result}"/>
+                <BackUp backup_dist="1.0" backup_speed="0.1"/>
+                <ClearEntireCostmap name="ClearLocalCostmap-AfterSweep" service_name="local_costmap/clear_entirely_local_costmap"/>
+                <SetBlackboard output_key="obstacle_verdict" value="none"/>
+                <SetBlackboard output_key="obstacle_action" value="none"/>
+              </Sequence>
+              <Sequence name="SweepFailedDetour">
+                <BackUp backup_dist="0.5" backup_speed="0.1"/>
+                <MarkObstacle obstacle="{path_obstacle}"/>
+                <Wait wait_duration="2"/>
+                <SetBlackboard output_key="obstacle_verdict" value="none"/>
+                <SetBlackboard output_key="obstacle_action" value="none"/>
+              </Sequence>
+            </Fallback>
           </BlackboardCheckString>
           <Sequence name="Detour">
             <Inverter name="NotPushOrSweep">
