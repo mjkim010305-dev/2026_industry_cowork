@@ -19,6 +19,14 @@ Per cycle (5 Hz):
      smallest along-path distance wins
   6. fit the visible front face of the winner (PCA of the cell centers)
 
+Sweep tracking (/mona/swept_objects/add, cleared when a goal ends): every swept
+object keeps its original face mid, approach heading, the predicted spot after
+the sweep (mid shifted to the robot's left) and a sweep count. A cluster whose
+centroid is near an entry is that object; if it now lies off the original
+approach line by more than corridor_half it was pushed out of the way and is
+skipped in step 5. Otherwise it can trigger again and the published
+PathObstacle carries sweep_count (0 = not a tracked object).
+
 and publishes mona_interfaces/PathObstacle on /mona/path_obstacle, all
 geometry in the map frame. Only the face the lidar saw is observed; the depth
 behind it is unknown (see the .msg). Marker for RViz: /mona/path_obstacle/marker.
@@ -229,13 +237,56 @@ def project_on_path(path, pts):
     return along, lat, outside
 
 
-def pick_on_path(labels, xy, path, corridor_half):
-    """Cluster on the path with the smallest along distance.
-    Returns (label, along, lateral) or None. path is the trimmed polyline."""
+def track_sweep(tracked, face_mid, normal, now, assoc_radius, shift_left):
+    """Record one finished sweep in tracked (list of dicts, mutated).
+    face_mid / normal: swept face mid and unit normal (toward the robot) in the map
+    frame. The sweep pushes along heading = -normal; pred = mid + left * shift_left,
+    left = heading rotated +90 deg. A face mid within assoc_radius of an entry's mid
+    or pred is the same object: count += 1 and mid/heading/pred follow the new sweep.
+    Otherwise a new entry with count 1. Returns the entry."""
+    mid = np.asarray(face_mid, dtype=float)
+    n = np.asarray(normal, dtype=float)
+    heading = -n / max(float(np.hypot(*n)), 1e-9)
+    pred = mid + np.array([-heading[1], heading[0]]) * shift_left
+    for e in tracked:
+        if min(float(np.hypot(*(mid - e["mid"]))),
+               float(np.hypot(*(mid - e["pred"])))) <= assoc_radius:
+            e["count"] += 1
+            e.update(mid=mid, heading=heading, pred=pred, t=now)
+            return e
+    e = {"mid": mid, "heading": heading, "pred": pred, "count": 1, "t": now}
+    tracked.append(e)
+    return e
+
+
+def classify_tracked(tracked, centroid_xy, corridor_half, assoc_radius):
+    """(entry, outside) for a cluster centroid. entry = closest tracked object whose
+    pred or mid is within assoc_radius (None if none). outside = the centroid is more
+    than corridor_half (perpendicular) from the entry's approach line through mid
+    along heading."""
+    c = np.asarray(centroid_xy, dtype=float)
+    best = None
+    for e in tracked:
+        d = min(float(np.hypot(*(c - e["mid"]))), float(np.hypot(*(c - e["pred"]))))
+        if d <= assoc_radius and (best is None or d < best[0]):
+            best = (d, e)
+    if best is None:
+        return None, False
+    e = best[1]
+    h = e["heading"]
+    perp = abs(float((c[0] - e["mid"][0]) * -h[1] + (c[1] - e["mid"][1]) * h[0]))
+    return e, perp > corridor_half
+
+
+def pick_on_path(labels, xy, path, corridor_half, exclude=()):
+    """Cluster on the path with the smallest along distance (labels in exclude are
+    never picked). Returns (label, along, lateral) or None. path is the trimmed polyline."""
     if len(xy) == 0:
         return None
     along, lat, outside = project_on_path(path, xy)
     ok = ~outside & (lat <= corridor_half)
+    if len(exclude):
+        ok &= ~np.isin(labels, list(exclude))
     best = None
     for lab in np.unique(labels[ok]):
         sel = ok & (labels == lab)
@@ -285,14 +336,19 @@ def face_geometry(cells, robot_xy, resolution):
             "width": extent + resolution, "normal": normal, "degenerate": degenerate}
 
 
-def find_path_obstacle(ij, xy, path, robot_xy, corridor_half, trigger_dist, resolution):
+def find_path_obstacle(ij, xy, path, robot_xy, corridor_half, trigger_dist, resolution,
+                       skip=None):
     """Static-free lethal cells (grid index ij, map xy) + full /plan polyline ->
-    dict(face_geometry fields + along, lateral, n_cells) or None."""
+    dict(face_geometry fields + along, lateral, n_cells) or None.
+    skip(centroid_xy) -> True drops that cluster from the candidates."""
     trimmed = trim_path(path, robot_xy, trigger_dist)
     if trimmed is None or len(xy) == 0:
         return None
     labels = cluster_cells(ij)
-    hit = pick_on_path(labels, xy, trimmed, corridor_half)
+    exclude = set()
+    if skip is not None:
+        exclude = {int(lab) for lab in np.unique(labels) if skip(xy[labels == lab].mean(axis=0))}
+    hit = pick_on_path(labels, xy, trimmed, corridor_half, exclude)
     if hit is None:
         return None
     lab, along, lateral = hit
@@ -308,6 +364,7 @@ def _yaw_of(q):
 
 def main(args=None):
     import rclpy
+    from action_msgs.msg import GoalStatusArray
     from rclpy.node import Node
     from rclpy.qos import QoSProfile, DurabilityPolicy, ReliabilityPolicy
     from geometry_msgs.msg import Point, Vector3
@@ -317,6 +374,7 @@ def main(args=None):
     from visualization_msgs.msg import Marker
     from tf2_ros import Buffer, TransformListener, TransformException
     from mona_interfaces.msg import PathObstacle
+    from obstacle_marks import goal_ended
 
     class PathObstacleMonitor(Node):
         def __init__(self):
@@ -329,12 +387,16 @@ def main(args=None):
             self.plan_timeout = self.declare_parameter("plan_timeout", 3.0).value
             self.map_frame = self.declare_parameter("map_frame", "map").value
             self.base_frame = self.declare_parameter("base_frame", "base_link").value
+            self.assoc_radius = self.declare_parameter("assoc_radius", 0.3).value
+            self.sweep_shift_left = self.declare_parameter("sweep_shift_left", 0.4).value
 
             self.costmap = None
             self.plan = None
             self.plan_time = 0.0
             self.marks = []      # [(x, y, side)] from /mona/obstacle_marks/list
             self.static = None   # (occupied bool HxW, resolution, origin_xy)
+            self.tracked = []    # swept objects of this goal (track_sweep entries)
+            self.seen_terminal = set()
 
             self.tf_buffer = Buffer()
             self.tf_listener = TransformListener(self.tf_buffer, self)
@@ -346,6 +408,9 @@ def main(args=None):
                 QoSProfile(depth=1, durability=DurabilityPolicy.TRANSIENT_LOCAL,
                            reliability=ReliabilityPolicy.RELIABLE))
             self.create_subscription(String, "/mona/obstacle_marks/list", self._on_marks, 1)
+            self.create_subscription(PathObstacle, "/mona/swept_objects/add", self._on_swept, 10)
+            self.create_subscription(GoalStatusArray, "/navigate_to_pose/_action/status",
+                                     self._on_status, 10)
             self.pub = self.create_publisher(PathObstacle, "/mona/path_obstacle", 1)
             self.pub_marker = self.create_publisher(Marker, "/mona/path_obstacle/marker", 1)
             self.pub_extend = self.create_publisher(String, "/mona/obstacle_marks/extend", 1)
@@ -364,6 +429,30 @@ def main(args=None):
                 self.marks = [(float(o["x"]), float(o["y"]), float(o["width_m"])) for o in objs]
             except (ValueError, KeyError, TypeError):
                 self.get_logger().warn("bad obstacle_marks list", throttle_duration_sec=5.0)
+
+        def _on_swept(self, msg):
+            mid = ((msg.face_start.x + msg.face_end.x) / 2.0,
+                   (msg.face_start.y + msg.face_end.y) / 2.0)
+            e = track_sweep(self.tracked, mid, (msg.normal.x, msg.normal.y),
+                            time.monotonic(), self.assoc_radius, self.sweep_shift_left)
+            self.get_logger().info(
+                f"swept object at ({mid[0]:.2f}, {mid[1]:.2f}): sweep count {e['count']}")
+
+        def _on_status(self, msg):
+            statuses = [(bytes(s.goal_info.goal_id.uuid).hex(), s.status)
+                        for s in msg.status_list]
+            if goal_ended(statuses, self.seen_terminal) and self.tracked:
+                self.tracked = []
+                self.get_logger().info("goal ended: swept-object tracking cleared")
+
+        def _skip(self, centroid):
+            e, outside = classify_tracked(self.tracked, centroid, self.corridor_half,
+                                          self.assoc_radius)
+            if e is not None and outside:
+                self.get_logger().info(
+                    f"tracked object (sweeps {e['count']}) pushed out of its corridor: ignored",
+                    throttle_duration_sec=5.0)
+            return e is not None and outside
 
         def _on_map(self, msg):
             grid = np.asarray(msg.data, dtype=np.int16).reshape(msg.info.height, msg.info.width)
@@ -406,7 +495,7 @@ def main(args=None):
             path = np.array([[p.pose.position.x, p.pose.position.y] for p in self.plan.poses])
             return find_path_obstacle(ij[keep], xy[keep], path, robot[:2],
                                       self.corridor_half, self.trigger_dist,
-                                      meta.resolution), robot
+                                      meta.resolution, skip=self._skip), robot
 
         def _tick(self):
             result = self._detect()
@@ -427,6 +516,9 @@ def main(args=None):
                 msg.along_m = float(geo["along"])
                 msg.lateral_m = float(geo["lateral"])
                 msg.n_cells = int(geo["n_cells"])
+                e, _ = classify_tracked(self.tracked, geo["centroid"], self.corridor_half,
+                                        self.assoc_radius)
+                msg.sweep_count = int(e["count"]) if e is not None else 0
             self.pub.publish(msg)
             self._publish_marker(msg)
 

@@ -38,6 +38,8 @@ public:
         "max_age", 1.0, "Max age [s] of the last message before it counts as stale"),
       BT::OutputPort<mona_interfaces::msg::PathObstacle>(
         "obstacle", "The detected obstacle (map frame)"),
+      BT::OutputPort<std::string>(
+        "sweep_count", "obstacle.sweep_count as a string (\"0\", \"1\", ...)"),
     };
   }
 

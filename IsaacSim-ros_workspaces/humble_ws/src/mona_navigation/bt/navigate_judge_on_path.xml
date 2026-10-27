@@ -11,8 +11,12 @@
                                  (/sweep), BackUp 1.0 m (lidar is blind < 1.0 m), clear the local
                                  costmap (stale cells inside the blind zone are never raytraced away),
                                  reset the verdict. If any step fails, SweepFailedDetour backs up
-                                 0.5 m and falls through to the MarkObstacle detour. A per-object
-                                 sweep cap with tracking is pending (not implemented).
+                                 0.5 m and falls through to the MarkObstacle detour.
+  Per-object sweep cap (2): after SweepObstacle the object is published on
+  /mona/swept_objects/add; path_obstacle_monitor tracks it for the goal and puts the count in
+  PathObstacle.sweep_count (sweep_count port). 0 -> JudgeObstacle as usual; 1 -> sweep again
+  without judging; >= 2 -> FIXED / DETOUR. A tracked object that was pushed out of its original
+  approach corridor is ignored by the monitor, so it does not trigger at all.
     - anything else (DETOUR, FIXED, ERROR, second NO_CANDIDATE)
                               -> MarkObstacle publishes a temporary global-costmap mark
                                  (obstacle_marks.py), wait for the 1 Hz global update, reset
@@ -36,10 +40,26 @@
           </RateController>
           <ReactiveFallback name="JudgeOrFollow">
             <Sequence name="JudgeObstacleOnPath">
-              <PathObstacleDetected topic="/mona/path_obstacle" max_age="1.0" obstacle="{path_obstacle}"/>
+              <PathObstacleDetected topic="/mona/path_obstacle" max_age="1.0" obstacle="{path_obstacle}" sweep_count="{obstacle_sweep_count}"/>
               <SetBlackboard output_key="obstacle_verdict" value="judging"/>
               <SetBlackboard output_key="obstacle_action" value="none"/>
-              <JudgeObstacle server_name="/judge_obstacle" server_timeout="2000" obstacle="{path_obstacle}" verdict="{obstacle_verdict}" label="{obstacle_label}" pushable="{obstacle_pushable}" action="{obstacle_action}"/>
+              <Fallback name="SweepCountDispatch">
+                <BlackboardCheckString name="NeverSwept" value_A="{obstacle_sweep_count}" value_B="0" return_on_mismatch="FAILURE">
+                  <ForceSuccess>
+                    <JudgeObstacle server_name="/judge_obstacle" server_timeout="2000" obstacle="{path_obstacle}" verdict="{obstacle_verdict}" label="{obstacle_label}" pushable="{obstacle_pushable}" action="{obstacle_action}"/>
+                  </ForceSuccess>
+                </BlackboardCheckString>
+                <BlackboardCheckString name="SweptOnce" value_A="{obstacle_sweep_count}" value_B="1" return_on_mismatch="FAILURE">
+                  <Sequence name="SweepAgain">
+                    <SetBlackboard output_key="obstacle_verdict" value="MOVABLE"/>
+                    <SetBlackboard output_key="obstacle_action" value="SWEEP"/>
+                  </Sequence>
+                </BlackboardCheckString>
+                <Sequence name="SweepCapReached">
+                  <SetBlackboard output_key="obstacle_verdict" value="FIXED"/>
+                  <SetBlackboard output_key="obstacle_action" value="DETOUR"/>
+                </Sequence>
+              </Fallback>
               <AlwaysFailure name="HandVerdictToRecovery"/>
             </Sequence>
             <BlackboardCheckString name="NoVerdictYet" value_A="{obstacle_verdict}" value_B="none" return_on_mismatch="FAILURE">
@@ -85,6 +105,7 @@
                 <FollowPath path="{sweep_path}" controller_id="FollowPath"/>
                 <CreepToFace target="{sweep_face}"/>
                 <SweepObstacle action_name="/sweep" result_code="{sweep_result}"/>
+                <MarkObstacle obstacle="{path_obstacle}" topic="/mona/swept_objects/add"/>
                 <BackUp backup_dist="1.0" backup_speed="0.1"/>
                 <ClearEntireCostmap name="ClearLocalCostmap-AfterSweep" service_name="local_costmap/clear_entirely_local_costmap"/>
                 <SetBlackboard output_key="obstacle_verdict" value="none"/>

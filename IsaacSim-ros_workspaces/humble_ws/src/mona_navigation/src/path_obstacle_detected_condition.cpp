@@ -54,6 +54,7 @@ BT::NodeStatus PathObstacleDetectedCondition::tick()
     return BT::NodeStatus::FAILURE;
   }
   setOutput("obstacle", last_);
+  setOutput("sweep_count", std::to_string(last_.sweep_count));
   return BT::NodeStatus::SUCCESS;
 }
 

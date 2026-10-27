@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "scripts"))
 
 from path_obstacle_monitor import (  # noqa: E402
     costmap_cells_to_map, static_mask, find_path_obstacle, mark_mask, gap_merged_cells,
+    track_sweep, classify_tracked,
 )
 
 RES = 0.05
@@ -207,3 +208,66 @@ def test_13_extension_cells_stable_across_ticks():
     e1, _ = gap_merged_cells(cells, marks, RES, 0.44)
     e2, _ = gap_merged_cells(shifted, marks, RES, 0.44)
     assert {tuple(np.round(p, 6)) for p in e1} == {tuple(np.round(p, 6)) for p in e2}
+
+
+# --- sweep tracking (F1) ---
+ASSOC = 0.3
+SHIFT = 0.4
+S36E_MID = (30.60, -3.50)
+
+
+def s36e_tracked():
+    tracked = []
+    track_sweep(tracked, S36E_MID, (-1.0, 0.0), 0.0, ASSOC, SHIFT)
+    return tracked
+
+
+def test_14_track_sweep_entry_fields():
+    e = s36e_tracked()[0]
+    assert e["count"] == 1
+    assert tuple(e["heading"]) == approx((1.0, 0.0))
+    assert tuple(e["pred"]) == approx((30.60, -3.10))   # left of +x is +y
+
+
+def test_15_second_sweep_same_object_increments():
+    tracked = s36e_tracked()
+    track_sweep(tracked, (30.75, -3.12), (-1.0, 0.0), 1.0, ASSOC, SHIFT)  # near pred
+    assert len(tracked) == 1 and tracked[0]["count"] == 2
+    assert tuple(tracked[0]["mid"]) == approx((30.75, -3.12))
+    track_sweep(tracked, (30.70, -3.40), (-1.0, 0.0), 2.0, ASSOC, SHIFT)  # near old mid
+    assert len(tracked) == 1 and tracked[0]["count"] == 3
+
+
+def test_16_other_object_gets_own_entry():
+    tracked = s36e_tracked()
+    track_sweep(tracked, (30.60, -2.50), (-1.0, 0.0), 1.0, ASSOC, SHIFT)  # 1 m away
+    assert len(tracked) == 2 and [e["count"] for e in tracked] == [1, 1]
+
+
+def test_17_classify_s36e_numbers():
+    tracked = s36e_tracked()
+    e, outside = classify_tracked(tracked, (30.77, -3.14), CORRIDOR, ASSOC)
+    assert e is tracked[0] and outside          # perpendicular 0.36 > 0.27
+    e, outside = classify_tracked(tracked, (30.62, -3.48), CORRIDOR, ASSOC)
+    assert e is tracked[0] and not outside      # near mid, inside the corridor
+    e, outside = classify_tracked(tracked, (31.5, -3.0), CORRIDOR, ASSOC)
+    assert e is None and not outside
+
+
+def test_18_excluded_cluster_not_picked_farther_one_is():
+    ij = np.array(box(20, 21, 49, 50) + box(40, 41, 49, 50))
+    near_x = ORIGIN[0] + 21 * RES
+    xy = np.array([center(i, j) for i, j in ij])
+    path = np.array(PATH_X)
+    hit = find_path_obstacle(ij, xy, path, ROBOT, CORRIDOR, TRIGGER, RES)
+    assert hit["centroid"][0] == approx(near_x, abs=0.05)
+    hit = find_path_obstacle(ij, xy, path, ROBOT, CORRIDOR, TRIGGER, RES,
+                             skip=lambda c: c[0] < 0.5)
+    assert hit["centroid"][0] > 0.8
+    assert find_path_obstacle(ij, xy, path, ROBOT, CORRIDOR, TRIGGER, RES,
+                              skip=lambda c: True) is None
+
+
+def test_19_msg_has_sweep_count():
+    from mona_interfaces.msg import PathObstacle
+    assert PathObstacle().sweep_count == 0
