@@ -572,6 +572,24 @@ def test_publish_judge_model_provenance():
     assert _published_model(_bare_node(), {}) == "gemma4:e4b"        # ollama: self.model
 
 
+def test_publish_judge_image_goes_to_both_topics():
+    # /vlm/annotated (best effort, shared with periodic) and /vlm/judge_image (reliable,
+    # latched) carry the very same message.
+    node = _bare_node()
+    node.model = "gemma4:e4b"
+    annotated, judge_image = [], []
+    node.judgments_pub = SimpleNamespace(publish=lambda m: None)
+    node.annotated_pub = SimpleNamespace(publish=annotated.append)
+    node.judge_image_pub = SimpleNamespace(publish=judge_image.append)
+    node.bridge = SimpleNamespace(cv2_to_imgmsg=lambda img, encoding: SimpleNamespace(img=img))
+    obstacle = SimpleNamespace(along_m=1.0, width_m=0.5, n_cells=3,
+                               centroid=SimpleNamespace(x=1.0, y=0.0))
+    node._publish_judge(obstacle, {"latency_s": 0.1, "verdict": "MOVABLE", "label": "",
+                                   "detail": "x"},
+                        {"highlight": np.zeros((40, 60, 3), np.uint8), "header": None})
+    assert len(annotated) == 1 and judge_image == annotated
+
+
 # ---------------------------------------------------------------------------
 # RViz judgment marker spec
 
