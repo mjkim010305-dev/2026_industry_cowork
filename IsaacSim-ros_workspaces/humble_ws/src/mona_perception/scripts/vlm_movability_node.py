@@ -698,9 +698,10 @@ class VlmMovability(Node):
         self.mask_depth_tol = self.declare_parameter("mask_depth_tol", 0.3).value
         self.mask_min_px = int(self.declare_parameter("mask_min_px", 50).value)
         self.judge_frame_timeout = self.declare_parameter("judge_frame_timeout", 5.0).value
-        # ollama: the generative VLM above. logit: Qwen3.5 two-word probability from
-        # judge_server (a failure is an ERROR verdict, never a fallback to ollama).
-        self.judge_backend = self.declare_parameter("judge_backend", "ollama").value
+        # logit (default): Qwen3.5 two-word probability from judge_server (a failure
+        # is an ERROR verdict, never a fallback to ollama).
+        # ollama: the previous generative VLM above (kept).
+        self.judge_backend = self.declare_parameter("judge_backend", "logit").value
         if self.judge_backend not in ("ollama", "logit"):
             raise ValueError("judge_backend must be ollama|logit, got %r"
                              % self.judge_backend)
