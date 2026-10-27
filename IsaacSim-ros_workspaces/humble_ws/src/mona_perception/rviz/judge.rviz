@@ -34,12 +34,12 @@ Visualization Manager:
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /local_costmap/costmap
-        Update Topic:
-          Depth: 5
-          Durability Policy: Volatile
-          History Policy: Keep Last
-          Reliability Policy: Reliable
-          Value: /local_costmap/costmap_updates
+      Update Topic:
+        Depth: 5
+        Durability Policy: Volatile
+        History Policy: Keep Last
+        Reliability Policy: Reliable
+        Value: /local_costmap/costmap_updates
       Value: true
     - Class: rviz_default_plugins/Path
       Enabled: true
@@ -61,7 +61,7 @@ Visualization Manager:
       Name: Path Obstacle
       Topic:
         Depth: 5
-        Durability Policy: Transient Local
+        Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
         Value: /mona/path_obstacle/marker
