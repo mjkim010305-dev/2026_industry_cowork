@@ -10,7 +10,7 @@ Endpoints
 p = P(positive) = sigmoid(logprob(first option token) difference) at the next token after the prompt;
 p_ab / p_ba are the two option orders ("{A} or {B}" = positive/negative, then negative/positive), p is their mean.
 The image + context prefix is encoded once per request; each question/order only runs its suffix on a copy of the
-prefix cache. Bad request -> HTTP 400; model failure or prefix token mismatch -> HTTP 500 (no silent fallback).
+prefix cache. Bad request -> HTTP 400; model failure or prefix token mismatch, non-finite p -> HTTP 500 (no silent fallback).
 
 Single-threaded on purpose: the GPU model is not thread-safe, one request at a time.
 torch/transformers/PIL are imported only inside JudgeEngine so the pure helpers test without them.
@@ -22,6 +22,12 @@ import math
 import os
 import time
 from http.server import BaseHTTPRequestHandler, HTTPServer
+
+
+
+class BadRequest(ValueError):
+    """The client's request is wrong -> HTTP 400. Any other exception is a server failure -> HTTP 500."""
+
 
 DEFAULT_MODEL = '/home/ciderlab-server1/project/mona-scenes/weights/hf/Qwen3.5-4B'
 
@@ -41,6 +47,8 @@ def option_ids(vocab, word, other):
 def p_from_lp(la, lb):
     """P(a) from the two options' log-probs (two-way softmax)."""
     d = la - lb
+    if not math.isfinite(d):
+        raise ValueError(f'non-finite log-prob difference: {la} - {lb}')
     return 1.0 / (1.0 + math.exp(-d)) if d > -700 else 0.0
 
 
@@ -49,31 +57,31 @@ def combine(p_ab, p_ba):
 
 
 def parse_request(req):
-    """Validate a request dict -> (jpeg bytes, context, questions). Raises ValueError."""
+    """Validate a request dict -> (jpeg bytes, context, questions). Raises BadRequest."""
     if not isinstance(req, dict):
-        raise ValueError('body must be a JSON object')
+        raise BadRequest('body must be a JSON object')
     try:
         raw = base64.b64decode(req['image_jpeg_b64'], validate=True)
     except (KeyError, TypeError, ValueError) as e:
-        raise ValueError(f'image_jpeg_b64 missing/invalid: {e}')
+        raise BadRequest(f'image_jpeg_b64 missing/invalid: {e}')
     context = req.get('context', '')
     if not isinstance(context, str):
-        raise ValueError('context must be a string')
+        raise BadRequest('context must be a string')
     qs = req.get('questions')
     if not isinstance(qs, list) or not qs:
-        raise ValueError('questions must be a non-empty list')
+        raise BadRequest('questions must be a non-empty list')
     seen = set()
     for q in qs:
         if not isinstance(q, dict) or not isinstance(q.get('id'), str) or not isinstance(q.get('text'), str):
-            raise ValueError('each question needs string id and text')
+            raise BadRequest('each question needs string id and text')
         if q['id'] in seen:
-            raise ValueError(f"duplicate question id {q['id']}")
+            raise BadRequest(f"duplicate question id {q['id']}")
         seen.add(q['id'])
         if '{A}' not in q['text'] or '{B}' not in q['text']:
-            raise ValueError(f"question {q['id']}: text needs both {{A}} and {{B}}")
+            raise BadRequest(f"question {q['id']}: text needs both {{A}} and {{B}}")
         opts = q.get('options')
         if not isinstance(opts, list) or len(opts) != 2 or not all(isinstance(o, str) and o.strip() for o in opts):
-            raise ValueError(f"question {q['id']}: options must be two non-empty strings")
+            raise BadRequest(f"question {q['id']}: options must be two non-empty strings")
     return raw, context, qs
 
 
@@ -110,14 +118,14 @@ class JudgeEngine:
         try:
             return Image.open(io.BytesIO(jpeg)).convert('RGB')
         except Exception as e:  # PIL raises several types for bad data
-            raise ValueError(f'image_jpeg_b64 is not a decodable image: {e}')
+            raise BadRequest(f'image_jpeg_b64 is not a decodable image: {e}')
 
     def _ids(self, word, other):
         key = (word, other)
         if key not in self.opt_ids:
             ids = option_ids(self.vocab, word, other)
             if not ids:
-                raise ValueError(f'no vocab token matches option {word!r} (vs {other!r})')
+                raise BadRequest(f'no vocab token matches option {word!r} (vs {other!r})')
             self.opt_ids[key] = ids
         return self.opt_ids[key]
 
@@ -127,7 +135,7 @@ class JudgeEngine:
                                              enable_thinking=False)
 
     def score(self, img, context, questions):
-        """-> {id: {p, p_ab, p_ba}}. Raises ValueError (bad options) or RuntimeError (prefix mismatch)."""
+        """-> {id: {p, p_ab, p_ba}}. Raises BadRequest (bad options/prompt) or RuntimeError (prefix mismatch)."""
         import copy
         import torch
         vs = variants(context, questions)
@@ -138,7 +146,7 @@ class JudgeEngine:
         pre = os.path.commonprefix(texts)
         pre = pre[:pre.rfind('\n') + 1]  # cut on a line boundary -> stable tokenisation
         if '<|vision_end|>' not in pre:
-            raise ValueError('context + shared question text needs a line break after the image to cut a prefix')
+            raise BadRequest('context + shared question text needs a line break after the image to cut a prefix')
         pin = self.proc(text=[pre], images=[img], return_tensors='pt').to('cuda')
         n = pin['input_ids'].shape[1]
         with torch.no_grad():
@@ -190,7 +198,7 @@ def make_server(engine, host, port):
             try:
                 req = json.loads(self.rfile.read(int(self.headers.get('Content-Length', 0))))
                 self._send(200, handle_score(engine, req))
-            except (ValueError, json.JSONDecodeError) as e:  # JSONDecodeError is a ValueError
+            except (BadRequest, json.JSONDecodeError) as e:
                 self._send(400, {'error': str(e)})
             except Exception as e:  # model failure / prefix mismatch: report, keep serving
                 self._send(500, {'error': f'{type(e).__name__}: {e}'})
