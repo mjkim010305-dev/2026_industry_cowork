@@ -99,15 +99,27 @@ inline bool window_clear(
 
 enum class Side { NONE, LEFT, RIGHT };
 
+/// One side window beside an object of half width `half` (left = +y in the robot frame).
+inline bool side_window_clear(
+  const CostGrid & g, const Pose2D & robot, double half, double margin, double width,
+  double along_min, double along_len, uint8_t lethal, bool left)
+{
+  const double y_in = half + margin;
+  const double y0 = left ? y_in : -(y_in + width);
+  return window_clear(g, robot, along_min, along_min + along_len, y0, y0 + width, lethal);
+}
+
 /// Left window is tested first; if both are clear the result is LEFT.
 inline Side side_clear(
   const CostGrid & g, const Pose2D & robot, double half, double margin, double width,
   double along_min, double along_len, uint8_t lethal)
 {
-  const double y_in = half + margin;
-  const double x0 = along_min, x1 = along_min + along_len;
-  if (window_clear(g, robot, x0, x1, y_in, y_in + width, lethal)) {return Side::LEFT;}
-  if (window_clear(g, robot, x0, x1, -(y_in + width), -y_in, lethal)) {return Side::RIGHT;}
+  if (side_window_clear(g, robot, half, margin, width, along_min, along_len, lethal, true)) {
+    return Side::LEFT;
+  }
+  if (side_window_clear(g, robot, half, margin, width, along_min, along_len, lethal, false)) {
+    return Side::RIGHT;
+  }
   return Side::NONE;
 }
 

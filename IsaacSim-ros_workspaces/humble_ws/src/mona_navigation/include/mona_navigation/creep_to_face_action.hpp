@@ -146,6 +146,8 @@ public:
       BT::InputPort<double>("side_along_min", 0.2, "Side window start ahead of the base [m]"),
       BT::InputPort<double>("side_along_len", 1.3, "Side window length along x [m]"),
       BT::InputPort<std::string>("costmap_topic", "/local_costmap/costmap_raw", "nav2_msgs/Costmap for side_clear_stop"),
+      BT::InputPort<std::string>("global_costmap_topic", "/global_costmap/costmap_raw",
+        "Side window must also be clear here (static map: racks open at lidar height); empty = off"),
       BT::InputPort<int>("lethal", 254, "Cell value counted as lethal"),
       BT::InputPort<double>("min_travel", 0.0, "side_clear_stop is checked only after this odom distance in DRIVE [m]"),
       BT::OutputPort<std::string>("result", "REACHED / SIDE_CLEAR / STALLED / TIMEOUT / TF_ERROR"),
@@ -164,6 +166,9 @@ private:
   BT::NodeStatus fail(const char * reason, const char * result);
   BT::NodeStatus succeed(const char * msg);
   bool sideClear(const char *& side);
+  rclcpp::Subscription<nav2_msgs::msg::Costmap>::SharedPtr subscribeCostmap(
+    const std::string & topic, detail::CostGrid & grid, std::string & frame);
+  bool robotPose(const std::string & frame, detail::Pose2D & robot);
 
   rclcpp::Node::SharedPtr node_;
   std::shared_ptr<tf2_ros::Buffer> tf_buffer_;
@@ -189,6 +194,10 @@ private:
   rclcpp::Subscription<nav2_msgs::msg::Costmap>::SharedPtr costmap_sub_;
   detail::CostGrid grid_;
   std::string grid_frame_;
+  std::string global_costmap_topic_;
+  rclcpp::Subscription<nav2_msgs::msg::Costmap>::SharedPtr global_costmap_sub_;
+  detail::CostGrid global_grid_;
+  std::string global_grid_frame_;
   detail::TravelTracker travel_;
   Phase phase_ {Phase::ROTATE};
   double start_s_ {0.0};

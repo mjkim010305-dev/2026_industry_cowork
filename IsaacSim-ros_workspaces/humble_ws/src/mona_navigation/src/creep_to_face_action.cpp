@@ -109,22 +109,17 @@ BT::NodeStatus CreepToFaceAction::onStart()
     if (!costmap_sub_ || costmap_topic != costmap_topic_) {
       costmap_topic_ = costmap_topic;
       grid_ = detail::CostGrid();
-      rclcpp::SubscriptionOptions opts;
-      opts.callback_group = callback_group_;
-      costmap_sub_ = node_->create_subscription<nav2_msgs::msg::Costmap>(
-        costmap_topic_, rclcpp::QoS(1).reliable(),
-        [this](nav2_msgs::msg::Costmap::ConstSharedPtr m) {
-          detail::CostGrid g;
-          g.size_x = static_cast<int>(m->metadata.size_x);
-          g.size_y = static_cast<int>(m->metadata.size_y);
-          g.res = m->metadata.resolution;
-          g.ox = m->metadata.origin.position.x;
-          g.oy = m->metadata.origin.position.y;
-          g.data = m->data;
-          grid_ = std::move(g);
-          grid_frame_ = m->header.frame_id;
-        },
-        opts);
+      costmap_sub_ = subscribeCostmap(costmap_topic_, grid_, grid_frame_);
+    }
+    std::string global_topic = "/global_costmap/costmap_raw";
+    getInput("global_costmap_topic", global_topic);
+    if (global_topic != global_costmap_topic_ || (!global_topic.empty() && !global_costmap_sub_)) {
+      global_costmap_topic_ = global_topic;
+      global_grid_ = detail::CostGrid();
+      global_costmap_sub_.reset();
+      if (!global_costmap_topic_.empty()) {
+        global_costmap_sub_ = subscribeCostmap(global_costmap_topic_, global_grid_, global_grid_frame_);
+      }
     }
   }
 
@@ -208,15 +203,31 @@ BT::NodeStatus CreepToFaceAction::onRunning()
   return BT::NodeStatus::RUNNING;
 }
 
-bool CreepToFaceAction::sideClear(const char *& side)
+rclcpp::Subscription<nav2_msgs::msg::Costmap>::SharedPtr CreepToFaceAction::subscribeCostmap(
+  const std::string & topic, detail::CostGrid & grid, std::string & frame)
 {
-  // Callbacks run in callback_group_executor_.spin_all (onRunning); no concurrent access.
-  if (!grid_.valid()) {
-    return false;
-  }
-  detail::Pose2D robot;
+  rclcpp::SubscriptionOptions opts;
+  opts.callback_group = callback_group_;
+  return node_->create_subscription<nav2_msgs::msg::Costmap>(
+    topic, rclcpp::QoS(1).reliable(),
+    [&grid, &frame](nav2_msgs::msg::Costmap::ConstSharedPtr m) {
+      detail::CostGrid g;
+      g.size_x = static_cast<int>(m->metadata.size_x);
+      g.size_y = static_cast<int>(m->metadata.size_y);
+      g.res = m->metadata.resolution;
+      g.ox = m->metadata.origin.position.x;
+      g.oy = m->metadata.origin.position.y;
+      g.data = m->data;
+      grid = std::move(g);
+      frame = m->header.frame_id;
+    },
+    opts);
+}
+
+bool CreepToFaceAction::robotPose(const std::string & frame, detail::Pose2D & robot)
+{
   try {
-    const auto tf = tf_buffer_->lookupTransform(grid_frame_, base_frame_, tf2::TimePointZero);
+    const auto tf = tf_buffer_->lookupTransform(frame, base_frame_, tf2::TimePointZero);
     robot.x = tf.transform.translation.x;
     robot.y = tf.transform.translation.y;
     robot.yaw = detail::yaw_from_quat(tf.transform.rotation);
@@ -225,14 +236,36 @@ bool CreepToFaceAction::sideClear(const char *& side)
       node_->get_logger(), *node_->get_clock(), 2000, "CreepToFace: costmap TF %s", e.what());
     return false;
   }
-  switch (detail::side_clear(
-      grid_, robot, side_half_, side_margin_, side_width_, side_along_min_, side_along_len_,
-      static_cast<uint8_t>(lethal_)))
-  {
-    case detail::Side::LEFT: side = "left"; return true;
-    case detail::Side::RIGHT: side = "right"; return true;
-    default: return false;
+  return true;
+}
+
+bool CreepToFaceAction::sideClear(const char *& side)
+{
+  // Callbacks run in callback_group_executor_.spin_all (onRunning); no concurrent access.
+  detail::Pose2D robot, global_robot;
+  if (!grid_.valid() || !robotPose(grid_frame_, robot)) {
+    return false;
   }
+  // The local costmap has no static layer, so racks open at lidar height (legs only) look free:
+  // the window must also be clear in the global costmap (s36o).
+  const bool use_global = !global_costmap_topic_.empty();
+  if (use_global && (!global_grid_.valid() || !robotPose(global_grid_frame_, global_robot))) {
+    return false;
+  }
+  const auto lethal = static_cast<uint8_t>(lethal_);
+  for (const bool left : {true, false}) {
+    if (detail::side_window_clear(
+        grid_, robot, side_half_, side_margin_, side_width_, side_along_min_, side_along_len_,
+        lethal, left) &&
+      (!use_global || detail::side_window_clear(
+        global_grid_, global_robot, side_half_, side_margin_, side_width_, side_along_min_,
+        side_along_len_, lethal, left)))
+    {
+      side = left ? "left" : "right";
+      return true;
+    }
+  }
+  return false;
 }
 
 void CreepToFaceAction::onHalted()

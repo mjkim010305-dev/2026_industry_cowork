@@ -59,6 +59,15 @@ TEST(CostmapGeometry, LeftBlockedGivesRight)
   EXPECT_EQ(side_clear(g, {0, 0, 0}, 0.35, 0.05, 0.5, 0.2, 1.3, 254), Side::RIGHT);
 }
 
+TEST(CostmapGeometry, SideWindowPerSide)
+{
+  // CreepToFace combines one side across two grids (local + global static), side by side
+  auto g = make_grid();
+  set_box(g, 0.0, 2.0, 0.5, 1.0, 254);   // wall on the left
+  EXPECT_FALSE(side_window_clear(g, {0, 0, 0}, 0.35, 0.05, 0.5, 0.2, 1.3, 254, true));
+  EXPECT_TRUE(side_window_clear(g, {0, 0, 0}, 0.35, 0.05, 0.5, 0.2, 1.3, 254, false));
+}
+
 TEST(CostmapGeometry, BothBlockedGivesNone)
 {
   auto g = make_grid();
