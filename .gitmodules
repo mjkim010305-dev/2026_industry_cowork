@@ -1,0 +1,4 @@
+[submodule "IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation"]
+	path = IsaacSim-ros_workspaces/humble_ws/src/turtlebot3_manipulation
+	url = https://github.com/mjkim010305-dev/turtlebot3_manipulation.git
+	branch = cowork-2026
